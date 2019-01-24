@@ -127,6 +127,11 @@ export function configure(aurelia: Aurelia): void {
       ipcRenderer.on('update_download_progress', (event: Event, progress: any) => {
         // tslint:disable
         console.log(progress);
+
+        const messageTitle: string = `<h4>Update Progress:</h4>`;
+        const messageBody=`<progress value="${progress.percent}" max="100"></progress>`;
+
+        notificationService.showNonDisappearingNotification(NotificationType.INFO, `${messageTitle}\n${messageBody}`);
       });
 
       ipcRenderer.on('update_downloaded', () => {
