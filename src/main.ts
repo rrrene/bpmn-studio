@@ -124,8 +124,8 @@ export function configure(aurelia: Aurelia): void {
         notificationService.showNonDisappearingNotification(NotificationType.INFO, `${messageTitle}\n${messageBody}`);
       });
 
-      ipcRenderer.on('update_download_progress', (progress: Object) => {
-        // tslint:disable-next-line no-console
+      ipcRenderer.on('update_download_progress', (event: Event, progress: any) => {
+        // tslint:disable
         console.log(progress);
       });
 

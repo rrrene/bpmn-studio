@@ -130,7 +130,11 @@ Main._initializeApplication = function () {
         appReadyEvent.sender.send('update_error');
       });
 
-      autoUpdater.addListener('update-available', () => {
+      autoUpdater.addListener('download-progress', (progressObj) => {
+        appReadyEvent.sender.send('update_download_progress', progressObj);
+      })
+
+      autoUpdater.addListener('update-available', (info) => {
         appReadyEvent.sender.send('update_available', updateCheckResult.updateInfo.version);
 
         electron.ipcMain.on('download_update', () => {
@@ -152,7 +156,7 @@ Main._initializeApplication = function () {
 
       autoUpdater.on('download-progress', (ev, progressObj) => {
         appReadyEvent.sender.send('update_download_progress', progressObj);
-      })
+      });
 
       autoUpdater.addListener('update-downloaded', (info) => {
         appReadyEvent.sender.send('update_downloaded');
