@@ -150,7 +150,12 @@ Main._initializeApplication = function () {
         });
       });
 
-      autoUpdater.addListener('update-downloaded', () => {
+      autoUpdater.on('download-progress', (ev, progressObj) => {
+        appReadyEvent.sender.send('update_download_progress', progressObj);
+      })
+
+      autoUpdater.addListener('update-downloaded', (info) => {
+        appReadyEvent.sender.send('update_downloaded');
         appReadyEvent.sender.send('update_downloaded');
 
         electron.ipcMain.on('quit_and_install', () => {

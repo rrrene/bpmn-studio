@@ -124,6 +124,10 @@ export function configure(aurelia: Aurelia): void {
         notificationService.showNonDisappearingNotification(NotificationType.INFO, `${messageTitle}\n${messageBody}`);
       });
 
+      ipcRenderer.on('update_download_progress', (progress: Object) => {
+        console.log(progress);
+      });
+
       ipcRenderer.on('update_downloaded', () => {
         // tslint:disable-next-line max-line-length
         const installButton: string = `<a class="btn btn-default" style="color: #000000;" href="javascript:nodeRequire('electron').ipcRenderer.send('quit_and_install')">Install</a>`;
