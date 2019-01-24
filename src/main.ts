@@ -125,6 +125,7 @@ export function configure(aurelia: Aurelia): void {
       });
 
       ipcRenderer.on('update_download_progress', (progress: Object) => {
+        // tslint:disable-next-line no-console
         console.log(progress);
       });
 
