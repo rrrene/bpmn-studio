@@ -131,7 +131,11 @@ Main._initializeApplication = function () {
       });
 
       autoUpdater.addListener('download-progress', (progressObj) => {
-        appReadyEvent.sender.send('update_download_progress', progressObj);
+        const progressInPercent = progressObj.percent / 100;
+
+        Main._window.setProgressBar(progressInPercent);
+
+        event.sender.send('update_download_progress', progressObj);
       })
 
       autoUpdater.addListener('update-available', (info) => {
