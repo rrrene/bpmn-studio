@@ -4,10 +4,19 @@ import {Router} from 'aurelia-router';
 
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import {DiffMode, ISolutionEntry, ISolutionService} from '../../contracts/index';
+import {DiffMode, ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
 import environment from '../../environment';
+import { NotificationService } from '../notification/notification.service';
 
-@inject(EventAggregator, Router, 'SolutionService')
+type UpdateProgressData = {
+  bytesPerSecond: number
+  delta: number
+  percent: number
+  total: number
+  transferred: number,
+};
+
+@inject(EventAggregator, Router, 'SolutionService', 'NotificationService')
 export class StatusBar {
 
   public showDiagramViewButtons: boolean = false;
@@ -21,6 +30,8 @@ export class StatusBar {
   public showInspectPanel: boolean = true;
   public activeSolutionEntry: ISolutionEntry;
   public activeDiagram: IDiagram;
+  public updateProgressData: UpdateProgressData;
+  public updateAvailable: boolean = false;
 
   public DiffMode: typeof DiffMode = DiffMode;
 
@@ -29,11 +40,57 @@ export class StatusBar {
   private _solutionService: ISolutionService;
   private _subscriptions: Array<Subscription>;
   private _designView: string;
+  private _ipcRenderer: any;
+  private _notificationService: NotificationService;
 
-  constructor(eventAggregator: EventAggregator, router: Router, solutionService: ISolutionService) {
+  constructor(eventAggregator: EventAggregator, router: Router, solutionService: ISolutionService, notificationService: NotificationService) {
     this._eventAggregator = eventAggregator;
     this._router = router;
     this._solutionService = solutionService;
+    this._notificationService = notificationService;
+
+    const applicationRunsInElectron: boolean = (window as any).nodeRequire !== undefined;
+    if (applicationRunsInElectron) {
+      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+
+      this._ipcRenderer.on('update_error', () => {
+        notificationService.showNotification(NotificationType.INFO, 'Update Error!');
+      });
+
+      this._ipcRenderer.on('update_available', (_: Event, version: string) => {
+        this.updateAvailable = true;
+
+        const message: string = `<h5>Version ${version} available.</h5>
+        <h6>
+          <a href="#" onclick="showReleaseNotes(event)">
+            Click here for Releasenotes
+          </a>
+        </h6>
+        <script>
+          function showReleaseNotes(event) {
+            event.stopPropagation();
+            nodeRequire('electron').ipcRenderer.send('show_release_notes');
+          }
+        </script>`;
+
+        this._notificationService.showNonDisappearingNotification(NotificationType.INFO, message);
+      });
+
+      this._ipcRenderer.on('update_download_progress', (event: Event, updateProgressData: any) => {
+        this.updateProgressData = updateProgressData;
+      });
+
+      this._ipcRenderer.on('update_downloaded', () => {
+        // tslint:disable-next-line max-line-length
+        const installButton: string = `<a class="btn btn-default" style="color: #000000;" href="javascript:nodeRequire('electron').ipcRenderer.send('quit_and_install')">Install</a>`;
+        const cancelButton: string = `<a class="btn btn-default" style="color: #000000;" href="#">Cancel</a>`;
+
+        const messageTitle: string = '<h4>Update ready!</h4>';
+        const messageBody: string = `${cancelButton} ${installButton}`;
+
+        this._notificationService.showNonDisappearingNotification(NotificationType.INFO, `${messageTitle}\n${messageBody}`);
+      });
+    }
   }
 
   public async attached(): Promise<void> {
@@ -121,6 +178,10 @@ export class StatusBar {
     this.showInspectPanel = !this.showInspectPanel;
 
     this._eventAggregator.publish(environment.events.inspectCorrelation.showInspectPanel, this.showInspectPanel);
+  }
+
+  public startUpdate(): void {
+    this._ipcRenderer.send('download_update');
   }
 
   private _refreshRightButtons(): void {

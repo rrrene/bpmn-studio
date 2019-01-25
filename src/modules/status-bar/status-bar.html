@@ -5,7 +5,9 @@
   -->
   <div class="status-bar status-bar--system-macos" id="statusBarContainer">
     <div class="status-bar__left-bar" id="statusBarLeft">
-
+      <a if.bind="updateAvailable" click.delegate="startUpdate()" style="height: 15px; width: 15px;">
+        <img src="src/resources/images/icon.png" style="height: 15px;" title.bind="updateProgressData !== undefined ? updateProgressData.percent.toString() + '%' : ''">
+      </a>
     </div>
     <div class="status-bar__center-bar" id="statusBarCenter">
       <div if.bind="showInspectCorrelationButtons">
