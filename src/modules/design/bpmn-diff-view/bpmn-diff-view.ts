@@ -73,6 +73,7 @@ export class BpmnDiffView {
   private _subscriptions: Array<Subscription>;
   private _elementNameService: ElementNameService;
   private _diffDestination: string = 'lastSaved';
+  private _diagramName: string;
   private _solutionService: SolutionService;
 
   constructor(notificationService: NotificationService,
@@ -117,10 +118,10 @@ export class BpmnDiffView {
         this.showChangeList = !this.showChangeList;
       }),
 
-      this._eventAggregator.subscribe(environment.events.diffView.setDiffDestination, async(diffDestination: string) => {
-        this._diffDestination = diffDestination;
+      this._eventAggregator.subscribe(environment.events.diffView.setDiffDestination, async(data: Array<string>) => {
+        [this._diffDestination, this._diagramName] = data;
 
-        const diffLastSavedXml: boolean = diffDestination === 'lastSaved';
+        const diffLastSavedXml: boolean = this._diffDestination === 'lastSaved';
         if (diffLastSavedXml) {
           this._setSavedProcessModelAsPreviousXml();
         } else {
@@ -232,6 +233,7 @@ export class BpmnDiffView {
     rightCanvas.viewbox(changedViewbox);
   }
 
+  /////
   private async _updateDeployedXml(): Promise<boolean> {
     const activeSolutionEntry: ISolutionEntry = this._solutionService.getSolutionEntryForUri(this._diffDestination);
 
@@ -240,9 +242,12 @@ export class BpmnDiffView {
       return false;
     }
 
+    const diagramName: string = this._diagramName ? this._diagramName : this.processModelId;
+    // this._diagramName = undefined;
+
     const getXmlFromDeployed: () => Promise<string> = (async(): Promise<string> => {
       try {
-        const diagram: IDiagram = await activeSolutionEntry.service.loadDiagram(this.processModelId);
+        const diagram: IDiagram = await activeSolutionEntry.service.loadDiagram(diagramName);
 
         const diagramFound: boolean = diagram !== undefined;
 
