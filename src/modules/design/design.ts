@@ -205,8 +205,16 @@ export class Design {
     return activationStrategy.invokeLifecycle;
   }
 
-  public setDiffDestination(diffDestination: string): void {
-    this._eventAggregator.publish(environment.events.diffView.setDiffDestination, diffDestination);
+  public setDiffDestination(diffDestination: string, diagramName?: string): void {
+    this._eventAggregator.publish(environment.events.diffView.setDiffDestination,
+      [
+        diffDestination,
+        diagramName,
+      ]);
+
+    this.selectDiagramModal = false;
+  }
+
   public async openSelectDiagramModal(): Promise<void> {
     const allSolutions: Array<ISolutionEntry> = this._solutionService.getAllSolutions();
 
