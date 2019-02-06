@@ -8,7 +8,7 @@ import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
 import {bindable, bindingMode, inject} from 'aurelia-framework';
 import {activationStrategy, NavigationInstruction, Redirect, Router} from 'aurelia-router';
 
-import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 
 import {ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
 import environment from '../../environment';
@@ -36,6 +36,7 @@ export class Design {
 
   public showQuitModal: boolean;
   public showLeaveModal: boolean;
+  public selectDiagramModal: boolean;
 
   public showDetail: boolean = true;
   public showXML: boolean;
@@ -46,6 +47,9 @@ export class Design {
   public design: Design = this;
 
   public diagramDetail: DiagramDetail;
+  public filteredSolutions: Array<ISolution> = [];
+  public diagramArray: Array<IDiagram | object> = [];
+  public selectedDiagram: {diagram: IDiagram, solutionName: string};
 
   private _eventAggregator: EventAggregator;
   private _notificationService: NotificationService;
@@ -203,6 +207,40 @@ export class Design {
 
   public setDiffDestination(diffDestination: string): void {
     this._eventAggregator.publish(environment.events.diffView.setDiffDestination, diffDestination);
+  public async openSelectDiagramModal(): Promise<void> {
+    const allSolutions: Array<ISolutionEntry> = this._solutionService.getAllSolutions();
+
+    const loadedSolutionPromises: Array<Promise<ISolution>> = allSolutions.map(async(value: ISolutionEntry) => {
+      const loadedSolution: ISolution = await value.service.loadSolution();
+      return loadedSolution;
+    });
+
+    const loadedSolutions: Array<ISolution> = await Promise.all(loadedSolutionPromises);
+    this.filteredSolutions = loadedSolutions.filter((solution: ISolution) => {
+
+      return solution.diagrams.length !== 0;
+    });
+
+    loadedSolutions.forEach((solution: ISolution) => {
+      solution.diagrams.forEach((diagram: IDiagram) => {
+        const diagramWithSolutionName: { diagram: IDiagram, solutionName: string, solutionUri: string } = {
+          diagram,
+          solutionName: solution.name,
+          solutionUri: solution.uri,
+        };
+        this.diagramArray.push(diagramWithSolutionName);
+      });
+    });
+
+    this.selectDiagramModal = true;
+  }
+
+  // public diffWithDiagram(selectedDiagram: {diagram: IDiagram, solutionName: string}): void {
+
+  // }
+
+  public cancelDialog(): void {
+    this.selectDiagramModal = false;
   }
 
   public togglePanel(): void {
