@@ -127,6 +127,12 @@ export class BpmnDiffView {
           this._setSavedProcessModelAsPreviousXml();
         } else {
           const updatingDeployedXmlWasSuccessfull: boolean = await this._updateDeployedXml();
+          const diagramNameIsNotUndefined: boolean = this._diagramName !== undefined;
+
+          if (updatingDeployedXmlWasSuccessfull && diagramNameIsNotUndefined) {
+            this._setCustomProcessModelAsPreviousXml();
+            return;
+          }
 
           if (updatingDeployedXmlWasSuccessfull) {
             this._setDeployedProcessModelAsPreviousXml();
