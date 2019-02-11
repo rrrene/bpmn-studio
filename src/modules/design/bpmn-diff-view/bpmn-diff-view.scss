@@ -50,6 +50,8 @@
   left: 10px;
   background: white;
   font-size: 20px;
+  padding-right: 80px;
+  width: 100%;
 }
 
 .diff-button-hint {
@@ -133,6 +135,11 @@
 .diff-summary__change-type {
   display: inline-block;
   position: relative;
+}
+
+.diffMode {
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .badge-red {
