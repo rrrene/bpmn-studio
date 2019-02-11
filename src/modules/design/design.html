@@ -129,7 +129,7 @@
     <modal show.bind="showStartEventModal"
           header-text="Select initial StartEvent"
           body-text="Your process has unsaved changes. Save changes to diagram before starting the process?">
-      <template <template replace-part="modal-body">
+      <template replace-part="modal-body">
         This process contains more than one start event.<br>
         Please select a start event that should be used to start the process.
         <div>
@@ -144,5 +144,20 @@
         <button type="button" class="btn btn-default" data-dismiss="modal" id="startProcessWithSelectedStartEvent" click.delegate="diagramDetail.continueStarting()" disabled.bind="!diagramDetail.selectedStartEventId">Start Process</button>
       </template>
     </modal>
+
+    <modal show.bind="selectDiagramModal" 
+           header-text="Choose Diagram">
+    <template replace-part="modal-body">
+      <select value.bind="selectedDiagram" class="process-start-event-modal-dialog__dropdown-menu">
+        <option>Select Diagram</option>
+        <option repeat.for="diagram of diagramArray" model.bind="diagram">${diagram.solutionName} | ${diagram.diagram.name}</option>
+      </select>
+    </template>
+    <template replace-part="modal-footer">
+      <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelDiagramSelection" click.delegate="cancelDialog()">Cancel</button>
+      <button type="button" class="btn btn-default" data-dismiss="modal" id="chooseDiagram" click.delegate="setDiffDestination(selectedDiagram.solutionUri, selectedDiagram.diagram.name)">Diff</button>
+    </template>
+  </modal>
+
   </div>
 </template>
