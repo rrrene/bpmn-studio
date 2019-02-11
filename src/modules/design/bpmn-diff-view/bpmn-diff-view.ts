@@ -47,7 +47,6 @@ export class BpmnDiffView {
   public rightCanvasModel: HTMLElement;
   public lowerCanvasModel: HTMLElement;
   public currentDiffMode: DiffMode = DiffMode.NewVsOld;
-  public diffModeTitle: string = '';
   public showChangeList: boolean;
   public noChangesExisting: boolean = true;
   public noChangesReason: string;
@@ -474,12 +473,8 @@ export class BpmnDiffView {
 
     if (diffModeIsNewVsOld) {
       this._updateLowerDiff(this.currentXml);
-      this.diffModeTitle = `${this.currentXmlIdentifier} vs. ${this.previousXmlIdentifier}`;
     } else if (diffModeIsOldVsNew) {
       this._updateLowerDiff(this.previousXml);
-      this.diffModeTitle = `${this.previousXmlIdentifier} vs. ${this.currentXmlIdentifier}`;
-    } else {
-      this.diffModeTitle = '';
     }
   }
 
