@@ -60,6 +60,8 @@ export class BpmnDiffView {
     layoutChanged: [],
   };
   public showSavedXml: boolean = true;
+  public diffModeIsNewVsOld: boolean;
+  public diffModeIsOldVsNew: boolean;
 
   private _notificationService: NotificationService;
   private _eventAggregator: EventAggregator;
@@ -468,12 +470,12 @@ export class BpmnDiffView {
   }
 
   private _updateDiffView(): void {
-    const diffModeIsNewVsOld: boolean = this.currentDiffMode === DiffMode.NewVsOld;
-    const diffModeIsOldVsNew: boolean = this.currentDiffMode === DiffMode.OldVsNew;
+    this.diffModeIsNewVsOld = this.currentDiffMode === DiffMode.NewVsOld;
+    this.diffModeIsOldVsNew = this.currentDiffMode === DiffMode.OldVsNew;
 
-    if (diffModeIsNewVsOld) {
+    if (this.diffModeIsNewVsOld) {
       this._updateLowerDiff(this.currentXml);
-    } else if (diffModeIsOldVsNew) {
+    } else if (this.diffModeIsOldVsNew) {
       this._updateLowerDiff(this.previousXml);
     }
   }
