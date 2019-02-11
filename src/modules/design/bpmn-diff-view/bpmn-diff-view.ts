@@ -201,6 +201,21 @@ export class BpmnDiffView {
       ]);
   }
 
+  public _setCustomProcessModelAsPreviousXml(): void {
+    this.previousXml = this.deployedXml;
+
+    this.previousXmlIdentifier = this._diagramName;
+    this.currentXmlIdentifier = this.processModelId;
+
+    this._eventAggregator.publish(environment.events.statusBar.setXmlIdentifier,
+      [
+        this.previousXmlIdentifier,
+        this.currentXmlIdentifier,
+      ]);
+
+    this._diagramName = undefined;
+  }
+
   public _setSavedProcessModelAsPreviousXml(): void {
     this.previousXml = this.savedXml;
 
