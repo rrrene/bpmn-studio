@@ -30,8 +30,10 @@
         <div class="dropdown-menu">
           <li class="dropdown-item" click.delegate="setDiffDestination('lastSaved')">Last saved version</li>
           <li repeat.for="solution of remoteSolutions" class="dropdown-item" click.delegate="setDiffDestination(solution.uri)">${solution.uri}</li>
-          <li class="dropdown-item" click.delegate="openSelectDiagramModal()">Choose another one</li>
         </div>
+        <button type="button" if.bind="!showPropertyPanelButton" class="design-layout__tool design__diff-destination-button dropdown-toggle" title="Diff against other diagrams" click.delegate="openSelectDiagramModal()">
+          <i class="fas fa-list-ul"></i>
+        </button>
       </div>
     </div>
 
