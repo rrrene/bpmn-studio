@@ -74,3 +74,28 @@
   display: inline-flex;
   float: left;
 }
+
+.diffMode {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 100%;
+  /* display: block; */
+  white-space: nowrap;
+}
+
+.left_diff-view {
+  width: 280px;
+  display: inline-flex;
+}
+
+.identifier {
+  margin-right: 5px;
+  margin-left: 5px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 200px;
+}
+
+.arrow-icon {
+  margin-top: 2px;
+}
