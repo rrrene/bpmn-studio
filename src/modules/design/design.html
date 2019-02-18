@@ -150,7 +150,7 @@
     <modal show.bind="selectDiagramModal" 
            header-text="Choose Diagram">
     <template replace-part="modal-body">
-      <select value.bind="selectedDiagram" class="process-start-event-modal-dialog__dropdown-menu">
+      <select value.bind="selectedDiagram" class="diagram-list_dropdown">
         <option>Select Diagram</option>
         <option repeat.for="diagram of diagramArray" model.bind="diagram">${diagram.solutionName} | ${diagram.diagram.name}</option>
       </select>
