@@ -23,9 +23,9 @@
             <i class="fas fa-sliders-h"></i>
           </button>
         </div>
-        <button type="button" if.bind="showDiffDestinationButton" class="design-layout__tool design__diff-destination-button dropdown-toggle" title.bind="remoteSolutions.length > 0 ? 'Set diff destination' : 'There is no other diff destination'" disabled.bind="remoteSolutions.length < 1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-database" class.bind="remoteSolutions.length < 1 ? 'design__diff-destination-button--disabled' : ''"></i>
-          <i class="fas fa-angle-down start-options__icon" class.bind="remoteSolutions.length < 1 ? 'design__diff-destination-button--disabled' : ''"></i>
+        <button type="button" if.bind="showDiffDestinationButton" class="design-layout__tool design__diff-destination-button dropdown-toggle" class.bind="remoteSolutions.length < 1 ? 'design__diff-destination-button--disabled' : ''" title.bind="remoteSolutions.length > 0 ? 'Set diff destination' : 'There is no other diff destination'" disabled.bind="remoteSolutions.length < 1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-database"></i>
+          <i class="fas fa-angle-down start-options__icon"></i>
         </button>
         <div class="dropdown-menu">
           <li class="dropdown-item" click.delegate="setDiffDestination('lastSaved')">Last saved version</li>
