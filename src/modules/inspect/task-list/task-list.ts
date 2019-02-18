@@ -141,8 +141,8 @@ export class TaskList {
   public continueTask(taskWithProcessModel: IUserTaskWithProcessModel & IManualTaskWithProcessModel): void {
     const taskIsAnUserTask: boolean = taskWithProcessModel.userTask !== undefined;
     const taskToProcess: DataModels.UserTasks.UserTask | DataModels.ManualTasks.ManualTask = taskIsAnUserTask
-      ? taskWithProcessModel.userTask
-      : taskWithProcessModel.manualTask;
+                                                                                           ? taskWithProcessModel.userTask
+                                                                                           : taskWithProcessModel.manualTask;
 
     const correlationId: string = taskToProcess.correlationId;
 
@@ -151,8 +151,8 @@ export class TaskList {
     const taskIsFromCallActivity: boolean = taskWithProcessModel.processModel.id !== tasksProcessModelId;
 
     const processModelId: string = taskIsFromCallActivity
-      ? tasksProcessModelId
-      : taskWithProcessModel.processModel.id;
+                                 ? tasksProcessModelId
+                                 : taskWithProcessModel.processModel.id;
 
     const taskId: string = taskToProcess.id;
 

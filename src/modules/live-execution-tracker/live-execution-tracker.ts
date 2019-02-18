@@ -121,8 +121,8 @@ export class LiveExecutionTracker {
     this._parentProcessModelId = await this._getParentProcessModelId();
 
     const routeParameterContainTaskId: boolean = routeParameters.taskId !== undefined
-      && routeParameters.taskId !== null
-      && routeParameters.taskId !== '';
+                                              && routeParameters.taskId !== null
+                                              && routeParameters.taskId !== '';
 
     if (routeParameterContainTaskId) {
       this.taskId = routeParameters.taskId;
@@ -195,7 +195,7 @@ export class LiveExecutionTracker {
     const colorizingFailed: boolean = colorizedXml === undefined;
     if (colorizingFailed) {
       const notificationMessage: string = 'Could not get tokens. '
-        + 'Please try reopening the Live Execution Tracker or restarting the process.';
+                                        + 'Please try reopening the Live Execution Tracker or restarting the process.';
 
       this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
 
@@ -307,10 +307,10 @@ export class LiveExecutionTracker {
     // Get all elements that can have a token
     const allElements: Array<IShape> = this._elementRegistry.filter((element: IShape): boolean => {
       const elementCanHaveAToken: boolean = element.type !== 'bpmn:SequenceFlow'
-        && element.type !== 'bpmn:Collaboration'
-        && element.type !== 'bpmn:Participant'
-        && element.type !== 'bpmn:Lane'
-        && element.type !== 'label';
+                                         && element.type !== 'bpmn:Collaboration'
+                                         && element.type !== 'bpmn:Participant'
+                                         && element.type !== 'bpmn:Lane'
+                                         && element.type !== 'label';
 
       return elementCanHaveAToken;
     });
@@ -418,7 +418,7 @@ export class LiveExecutionTracker {
 
     const activeManualAndUserTasks: Array<IShape> = elements.filter((element: IShape) => {
       const elementIsAUserOrManualTask: boolean = element.type === 'bpmn:UserTask'
-        || element.type === 'bpmn:ManualTask';
+                                               || element.type === 'bpmn:ManualTask';
 
       return elementIsAUserOrManualTask;
     });
@@ -693,7 +693,7 @@ export class LiveExecutionTracker {
     this.selectedFlowNode = event.element;
 
     const clickedElementIsNotAUserOrManualTask: boolean = clickedElement.type !== 'bpmn:UserTask'
-      && clickedElement.type !== 'bpmn:ManualTask';
+                                                       && clickedElement.type !== 'bpmn:ManualTask';
 
     if (clickedElementIsNotAUserOrManualTask) {
       return;
@@ -1049,7 +1049,7 @@ export class LiveExecutionTracker {
       const couldNotGetXml: boolean = xml === undefined;
       if (couldNotGetXml) {
         const notificationMessage: string = 'XML could not be found. If the error persists, '
-          + 'try reopening the Live Execution Tracker or restarting the process.';
+                                          + 'try reopening the Live Execution Tracker or restarting the process.';
 
         this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
 
@@ -1067,7 +1067,7 @@ export class LiveExecutionTracker {
       const colorizingFailed: boolean = colorizedXml === undefined;
       if (colorizingFailed) {
         const notificationMessage: string = 'Could not get tokens. If the error persists, '
-          + 'try reopening the Live Execution Tracker or restarting the process.';
+                                          + 'try reopening the Live Execution Tracker or restarting the process.';
 
         this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
 
