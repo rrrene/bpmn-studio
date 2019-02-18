@@ -139,13 +139,13 @@ export class TaskList {
   }
 
   public continueTask(taskWithProcessModel: IUserTaskWithProcessModel & IManualTaskWithProcessModel): void {
-    const taskIsAnUserTask: boolean = taskWithProcessModel.userTask !== undefined;
+    const taskIsAUserTask: boolean = taskWithProcessModel.userTask !== undefined;
 
-    const correlationId: string = taskIsAnUserTask
+    const correlationId: string = taskIsAUserTask
       ? taskWithProcessModel.userTask.correlationId
       : taskWithProcessModel.manualTask.correlationId;
 
-    const tasksProcessModelId: string = taskIsAnUserTask
+    const tasksProcessModelId: string = taskIsAUserTask
       ? taskWithProcessModel.userTask.processModelId
       : taskWithProcessModel.manualTask.processModelId;
 
@@ -155,11 +155,11 @@ export class TaskList {
       ? tasksProcessModelId
       : taskWithProcessModel.processModel.id;
 
-    const taskId: string = taskIsAnUserTask
+    const taskId: string = taskIsAUserTask
       ? taskWithProcessModel.userTask.id
       : taskWithProcessModel.manualTask.id;
 
-    const processInstanceId: string = taskIsAnUserTask
+    const processInstanceId: string = taskIsAUserTask
       ? taskWithProcessModel.userTask.processInstanceId
       : taskWithProcessModel.manualTask.processInstanceId;
 
@@ -289,7 +289,7 @@ export class TaskList {
       return otherCorrelation.id === correlationId;
     });
 
-    const correlationWasNotFound: boolean = correlation === undefined || correlation === null;
+    const correlationWasNotFound: boolean = !correlation;
     if (correlationWasNotFound) {
       throw new NotFoundError(`No correlation found with id ${correlationId}.`);
     }

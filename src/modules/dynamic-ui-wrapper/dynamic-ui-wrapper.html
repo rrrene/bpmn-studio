@@ -2,12 +2,14 @@
   <require from="./dynamic-ui-wrapper.css"></require>
   <template if.bind="isHandlingUserTask">
     <dynamic-usertask-component submitted.delegate="handleUserTaskButtonClick('proceed', $event.detail)"
-      canceled.delegate="handleUserTaskButtonClick('cancel')" usertask.bind="currentUserTask">
+      canceled.delegate="handleUserTaskButtonClick('cancel')"
+      usertask.bind="currentUserTask">
     </dynamic-usertask-component>
   </template>
   <template if.bind="isHandlingManualTask">
     <manualtask-component manualtask.bind="currentManualTask"
       continued.delegate="handleManualTaskButtonClick('proceed')"
-      canceled.delegate="handleManualTaskButtonClick('cancel')"></manualtask-component>
+      canceled.delegate="handleManualTaskButtonClick('cancel')">
+    </manualtask-component>
   </template>
 </template>

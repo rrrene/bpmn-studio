@@ -120,10 +120,11 @@ export class LiveExecutionTracker {
     this._parentProcessInstanceId = await this._getParentProcessInstanceId();
     this._parentProcessModelId = await this._getParentProcessModelId();
 
-    const hasTaskId: boolean = routeParameters.taskId !== undefined
-      && routeParameters.taskId !== null && routeParameters.taskId !== '';
+    const routeParameterContainTaskId: boolean = routeParameters.taskId !== undefined
+      && routeParameters.taskId !== null
+      && routeParameters.taskId !== '';
 
-    if (hasTaskId) {
+    if (routeParameterContainTaskId) {
       this.taskId = routeParameters.taskId;
       this.showDynamicUiModal = true;
     }
