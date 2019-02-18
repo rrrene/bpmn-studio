@@ -7,17 +7,20 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
 
 import {
-  IBooleanFormField,
   IDynamicUiService,
-  IEnumFormField,
   ISolutionEntry,
-  IStringFormField,
 } from '../../contracts';
+
+enum ButtonClickActions {
+  cancel = 'cancel',
+  process = 'proceed',
+  decline = 'decline',
+}
 
 @inject('DynamicUiService', Router, Element)
 export class DynamicUiWrapper {
 
-  public onButtonClick: (action: 'cancel' | 'proceed' | 'decline') => void;
+  public onButtonClick: (action: ButtonClickActions) => void;
   @bindable() public currentUserTask: DataModels.UserTasks.UserTask;
   @bindable() public currentManualTask: DataModels.ManualTasks.ManualTask;
 
@@ -48,8 +51,8 @@ export class DynamicUiWrapper {
     this._activeSolutionEntry = solutionEntry;
   }
 
-  public async handleUserTaskButtonClick(action: 'cancel' | 'proceed', userTask: any): Promise<void> {
-    const actionCanceled: boolean = action === 'cancel';
+  public async handleUserTaskButtonClick(action: ButtonClickActions, userTask: any): Promise<void> {
+    const actionCanceled: boolean = action === ButtonClickActions.cancel;
 
     if (actionCanceled) {
       this._cancelTask();
@@ -60,8 +63,8 @@ export class DynamicUiWrapper {
     this._finishUserTask(action, userTask);
   }
 
-  public async handleManualTaskButtonClick(action: 'cancel' | 'proceed'): Promise<void> {
-    const actionCanceled: boolean = action === 'cancel';
+  public async handleManualTaskButtonClick(action: ButtonClickActions): Promise<void> {
+    const actionCanceled: boolean = action === ButtonClickActions.cancel;
 
     if (actionCanceled) {
       this._cancelTask();
@@ -95,7 +98,7 @@ export class DynamicUiWrapper {
     });
   }
 
-  private _finishUserTask(action: 'cancel' | 'proceed' | 'decline', userTask: any): Promise<void> {
+  private _finishUserTask(action: ButtonClickActions, userTask: any): Promise<void> {
     const noUserTaskKnown: boolean = !this.isHandlingUserTask;
 
     if (noUserTaskKnown) {
@@ -141,7 +144,7 @@ export class DynamicUiWrapper {
 
     const buttonClickHandlerExists: boolean = this.onButtonClick !== undefined;
     if (buttonClickHandlerExists) {
-      this.onButtonClick('proceed');
+      this.onButtonClick(ButtonClickActions.process);
     }
   }
 }

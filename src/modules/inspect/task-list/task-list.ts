@@ -139,15 +139,14 @@ export class TaskList {
   }
 
   public continueTask(taskWithProcessModel: IUserTaskWithProcessModel & IManualTaskWithProcessModel): void {
-    const taskIsAUserTask: boolean = taskWithProcessModel.userTask !== undefined;
+    const taskIsAnUserTask: boolean = taskWithProcessModel.userTask !== undefined;
+    const taskToProcess: DataModels.UserTasks.UserTask | DataModels.ManualTasks.ManualTask = taskIsAnUserTask
+      ? taskWithProcessModel.userTask
+      : taskWithProcessModel.manualTask;
 
-    const correlationId: string = taskIsAUserTask
-      ? taskWithProcessModel.userTask.correlationId
-      : taskWithProcessModel.manualTask.correlationId;
+    const correlationId: string = taskToProcess.correlationId;
 
-    const tasksProcessModelId: string = taskIsAUserTask
-      ? taskWithProcessModel.userTask.processModelId
-      : taskWithProcessModel.manualTask.processModelId;
+    const tasksProcessModelId: string = taskToProcess.processModelId;
 
     const taskIsFromCallActivity: boolean = taskWithProcessModel.processModel.id !== tasksProcessModelId;
 
@@ -155,13 +154,9 @@ export class TaskList {
       ? tasksProcessModelId
       : taskWithProcessModel.processModel.id;
 
-    const taskId: string = taskIsAUserTask
-      ? taskWithProcessModel.userTask.id
-      : taskWithProcessModel.manualTask.id;
+    const taskId: string = taskToProcess.id;
 
-    const processInstanceId: string = taskIsAUserTask
-      ? taskWithProcessModel.userTask.processInstanceId
-      : taskWithProcessModel.manualTask.processInstanceId;
+    const processInstanceId: string = taskToProcess.processInstanceId;
 
     this._router.navigateToRoute('live-execution-tracker', {
       diagramName: processModelId,
