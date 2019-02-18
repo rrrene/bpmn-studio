@@ -23,10 +23,10 @@
         <span class="diff-legend-entry diff-legend-entry-last"><i class="fas fa-stop purple"></i> Layout Changed</span>
       </div>
       <span if.bind="diffModeIsNewVsOld" class="diff-canvas-title">
-        <span class="diffMode">${currentXmlIdentifier} vs. ${previousXmlIdentifier}</span>
+        <p class="diffMode">${currentXmlIdentifier} vs. ${previousXmlIdentifier}</p>
       </span>
       <span else class="diff-canvas-title">
-        <span class="diffMode">${previousXmlIdentifier} vs. ${currentXmlIdentifier}</span>
+        <p class="diffMode">${previousXmlIdentifier} vs. ${currentXmlIdentifier}</p>
       </span>
       <span class="diff-button-hint" if.bind="currentDiffMode === undefined">
         <i class="fas fa-arrow-down fa-3x"></i>
