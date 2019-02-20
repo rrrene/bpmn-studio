@@ -216,6 +216,8 @@ export class Design {
   }
 
   public async openSelectDiagramModal(): Promise<void> {
+    this.diagramArray = [];
+
     const allSolutions: Array<ISolutionEntry> = this._solutionService.getAllSolutions();
 
     const loadedSolutionPromises: Array<Promise<ISolution>> = allSolutions.map(async(value: ISolutionEntry) => {
