@@ -280,7 +280,7 @@ export class TaskList {
       return otherCorrelation.id === correlationId;
     });
 
-    const correlationWasNotFound: boolean = !correlation;
+    const correlationWasNotFound: boolean = correlation === undefined;
     if (correlationWasNotFound) {
       throw new NotFoundError(`No correlation found with id ${correlationId}.`);
     }
