@@ -282,6 +282,10 @@ export class SolutionExplorerList {
     return folderName;
   }
 
+  public solutionEntryIsRemote(solutionEntry: ISolutionEntry): boolean {
+    return solutionEntry.uri.startsWith('http');
+  }
+
   /*
    * Give aurelia a hint on what objects to observe.
    * If we dont do this, it falls back to active pooling which is slow.
