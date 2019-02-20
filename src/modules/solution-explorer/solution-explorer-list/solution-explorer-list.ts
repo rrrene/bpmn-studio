@@ -268,10 +268,13 @@ export class SolutionExplorerList {
       return solutionUri;
     }
 
-    const lastFolderIndex: number = solutionUri.lastIndexOf('/') + 1;
-    const lastFolderOfSolutionUri: string = solutionUri.substring(lastFolderIndex);
+    const isWindows: boolean = solutionUri.lastIndexOf('/') === -1;
+    const seperator: string = isWindows ? '\\' : '/';
+    const lastFolderIndex: number = solutionUri.lastIndexOf(seperator) + 1;
 
-    return lastFolderOfSolutionUri;
+    const folderName: string = solutionUri.substring(lastFolderIndex);
+
+    return folderName;
   }
 
   /*
