@@ -12,7 +12,7 @@
         <a class="status-bar__element" class.bind="showInspectPanel ? 'status-bar__element--active' : ''" click.delegate="toggleInspectPanel()">Inspect Panel</a>
       </div>
       <div class="center-bar__diff-view-buttons" if.bind="diffIsShown">
-        <a class="status-bar__element left_diff-view" class.bind="currentDiffMode === DiffMode.OldVsNew ? 'status-bar__element--active' : ''" click.delegate="changeDiffMode(DiffMode.OldVsNew)" title="Compare the last saved diagram with the current diagram" id="statusBarOldVsNew">
+        <a class="status-bar__element status-bar__diff-view" class.bind="currentDiffMode === DiffMode.OldVsNew ? 'status-bar__element--active' : ''" click.delegate="changeDiffMode(DiffMode.OldVsNew)" title="Compare the last saved diagram with the current diagram" id="statusBarOldVsNew">
           <!-- <span> -->
             <div class="identifier">${previousXmlIdentifier}</div> vs. <div class="identifier">${currentXmlIdentifier}</div>
           <!-- </span>  -->
@@ -21,8 +21,8 @@
         <a class="status-bar__element" class.bind="showChangeList ? 'status-bar__element--active' : ''" click.delegate="toggleChangeList()" title="Toggle visibility of the Change List" id="statusBarChangesLog">
           <i class="fas fa-bars"></i>
         </a>
-        <a class="status-bar__element" class.bind="currentDiffMode === DiffMode.NewVsOld ? 'status-bar__element--active' : ''" click.delegate="changeDiffMode(DiffMode.NewVsOld)" title="Compare the current diagram with the last saved diagram" id="statusBarNewVsOld">
-          <i class="fa fa-arrow-left"></i> 
+        <a class="status-bar__element status-bar__diff-view" class.bind="currentDiffMode === DiffMode.NewVsOld ? 'status-bar__element--active' : ''" click.delegate="changeDiffMode(DiffMode.NewVsOld)" title="Compare the current diagram with the last saved diagram" id="statusBarNewVsOld">
+          <i class="fa fa-arrow-left arrow-icon"></i> 
           <div class="identifier">${currentXmlIdentifier}</div> vs. <div class="identifier">${previousXmlIdentifier}</div>
         </a>
       </div>
