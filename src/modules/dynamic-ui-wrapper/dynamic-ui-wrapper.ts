@@ -105,10 +105,7 @@ export class DynamicUiWrapper {
       return;
     }
 
-    const correlationId: string = userTask.correlationId;
-    const processInstanceId: string = userTask.processInstanceId;
-    const userTaskInstanceId: string = userTask.userTaskInstanceId;
-    const userTaskResult: DataModels.UserTasks.UserTaskResult = userTask.results;
+    const {correlationId, processInstanceId, userTaskInstanceId, results} = userTask;
 
     this._dynamicUiService.finishUserTask(this._identity,
       processInstanceId,
