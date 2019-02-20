@@ -242,12 +242,17 @@ export class Design {
       });
     });
 
+    const lastSaved: { diagram: IDiagram, solutionName: string, solutionUri: string } = {
+      diagram: this.activeDiagram,
+      solutionName: 'Last Saved',
+      solutionUri: 'lastSaved',
+    };
+
+    this.diagramArray.unshift(lastSaved);
+
     this.selectDiagramModal = true;
+
   }
-
-  // public diffWithDiagram(selectedDiagram: {diagram: IDiagram, solutionName: string}): void {
-
-  // }
 
   public cancelDialog(): void {
     this.selectDiagramModal = false;
