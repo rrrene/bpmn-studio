@@ -274,6 +274,11 @@ export class SolutionExplorerList {
 
     const folderName: string = solutionUri.substring(lastFolderIndex);
 
+    const folderNameIsEmpty: boolean = folderName.length === 0;
+    if (folderNameIsEmpty) {
+      return solutionUri;
+    }
+
     return folderName;
   }
 
