@@ -42,6 +42,7 @@
 .lower-diff-view__canvasModel {
   width: 100%;
   height: 100%;
+  flex: 2;
 }
 
 .diff-canvas-title {
@@ -94,10 +95,12 @@
 }
 
 .diff-change-list {
+  flex: 1;
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 1;
+  width: 100%;
   height: 99%;
   min-width: calc(44% + 2px);
   background: white;
@@ -114,16 +117,20 @@
 
 .change-list-table {
   margin: 10px;
+  width: 100%;
 }
 
 .change-list-table__entry {
-  width: 100%;
   height: 35px;
+  text-overflow: ellipsis;
+  max-width: 164px;
+  overflow: hidden;
+  padding-right: 10px;
 }
 
 .change-list-table-wrapper {
   flex: 1;
-  overflow: auto;
+  width: 100%;
 }
 
 .diff-summary {
