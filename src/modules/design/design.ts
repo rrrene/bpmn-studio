@@ -26,6 +26,12 @@ type IEventListener = {
   function: Function,
 };
 
+type DiagramWithSolution = {
+  diagram: IDiagram,
+  solutionName: string,
+  solutionUri: string,
+};
+
 @inject(EventAggregator, 'SolutionService', Router, 'NotificationService')
 export class Design {
 
@@ -49,7 +55,7 @@ export class Design {
   public diagramDetail: DiagramDetail;
   public filteredSolutions: Array<ISolution> = [];
   public diagramArray: Array<IDiagram | object> = [];
-  public selectedDiagram: {diagram: IDiagram, solutionName: string};
+  public selectedDiagram: DiagramWithSolution;
 
   private _eventAggregator: EventAggregator;
   private _notificationService: NotificationService;
@@ -222,6 +228,7 @@ export class Design {
 
     const loadedSolutionPromises: Array<Promise<ISolution>> = allSolutions.map(async(value: ISolutionEntry) => {
       const loadedSolution: ISolution = await value.service.loadSolution();
+
       return loadedSolution;
     });
 
@@ -233,16 +240,17 @@ export class Design {
 
     loadedSolutions.forEach((solution: ISolution) => {
       solution.diagrams.forEach((diagram: IDiagram) => {
-        const diagramWithSolutionName: { diagram: IDiagram, solutionName: string, solutionUri: string } = {
+        const diagramWithSolutionName: DiagramWithSolution = {
           diagram,
           solutionName: solution.name,
           solutionUri: solution.uri,
         };
+
         this.diagramArray.push(diagramWithSolutionName);
       });
     });
 
-    const lastSaved: { diagram: IDiagram, solutionName: string, solutionUri: string } = {
+    const lastSaved: DiagramWithSolution = {
       diagram: this.activeDiagram,
       solutionName: 'Last Saved',
       solutionUri: 'lastSaved',

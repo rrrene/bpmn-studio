@@ -255,7 +255,6 @@ export class BpmnDiffView {
     rightCanvas.viewbox(changedViewbox);
   }
 
-  /////
   private async _updateDeployedXml(): Promise<boolean> {
     const activeSolutionEntry: ISolutionEntry = this._solutionService.getSolutionEntryForUri(this._diffDestination);
 
@@ -265,7 +264,6 @@ export class BpmnDiffView {
     }
 
     const diagramName: string = this._diagramName ? this._diagramName : this.processModelId;
-    // this._diagramName = undefined;
 
     const getXmlFromDeployed: () => Promise<string> = (async(): Promise<string> => {
       try {
