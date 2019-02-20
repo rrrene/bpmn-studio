@@ -262,7 +262,7 @@ export class SolutionExplorerList {
     }, 0);
   }
 
-  public getPartToDisplayOfSolutionUri(solutionUri: string) {
+  public getPartToDisplayOfSolutionUri(solutionUri: string): string {
     const solutionIsRemote: boolean = solutionUri.startsWith('http');
     if (solutionIsRemote) {
       return solutionUri;
