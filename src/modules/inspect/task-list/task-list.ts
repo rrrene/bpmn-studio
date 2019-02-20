@@ -144,7 +144,7 @@ export class TaskList {
                                                                                            ? taskWithProcessModel.userTask
                                                                                            : taskWithProcessModel.manualTask;
 
-    const correlationId: string = taskToProcess.correlationId;
+    const {correlationId, id, processInstanceId} = taskToProcess;
 
     const tasksProcessModelId: string = taskToProcess.processModelId;
 
@@ -154,16 +154,12 @@ export class TaskList {
                                  ? tasksProcessModelId
                                  : taskWithProcessModel.processModel.id;
 
-    const taskId: string = taskToProcess.id;
-
-    const processInstanceId: string = taskToProcess.processInstanceId;
-
     this._router.navigateToRoute('live-execution-tracker', {
       diagramName: processModelId,
       solutionUri: this.activeSolutionEntry.uri,
       correlationId: correlationId,
       processInstanceId: processInstanceId,
-      taskId: taskId,
+      taskId: id,
     });
   }
 
