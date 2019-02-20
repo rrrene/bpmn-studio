@@ -262,6 +262,18 @@ export class SolutionExplorerList {
     }, 0);
   }
 
+  public getPartToDisplayOfSolutionUri(solutionUri: string) {
+    const solutionIsRemote: boolean = solutionUri.startsWith('http');
+    if (solutionIsRemote) {
+      return solutionUri;
+    }
+
+    const lastFolderIndex: number = solutionUri.lastIndexOf('/') + 1;
+    const lastFolderOfSolutionUri: string = solutionUri.substring(lastFolderIndex);
+
+    return lastFolderOfSolutionUri;
+  }
+
   /*
    * Give aurelia a hint on what objects to observe.
    * If we dont do this, it falls back to active pooling which is slow.

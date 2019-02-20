@@ -11,7 +11,7 @@
 
           <i class="fa ${solutionEntry.fontAwesomeIconClass} solution-entry__header__icon" title.bind="solutionEntry.fontAwesomeIconClass === 'fa-bolt' ? 'ProcessEngine Disconnected!' : ''"></i>
 
-          <span class="solution-entry__header__name">${solutionEntry.uri}</span>
+          <span class="solution-entry__header__name" title.bind="solutionEntry.uri">${getPartToDisplayOfSolutionUri(solutionEntry.uri)}</span>
 
           <div class="solution-entry__header__actions">
             <button class="button"
