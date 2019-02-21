@@ -74,9 +74,9 @@
   float: left;
 }
 
-.diffMode {
   text-overflow: ellipsis;
   overflow: hidden;
+.diff-mode {
   max-width: 100%;
   /* display: block; */
   white-space: nowrap;

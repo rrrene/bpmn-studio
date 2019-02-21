@@ -1,6 +1,6 @@
 import {inject} from 'aurelia-dependency-injection';
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {bindable} from 'aurelia-framework';
+import {bindable, computedFrom} from 'aurelia-framework';
 
 import {IShape} from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
@@ -60,8 +60,6 @@ export class BpmnDiffView {
     layoutChanged: [],
   };
   public showSavedXml: boolean = true;
-  public diffModeIsNewVsOld: boolean;
-  public diffModeIsOldVsNew: boolean;
 
   private _notificationService: NotificationService;
   private _eventAggregator: EventAggregator;
@@ -74,7 +72,7 @@ export class BpmnDiffView {
   private _subscriptions: Array<Subscription>;
   private _elementNameService: ElementNameService;
   private _diffDestination: string = 'lastSaved';
-  private _diagramName: string;
+  private _diagramName: string | undefined;
   private _solutionService: SolutionService;
 
   constructor(notificationService: NotificationService,
@@ -126,15 +124,15 @@ export class BpmnDiffView {
         if (diffLastSavedXml) {
           this._setSavedProcessModelAsPreviousXml();
         } else {
-          const updatingDeployedXmlWasSuccessfull: boolean = await this._updateDeployedXml();
-          const diagramNameIsNotUndefined: boolean = this._diagramName !== undefined;
+          const updatingDeployedXmlWasSuccessful: boolean = await this._updateDeployedXml();
+          const diagramNameIsSet: boolean = this._diagramName !== undefined;
 
-          if (updatingDeployedXmlWasSuccessfull && diagramNameIsNotUndefined) {
+          if (updatingDeployedXmlWasSuccessful && diagramNameIsSet) {
             this._setCustomProcessModelAsPreviousXml();
             return;
           }
 
-          if (updatingDeployedXmlWasSuccessfull) {
+          if (updatingDeployedXmlWasSuccessful) {
             this._setDeployedProcessModelAsPreviousXml();
           }
         }
@@ -489,14 +487,21 @@ export class BpmnDiffView {
   }
 
   private _updateDiffView(): void {
-    this.diffModeIsNewVsOld = this.currentDiffMode === DiffMode.NewVsOld;
-    this.diffModeIsOldVsNew = this.currentDiffMode === DiffMode.OldVsNew;
-
     if (this.diffModeIsNewVsOld) {
       this._updateLowerDiff(this.currentXml);
     } else if (this.diffModeIsOldVsNew) {
       this._updateLowerDiff(this.previousXml);
     }
+  }
+
+  @computedFrom('currentDiffMode')
+  public get diffModeIsNewVsOld(): boolean {
+    return this.currentDiffMode === DiffMode.NewVsOld;
+  }
+
+  @computedFrom('currentDiffMode')
+  public get diffModeIsOldVsNew(): boolean {
+    return this.currentDiffMode === DiffMode.OldVsNew;
   }
 
   private async _updateLowerDiff(xml: string): Promise<void> {

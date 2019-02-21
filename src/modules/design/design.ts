@@ -40,14 +40,14 @@ export class Design {
   @bindable() public xmlForDiff: string;
   @bindable({defaultBindingMode: bindingMode.oneWay}) public xml: string;
 
-  public showQuitModal: boolean;
-  public showLeaveModal: boolean;
-  public selectDiagramModal: boolean;
+  public showQuitModal: boolean = false;
+  public showLeaveModal: boolean = false;
+  public selectDiagramModal: boolean = false;
 
   public showDetail: boolean = true;
-  public showXML: boolean;
-  public showDiff: boolean;
-  public propertyPanelShown: boolean;
+  public showXML: boolean = false;
+  public showDiff: boolean = false;
+  public propertyPanelShown: boolean = false;
   public showPropertyPanelButton: boolean = true;
   public showDiffDestinationButton: boolean = false;
   public design: Design = this;

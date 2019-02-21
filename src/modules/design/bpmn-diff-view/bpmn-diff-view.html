@@ -4,13 +4,13 @@
     <div class="left-diff-view">
       <div ref="leftCanvasModel" class="left-diff-view__canvasModel"></div>
       <span class="diff-canvas-title">
-        <p class="diffMode">${currentXmlIdentifier}</p>
+        <p class="diff-mode">${currentXmlIdentifier}</p>
       </span>
     </div>
     <div class="right-diff-view">
       <div ref="rightCanvasModel" class="right-diff-view__canvasModel"></div>
       <span class="diff-canvas-title">
-        <p class="diffMode">${previousXmlIdentifier}</p>
+        <p class="diff-mode">${previousXmlIdentifier}</p>
       </span>
     </div>
     <div class="lower-diff-view">
@@ -23,10 +23,10 @@
         <span class="diff-legend-entry diff-legend-entry-last"><i class="fas fa-stop purple"></i> Layout Changed</span>
       </div>
       <span if.bind="diffModeIsNewVsOld" class="diff-canvas-title">
-        <p class="diffMode">${currentXmlIdentifier} vs. ${previousXmlIdentifier}</p>
+        <p class="diff-mode">${currentXmlIdentifier} vs. ${previousXmlIdentifier}</p>
       </span>
       <span else class="diff-canvas-title">
-        <p class="diffMode">${previousXmlIdentifier} vs. ${currentXmlIdentifier}</p>
+        <p class="diff-mode">${previousXmlIdentifier} vs. ${currentXmlIdentifier}</p>
       </span>
       <span class="diff-button-hint" if.bind="currentDiffMode === undefined">
         <i class="fas fa-arrow-down fa-3x"></i>
