@@ -74,11 +74,10 @@
   float: left;
 }
 
-  text-overflow: ellipsis;
-  overflow: hidden;
 .diff-mode {
   max-width: 100%;
-  /* display: block; */
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -88,11 +87,11 @@
 }
 
 .identifier {
+  max-width: 200px;
   margin-right: 5px;
   margin-left: 5px;
-  text-overflow: ellipsis;
   overflow: hidden;
-  max-width: 200px;
+  text-overflow: ellipsis;
 }
 
 .arrow-icon {

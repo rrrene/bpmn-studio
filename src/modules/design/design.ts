@@ -259,7 +259,6 @@ export class Design {
     this.diagramArray.unshift(lastSaved);
 
     this.selectDiagramModal = true;
-
   }
 
   public cancelDialog(): void {

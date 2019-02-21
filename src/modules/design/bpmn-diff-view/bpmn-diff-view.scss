@@ -95,16 +95,16 @@
 }
 
 .diff-change-list {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
   position: relative;
-  z-index: 1;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   width: 100%;
   height: 99%;
   min-width: calc(44% + 2px);
   background: white;
   border-left: 4px dashed #ccc;
+  z-index: 1;
 }
 
 .no-change-message {
@@ -116,16 +116,16 @@
 }
 
 .change-list-table {
-  margin: 10px;
   width: 100%;
+  margin: 10px;
 }
 
 .change-list-table__entry {
   height: 35px;
-  text-overflow: ellipsis;
+  padding-right: 10px;
   max-width: 164px;
   overflow: hidden;
-  padding-right: 10px;
+  text-overflow: ellipsis;
 }
 
 .change-list-table-wrapper {
@@ -145,9 +145,9 @@
   position: relative;
 }
 
-  text-overflow: ellipsis;
 .diff-mode {
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .badge-red {

@@ -129,6 +129,7 @@ export class BpmnDiffView {
 
           if (updatingDeployedXmlWasSuccessful && diagramNameIsSet) {
             this._setCustomProcessModelAsPreviousXml();
+
             return;
           }
 
@@ -261,7 +262,9 @@ export class BpmnDiffView {
       return false;
     }
 
-    const diagramName: string = this._diagramName ? this._diagramName : this.processModelId;
+    const diagramName: string = this._diagramName
+                              ? this._diagramName
+                              : this.processModelId;
 
     const getXmlFromDeployed: () => Promise<string> = (async(): Promise<string> => {
       try {
