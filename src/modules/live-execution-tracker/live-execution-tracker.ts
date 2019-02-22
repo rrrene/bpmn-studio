@@ -289,6 +289,8 @@ export class LiveExecutionTracker {
     const activeUserAndManualTaskIds: Array<string> = this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
     const activeCallActivityIds: Array<string> = this._addOverlaysToActiveCallActivities(elementsWithActiveToken);
 
+    this._addOverlaysToAllCallActivities(allElements);
+
     this._previousManualAndUserTaskIdsWithActiveToken = activeUserAndManualTaskIds;
     this._previousCallActivitiesWithActiveToken = activeCallActivityIds;
 
@@ -355,6 +357,46 @@ export class LiveExecutionTracker {
     }
 
     return activeManualAndUserTaskIds;
+  }
+
+  private _addOverlaysToAllCallActivities(elements: Array<IShape>): void {
+    const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
+    if (liveExecutionTrackerIsNotAttached) {
+      return;
+    }
+
+    const callActivities: Array<IShape> = elements.filter((element: IShape) => {
+      const elementIsCallActivity: boolean = element.type === 'bpmn:CallActivity';
+
+      return elementIsCallActivity;
+    });
+
+    const callActivityIds: Array<string> = callActivities.map((element: IShape) => element.id).sort();
+
+    const overlayIds: Array<string> = Object.keys(this._overlays._overlays);
+    const allCallActivitiesHaveAnOverlay: boolean = callActivityIds.every((callActivityId: string): boolean => {
+      const overlayFound: boolean = overlayIds.find((overlayId: string): boolean => {
+        return this._overlays._overlays[overlayId].element.id === callActivityId;
+      }) !== undefined;
+
+      return overlayFound;
+     });
+
+    if (allCallActivitiesHaveAnOverlay) {
+      return;
+    }
+
+    for (const element of callActivities) {
+      this._overlays.add(element, {
+        position: {
+          left: 30,
+          top: 25,
+        },
+        html: `<div class="play-task-button-container" id="${element.id}"><i class="fas fa-external-link-square-alt play-task-button"></i></div>`,
+      });
+
+      this._elementsWithEventListeners.push(element.id);
+    }
   }
 
   private _addOverlaysToActiveCallActivities(activeElements: Array<IShape>): Array<string> {
