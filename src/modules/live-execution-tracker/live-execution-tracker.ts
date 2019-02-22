@@ -131,6 +131,15 @@ export class LiveExecutionTracker {
       ],
     });
 
+    this._DiagramPreviewViewer = new bundle.viewer({
+      additionalModules:
+      [
+        bundle.ZoomScrollModule,
+        bundle.MoveCanvasModule,
+        bundle.MiniMap,
+      ],
+    });
+
     this._modeling = this._diagramModeler.get('modeling');
     this._elementRegistry = this._diagramModeler.get('elementRegistry');
     this._viewerCanvas = this._diagramViewer.get('canvas');
@@ -402,6 +411,8 @@ export class LiveExecutionTracker {
         html: `<div class="play-task-button-container" id="${element.id}"><i class="fas fa-external-link-square-alt play-task-button"></i></div>`,
       });
 
+      document.getElementById(element.id).addEventListener('click', this._handleCallActivityClick);
+
       this._elementsWithEventListeners.push(element.id);
     }
   }
@@ -489,6 +500,30 @@ export class LiveExecutionTracker {
         correlationId: this.correlationId,
         processInstanceId: targetProcessInstanceId,
       });
+    }
+
+    private _handleCallActivityClick: (event: MouseEvent) => Promise<void> =
+    async(event: MouseEvent): Promise<void> => {
+      const elementId: string = (event.target as HTMLDivElement).id;
+      const element: IShape = this._elementRegistry.get(elementId);
+      const callActivityTargetProcess: string = element.businessObject.calledElement;
+
+      const callAcitivityHasNoTargetProcess: boolean = callActivityTargetProcess === undefined;
+      if (callAcitivityHasNoTargetProcess) {
+        const notificationMessage: string = 'The CallActivity has no target configured. Please configure a target in the designer.';
+
+        this._notificationService.showNotification(NotificationType.INFO, notificationMessage);
+      }
+
+      const xml: string = await this._getXmlByProcessModelId(callActivityTargetProcess);
+      await this._importXmlIntoDiagramPreviewViewer(xml);
+
+      this.showDiagramPreviewViewer = true;
+      setTimeout(() => {
+        console.log(this.previewCanvasModel);
+        this._DiagramPreviewViewer.attachTo(this.previewCanvasModel);
+
+      }, 0);
     }
 
   private async _getXmlByProcessModelId(processModelId: string): Promise<string> {
