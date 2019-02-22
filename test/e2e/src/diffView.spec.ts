@@ -1,5 +1,6 @@
 import {browser} from 'protractor';
 
+import {Design} from '../../../src/modules/design/design';
 import {SimpleDiagram} from './diagrams/simpleDiagram';
 import {DiagramDetail} from './pages/diagramDetail';
 import {DiffView} from './pages/diffView';
@@ -52,6 +53,22 @@ describe('Diff view', () => {
     const visibilityOfDiffViewContainer: boolean = await diffView.getVisibilityOfDiffViewContainer();
 
     expect(visibilityOfDiffViewContainer).toBeTruthy();
+  });
+
+  it('should contain `diffAgainstOtherDiagramButton` on right toolbar.', async() => {
+    await diffView.show();
+    const diffAgainstOtherDiagramButtonIsDisplayed: boolean = await diffView.getVisibilityOfDiffAgainstOtherDiagramButton();
+
+    expect(diffAgainstOtherDiagramButtonIsDisplayed).toBeTruthy();
+  });
+
+  it('should show `Choose diagram` modal.', async() => {
+    await diffView.show();
+    diffView.clickOnDiffAgainstOtherDiagramButton();
+
+    const chooseDiagramModalIsDisplayed: boolean = await diffView.getVisibilityOfChooseDiagramModal();
+
+    expect(chooseDiagramModalIsDisplayed).toBeTruthy();
   });
 
 });
