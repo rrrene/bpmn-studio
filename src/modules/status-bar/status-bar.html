@@ -5,9 +5,9 @@
   -->
   <div class="status-bar status-bar--system-macos" id="statusBarContainer">
     <div class="status-bar__left-bar" id="statusBarLeft">
-      <button type="button" if.bind="updateAvailable" style="height: 15px; width: 15px;" click.delegate="startUpdate()" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <a if.bind="updateAvailable" style="height: 15px; width: 15px;" click.delegate="startUpdate()" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <img src="src/resources/images/icon.png" style="height: 15px;" title.bind="updateProgressData !== undefined ? updateProgressData.percent.toString() + '%' : ''">
-      </button>
+      </a>
       <div class="dropdown-menu">
         <div if.bind="updateProgressData !== undefined">
           <span>Progress: ${updateProgressData.percent.toFixed(2)}%</span>
