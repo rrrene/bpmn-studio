@@ -409,6 +409,10 @@ export class LiveExecutionTracker {
     }
 
     for (const element of callActivities) {
+      if (this._elementHasActiveToken(element.id)) {
+        continue;
+      }
+
       this._overlays.add(element, {
         position: {
           left: 30,
