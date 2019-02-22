@@ -357,7 +357,9 @@ export class LiveExecutionTracker {
 
     const activeCallActivityIds: Array<string> = activeCallActivities.map((element: IShape) => element.id).sort();
 
-    const activeElementsWithActiveTokenDidNotChange: boolean = activeCallActivityIds.toString() === this._previousElementIdsWithActiveToken.toString();
+    const activeElementsWithActiveTokenDidNotChange: boolean =
+      activeCallActivityIds.toString() === this._previousElementIdsWithActiveToken.toString();
+
     const allActiveElementsHaveAnOverlay: boolean = activeCallActivityIds.length === Object.keys(this._overlays._overlays).length;
 
     if (activeElementsWithActiveTokenDidNotChange && allActiveElementsHaveAnOverlay) {
