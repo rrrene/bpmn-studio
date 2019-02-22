@@ -247,6 +247,9 @@ export class LiveExecutionTracker {
 
   public closeDiagramPreview(): void {
     this.showDiagramPreviewViewer = false;
+
+    this._DiagramPreviewViewer.clear();
+    this._DiagramPreviewViewer.detach();
   }
 
   public toggleShowTokenViewer(): void {
