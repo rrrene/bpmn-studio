@@ -63,9 +63,12 @@
 
 .let__close-modal-button {
   position: absolute;
-  top: 5px;
   right: 20px;
   cursor: pointer;
+}
+
+.let__close-dynamic-ui-modal-button {
+  top: 5px;
 }
 
 .let__token-viewer {
