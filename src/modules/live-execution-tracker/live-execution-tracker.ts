@@ -408,7 +408,7 @@ export class LiveExecutionTracker {
           left: 30,
           top: 25,
         },
-        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-external-link-square-alt let__overlay-button-icon"></i></div>`,
+        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-search let__overlay-button-icon"></i></div>`,
       });
 
       document.getElementById(element.id).addEventListener('click', this._handleCallActivityClick);
