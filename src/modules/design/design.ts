@@ -42,7 +42,7 @@ export class Design {
 
   public showQuitModal: boolean = false;
   public showLeaveModal: boolean = false;
-  public selectDiagramModal: boolean = false;
+  public showSelectDiagramModal: boolean = false;
 
   public showDetail: boolean = true;
   public showXML: boolean = false;
@@ -218,13 +218,13 @@ export class Design {
         diagramName,
       ]);
 
-    this.selectDiagramModal = false;
+    this.showSelectDiagramModal = false;
   }
 
   public async openSelectDiagramModal(): Promise<void> {
     this.diagramArray = [];
 
-    const allSolutions: Array<ISolutionEntry> = this._solutionService.getAllSolutions();
+    const allSolutions: Array<ISolutionEntry> = this._solutionService.getAllSolutionEntries();
 
     const loadedSolutionPromises: Array<Promise<ISolution>> = allSolutions.map(async(value: ISolutionEntry) => {
       const loadedSolution: ISolution = await value.service.loadSolution();
@@ -258,11 +258,11 @@ export class Design {
 
     this.diagramArray.unshift(lastSaved);
 
-    this.selectDiagramModal = true;
+    this.showSelectDiagramModal = true;
   }
 
   public cancelDialog(): void {
-    this.selectDiagramModal = false;
+    this.showSelectDiagramModal = false;
   }
 
   public togglePanel(): void {

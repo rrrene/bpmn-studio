@@ -28,7 +28,7 @@ export interface ISolutionService {
   /**
    * Gets a list of all currently connected solutions.
    */
-  getAllSolutions(): Array<ISolutionEntry>;
+  getAllSolutionEntries(): Array<ISolutionEntry>;
 
   /**
    * Deletes a specific solution indetified by its ID.

@@ -77,7 +77,7 @@ export class SolutionService implements ISolutionService {
     return remoteEntries;
   }
 
-  public getAllSolutions(): Array<ISolutionEntry> {
+  public getAllSolutionEntries(): Array<ISolutionEntry> {
     return this._allSolutionEntries;
   }
 
