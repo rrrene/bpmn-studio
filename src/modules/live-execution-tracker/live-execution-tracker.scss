@@ -29,13 +29,13 @@
   height: 100%;
 }
 
-.play-task-button-container {
+.let__overlay-button {
   width: 40px;
   height: 30px;
   cursor: pointer;
 }
 
-.play-task-button {
+.let__overlay-button-icon {
   position: absolute;
   top: 9px;
   left: 14px;
@@ -44,7 +44,7 @@
   pointer-events: none;
 }
 
-.play-task-button-container:hover .play-task-button {
+.let__overlay-button:hover .let__overlay-button-icon {
   opacity: 1;
 }
 

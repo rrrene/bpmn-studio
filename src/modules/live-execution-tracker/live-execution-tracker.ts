@@ -364,7 +364,7 @@ export class LiveExecutionTracker {
           left: 30,
           top: 25,
         },
-        html: `<div class="play-task-button-container" id="${element.id}"><i class="fas fa-play play-task-button"></i></div>`,
+        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-play let__overlay-button-icon"></i></div>`,
       });
 
       document.getElementById(element.id).addEventListener('click', this._handleTaskClick);
@@ -408,7 +408,7 @@ export class LiveExecutionTracker {
           left: 30,
           top: 25,
         },
-        html: `<div class="play-task-button-container" id="${element.id}"><i class="fas fa-external-link-square-alt play-task-button"></i></div>`,
+        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-external-link-square-alt let__overlay-button-icon"></i></div>`,
       });
 
       document.getElementById(element.id).addEventListener('click', this._handleCallActivityClick);
@@ -455,7 +455,7 @@ export class LiveExecutionTracker {
           left: 30,
           top: 25,
         },
-        html: `<div class="play-task-button-container" id="${element.id}"><i class="fas fa-external-link-square-alt play-task-button"></i></div>`,
+        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-external-link-square-alt let__overlay-button-icon"></i></div>`,
       });
 
       document.getElementById(element.id).addEventListener('click', this._handleActiveCallActivityClick);
