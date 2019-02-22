@@ -285,7 +285,7 @@ export class LiveExecutionTracker {
     this._colorizeElements(elementsWithTokenHistory, defaultBpmnColors.green);
     this._colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
     this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
-    this._addOverlaysToCallActivities(elementsWithActiveToken);
+    this._addOverlaysToActiveCallActivities(elementsWithActiveToken);
 
     // Get the elementIds of the elements with an active token and sort them alphabetically
     this._previousElementIdsWithActiveToken = elementsWithActiveToken.map((element: IShape) => element.id).sort();
@@ -343,7 +343,7 @@ export class LiveExecutionTracker {
     }
   }
 
-  private _addOverlaysToCallActivities(elements: Array<IShape>): void {
+  private _addOverlaysToActiveCallActivities(elements: Array<IShape>): void {
     const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
     if (liveExecutionTrackerIsNotAttached) {
       return;
