@@ -38,7 +38,7 @@
          body-style="overflow: auto;"
          origin.bind="liveExecutionTracker">
     <template replace-part="modal-header">
-      <btn class="button close-dynamic-ui-button"><i class="fas fa-times" click.delegate="closeDynamicUiModal()"></i></btn>
+      <btn class="button let__close-modal-button"><i class="fas fa-times" click.delegate="closeDynamicUiModal()"></i></btn>
     </template>
     <template replace-part="modal-body">
       <task-dynamic-ui correlation-id.bind="correlationId"
@@ -61,7 +61,7 @@
          content-style="width: 100%; height: 100%;">
     <template replace-part="modal-header">
       <span class="let__diagram-preview-header">Preview: ${origin.nameOfDiagramToPreview}</span>
-      <btn class="button close-dynamic-ui-button"><i class="fas fa-times" click.delegate="closeDiagramPreview()"></i></btn>
+      <btn class="button let__close-modal-button"><i class="fas fa-times" click.delegate="closeDiagramPreview()"></i></btn>
     </template>
     <template replace-part="modal-body">
       <div style="width: 100%; height: 100%;">
