@@ -779,6 +779,31 @@ export class LiveExecutionTracker {
     return xmlImportPromise;
   }
 
+  private async _importXmlIntoDiagramPreviewViewer(xml: string): Promise<void> {
+    const xmlIsNotLoaded: boolean = (xml === undefined || xml === null);
+
+    if (xmlIsNotLoaded) {
+      const notificationMessage: string = 'The xml could not be loaded. Please try to start the process again.';
+
+      this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
+
+      return;
+    }
+
+    const xmlImportPromise: Promise<void> = new Promise((resolve: Function, reject: Function): void => {
+      this._DiagramPreviewViewer.importXML(xml, (importXmlError: Error) => {
+        if (importXmlError) {
+          reject(importXmlError);
+
+          return;
+        }
+        resolve();
+      });
+    });
+
+    return xmlImportPromise;
+  }
+
   private async _importXmlIntoDiagramModeler(xml: string): Promise<void> {
     const xmlIsNotLoaded: boolean = (xml === undefined || xml === null);
 
