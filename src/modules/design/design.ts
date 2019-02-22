@@ -258,6 +258,14 @@ export class Design {
 
     this.diagramArray.unshift(lastSaved);
 
+    const openedDiagramIndex: number = this.diagramArray.findIndex((diagram: DiagramWithSolution) => {
+      const diagramIsOpenedDiagram: boolean = diagram.solutionUri === this.activeSolutionEntry.uri
+                                           && diagram.diagram.name === this.activeDiagram.name;
+      return diagramIsOpenedDiagram;
+    });
+
+    this.diagramArray.splice(openedDiagramIndex, 1);
+
     this.showSelectDiagramModal = true;
   }
 
