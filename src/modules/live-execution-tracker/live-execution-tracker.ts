@@ -521,7 +521,6 @@ export class LiveExecutionTracker {
       this.showDiagramPreviewViewer = true;
 
       setTimeout(() => {
-        console.log(this.previewCanvasModel);
         this._DiagramPreviewViewer.attachTo(this.previewCanvasModel);
       }, 0);
     }
