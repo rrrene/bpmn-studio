@@ -45,7 +45,9 @@ enum RequestError {
 @inject(Router, 'NotificationService', 'ManagementApiClientService', 'SolutionService')
 export class LiveExecutionTracker {
   public canvasModel: HTMLElement;
+  public previewCanvasModel: HTMLElement;
   public showDynamicUiModal: boolean = false;
+  public showDiagramPreviewViewer: boolean = false;
   public dynamicUi: TaskDynamicUi;
   public liveExecutionTracker: LiveExecutionTracker = this;
   public modalStyleString: string = 'position: relative; top: 20%; bottom: 20%; width: 400px; height: 60%;';
@@ -66,6 +68,7 @@ export class LiveExecutionTracker {
 
   private _diagramModeler: IBpmnModeler;
   private _diagramViewer: IBpmnModeler;
+  private _DiagramPreviewViewer: IBpmnModeler;
   private _modeling: IModeling;
   private _elementRegistry: IElementRegistry;
   private _viewerCanvas: ICanvas;

@@ -52,4 +52,20 @@
       </task-dynamic-ui>
     </template>
   </modal>
+
+  <modal show.bind="showDiagramPreviewViewer"
+         modal-style="top: 10%; bottom: 10%; left: 10%; right: 10%; margin: 0; position: absolute; max-width: 100%;"
+         css="display: ${showDiagramPreviewViewer ? 'block' : 'none'};"
+         body-style="overflow: auto; width: 100%; height: 100%; padding: 0;"
+         origin.bind="liveExecutionTracker"
+         content-style="width: 100%; height: 100%;">
+    <template replace-part="modal-header">
+      <btn class="button close-dynamic-ui-button"><i class="fas fa-times" click.delegate="closeDiagramPreview()"></i></btn>
+    </template>
+    <template replace-part="modal-body">
+      <div style="width: 100%; height: 100%;">
+        <div ref="origin.previewCanvasModel" class="let__diagram-viewer-preview-canvas"></div>
+      </div>
+    </template>
+  </modal>
 </template>
