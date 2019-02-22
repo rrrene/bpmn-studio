@@ -47,9 +47,9 @@
 
 .diff-canvas-title {
   position: absolute;
-  bottom: 4px;
+  bottom: 5px;
   left: 10px;
-  background: white;
+  background: rgba(255,255,255, 0.9);
   font-size: 20px;
   padding-right: 80px;
   width: 100%;
@@ -146,6 +146,7 @@
 }
 
 .diff-mode {
+  margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
