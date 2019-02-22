@@ -193,7 +193,37 @@ export class BpmnDiffView {
     this._updateDiffView();
   }
 
-  public _setDeployedProcessModelAsPreviousXml(): void {
+  public togglePreviousXml(): void {
+    this.showSavedXml = !this.showSavedXml;
+
+    if (this.showSavedXml) {
+      this._setSavedProcessModelAsPreviousXml();
+    } else {
+      this._setDeployedProcessModelAsPreviousXml();
+    }
+  }
+
+  @computedFrom('currentDiffMode')
+  public get diffModeIsNewVsOld(): boolean {
+    return this.currentDiffMode === DiffMode.NewVsOld;
+  }
+
+  @computedFrom('currentDiffMode')
+  public get diffModeIsOldVsNew(): boolean {
+    return this.currentDiffMode === DiffMode.OldVsNew;
+  }
+
+  private _syncAllViewers(): void {
+    const lowerCanvas: ICanvas = this._lowerViewer.get('canvas');
+    const leftCanvas: ICanvas = this._leftViewer.get('canvas');
+    const rightCanvas: ICanvas = this._rightViewer.get('canvas');
+
+    const changedViewbox: IViewbox = lowerCanvas.viewbox();
+    leftCanvas.viewbox(changedViewbox);
+    rightCanvas.viewbox(changedViewbox);
+  }
+
+  private _setDeployedProcessModelAsPreviousXml(): void {
     this.previousXml = this.deployedXml;
 
     this.previousXmlIdentifier = 'Deployed';
@@ -206,7 +236,7 @@ export class BpmnDiffView {
       ]);
   }
 
-  public _setCustomProcessModelAsPreviousXml(): void {
+  private _setCustomProcessModelAsPreviousXml(): void {
     this.previousXml = this.deployedXml;
 
     this.previousXmlIdentifier = this._diagramName;
@@ -221,7 +251,7 @@ export class BpmnDiffView {
     this._diagramName = undefined;
   }
 
-  public _setSavedProcessModelAsPreviousXml(): void {
+  private _setSavedProcessModelAsPreviousXml(): void {
     this.previousXml = this.savedXml;
 
     this.previousXmlIdentifier = 'Old';
@@ -232,26 +262,6 @@ export class BpmnDiffView {
         this.previousXmlIdentifier,
         this.currentXmlIdentifier,
       ]);
-  }
-
-  public togglePreviousXml(): void {
-    this.showSavedXml = !this.showSavedXml;
-
-    if (this.showSavedXml) {
-      this._setSavedProcessModelAsPreviousXml();
-    } else {
-      this._setDeployedProcessModelAsPreviousXml();
-    }
-  }
-
-  private _syncAllViewers(): void {
-    const lowerCanvas: ICanvas = this._lowerViewer.get('canvas');
-    const leftCanvas: ICanvas = this._leftViewer.get('canvas');
-    const rightCanvas: ICanvas = this._rightViewer.get('canvas');
-
-    const changedViewbox: IViewbox = lowerCanvas.viewbox();
-    leftCanvas.viewbox(changedViewbox);
-    rightCanvas.viewbox(changedViewbox);
   }
 
   private async _updateDeployedXml(): Promise<boolean> {
@@ -495,16 +505,6 @@ export class BpmnDiffView {
     } else if (this.diffModeIsOldVsNew) {
       this._updateLowerDiff(this.previousXml);
     }
-  }
-
-  @computedFrom('currentDiffMode')
-  public get diffModeIsNewVsOld(): boolean {
-    return this.currentDiffMode === DiffMode.NewVsOld;
-  }
-
-  @computedFrom('currentDiffMode')
-  public get diffModeIsOldVsNew(): boolean {
-    return this.currentDiffMode === DiffMode.OldVsNew;
   }
 
   private async _updateLowerDiff(xml: string): Promise<void> {
