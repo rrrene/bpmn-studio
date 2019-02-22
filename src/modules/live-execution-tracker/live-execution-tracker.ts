@@ -680,8 +680,8 @@ export class LiveExecutionTracker {
         continue;
       }
 
-      const outgoingElementHasNoActiveToken: boolean = !this._hasElementActiveToken(targetOfOutgoingElement.id);
-      const targetOfOutgoingElementHasNoTokenHistory: boolean = !this._hasElementTokenHistory(targetOfOutgoingElement.id, tokenHistoryGroups);
+      const outgoingElementHasNoActiveToken: boolean = !this._elementHasActiveToken(targetOfOutgoingElement.id);
+      const targetOfOutgoingElementHasNoTokenHistory: boolean = !this._elementHasTokenHistory(targetOfOutgoingElement.id, tokenHistoryGroups);
 
       if (outgoingElementHasNoActiveToken && targetOfOutgoingElementHasNoTokenHistory) {
         continue;
@@ -725,14 +725,14 @@ export class LiveExecutionTracker {
     });
   }
 
-  private _hasElementTokenHistory(elementId: string, tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup): boolean {
+  private _elementHasTokenHistory(elementId: string, tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup): boolean {
 
     const tokenHistoryFromFlowNodeInstanceFound: boolean = tokenHistoryGroups[elementId] !== undefined;
 
     return tokenHistoryFromFlowNodeInstanceFound;
   }
 
-  private _hasElementActiveToken(elementId: string): boolean {
+  private _elementHasActiveToken(elementId: string): boolean {
     const activeTokenForFlowNodeInstance: ActiveToken = this._activeTokens.find((activeToken: ActiveToken) => {
       const activeTokenIsFromFlowNodeInstance: boolean = activeToken.flowNodeId === elementId;
 
