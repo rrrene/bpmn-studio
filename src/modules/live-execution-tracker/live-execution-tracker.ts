@@ -343,24 +343,24 @@ export class LiveExecutionTracker {
     }
   }
 
-  private _addOverlaysToActiveCallActivities(elements: Array<IShape>): void {
+  private _addOverlaysToActiveCallActivities(activeElements: Array<IShape>): void {
     const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
     if (liveExecutionTrackerIsNotAttached) {
       return;
     }
 
-    const activeCallActivities: Array<IShape> = elements.filter((element: IShape) => {
+    const activeCallActivities: Array<IShape> = activeElements.filter((element: IShape) => {
       const elementIsCallActivity: boolean = element.type === 'bpmn:CallActivity';
 
       return elementIsCallActivity;
     });
 
-    const activeCallActivityIds: Array<string> =  activeCallActivities.map((element: IShape) => element.id).sort();
+    const activeCallActivityIds: Array<string> = activeCallActivities.map((element: IShape) => element.id).sort();
 
-    const elementsWithActiveTokenDidNotChange: boolean = activeCallActivityIds.toString() === this._previousElementIdsWithActiveToken.toString();
+    const activeElementsWithActiveTokenDidNotChange: boolean = activeCallActivityIds.toString() === this._previousElementIdsWithActiveToken.toString();
     const allActiveElementsHaveAnOverlay: boolean = activeCallActivityIds.length === Object.keys(this._overlays._overlays).length;
 
-    if (elementsWithActiveTokenDidNotChange && allActiveElementsHaveAnOverlay) {
+    if (activeElementsWithActiveTokenDidNotChange && allActiveElementsHaveAnOverlay) {
       return;
     }
 
