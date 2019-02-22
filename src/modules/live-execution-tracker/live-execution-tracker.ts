@@ -80,7 +80,8 @@ export class LiveExecutionTracker {
 
   private _pollingTimer: NodeJS.Timer;
   private _attached: boolean;
-  private _previousElementIdsWithActiveToken: Array<string> = [];
+  private _previousManualAndUserTaskIdsWithActiveToken: Array<string> = [];
+  private _previousCallActivitiesWithActiveToken: Array<string> = [];
   private _activeTokens: Array<ActiveToken>;
   private _parentProcessInstanceId: string;
   private _parentProcessModelId: string;
@@ -284,18 +285,19 @@ export class LiveExecutionTracker {
     // Colorize the found elements and add overlay to those that can be started.
     this._colorizeElements(elementsWithTokenHistory, defaultBpmnColors.green);
     this._colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
-    this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
-    this._addOverlaysToActiveCallActivities(elementsWithActiveToken);
 
-    // Get the elementIds of the elements with an active token and sort them alphabetically
-    this._previousElementIdsWithActiveToken = elementsWithActiveToken.map((element: IShape) => element.id).sort();
+    const activeUserAndManualTaskIds: Array<string> = this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
+    const activeCallActivityIds: Array<string> = this._addOverlaysToActiveCallActivities(elementsWithActiveToken);
+
+    this._previousManualAndUserTaskIdsWithActiveToken = activeUserAndManualTaskIds;
+    this._previousCallActivitiesWithActiveToken = activeCallActivityIds;
 
     // Export the colored xml from the modeler
     const colorizedXml: string = await this._exportXmlFromDiagramModeler();
     return colorizedXml;
   }
 
-  private _addOverlaysToUserAndManualTasks(elements: Array<IShape>): void {
+  private _addOverlaysToUserAndManualTasks(elements: Array<IShape>): Array<string> {
     const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
     if (liveExecutionTrackerIsNotAttached) {
       return;
@@ -310,7 +312,9 @@ export class LiveExecutionTracker {
 
     const activeManualAndUserTaskIds: Array<string> =  activeManualAndUserTasks.map((element: IShape) => element.id).sort();
 
-    const elementsWithActiveTokenDidNotChange: boolean = activeManualAndUserTaskIds.toString() === this._previousElementIdsWithActiveToken.toString();
+    const elementsWithActiveTokenDidNotChange: boolean =
+      activeManualAndUserTaskIds.toString() === this._previousManualAndUserTaskIdsWithActiveToken.toString();
+
     const allActiveElementsHaveAnOverlay: boolean = activeManualAndUserTaskIds.length === Object.keys(this._overlays._overlays).length;
 
     if (elementsWithActiveTokenDidNotChange && allActiveElementsHaveAnOverlay) {
@@ -341,9 +345,11 @@ export class LiveExecutionTracker {
 
       this._elementsWithEventListeners.push(element.id);
     }
+
+    return activeManualAndUserTaskIds;
   }
 
-  private _addOverlaysToActiveCallActivities(activeElements: Array<IShape>): void {
+  private _addOverlaysToActiveCallActivities(activeElements: Array<IShape>): Array<string> {
     const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
     if (liveExecutionTrackerIsNotAttached) {
       return;
@@ -358,11 +364,11 @@ export class LiveExecutionTracker {
     const activeCallActivityIds: Array<string> = activeCallActivities.map((element: IShape) => element.id).sort();
 
     const activeElementsWithActiveTokenDidNotChange: boolean =
-      activeCallActivityIds.toString() === this._previousElementIdsWithActiveToken.toString();
+      activeCallActivityIds.toString() === this._previousCallActivitiesWithActiveToken.toString();
 
-    const allActiveElementsHaveAnOverlay: boolean = activeCallActivityIds.length === Object.keys(this._overlays._overlays).length;
+    const allActiveCallActivitiesHaveAnOverlay: boolean = activeCallActivityIds.length === Object.keys(this._overlays._overlays).length;
 
-    if (activeElementsWithActiveTokenDidNotChange && allActiveElementsHaveAnOverlay) {
+    if (activeElementsWithActiveTokenDidNotChange && allActiveCallActivitiesHaveAnOverlay) {
       return;
     }
 
@@ -381,6 +387,8 @@ export class LiveExecutionTracker {
 
       this._elementsWithEventListeners.push(element.id);
     }
+
+    return activeCallActivityIds;
   }
 
   private _handleTaskClick: (event: MouseEvent) => void =
