@@ -487,6 +487,13 @@ export class LiveExecutionTracker {
       });
     }
 
+  private async _getXmlByProcessModelId(processModelId: string): Promise<string> {
+    const processModel: DataModels.ProcessModels.ProcessModel =
+      await this._managementApiClient.getProcessModelById(this.activeSolutionEntry.identity, processModelId);
+
+    return processModel.xml;
+  }
+
   private async _getProcessInstanceIdOfCallActivityTarget(callActivityTargetId: string): Promise<string> {
     // This is necessary because the managementApi sometimes throws an error when the correlation is not yet existing.
     const getCorrelation: () => Promise<DataModels.Correlations.Correlation> = async(): Promise<DataModels.Correlations.Correlation> => {
