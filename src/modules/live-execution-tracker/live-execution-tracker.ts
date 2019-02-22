@@ -216,6 +216,8 @@ export class LiveExecutionTracker {
     this._diagramViewer.detach();
     this._diagramViewer.destroy();
 
+    this._DiagramPreviewViewer.destroy();
+
     this._stopPolling();
   }
 
