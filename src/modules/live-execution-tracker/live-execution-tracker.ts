@@ -519,10 +519,10 @@ export class LiveExecutionTracker {
       await this._importXmlIntoDiagramPreviewViewer(xml);
 
       this.showDiagramPreviewViewer = true;
+
       setTimeout(() => {
         console.log(this.previewCanvasModel);
         this._DiagramPreviewViewer.attachTo(this.previewCanvasModel);
-
       }, 0);
     }
 
