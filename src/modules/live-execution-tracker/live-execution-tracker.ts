@@ -48,6 +48,7 @@ export class LiveExecutionTracker {
   public previewCanvasModel: HTMLElement;
   public showDynamicUiModal: boolean = false;
   public showDiagramPreviewViewer: boolean = false;
+  public nameOfDiagramToPreview: string;
   public dynamicUi: TaskDynamicUi;
   public liveExecutionTracker: LiveExecutionTracker = this;
   public modalStyleString: string = 'position: relative; top: 20%; bottom: 20%; width: 400px; height: 60%;';
@@ -523,6 +524,7 @@ export class LiveExecutionTracker {
       const xml: string = await this._getXmlByProcessModelId(callActivityTargetProcess);
       await this._importXmlIntoDiagramPreviewViewer(xml);
 
+      this.nameOfDiagramToPreview = callActivityTargetProcess;
       this.showDiagramPreviewViewer = true;
 
       setTimeout(() => {
