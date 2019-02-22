@@ -300,7 +300,7 @@ export class LiveExecutionTracker {
   private _addOverlaysToUserAndManualTasks(elements: Array<IShape>): Array<string> {
     const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
     if (liveExecutionTrackerIsNotAttached) {
-      return;
+      return [];
     }
 
     const activeManualAndUserTasks: Array<IShape> = elements.filter((element: IShape) => {
@@ -315,10 +315,18 @@ export class LiveExecutionTracker {
     const elementsWithActiveTokenDidNotChange: boolean =
       activeManualAndUserTaskIds.toString() === this._previousManualAndUserTaskIdsWithActiveToken.toString();
 
-    const allActiveElementsHaveAnOverlay: boolean = activeManualAndUserTaskIds.length === Object.keys(this._overlays._overlays).length;
+    const overlayIds: Array<string> = Object.keys(this._overlays._overlays);
+
+    const allActiveElementsHaveAnOverlay: boolean = activeManualAndUserTaskIds.every((taskId: string): boolean => {
+      const overlayFound: boolean = overlayIds.find((overlayId: string): boolean => {
+        return this._overlays._overlays[overlayId].element.id === taskId;
+      }) !== undefined;
+
+      return overlayFound;
+     });
 
     if (elementsWithActiveTokenDidNotChange && allActiveElementsHaveAnOverlay) {
-      return;
+      return activeManualAndUserTaskIds;
     }
 
     for (const elementId of this._elementsWithEventListeners) {
@@ -352,7 +360,7 @@ export class LiveExecutionTracker {
   private _addOverlaysToActiveCallActivities(activeElements: Array<IShape>): Array<string> {
     const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
     if (liveExecutionTrackerIsNotAttached) {
-      return;
+      return [];
     }
 
     const activeCallActivities: Array<IShape> = activeElements.filter((element: IShape) => {
@@ -366,10 +374,17 @@ export class LiveExecutionTracker {
     const activeElementsWithActiveTokenDidNotChange: boolean =
       activeCallActivityIds.toString() === this._previousCallActivitiesWithActiveToken.toString();
 
-    const allActiveCallActivitiesHaveAnOverlay: boolean = activeCallActivityIds.length === Object.keys(this._overlays._overlays).length;
+    const overlayIds: Array<string> = Object.keys(this._overlays._overlays);
+    const allActiveCallActivitiesHaveAnOverlay: boolean = activeCallActivityIds.every((callActivityId: string): boolean => {
+      const overlayFound: boolean = overlayIds.find((overlayId: string): boolean => {
+        return this._overlays._overlays[overlayId].element.id === callActivityId;
+      }) !== undefined;
+
+      return overlayFound;
+     });
 
     if (activeElementsWithActiveTokenDidNotChange && allActiveCallActivitiesHaveAnOverlay) {
-      return;
+      return activeCallActivityIds;
     }
 
     this._activeCallActivities = activeCallActivities;
