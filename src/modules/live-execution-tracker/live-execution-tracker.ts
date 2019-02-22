@@ -234,6 +234,10 @@ export class LiveExecutionTracker {
     this.dynamicUi.clearTasks();
   }
 
+  public closeDiagramPreview(): void {
+    this.showDiagramPreviewViewer = false;
+  }
+
   public toggleShowTokenViewer(): void {
     this.showTokenViewer = !this.showTokenViewer;
   }
