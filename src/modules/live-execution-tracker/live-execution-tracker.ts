@@ -69,7 +69,7 @@ export class LiveExecutionTracker {
 
   private _diagramModeler: IBpmnModeler;
   private _diagramViewer: IBpmnModeler;
-  private _DiagramPreviewViewer: IBpmnModeler;
+  private _diagramPreviewViewer: IBpmnModeler;
   private _modeling: IModeling;
   private _elementRegistry: IElementRegistry;
   private _viewerCanvas: ICanvas;
@@ -132,7 +132,7 @@ export class LiveExecutionTracker {
       ],
     });
 
-    this._DiagramPreviewViewer = new bundle.viewer({
+    this._diagramPreviewViewer = new bundle.viewer({
       additionalModules:
       [
         bundle.ZoomScrollModule,
@@ -217,7 +217,7 @@ export class LiveExecutionTracker {
     this._diagramViewer.detach();
     this._diagramViewer.destroy();
 
-    this._DiagramPreviewViewer.destroy();
+    this._diagramPreviewViewer.destroy();
 
     this._stopPolling();
   }
@@ -249,8 +249,8 @@ export class LiveExecutionTracker {
   public closeDiagramPreview(): void {
     this.showDiagramPreviewViewer = false;
 
-    this._DiagramPreviewViewer.clear();
-    this._DiagramPreviewViewer.detach();
+    this._diagramPreviewViewer.clear();
+    this._diagramPreviewViewer.detach();
   }
 
   public toggleShowTokenViewer(): void {
@@ -518,8 +518,8 @@ export class LiveExecutionTracker {
       const element: IShape = this._elementRegistry.get(elementId);
       const callActivityTargetProcess: string = element.businessObject.calledElement;
 
-      const callAcitivityHasNoTargetProcess: boolean = callActivityTargetProcess === undefined;
-      if (callAcitivityHasNoTargetProcess) {
+      const callActivityHasNoTargetProcess: boolean = callActivityTargetProcess === undefined;
+      if (callActivityHasNoTargetProcess) {
         const notificationMessage: string = 'The CallActivity has no target configured. Please configure a target in the designer.';
 
         this._notificationService.showNotification(NotificationType.INFO, notificationMessage);
