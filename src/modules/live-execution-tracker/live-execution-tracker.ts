@@ -334,7 +334,7 @@ export class LiveExecutionTracker {
     }
 
     for (const callActivity of this._activeCallActivities) {
-      document.getElementById(callActivity.id).removeEventListener('click', this._handleCallActivityClick);
+      document.getElementById(callActivity.id).removeEventListener('click', this._handleActiveCallActivityClick);
     }
 
     this._elementsWithEventListeners = [];
@@ -398,7 +398,7 @@ export class LiveExecutionTracker {
         html: `<div class="play-task-button-container" id="${element.id}"><i class="fas fa-external-link-square-alt play-task-button"></i></div>`,
       });
 
-      document.getElementById(element.id).addEventListener('click', this._handleCallActivityClick);
+      document.getElementById(element.id).addEventListener('click', this._handleActiveCallActivityClick);
 
       this._elementsWithEventListeners.push(element.id);
     }
@@ -414,7 +414,7 @@ export class LiveExecutionTracker {
       this.showDynamicUiModal = true;
     }
 
-  private _handleCallActivityClick: (event: MouseEvent) => Promise<void> =
+  private _handleActiveCallActivityClick: (event: MouseEvent) => Promise<void> =
     async(event: MouseEvent): Promise<void> => {
       const elementId: string = (event.target as HTMLDivElement).id;
       const element: IShape = this._elementRegistry.get(elementId);
