@@ -10,9 +10,9 @@
       </button>
       <div class="dropdown-menu">
         <div if.bind="updateProgressData !== undefined">
-          Progress: ${updateProgressData.percent}%
-          Downloaded: ${updateProgressData.transferred}/${updateProgressData.total}
-          Speed: ${updateProgressData.bytesPerSecond}
+          <span>Progress: ${updateProgressData.percent.toFixed(2)}%</span>
+          <span>Downloaded: ${updateProgressData.transferred}/${updateProgressData.total}</span>
+          <span>Speed: ${updateProgressData.bytesPerSecond}</span>
         </div>
       </div>
     </div>
