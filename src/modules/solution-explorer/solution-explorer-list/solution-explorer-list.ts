@@ -268,9 +268,9 @@ export class SolutionExplorerList {
       return solutionUri;
     }
 
-    const isWindows: boolean = solutionUri.lastIndexOf('/') === -1;
-    const seperator: string = isWindows ? '\\' : '/';
-    const lastFolderIndex: number = solutionUri.lastIndexOf(seperator) + 1;
+    const lastIndexOfSlash: number = solutionUri.lastIndexOf('/');
+    const lastIndexOfBackSlash: number = solutionUri.lastIndexOf('\\');
+    const lastFolderIndex: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash) + 1;
 
     const folderName: string = solutionUri.substring(lastFolderIndex);
 
