@@ -151,9 +151,9 @@
           header-text="Choose a Diagram"
           id="chooseDiagramModal">
       <template replace-part="modal-body">
-        <select value.bind="selectedDiagram" class="diagram-list_dropdown">
-          <option>Select a diagram to compare it to the currently opened diagram</option>
-          <option repeat.for="diagram of diagramArray" model.bind="diagram">${diagram.solutionName === 'Last Saved' ? diagram.solutionName : `${diagram.solutionName} | ${diagram.diagram.name}`}</option>
+        <select value.bind="selectedDiagram" class="diagram-list_dropdown" id="diagramDropdown">
+          <option id="first">Select a diagram to compare it to the currently opened diagram</option>
+          <option repeat.for="diagram of diagramArray" id="${diagram.diagram.name}" model.bind="diagram">${diagram.solutionName === 'Last Saved' ? diagram.solutionName : `${diagram.solutionName} | ${diagram.diagram.name}`}</option>
         </select>
       </template>
       <template replace-part="modal-footer">

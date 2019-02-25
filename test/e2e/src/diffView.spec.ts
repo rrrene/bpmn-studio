@@ -1,6 +1,5 @@
 import {browser} from 'protractor';
 
-import {Design} from '../../../src/modules/design/design';
 import {SimpleDiagram} from './diagrams/simpleDiagram';
 import {DiagramDetail} from './pages/diagramDetail';
 import {DiffView} from './pages/diffView';
@@ -69,6 +68,22 @@ describe('Diff view', () => {
     const chooseDiagramModalIsDisplayed: boolean = await diffView.getVisibilityOfChooseDiagramModal();
 
     expect(chooseDiagramModalIsDisplayed).toBeTruthy();
+  });
+
+  it('should contain `diagramDropdown` within the modal.', async() => {
+    await diffView.show();
+    diffView.clickOnDiffAgainstOtherDiagramButton();
+
+    const diagramDropdownIsDisplayed: boolean = await diffView.getVisibilityOfDiagramDropdown();
+
+    const bla: any = await diffView.getDropdownOptions();
+
+    expect(diagramDropdownIsDisplayed).toBeTruthy();
+  });
+
+  it('should select a diagram', async() => {
+    const bla: any = await diffView.getDropdownOptions();
+
   });
 
 });

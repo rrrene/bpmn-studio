@@ -1,10 +1,11 @@
-import {browser, by, element, ElementFinder, ExpectedConditions} from 'protractor';
+import {browser, by, element, ElementArrayFinder, ElementFinder, ExpectedConditions} from 'protractor';
 
 import {By} from 'selenium-webdriver';
 
 const diffAgainstOtherDiagramButtonId: string = 'diffAgainstOtherDiagramButton';
 const diffViewContainerId: string = 'diagramDiffContainer';
 const chooseDiagramModalId: string = 'chooseDiagramModal';
+const diagramDropdownId: string = 'diagramDropdown';
 
 export class DiffView {
 
@@ -42,6 +43,20 @@ export class DiffView {
     return this._chooseDiagramModal.isDisplayed();
   }
 
+  public async getVisibilityOfDiagramDropdown(): Promise<boolean> {
+    await browser.wait(ExpectedConditions.visibilityOf(this._diagramDropdown), browser.params.defaultTimeoutMS);
+
+    return this._diagramDropdown.isDisplayed();
+  }
+
+  public async getDropdownOptions(): Promise<any> {
+    this._diagramDropdown.all(by.tagName('option')).then((options: Array<Element> ) => {
+      console.log(options[0].id);
+    });
+
+    return this._diagramDropdown.all(by.tagName('option'));
+  }
+
   private get _diffViewContainer(): ElementFinder {
     const diffViewContainerById: By = by.id(diffViewContainerId);
 
@@ -58,5 +73,11 @@ export class DiffView {
     const chooseDiagramModalById: By = by.id(chooseDiagramModalId);
 
     return element(chooseDiagramModalById);
+  }
+
+  private get _diagramDropdown(): ElementFinder {
+    const diagramDropdownById: By = by.id(diagramDropdownId);
+
+    return element(diagramDropdownById);
   }
 }
