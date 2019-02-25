@@ -11,8 +11,8 @@
       <div class="dropdown-menu">
         <div if.bind="updateProgressData !== undefined">
           <span class="update-data">Progress: ${updateProgressData.percent.toFixed(2)}%</span>
-          <span class="update-data">Downloaded: ${updateProgressData.transferred/1000/1000}MB of ${updateProgressData.total/1000/1000}MB</span>
-          <span class="update-data">Speed: ${updateProgressData.bytesPerSecond/1000}KB/s</span>
+          <span class="update-data">Downloaded: ${(updateProgressData.transferred/1000/1000).toFixed(2)} MB of ${(updateProgressData.total/1000/1000).toFixed(2)} MB</span>
+          <span class="update-data">Speed: ${(updateProgressData.bytesPerSecond/1000).toFixed(2)} KB/s</span>
         </div>
       </div>
     </div>
