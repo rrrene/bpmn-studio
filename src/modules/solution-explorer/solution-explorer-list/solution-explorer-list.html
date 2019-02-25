@@ -13,7 +13,7 @@
 
           <span class="solution-entry__header__name" title.bind="solutionEntry.uri">${getPartToDisplayOfSolutionUri(solutionEntry.uri)}</span>
           <div class="solution-entry__header__location">
-              <span
+            <span
               if.bind="!solutionEntryIsRemote(solutionEntry) && getPartToDisplayOfSolutionUri(solutionEntry.uri) !== solutionEntry.uri"
               title.bind="solutionEntry.uri">
               ${solutionEntry.uri}
