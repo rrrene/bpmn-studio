@@ -532,7 +532,7 @@ export class LiveExecutionTracker {
       this.showDiagramPreviewViewer = true;
 
       setTimeout(() => {
-        this._DiagramPreviewViewer.attachTo(this.previewCanvasModel);
+        this._diagramPreviewViewer.attachTo(this.previewCanvasModel);
       }, 0);
     }
 
@@ -840,7 +840,7 @@ export class LiveExecutionTracker {
     }
 
     const xmlImportPromise: Promise<void> = new Promise((resolve: Function, reject: Function): void => {
-      this._DiagramPreviewViewer.importXML(xml, (importXmlError: Error) => {
+      this._diagramPreviewViewer.importXML(xml, (importXmlError: Error) => {
         if (importXmlError) {
           reject(importXmlError);
 
