@@ -311,7 +311,7 @@ export class LiveExecutionTracker {
     const activeUserAndManualTaskIds: Array<string> = this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
     const activeCallActivityIds: Array<string> = this._addOverlaysToActiveCallActivities(elementsWithActiveToken);
 
-    this._addOverlaysToAllCallActivities(allElements);
+    this._addOverlaysToInactiveCallActivities(allElements);
 
     this._previousManualAndUserTaskIdsWithActiveToken = activeUserAndManualTaskIds;
     this._previousCallActivitiesWithActiveToken = activeCallActivityIds;
@@ -381,7 +381,7 @@ export class LiveExecutionTracker {
     return activeManualAndUserTaskIds;
   }
 
-  private _addOverlaysToAllCallActivities(elements: Array<IShape>): void {
+  private _addOverlaysToInactiveCallActivities(elements: Array<IShape>): void {
     const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
     if (liveExecutionTrackerIsNotAttached) {
       return;
