@@ -57,8 +57,7 @@
          modal-style="top: 10%; bottom: 10%; left: 10%; right: 10%; margin: 0; position: absolute; max-width: 100%;"
          css="display: ${showDiagramPreviewViewer ? 'block' : 'none'};"
          body-style="overflow: auto; width: 100%; height: 100%; padding: 0;"
-         origin.bind="liveExecutionTracker"
-         content-style="width: 100%; height: 100%;">
+         origin.bind="liveExecutionTracker">
     <template replace-part="modal-header">
       <span class="let__diagram-preview-header">Preview: ${origin.nameOfDiagramToPreview}</span>
       <btn class="button let__close-modal-button"><i class="fas fa-times" click.delegate="closeDiagramPreview()"></i></btn>
