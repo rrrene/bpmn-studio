@@ -26,3 +26,6 @@ export {IViewbox} from './IViewbox';
 export {IInnerViewbox} from './IInnerViewbox';
 export {IOuterViewbox} from './IOuterViewbox';
 export {ILinting} from './ILinting';
+export {IValidateIssue} from './IValidateIssue';
+export {IValidateResult} from './IValidateResult';
+export {IValidateIssueCategory} from './IValidateIssueCategory';
