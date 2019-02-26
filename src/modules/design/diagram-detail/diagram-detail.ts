@@ -321,7 +321,9 @@ export class DiagramDetail {
    */
   public async saveDiagram(): Promise<void> {
 
-    if (this.diagramIsInvalid) {
+    const savingTargetIsRemoteSolution: boolean = this.activeSolutionEntry.uri.startsWith('http');
+
+    if (this.diagramIsInvalid && savingTargetIsRemoteSolution) {
       // TODO: Try to get some more information out of this: Why was it invalid? This message is not very helpful to the user.
       this._notificationService.showNotification(NotificationType.WARNING, `The diagram could not be saved because it is invalid!`);
 
