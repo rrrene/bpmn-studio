@@ -18,6 +18,9 @@ import {
   IInternalEvent,
   IKeyboard,
   ILinting,
+  IValidateIssue,
+  IValidateIssueCategory,
+  IValidateResult,
   IViewbox,
   NotificationType,
 } from '../../../contracts/index';
@@ -101,6 +104,8 @@ export class BpmnIo {
       },
     });
 
+    this._linting = this.modeler.get('linting');
+
     /**
      * Subscribe to the "elements.paste.rejected"-event to show a helpful
      * message to the user.
@@ -142,6 +147,7 @@ export class BpmnIo {
 
         return event;
       }
+      this._validateDiagram();
     });
 
     this.modeler.on('element.paste', (event: IInternalEvent) => {
@@ -379,6 +385,28 @@ export class BpmnIo {
     if (newValue !== undefined) {
       window.localStorage.setItem('propertyPanelWidth', '' + this.propertyPanelWidth);
     }
+  }
+
+  private async _validateDiagram(): Promise<void> {
+    const validationResult: IValidateResult = await this._linting.lint();
+
+    let validationResultContainsErrors: boolean = false;
+
+    Object.entries(validationResult).forEach(([key, validationIssues]: [string, Array<IValidateIssue>]) => {
+      const issuesContainError: boolean = validationIssues.some((issue: IValidateIssue) => {
+        return issue.category === IValidateIssueCategory.error;
+      });
+
+      if (issuesContainError) {
+        validationResultContainsErrors = true;
+      }
+    });
+
+    const eventToPublish: string = validationResultContainsErrors
+                                 ? environment.events.navBar.validationError
+                                 : environment.events.navBar.noValidationError;
+
+    this._eventAggregator.publish(eventToPublish);
   }
 
   public _togglePanel(): void {
