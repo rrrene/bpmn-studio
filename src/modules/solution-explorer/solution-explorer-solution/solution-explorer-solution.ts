@@ -796,9 +796,9 @@ export class SolutionExplorerSolution {
       .required()
       .withMessage('Diagram name cannot be blank.')
       .satisfies((input: string) => {
-        const inputNotIsEmpty: boolean = input !== undefined;
+        const inputIsNotEmpty: boolean = input !== undefined;
 
-        const inputAsCharArray: Array<string> = inputNotIsEmpty
+        const inputAsCharArray: Array<string> = inputIsNotEmpty
                                               ? input.split('')
                                               : [];
 
@@ -814,9 +814,9 @@ export class SolutionExplorerSolution {
       })
       .withMessage(`Your diagram contains at least one invalid-character: \${$value}`)
       .satisfies((input: string) => {
-        const inputNotIsEmpty: boolean = input !== undefined;
+        const inputIsNotEmpty: boolean = input !== undefined;
 
-        const diagramDoesNotStartWithWhitespace: boolean = inputNotIsEmpty
+        const diagramDoesNotStartWithWhitespace: boolean = inputIsNotEmpty
                                                          ? !input.match(/^\s/)
                                                          : true;
 
@@ -824,9 +824,9 @@ export class SolutionExplorerSolution {
       })
       .withMessage('The diagram name can not start with a whitespace character.')
       .satisfies((input: string) => {
-        const inputNotIsEmpty: boolean = input !== undefined;
+        const inputIsNotEmpty: boolean = input !== undefined;
 
-        const diagramDoesNotEndWithWhitespace: boolean = inputNotIsEmpty
+        const diagramDoesNotEndWithWhitespace: boolean = inputIsNotEmpty
                                                        ? !input.match(/\s+$/)
                                                        : true;
 
