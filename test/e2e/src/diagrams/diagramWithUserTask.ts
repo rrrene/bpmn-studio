@@ -92,7 +92,7 @@ export class DiagramWithUserTask {
 
     public async startProcess(): Promise<void> {
       const requestDestination: string =
-        `/api/management/v1/process_models/${this.name}/start_events/StartEvent_1mox3jl/start?start_callback_type=1`;
+        `/api/management/v1/process_models/${this.name}/start_events/start?start_callback_type=1&start_event_id=StartEvent_1mox3jl`;
 
       const requestPayload: IRequestPayload = {};
       const requestHeaders: IRequestHeaders = this._getRequestHeaders();
