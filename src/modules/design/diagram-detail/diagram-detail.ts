@@ -202,7 +202,6 @@ export class DiagramDetail {
     const processModelId: string = processModel.id;
 
     try {
-      this.activeSolutionEntry = solutionToDeployTo;
 
       this.activeDiagram.id = processModelId;
 
@@ -222,13 +221,13 @@ export class DiagramDetail {
         xml: this.activeDiagram.xml,
       };
 
-      await this.activeSolutionEntry.service.saveDiagram(copyOfDiagram, solutionToDeployTo.uri);
+      await solutionToDeployTo.service.saveDiagram(copyOfDiagram, solutionToDeployTo.uri);
 
-      this.activeDiagram = await this.activeSolutionEntry.service.loadDiagram(processModelId);
+      this.activeDiagram = await solutionToDeployTo.service.loadDiagram(processModelId);
 
       this._router.navigateToRoute('design', {
         diagramName: this.activeDiagram.name,
-        solutionUri: this.activeSolutionEntry.uri,
+        solutionUri: solutionToDeployTo.uri,
       });
 
       this._notificationService
