@@ -837,6 +837,35 @@ export class SolutionExplorerSolution {
         return diagramDoesNotEndWithWhitespace;
       })
       .withMessage('The diagram name can not end with a whitespace character.')
+      .then()
+      .satisfies(async(input: string) => {
+
+        const diagramNameIsUnchanged: boolean = this._isCurrentlyRenamingDiagram
+                                             && this._currentlyRenamingDiagram.name.toLowerCase() === input.toLowerCase();
+
+        if (diagramNameIsUnchanged) {
+          return true;
+        }
+
+        // The solution may have changed on the file system.
+        await this.updateSolution();
+
+        const isRemoteSolution: boolean = this._openedSolution.uri.startsWith('http');
+        const isRunningInElectron: boolean = (window as any).nodeRequire;
+
+        let expectedDiagramUri: string;
+        if (isRemoteSolution) {
+          expectedDiagramUri = `${this._openedSolution.uri}/${input}.bpmn`;
+        } else if (isRunningInElectron) {
+          const path: any = (window as any).nodeRequire('path');
+          expectedDiagramUri = join(this._openedSolution.uri, `${input}.bpmn`);
+        }
+
+        const diagramWithUriDoesNotExist: boolean = this.
+          _findURIObject(this._openedSolution.diagrams, expectedDiagramUri) === undefined;
+        return diagramWithUriDoesNotExist;
+      })
+      .withMessage('A diagram with that name already exists.')
   }
 
 }
