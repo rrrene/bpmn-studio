@@ -827,6 +827,16 @@ export class SolutionExplorerSolution {
         return diagramDoesNotStartWithWhitespace;
       })
       .withMessage('The diagram name can not start with a whitespace character.')
+      .satisfies((input: string) => {
+        const inputNotIsEmpty: boolean = input !== undefined;
+
+        const diagramDoesNotEndWithWhitespace: boolean = inputNotIsEmpty
+                                                       ? !input.match(/\s+$/)
+                                                       : true;
+
+        return diagramDoesNotEndWithWhitespace;
+      })
+      .withMessage('The diagram name can not end with a whitespace character.')
   }
 
 }
