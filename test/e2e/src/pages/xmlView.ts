@@ -36,6 +36,12 @@ export class XmlView {
     return this._lineNumbers.isDisplayed();
   }
 
+  public async getVisbilityOfCodeLines(): Promise<boolean> {
+    this._waitForVisbilityOfElement(this._codeLines.first());
+
+    return this._codeLines.isDisplayed();
+  }
+
   private async _waitForVisbilityOfElement(finder: ElementFinder): Promise<void> {
     const finderVisibility: Function = ExpectedConditions.visibilityOf(finder);
 
@@ -64,4 +70,9 @@ export class XmlView {
     return element.all(lineNumbersByCss);
   }
 
+  private get _codeLines(): ElementArrayFinder {
+    const codeLinesByCss: By = by.css('hljs-ln-code');
+
+    return element.all(codeLinesByCss);
+  }
 }
