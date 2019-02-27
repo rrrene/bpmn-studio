@@ -280,13 +280,16 @@ export class DiagramDetail {
     };
 
     try {
+      const useDefaultStartCallbackType: undefined = undefined;
+      const doNotAwaitEndEvent: undefined = undefined;
+
       const response: DataModels.ProcessModels.ProcessStartResponsePayload = await this._managementApiClient
         .startProcessInstance(this.activeSolutionEntry.identity,
                               this.activeDiagram.id,
-                              this.selectedStartEventId,
                               startRequestPayload,
-                              undefined,
-                              undefined);
+                              useDefaultStartCallbackType,
+                              this.selectedStartEventId,
+                              doNotAwaitEndEvent);
 
       const {correlationId, processInstanceId} = response;
 
