@@ -24,6 +24,9 @@ export class XmlView {
     return this._xmlViewContainer.isDisplayed();
   }
 
+  public async getVisbilityOfXMLCodeBlock(): Promise<boolean> {
+    this._waitForVisbilityOfElement(this._xmlCodeBlock);
+
     return this._xmlViewContainer.isDisplayed();
   }
 
@@ -42,4 +45,11 @@ export class XmlView {
 
     return element(xmlViewContainerById);
   }
+
+  private get _xmlCodeBlock(): ElementFinder {
+    const codeBlockByTag: By = by.tagName('code');
+
+    return element(codeBlockByTag);
+  }
+
 }
