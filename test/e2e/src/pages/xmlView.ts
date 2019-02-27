@@ -1,4 +1,4 @@
-import {browser, by, element, ElementFinder, ExpectedConditions} from 'protractor';
+import {browser, by, element, ElementArrayFinder, ElementFinder, ExpectedConditions} from 'protractor';
 
 import {By} from 'selenium-webdriver';
 
@@ -19,9 +19,22 @@ export class XmlView {
   }
 
   public async getVisibilityOfXmlViewContainer(): Promise<boolean> {
-    await browser.wait(ExpectedConditions.visibilityOf(this._xmlViewContainer), browser.params.defaultTimeoutMS);
+    this._waitForVisbilityOfElement(this._xmlViewContainer);
 
     return this._xmlViewContainer.isDisplayed();
+  }
+
+    return this._xmlViewContainer.isDisplayed();
+  }
+
+  private async _waitForVisbilityOfElement(finder: ElementFinder): Promise<void> {
+    const finderVisibility: Function = ExpectedConditions.visibilityOf(finder);
+
+    await browser.wait(finderVisibility, browser.params.defaultTimeoutMS).catch(() => {
+      // If this timeouts do nothing.
+      // We are basically supressing the timeout error here.
+      // This way we get better error messages for debugging by the actual test function.
+    });
   }
 
   private get _xmlViewContainer(): ElementFinder {
