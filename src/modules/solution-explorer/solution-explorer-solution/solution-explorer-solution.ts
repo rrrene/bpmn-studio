@@ -866,6 +866,8 @@ export class SolutionExplorerSolution {
         return diagramWithUriDoesNotExist;
       })
       .withMessage('A diagram with that name already exists.')
+      .on(this._diagramRenamingState)
+      .on(this._diagramCreationState);
   }
 
 }
