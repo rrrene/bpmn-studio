@@ -27,6 +27,7 @@ export class NavBar {
   public disableDashboardButton: boolean = false;
   public disableInspectCorrelationButton: boolean = false;
   public diagramContainsUnsavedChanges: boolean = false;
+  public savingTargetIsRemoteSolution: boolean = false;
 
   public inspectView: string = 'dashboard';
   public designView: string = 'detail';
@@ -214,7 +215,7 @@ export class NavBar {
   }
 
   public saveDiagram(): void {
-    if (this.validationError) {
+    if (this.validationError && this.savingTargetIsRemoteSolution) {
       return;
     }
 
@@ -222,9 +223,6 @@ export class NavBar {
   }
 
   public printDiagram(): void {
-    if (this.validationError) {
-      return;
-    }
 
     this._eventAggregator.publish(environment.events.diagramDetail.printDiagram);
   }
@@ -340,6 +338,8 @@ export class NavBar {
       : solutionUriFromNavigation;
 
     this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(solutionUri);
+
+    this.savingTargetIsRemoteSolution = this.activeSolutionEntry.uri.startsWith('http');
 
     const solutionIsSet: boolean = this.activeSolutionEntry !== undefined;
     const diagramName: string = this.router.currentInstruction.params.diagramName;
