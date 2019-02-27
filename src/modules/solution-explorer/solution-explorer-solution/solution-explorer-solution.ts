@@ -803,11 +803,10 @@ export class SolutionExplorerSolution {
                                               : [];
 
         const diagramNamePassesNameChecks: boolean = inputAsCharArray.every((letter: string) => {
+          // tslint:disable-next-line:typedef
+          const letterMatches = (regExp: RegExp): boolean => regExp.test(letter);
 
-          return this._diagramValidationRegExpList.some((regExp: RegExp) => {
-
-            return regExp.test(letter);
-          });
+          return this._diagramValidationRegExpList.some(letterMatches);
         });
 
         return diagramNamePassesNameChecks;
