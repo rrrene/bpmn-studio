@@ -795,6 +795,28 @@ export class SolutionExplorerSolution {
       .ensure((state: IDiagramNameInputState) => state.currentDiagramInputValue)
       .required()
       .withMessage('Diagram name cannot be blank.')
+      .satisfies((input: string) => {
+        const inputNotIsEmpty: boolean = input !== undefined;
+
+        const inputAsCharArray: Array<string> = inputNotIsEmpty
+                                              ? input.split('')
+                                              : [];
+
+        const diagramNamePassesNameChecks: boolean = !inputAsCharArray.some((letter: string) => {
+          for (const regExIndex in this._diagramValidationRegExpList) {
+            const letterIsInvalid: boolean = letter.match(this._diagramValidationRegExpList[regExIndex]) !== null;
+
+            if (letterIsInvalid) {
+              return false;
+            }
+          }
+
+          return true;
+        });
+
+        return diagramNamePassesNameChecks;
+      })
+      .withMessage(`Your diagram contains at least one invalid-character: \${$value}`)
   }
 
 }
