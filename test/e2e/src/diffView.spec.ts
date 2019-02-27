@@ -91,9 +91,9 @@ describe('Diff view', () => {
     // tslint:disable-next-line:no-magic-numbers
     expect(arrayOfOptions.length).toBeGreaterThan(1);
     // tslint:disable-next-line:no-magic-numbers
-    await arrayOfOptions[2].click();
+    await arrayOfOptions[1].click();
     // tslint:disable-next-line:no-magic-numbers
-    expect(await arrayOfOptions[2].isSelected()).toBe(true);
+    expect(await arrayOfOptions[1].isSelected()).toBe(true);
 
   });
 
