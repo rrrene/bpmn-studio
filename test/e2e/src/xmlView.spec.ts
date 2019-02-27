@@ -70,5 +70,13 @@ describe('XML view', () => {
     expect(visbilityOfLineNumbers).toBeTruthy();
   });
 
+  it('should show code lines.', async() => {
+    await xmlView.show();
+
+    const visiblityOfCodeLines: boolean = await xmlView.getVisbilityOfCodeLines();
+
+    expect(visiblityOfCodeLines).toBeTruthy();
+  });
+
   // TODO Test: Check if XML is formatted.
 });
