@@ -239,7 +239,6 @@ export class SolutionExplorerSolution {
     window.setTimeout(() => {
       this._renameDiagramInput.focus();
       this._diagramRenamingState.currentDiagramInputValue = diagram.name;
-      this._diagramNameValidator.on(this._diagramRenamingState);
       this._validationController.validate();
     }, 0);
 
@@ -266,7 +265,7 @@ export class SolutionExplorerSolution {
     }
 
     this._diagramCreationState.isCreateDiagramInputShown = true;
-    this._diagramNameValidator.on(this._diagramCreationState);
+    this._validationController.validate();
 
     // The templating update must happen before we can set the focus.
     window.setTimeout(() => {
