@@ -1,4 +1,4 @@
-import {browser} from 'protractor';
+import {browser, ElementFinder} from 'protractor';
 
 import {SimpleDiagram} from './diagrams/simpleDiagram';
 import {DiagramDetail} from './pages/diagramDetail';
@@ -76,13 +76,23 @@ describe('Diff view', () => {
 
     const diagramDropdownIsDisplayed: boolean = await diffView.getVisibilityOfDiagramDropdown();
 
-    const bla: any = await diffView.getDropdownOptions();
-
     expect(diagramDropdownIsDisplayed).toBeTruthy();
   });
 
   it('should select a diagram', async() => {
-    const bla: any = await diffView.getDropdownOptions();
+    await diffView.show();
+    diffView.clickOnDiffAgainstOtherDiagramButton();
+
+    const arrayOfOptions: Array<ElementFinder> = await diffView.getDropdownOptions();
+
+    /**
+     * The third option gets selected because the first two are always there.
+     */
+    expect(arrayOfOptions.length).toBeGreaterThan(2);
+    // tslint:disable-next-line:no-magic-numbers
+    await arrayOfOptions[2].click();
+    // tslint:disable-next-line:no-magic-numbers
+    expect(await arrayOfOptions[2].isSelected()).toBe(true);
 
   });
 

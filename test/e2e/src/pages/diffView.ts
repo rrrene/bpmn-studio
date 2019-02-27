@@ -49,12 +49,18 @@ export class DiffView {
     return this._diagramDropdown.isDisplayed();
   }
 
-  public async getDropdownOptions(): Promise<any> {
-    this._diagramDropdown.all(by.tagName('option')).then((options: Array<Element> ) => {
-      console.log(options[0].id);
+  public async getDropdownOptions(): Promise<Array<ElementFinder>> {
+    await browser.wait(ExpectedConditions.visibilityOf(this._diagramDropdown), browser.params.defaultTimeoutMS);
+    await this._diagramDropdown.click();
+
+    const elements: ElementArrayFinder = this._diagramDropdown.all(by.tagName('option'));
+    const options: Array<ElementFinder> = [];
+
+    await elements.each((elementFinder: ElementFinder) => {
+      options.push(elementFinder);
     });
 
-    return this._diagramDropdown.all(by.tagName('option'));
+    return options;
   }
 
   private get _diffViewContainer(): ElementFinder {
