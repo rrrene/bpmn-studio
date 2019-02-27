@@ -73,11 +73,11 @@ export class SolutionExplorerSolution {
   };
   private _refreshIntervalTask: any;
 
-  private _diagramValidationRegExpList: IUserInputValidationRule = {
-    alphanumeric: /^[a-z0-9]/i,
-    specialCharacters: /^[._ -]/i,
-    german: /^[äöüß]/i,
-  };
+  private _diagramValidationRegExpList: Array<RegExp> =  [
+    /^[a-z0-9]/i,
+    /^[._ -]/i,
+    /^[äöüß]/i,
+  ];
 
   private _currentlyRenamingDiagram: IDiagram | null = null;
 
@@ -802,16 +802,12 @@ export class SolutionExplorerSolution {
                                               ? input.split('')
                                               : [];
 
-        const diagramNamePassesNameChecks: boolean = !inputAsCharArray.some((letter: string) => {
-          for (const regExIndex in this._diagramValidationRegExpList) {
-            const letterIsInvalid: boolean = letter.match(this._diagramValidationRegExpList[regExIndex]) !== null;
+        const diagramNamePassesNameChecks: boolean = inputAsCharArray.every((letter: string) => {
 
-            if (letterIsInvalid) {
-              return false;
-            }
-          }
+          return this._diagramValidationRegExpList.some((regExp: RegExp) => {
 
-          return true;
+            return regExp.test(letter);
+          });
         });
 
         return diagramNamePassesNameChecks;
