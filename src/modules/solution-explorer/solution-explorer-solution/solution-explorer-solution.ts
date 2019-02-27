@@ -80,58 +80,6 @@ export class SolutionExplorerSolution {
   };
 
   private _currentlyRenamingDiagram: IDiagram | null = null;
-  private _diagramNameValidator: FluentRuleCustomizer<IDiagramNameInputState, IDiagramNameInputState> = ValidationRules
-      .ensure((state: IDiagramNameInputState) => state.currentDiagramInputValue)
-      .required()
-      .withMessage('Diagram name cannot be blank.')
-      .satisfies((input: string) => {
-        const inputAsCharArray: Array<string> = input.split('');
-
-        const diagramNamePassesNameChecks: boolean = !inputAsCharArray.some((letter: string) => {
-          for (const regExIndex in this._diagramValidationRegExpList) {
-            const letterIsInvalid: boolean = letter.match(this._diagramValidationRegExpList[regExIndex]) !== null;
-
-            if (letterIsInvalid) {
-              return false;
-            }
-          }
-
-          return true;
-        });
-
-        return diagramNamePassesNameChecks;
-      })
-      .withMessage(`Your diagram contains at least one invalid-character: \${$value}`)
-      .satisfies((input: string) => {
-        const diagramDoesNotStartWithWhitespace: boolean = !input.match(/^\s/);
-
-        return diagramDoesNotStartWithWhitespace;
-      })
-      .withMessage('The diagram name can not start with a whitespace character.')
-      .satisfies((input: string) => {
-        const diagramDoesNotEndWithWhitespace: boolean = !input.match(/\s+$/);
-
-        return diagramDoesNotEndWithWhitespace;
-      })
-      .withMessage('The diagram name can not end with a whitespace character.')
-      .then()
-      .satisfies(async(input: string) => {
-        const diagramNameIsUnchanged: boolean = this._isCurrentlyRenamingDiagram
-                                             && this._currentlyRenamingDiagram.name.toLowerCase() === input.toLowerCase();
-        if (diagramNameIsUnchanged) {
-          return true;
-        }
-
-        // The solution may have changed on the file system.
-        await this.updateSolution();
-
-        const diagramUri: string = `${this._openedSolution.uri}/${input}.bpmn`;
-        const diagramWithUriDoesNotExist: boolean = this.
-          _findURIObject(this._openedSolution.diagrams, diagramUri) === undefined;
-
-        return diagramWithUriDoesNotExist;
-      })
-      .withMessage('A diagram with that name already exists.');
 
   // Fields below are bound from the html view.
   @bindable public solutionService: ISolutionExplorerService;
