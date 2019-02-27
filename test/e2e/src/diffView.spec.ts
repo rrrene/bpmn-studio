@@ -89,7 +89,7 @@ describe('Diff view', () => {
      * The third option gets selected because the first two are always there.
      */
     // tslint:disable-next-line:no-magic-numbers
-    expect(arrayOfOptions.length).toBeGreaterThan(2);
+    expect(arrayOfOptions.length).toBeGreaterThan(1);
     // tslint:disable-next-line:no-magic-numbers
     await arrayOfOptions[2].click();
     // tslint:disable-next-line:no-magic-numbers
