@@ -16,6 +16,7 @@ import {
 import {ForbiddenError, isError, UnauthorizedError} from '@essential-projects/errors_ts';
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
+import {join} from 'path';
 
 import {
         IDiagramCreationService,
