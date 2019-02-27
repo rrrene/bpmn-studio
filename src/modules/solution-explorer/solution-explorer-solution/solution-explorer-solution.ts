@@ -857,7 +857,6 @@ export class SolutionExplorerSolution {
         if (isRemoteSolution) {
           expectedDiagramUri = `${this._openedSolution.uri}/${input}.bpmn`;
         } else if (isRunningInElectron) {
-          const path: any = (window as any).nodeRequire('path');
           expectedDiagramUri = join(this._openedSolution.uri, `${input}.bpmn`);
         }
 
