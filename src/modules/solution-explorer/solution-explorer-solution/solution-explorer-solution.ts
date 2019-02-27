@@ -8,7 +8,6 @@ import {
 import {Router} from 'aurelia-router';
 import {
   ControllerValidateResult,
-  FluentRuleCustomizer,
   ValidateResult,
   ValidationController,
   ValidationRules,
@@ -18,12 +17,13 @@ import {ForbiddenError, isError, UnauthorizedError} from '@essential-projects/er
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 
-import {AuthenticationStateEvent,
+import {
         IDiagramCreationService,
         ISolutionEntry,
         ISolutionService,
         IUserInputValidationRule,
-        NotificationType} from '../../../contracts/index';
+        NotificationType,
+} from '../../../contracts/index';
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 import {SingleDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/SingleDiagramsSolutionExplorerService';
