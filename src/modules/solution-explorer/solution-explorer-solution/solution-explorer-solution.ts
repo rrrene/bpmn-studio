@@ -816,7 +816,7 @@ export class SolutionExplorerSolution {
         const inputIsNotEmpty: boolean = input !== undefined;
 
         const diagramDoesNotStartWithWhitespace: boolean = inputIsNotEmpty
-                                                         ? !input.match(/^\s/)
+                                                         ? !/^\s/.test(input)
                                                          : true;
 
         return diagramDoesNotStartWithWhitespace;
@@ -826,7 +826,7 @@ export class SolutionExplorerSolution {
         const inputIsNotEmpty: boolean = input !== undefined;
 
         const diagramDoesNotEndWithWhitespace: boolean = inputIsNotEmpty
-                                                       ? !input.match(/\s+$/)
+                                                       ? !/\s+$/.test(input)
                                                        : true;
 
         return diagramDoesNotEndWithWhitespace;
