@@ -683,6 +683,7 @@ export class SolutionExplorerSolution {
     }
 
     const validationResult: ControllerValidateResult = await this._validationController.validate();
+
     const inputWasNotValid: boolean = !validationResult.valid
                                       || (this._validationController.errors
                                           && this._validationController.errors.length > 0);
@@ -790,6 +791,10 @@ export class SolutionExplorerSolution {
   }
 
   private _setValidationRules(): void {
+    ValidationRules
+      .ensure((state: IDiagramNameInputState) => state.currentDiagramInputValue)
+      .required()
+      .withMessage('Diagram name cannot be blank.')
   }
 
 }
