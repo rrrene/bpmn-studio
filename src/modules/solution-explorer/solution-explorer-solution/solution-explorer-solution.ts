@@ -112,6 +112,7 @@ export class SolutionExplorerSolution {
   public attached(): void {
     this._originalIconClass = this.fontAwesomeIconClass;
     this._updateSolutionExplorer();
+    this._setValidationRules();
 
     this._subscriptions = [
       this._eventAggregator.subscribe('router:navigation:success', () => {
@@ -788,4 +789,8 @@ export class SolutionExplorerSolution {
       }
     }
   }
+
+  private _setValidationRules(): void {
+  }
+
 }
