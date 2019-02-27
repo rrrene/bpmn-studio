@@ -30,6 +30,12 @@ export class XmlView {
     return this._xmlViewContainer.isDisplayed();
   }
 
+  public async getVisbilityOfLineNumbers(): Promise<boolean> {
+    this._waitForVisbilityOfElement(this._lineNumbers.first());
+
+    return this._lineNumbers.isDisplayed();
+  }
+
   private async _waitForVisbilityOfElement(finder: ElementFinder): Promise<void> {
     const finderVisibility: Function = ExpectedConditions.visibilityOf(finder);
 
@@ -50,6 +56,12 @@ export class XmlView {
     const codeBlockByTag: By = by.tagName('code');
 
     return element(codeBlockByTag);
+  }
+
+  private get _lineNumbers(): ElementArrayFinder {
+    const lineNumbersByCss: By = by.css('hljs-ln-numbers');
+
+    return element.all(lineNumbersByCss);
   }
 
 }
