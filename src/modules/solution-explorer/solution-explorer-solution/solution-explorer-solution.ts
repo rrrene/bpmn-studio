@@ -817,6 +817,16 @@ export class SolutionExplorerSolution {
         return diagramNamePassesNameChecks;
       })
       .withMessage(`Your diagram contains at least one invalid-character: \${$value}`)
+      .satisfies((input: string) => {
+        const inputNotIsEmpty: boolean = input !== undefined;
+
+        const diagramDoesNotStartWithWhitespace: boolean = inputNotIsEmpty
+                                                         ? !input.match(/^\s/)
+                                                         : true;
+
+        return diagramDoesNotStartWithWhitespace;
+      })
+      .withMessage('The diagram name can not start with a whitespace character.')
   }
 
 }
