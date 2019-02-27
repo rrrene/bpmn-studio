@@ -2,10 +2,10 @@ import {browser, by, element, ElementArrayFinder, ElementFinder, ExpectedConditi
 
 import {By} from 'selenium-webdriver';
 
-const diffAgainstOtherDiagramButtonId: string = 'diffAgainstOtherDiagramButton';
-const diffViewContainerId: string = 'diagramDiffContainer';
-const chooseDiagramModalId: string = 'chooseDiagramModal';
-const diagramDropdownId: string = 'diagramDropdown';
+const diffAgainstOtherDiagramButtonId: string = 'js-diff-against-other-diagramButton';
+const diffViewContainerId: string = 'js-diagram-diffContainer';
+const chooseDiagramModalId: string = 'js-chooseDiagram-modal';
+const diagramDropdownId: string = 'js-diagram-dropdown';
 
 export class DiffView {
 
