@@ -272,14 +272,14 @@ export class SolutionExplorerList {
     const lastIndexOfBackSlash: number = solutionUri.lastIndexOf('\\');
     const lastFolderIndex: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash) + 1;
 
-    const folderName: string = solutionUri.substring(lastFolderIndex);
+    const solutionName: string = solutionUri.substring(lastFolderIndex);
 
-    const folderNameIsEmpty: boolean = folderName.length === 0;
-    if (folderNameIsEmpty) {
+    const solutionNameIsEmpty: boolean = solutionName.length === 0;
+    if (solutionNameIsEmpty) {
       return solutionUri;
     }
 
-    return folderName;
+    return solutionName;
   }
 
   public solutionEntryIsRemote(solutionEntry: ISolutionEntry): boolean {
