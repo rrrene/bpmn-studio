@@ -84,10 +84,9 @@ export class SingleDiagramsSolutionExplorerService implements ISolutionExplorerS
       throw new Error('This diagram is already opened.');
     }
 
-    const isWindows: boolean = uri.lastIndexOf('/') === -1;
-    const indexBeforeFilename: number = isWindows
-                                      ? uri.lastIndexOf('\\')
-                                      : uri.lastIndexOf('/');
+    const lastIndexOfSlash: number = uri.lastIndexOf('/');
+    const lastIndexOfBackSlash: number = uri.lastIndexOf('\\');
+    const indexBeforeFilename: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash);
 
     const filepath: string = uri.substring(0, indexBeforeFilename);
 
