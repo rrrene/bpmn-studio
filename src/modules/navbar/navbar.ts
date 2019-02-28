@@ -228,10 +228,6 @@ export class NavBar {
   }
 
   public exportDiagram(exportAs: string): void {
-    if (this.validationError) {
-      return;
-    }
-
     const eventToPublish: string = this.showExportOnInspectCorrelation
                                  ? environment.events.inspect.exportDiagramAs
                                  : environment.events.diagramDetail.exportDiagramAs;
