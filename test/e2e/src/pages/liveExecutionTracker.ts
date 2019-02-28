@@ -25,9 +25,21 @@ export class LiveExecutionTracker {
     return this._liveExecutionTrackerContainer.isDisplayed();
   }
 
+  public async getVisibilityOfInactiveCallActivityOverlay(): Promise<boolean> {
+    await browser.wait(ExpectedConditions.visibilityOf(this._callActivityOverlays), browser.params.defaultTimeoutMS);
+
+    return this._callActivityOverlays.isDisplayed();
+  }
+
   private get _liveExecutionTrackerContainer(): ElementFinder {
     const liveExecutionTrackerContainerById: By = by.id(this._liveExecutionTrackerContainerId);
 
     return element(liveExecutionTrackerContainerById);
+  }
+
+  private get _callActivityOverlays(): ElementFinder {
+    const _callActivityOverlays: By = by.className('fa-search let__overlay-button-icon');
+
+    return element(_callActivityOverlays);
   }
 }

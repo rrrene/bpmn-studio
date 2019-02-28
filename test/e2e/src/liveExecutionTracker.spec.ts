@@ -49,4 +49,14 @@ describe('Diff view', () => {
     expect(visibilityOfLETViewContainer).toBeTruthy();
   });
 
+  it('should display the CallActivity with an overlay when on Live Execution Tracker.', async() => {
+    const currentBrowserUrl: string = await browser.getCurrentUrl();
+
+    expect(currentBrowserUrl).toContain(liveExecutionTracker.url);
+
+    const visibilityOfInactiveCallActivityOverlay: boolean = await liveExecutionTracker.getVisibilityOfInactiveCallActivityOverlay();
+
+    expect(visibilityOfInactiveCallActivityOverlay).toBeTruthy();
+  });
+
 });
