@@ -21,11 +21,11 @@ describe('Diff view', () => {
     routerView = new RouterView();
     targetDiagram = new DiagramWithUserTask();
     diagram = new DiagramWithCallActivityAndTasks(targetDiagram.name);
-    liveExecutionTracker = new LiveExecutionTracker(applicationUrl, diagram.correlationId, diagram.name, diagram.processInstanceId);
 
     await targetDiagram.deployDiagram();
     await diagram.deployDiagram();
     await diagram.startProcess();
+    liveExecutionTracker = new LiveExecutionTracker(applicationUrl, diagram.correlationId, diagram.name, diagram.processInstanceId);
   });
 
   afterAll(async() => {
