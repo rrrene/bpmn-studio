@@ -18,44 +18,54 @@
 
 .solution-entry__header {
   display: flex;
+  max-height: 26px;
   padding: 2.5px 5px;
   padding-bottom: 2px;
   color: darkgray;
 }
 
-.solution-entry__header__icon {
+.solution-entry__solution-icon {
   flex: 0;
   margin-top: 3px;
   margin-right: 6px;
 }
 
-.solution-entry__header__name {
-  flex: 1;
+.solution-entry__solution-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.solution-entry__header__actions {
+.solution-entry__solution-path {
+  flex: 1;
+  overflow: hidden;
+  margin-left: 10px;
+  margin-top: 2px;
+  font-size: 12px;
+  color: #ccc;
+  text-overflow: ellipsis;
+}
+
+.solution-entry__actions {
   display: none;
 }
 
 @media (any-hover: none) {
-  .solution-entry__header__actions {
+  .solution-entry__actions {
     display: flex;
   }
 }
 
-.solution-entry:hover .solution-entry__header__actions {
+.solution-entry:hover .solution-entry__actions {
   display: flex;
 }
 
-.solution-entry__header__actions button {
+.solution-entry__actions button {
   padding: 0 2px;
   background: transparent;
   border: none;
 }
 
-.solution-entry__header__actions button:hover {
+.solution-entry__actions button:hover {
   cursor: default;
 }

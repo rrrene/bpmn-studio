@@ -1,22 +1,22 @@
-import {bindable, EventHandler, inject} from 'aurelia-framework';
+import {bindable, inject} from 'aurelia-framework';
 
+import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import * as spectrum from 'spectrum-colorpicker';
 import 'spectrum-colorpicker/spectrum';
 
-import {defaultBpmnColors,
-        ElementDistributeOptions,
-        IBpmnFunction,
-        IBpmnModeler,
-        ICanvas,
-        IColorPickerColor,
-        IColorPickerSettings,
-        IEvent,
-        IEventFunction,
-        IModdleElement,
-        IModeling,
-        IShape,
-        IViewbox,
-        NotificationType} from '../../../contracts/index';
+import {
+  defaultBpmnColors,
+  ElementDistributeOptions,
+  IBpmnFunction,
+  IBpmnModeler,
+  ICanvas,
+  IColorPickerColor,
+  IColorPickerSettings,
+  IEvent,
+  IEventFunction,
+  IModeling,
+  NotificationType,
+} from '../../../contracts/index';
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 

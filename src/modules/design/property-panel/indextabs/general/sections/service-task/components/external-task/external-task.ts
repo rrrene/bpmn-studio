@@ -1,14 +1,10 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {bindable, inject, observable} from 'aurelia-framework';
-import environment from '../../../../../../../../../environment';
 
-import {
-  IBpmnModdle,
-  IPageModel,
-  IPropertiesElement,
-  IProperty,
-  IServiceTaskElement,
-} from '../../../../../../../../../contracts';
+import {IPropertiesElement, IProperty, IServiceTaskElement} from '@process-engine/bpmn-elements_contracts';
+
+import {IBpmnModdle, IPageModel} from '../../../../../../../../../contracts';
+import environment from '../../../../../../../../../environment';
 
 @inject(EventAggregator)
 export class ExternalTask {

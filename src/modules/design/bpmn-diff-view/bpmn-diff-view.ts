@@ -2,10 +2,11 @@ import {inject} from 'aurelia-dependency-injection';
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
 import {bindable} from 'aurelia-framework';
 
+import {IShape} from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 import {diff} from 'bpmn-js-differ';
 
-import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 import {
   defaultBpmnColors,
   DiffMode,
@@ -22,7 +23,6 @@ import {
   IElementRegistry,
   IEventFunction,
   IModeling,
-  IShape,
   ISolutionEntry,
   IViewbox,
   NotificationType,

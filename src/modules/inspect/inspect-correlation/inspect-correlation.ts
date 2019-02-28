@@ -1,10 +1,11 @@
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
 import {bindable, inject, observable} from 'aurelia-framework';
 
+import {IShape} from '@process-engine/bpmn-elements_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import {IEventFunction, IShape, ISolutionEntry} from '../../../contracts/index';
+import {IEventFunction, ISolutionEntry} from '../../../contracts/index';
 import environment from '../../../environment';
 import {IInspectCorrelationService} from './contracts';
 

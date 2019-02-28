@@ -1,4 +1,4 @@
-import {IShape} from './IShape';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
 
 export interface IEvent {
   type: string;

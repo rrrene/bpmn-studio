@@ -1,17 +1,15 @@
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
+
+import {IModdleElement, IShape, ISignal, ISignalElement} from '@process-engine/bpmn-elements_contracts';
+
 import {
   IBpmnModdle,
   IBpmnModeler,
   IElementRegistry,
-  IModdleElement,
   IPageModel,
   ISection,
-  IShape,
-  ISignal,
-  ISignalElement,
 } from '../../../../../../../contracts';
-
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
 import environment from '../../../../../../../environment';
 import {GeneralService} from '../../service/general.service';
 

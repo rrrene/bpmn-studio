@@ -1,4 +1,7 @@
 import {bindable} from 'aurelia-framework';
+
+import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
+
 import {
   IBpmnModdle,
   IBpmnModeler,
@@ -7,8 +10,6 @@ import {
   IEvent,
   IEventBus,
   IIndextab,
-  IModdleElement,
-  IShape,
 } from '../../../contracts';
 import {Extensions} from './indextabs/extensions/extensions';
 import {Forms} from './indextabs/forms/forms';

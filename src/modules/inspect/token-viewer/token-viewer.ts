@@ -1,9 +1,10 @@
 import {bindable, inject} from 'aurelia-framework';
 
+import {IShape} from '@process-engine/bpmn-elements_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import {IShape, ISolutionEntry} from '../../../contracts';
+import {ISolutionEntry} from '../../../contracts';
 import {IInspectCorrelationService} from '../inspect-correlation/contracts/index';
 import {
   IPayloadEntry,

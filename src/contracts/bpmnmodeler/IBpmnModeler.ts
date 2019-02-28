@@ -1,6 +1,4 @@
-import {IBpmnFunction} from './IBpmnFunction';
 import {IBpmnXmlSaveOptions} from './IBpmnXmlSaveOptions';
-import {IDefinition} from './IDefinition';
 
 export interface IBpmnModeler {
   _definitions: any;

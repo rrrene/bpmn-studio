@@ -1,5 +1,5 @@
-import {IModdleElement} from '../bpmnmodeler/bpmnElements/IModdleElement';
-import {IShape} from '../bpmnmodeler/IShape';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
+
 import {ISection} from './ISection';
 
 export interface IIndextab {

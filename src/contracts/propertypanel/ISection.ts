@@ -1,4 +1,6 @@
-import {IPageModel, IShape} from '../index';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
+
+import {IPageModel} from '../index';
 
 export interface ISection {
   path: string;

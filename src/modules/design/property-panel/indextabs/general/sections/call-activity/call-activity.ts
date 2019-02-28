@@ -2,14 +2,10 @@ import {EventAggregator} from 'aurelia-event-aggregator';
 import {inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
+import {ICallActivityElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import {
-  ICallActivityElement,
-  IPageModel,
-  ISection,
-  IShape,
-} from '../../../../../../../contracts';
+import {IPageModel, ISection} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 import {GeneralService} from '../../service/general.service';
 

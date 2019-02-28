@@ -1,4 +1,4 @@
-import {IShape} from './index';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
 
 export interface IModeling {
   updateProperties(element: IShape, properties: object): void;

@@ -2,6 +2,7 @@
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
 import {bindable, bindingMode, inject, observable} from 'aurelia-framework';
 
+import {IModdleElement, IProcessRef, IPropertiesElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 import * as bpmnlintConfig from '@process-engine/bpmn-lint_rules';
 
@@ -17,10 +18,9 @@ import {
   IInternalEvent,
   IKeyboard,
   ILinting,
-  IModdleElement,
-  IProcessRef,
-  IPropertiesElement,
-  IShape,
+  IValidateIssue,
+  IValidateIssueCategory,
+  IValidateResult,
   IViewbox,
   NotificationType,
 } from '../../../contracts/index';
@@ -104,6 +104,8 @@ export class BpmnIo {
       },
     });
 
+    this._linting = this.modeler.get('linting');
+
     /**
      * Subscribe to the "elements.paste.rejected"-event to show a helpful
      * message to the user.
@@ -128,23 +130,7 @@ export class BpmnIo {
     }, handlerPriority);
 
     this.modeler.on(['shape.added', 'shape.removed'], (event: IInternalEvent) => {
-      const shapeIsParticipant: boolean = event.element.type === 'bpmn:Participant';
-
-      if (shapeIsParticipant) {
-        return this._checkForMultipleParticipants(event);
-      }
-    });
-
-    this.modeler.on('shape.remove', (event: IInternalEvent) => {
-      const shapeIsParticipant: boolean = event.element.type === 'bpmn:Participant';
-      if (shapeIsParticipant) {
-        const rootElements: Array<IProcessRef> = this.modeler._definitions.rootElements;
-        this._tempProcess = rootElements.find((element: IProcessRef) => {
-          return element.$type === 'bpmn:Process';
-        });
-
-        return event;
-      }
+      this._validateDiagram();
     });
 
     this.modeler.on('element.paste', (event: IInternalEvent) => {
@@ -176,8 +162,6 @@ export class BpmnIo {
         this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
 
         this._bpmnLintButton.style.display = 'none';
-
-        this._linting = this.modeler.get('linting');
       }, 0);
     }
 
@@ -384,6 +368,28 @@ export class BpmnIo {
     }
   }
 
+  private async _validateDiagram(): Promise<void> {
+    const validationResult: IValidateResult = await this._linting.lint();
+
+    let validationResultContainsErrors: boolean = false;
+
+    Object.entries(validationResult).forEach(([key, validationIssues]: [string, Array<IValidateIssue>]) => {
+      const issuesContainError: boolean = validationIssues.some((issue: IValidateIssue) => {
+        return issue.category === IValidateIssueCategory.error;
+      });
+
+      if (issuesContainError) {
+        validationResultContainsErrors = true;
+      }
+    });
+
+    const eventToPublish: string = validationResultContainsErrors
+                                 ? environment.events.navBar.validationError
+                                 : environment.events.navBar.noValidationError;
+
+    this._eventAggregator.publish(eventToPublish);
+  }
+
   public _togglePanel(): void {
     if (this._propertyPanelShouldOpen) {
       if (this._propertyPanelHasNoSpace) {
@@ -481,34 +487,6 @@ export class BpmnIo {
     }
 
     return randomId;
-  }
-
-  private _checkForMultipleParticipants(event: IInternalEvent): IInternalEvent {
-    const elementRegistry: IElementRegistry = this.modeler.get('elementRegistry');
-
-    setTimeout(() => {
-      const participants: Array<IShape> = elementRegistry.filter((element: IShape) => {
-        return element.type === 'bpmn:Participant';
-      });
-
-      const multipleParticipants: boolean = participants.length > 1;
-
-      if (this._diagramHasChanges) {
-        participants.forEach((participant: IShape) => {
-          participant.businessObject.processRef.id = this._tempProcess.id;
-          participant.businessObject.processRef.isExecutable = this._tempProcess.isExecutable;
-        });
-      }
-
-      const eventToPublish: string = multipleParticipants
-                                     ? environment.events.navBar.validationError
-                                     : environment.events.navBar.noValidationError;
-
-      this._eventAggregator.publish(eventToPublish);
-
-    }, elementRegistryTimeoutMilliseconds);
-
-    return event;
   }
 
   private _setNewPropertyPanelWidthFromMousePosition(mousePosition: number): void {

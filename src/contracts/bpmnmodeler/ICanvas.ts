@@ -1,4 +1,5 @@
-import {IShape} from './IShape';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
+
 import {IViewbox} from './IViewbox';
 
 export interface ICanvas {

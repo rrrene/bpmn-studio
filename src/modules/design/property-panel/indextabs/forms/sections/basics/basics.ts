@@ -1,20 +1,23 @@
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
+import {ValidateEvent, ValidationController, ValidationRules} from 'aurelia-validation';
+
 import {
-  IBpmnModdle,
-  IBpmnModeler,
-  IElementRegistry,
   IEnumValue,
   IExtensionElement,
   IForm,
   IFormElement,
   IModdleElement,
+  IShape,
+} from '@process-engine/bpmn-elements_contracts';
+
+import {
+  IBpmnModdle,
+  IBpmnModeler,
+  IElementRegistry,
   IPageModel,
   ISection,
-  IShape,
 } from '../../../../../../../contracts';
-
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
-import {ValidateEvent, ValidationController, ValidationRules} from 'aurelia-validation';
 import environment from '../../../../../../../environment';
 
 enum FormfieldTypes {

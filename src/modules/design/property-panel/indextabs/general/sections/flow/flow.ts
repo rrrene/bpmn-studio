@@ -1,14 +1,14 @@
-import {
-  IBpmnModdle,
-  IConditionExpression,
-  IFlowElement,
-  IPageModel,
-  ISection,
-  IShape,
-} from '../../../../../../../contracts';
 
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {inject, observable} from 'aurelia-framework';
+
+import {IConditionExpression, IFlowElement, IShape} from '@process-engine/bpmn-elements_contracts';
+
+import {
+  IBpmnModdle,
+  IPageModel,
+  ISection,
+} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
 @inject(EventAggregator)

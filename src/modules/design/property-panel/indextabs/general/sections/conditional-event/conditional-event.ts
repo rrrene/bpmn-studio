@@ -1,12 +1,9 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {inject} from 'aurelia-framework';
-import {
-  IBpmnModdle,
-  IModdleElement,
-  IPageModel,
-  ISection,
-  IShape,
-} from '../../../../../../../contracts';
+
+import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
+
+import {IBpmnModdle, IPageModel, ISection} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
 @inject(EventAggregator)

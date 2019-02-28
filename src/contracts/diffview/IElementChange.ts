@@ -1,4 +1,4 @@
-import {IModdleElement, IShape} from '../index';
+import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 
 export interface IElementChange {
   $type: string;

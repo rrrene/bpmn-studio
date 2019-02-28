@@ -1,23 +1,11 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {inject, observable} from 'aurelia-framework';
 
-import {IBpmnModdle,
-        IExtensionElement,
-        IModdleElement,
-        IPageModel,
-        IPropertiesElement,
-        IProperty,
-        ISection,
-        IServiceTaskElement,
-        IShape} from '../../../../../../../contracts';
+import {IExtensionElement, IModdleElement, IPropertiesElement, IProperty, IServiceTaskElement, IShape} from '@process-engine/bpmn-elements_contracts';
+
+import {IBpmnModdle, IPageModel, ISection} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
-interface IAuthParameters {
-  headers: {
-    'Content-Type'?: string,
-    Authorization?: string,
-  };
-}
 @inject(EventAggregator)
 export class ServiceTaskSection implements ISection {
 

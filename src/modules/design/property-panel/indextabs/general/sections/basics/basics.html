@@ -1,7 +1,7 @@
 <template>
   <require from="./basics.css"></require>
   <require from="../../../../styles/sections.css"></require>
-  <div class="section-panel panel--general ">
+  <div class="section-panel panel--general" id="js-general-basics-section">
     <div class="panel__heading">General</div>
     <div class="panel__content">
       <table class="props-table">
@@ -10,10 +10,10 @@
           <td>
             <input type="text" class="props-input" id="elementId" value.bind="businessObjInPanel.id & validateOnChange" change.delegate="updateId()">
           </td>
-          <td>	
-            <template if.bind="validationError">	
-              <i class="fas fa-times validation_error"></i>	
-            </template>	
+          <td>
+            <template if.bind="validationError">
+              <i class="fas fa-times validation_error"></i>
+            </template>
           </td>
         </tr>
         <tr>

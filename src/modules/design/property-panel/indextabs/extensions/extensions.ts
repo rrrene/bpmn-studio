@@ -1,4 +1,6 @@
-import {IIndextab, ISection, IShape} from '../../../../../contracts';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
+
+import {IIndextab, ISection} from '../../../../../contracts';
 import {BasicsSection} from './sections/basics/basics';
 import {ProcessSection} from './sections/process/process';
 

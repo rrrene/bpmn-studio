@@ -3,21 +3,25 @@ import {bindable, bindingMode, computedFrom, inject, observable} from 'aurelia-f
 import {Router} from 'aurelia-router';
 import {ValidateEvent, ValidationController} from 'aurelia-validation';
 
-import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
-import {IDiagram} from '@process-engine/solutionexplorer.contracts';
-
 import {
   IConnection,
-  IElementRegistry,
   IExtensionElement,
   IFormElement,
   IModdleElement,
   IShape,
+} from '@process-engine/bpmn-elements_contracts';
+
+import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+
+import {
+  IElementRegistry,
   ISolutionEntry,
   ISolutionService,
   IUserInputValidationRule,
   NotificationType,
 } from '../../../contracts/index';
+
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 import {BpmnIo} from '../bpmn-io/bpmn-io';
@@ -198,7 +202,6 @@ export class DiagramDetail {
     const processModelId: string = processModel.id;
 
     try {
-      this.activeSolutionEntry = solutionToDeployTo;
 
       this.activeDiagram.id = processModelId;
 
@@ -218,13 +221,13 @@ export class DiagramDetail {
         xml: this.activeDiagram.xml,
       };
 
-      await this.activeSolutionEntry.service.saveDiagram(copyOfDiagram, solutionToDeployTo.uri);
+      await solutionToDeployTo.service.saveDiagram(copyOfDiagram, solutionToDeployTo.uri);
 
-      this.activeDiagram = await this.activeSolutionEntry.service.loadDiagram(processModelId);
+      this.activeDiagram = await solutionToDeployTo.service.loadDiagram(processModelId);
 
       this._router.navigateToRoute('design', {
         diagramName: this.activeDiagram.name,
-        solutionUri: this.activeSolutionEntry.uri,
+        solutionUri: solutionToDeployTo.uri,
       });
 
       this._notificationService
@@ -276,13 +279,16 @@ export class DiagramDetail {
     };
 
     try {
+      const useDefaultStartCallbackType: undefined = undefined;
+      const doNotAwaitEndEvent: undefined = undefined;
+
       const response: DataModels.ProcessModels.ProcessStartResponsePayload = await this._managementApiClient
         .startProcessInstance(this.activeSolutionEntry.identity,
                               this.activeDiagram.id,
-                              this.selectedStartEventId,
                               startRequestPayload,
-                              undefined,
-                              undefined);
+                              useDefaultStartCallbackType,
+                              this.selectedStartEventId,
+                              doNotAwaitEndEvent);
 
       const {correlationId, processInstanceId} = response;
 
@@ -317,7 +323,9 @@ export class DiagramDetail {
    */
   public async saveDiagram(): Promise<void> {
 
-    if (this.diagramIsInvalid) {
+    const savingTargetIsRemoteSolution: boolean = this.activeSolutionEntry.uri.startsWith('http');
+
+    if (this.diagramIsInvalid && savingTargetIsRemoteSolution) {
       // TODO: Try to get some more information out of this: Why was it invalid? This message is not very helpful to the user.
       this._notificationService.showNotification(NotificationType.WARNING, `The diagram could not be saved because it is invalid!`);
 

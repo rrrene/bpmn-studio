@@ -1,19 +1,18 @@
 import {inject} from 'aurelia-framework';
 
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {IConnection, IShape} from '@process-engine/bpmn-elements_contracts';
 import {ActiveToken, FlowNodeRuntimeInformation} from '@process-engine/kpi_api_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
 
-import {IIdentity} from '@essential-projects/iam_contracts';
 import {
   defaultBpmnColors,
   IBpmnModeler,
   IColorPickerColor,
-  IConnection,
   IElementRegistry,
   IModeling,
   IOverlayManager,
   IOverlayPosition,
-  IShape,
 } from '../../../../contracts/index';
 import {
   defaultOverlayPositions,

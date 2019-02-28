@@ -23,7 +23,7 @@
         <button class="button menu-bar__menu-center--action-button menu-bar__menu-center--back-button back-button" click.delegate="navigateBack()" title="Navigate back">
           <i class="fas fa-arrow-circle-left"></i>
         </button>
-        <button class="button menu-bar__menu-center--action-button" class.bind="validationError ? 'button--disabled' : ''" click.delegate="saveDiagram()" disabled.bind="validationError" title="Save Diagram">
+        <button class="button menu-bar__menu-center--action-button" class.bind="validationError && savingTargetIsRemoteSolution ? 'button--disabled' : ''" click.delegate="saveDiagram()" disabled.bind="validationError && savingTargetIsRemoteSolution" title="Save Diagram">
           <i class="fas fa-save"></i>
         </button>
       </template>
@@ -31,7 +31,6 @@
         <div class="dropdown">
           <button class="button menu-bar__menu-center--action-button dropdown-toggle"
                   class.bind="showExportOnInspectCorrelation ? 'export_button-inspect_correlation' : ''"
-                  disabled.bind="validationError"
                   title="Export Diagram"
                   data-toggle="dropdown"
                   aria-haspopup="true"
@@ -47,7 +46,7 @@
         </div>
       </template>
       <template if.bind="showTools">
-        <button class="button menu-bar__menu-center--action-button" class.bind="validationError ? 'button--disabled' : ''" disabled.bind="validationError" click.delegate="printDiagram()" title="Print Diagram">
+        <button class="button menu-bar__menu-center--action-button"  click.delegate="printDiagram()" title="Print Diagram">
           <i class="fas fa-print"></i>
         </button>
         <button class="button menu-bar__menu-center--action-button" class.bind="validationError || disableDiagramUploadButton ? 'button--disabled' : ''" click.delegate="uploadProcess()" title.bind="disableDiagramUploadButton ? 'This process is already deployed to the remote ProcessEngine' : 'Deploy to ProcessEngine'">

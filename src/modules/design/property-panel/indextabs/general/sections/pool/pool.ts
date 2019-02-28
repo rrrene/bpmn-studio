@@ -1,15 +1,10 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {inject} from 'aurelia-framework';
 import {ValidateEvent, ValidationController, ValidationRules} from 'aurelia-validation';
-import {
-  IBpmnModeler,
-  IElementRegistry,
-  IModdleElement,
-  IPageModel,
-  IPoolElement,
-  ISection,
-  IShape,
-} from '../../../../../../../contracts';
+
+import {IModdleElement, IPoolElement, IShape} from '@process-engine/bpmn-elements_contracts';
+
+import {IBpmnModeler, IElementRegistry, IPageModel, ISection} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
 @inject(ValidationController, EventAggregator)

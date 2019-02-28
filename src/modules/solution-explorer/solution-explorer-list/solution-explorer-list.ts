@@ -262,6 +262,30 @@ export class SolutionExplorerList {
     }, 0);
   }
 
+  public getSolutionName(solutionUri: string): string {
+    const solutionIsRemote: boolean = solutionUri.startsWith('http');
+    if (solutionIsRemote) {
+      return solutionUri;
+    }
+
+    const lastIndexOfSlash: number = solutionUri.lastIndexOf('/');
+    const lastIndexOfBackSlash: number = solutionUri.lastIndexOf('\\');
+    const lastFolderIndex: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash) + 1;
+
+    const solutionName: string = solutionUri.substring(lastFolderIndex);
+
+    const solutionNameIsEmpty: boolean = solutionName.length === 0;
+    if (solutionNameIsEmpty) {
+      return solutionUri;
+    }
+
+    return solutionName;
+  }
+
+  public solutionEntryIsRemote(solutionEntry: ISolutionEntry): boolean {
+    return solutionEntry.uri.startsWith('http');
+  }
+
   /*
    * Give aurelia a hint on what objects to observe.
    * If we dont do this, it falls back to active pooling which is slow.
@@ -319,6 +343,7 @@ export class SolutionExplorerList {
         fileSystemSolutionExplorer,
         uriOfSingleDiagramService,
         nameOfSingleDiagramService,
+        this._solutionService,
       );
 
     const identity: IIdentity = this._createIdentityForSolutionExplorer();

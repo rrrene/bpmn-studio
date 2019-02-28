@@ -5,10 +5,12 @@ import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 
 import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
 
+import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import {ActiveToken} from '@process-engine/kpi_api_contracts';
 import {CorrelationProcessModel} from '@process-engine/management_api_contracts/dist/data_models/correlation';
 import {TokenHistoryEntry} from '@process-engine/management_api_contracts/dist/data_models/token_history';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+
 import {
   defaultBpmnColors,
   IBpmnModeler,
@@ -18,10 +20,8 @@ import {
   IElementRegistry,
   IEvent,
   IEventFunction,
-  IModdleElement,
   IModeling,
   IOverlayManager,
-  IShape,
   ISolutionEntry,
   ISolutionService,
   NotificationType,
@@ -369,8 +369,8 @@ export class LiveExecutionTracker {
     for (const element of activeCallActivities) {
       this._overlays.add(element, {
         position: {
-          left: -1,
-          top: -1,
+          left: 30,
+          top: 25,
         },
         html: `<div class="play-task-button-container" id="${element.id}"><i class="fas fa-external-link-square-alt play-task-button"></i></div>`,
       });

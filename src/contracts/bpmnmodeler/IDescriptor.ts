@@ -1,4 +1,4 @@
-import {IModdleElement} from './bpmnElements';
+import {IModdleElement} from '@process-engine/bpmn-elements_contracts';
 
 export interface IDescriptor {
   businessObject: IModdleElement;

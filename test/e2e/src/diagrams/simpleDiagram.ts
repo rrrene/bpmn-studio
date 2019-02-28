@@ -1,9 +1,8 @@
 import {browser} from 'protractor';
 import {HttpClient} from 'protractor-http-client';
 
-interface RequestObject {
-  [key: string]: string;
-}
+import {IRequestHeaders, IRequestPayload} from '../contracts/index';
+
 export class SimpleDiagram {
   // tslint:disable-next-line:no-magic-numbers
   public name: string =  'TA_' + Math.floor(Math.random() * 1000000);
@@ -16,7 +15,7 @@ export class SimpleDiagram {
 
   public async deployDiagram(): Promise<void> {
     const requestDestination: string = `/api/management/v1/process_models/${this.name}/update`;
-    const requestPayload: any = {
+    const requestPayload: IRequestPayload = {
       xml: '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bpmn:definitions xmlns:bpmn=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" ' +
            'xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" ' +
            'xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" ' +
@@ -44,34 +43,37 @@ export class SimpleDiagram {
            'bpmnElement=\"Task_0z3p6gi\"><dc:Bounds x=\"169\" y=\"47\" width=\"100\" height=\"80\" /></bpmndi:BPMNShape>' +
            '</bpmndi:BPMNPlane></bpmndi:BPMNDiagram></bpmn:definitions>',
     };
-    const requestHeaders: RequestObject = {
-      authorization: 'Bearer ZHVtbXlfdG9rZW4=',
-    };
+
+    const requestHeaders: IRequestHeaders = this._getRequestHeaders();
 
     await this._http.post(requestDestination, requestPayload, requestHeaders);
   }
 
   public async deleteDiagram(): Promise<void> {
     const requestDestination: string = `/api/management/v1/process_models/${this.name}/delete`;
-    const requestHeaders: RequestObject = {
-      authorization: 'Bearer ZHVtbXlfdG9rZW4=',
-    };
+    const requestHeaders: IRequestHeaders = this._getRequestHeaders();
 
     await this._http.get(requestDestination, requestHeaders);
   }
 
   public startProcess(): void {
     const requestDestination: string =
-      `/api/management/v1/process_models/${this.name}/start_events/StartEvent_1mox3jl/start?start_callback_type=1`;
+      `/api/management/v1/process_models/${this.name}/start?start_callback_type=1&start_event_id=StartEvent_1mox3jl`;
 
-    const requestPayload: RequestObject = {};
-    const requestHeaders: RequestObject = {
-      authorization: 'Bearer ZHVtbXlfdG9rZW4=',
-    };
+    const requestPayload: IRequestPayload = {};
+    const requestHeaders: IRequestHeaders = this._getRequestHeaders();
 
     this._http.post(requestDestination, requestPayload, requestHeaders).jsonBody.then((jsonBody: JSON) => {
       this.correlationId = jsonBody['correlationId'];
       this.processInstanceId = jsonBody['processInstanceId'];
     });
+  }
+
+  private _getRequestHeaders(): IRequestHeaders {
+    const requestHeaders: IRequestHeaders = {
+      authorization: 'Bearer ZHVtbXlfdG9rZW4=',
+    };
+
+    return requestHeaders;
   }
 }

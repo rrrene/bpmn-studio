@@ -1,5 +1,6 @@
 import {bindable, inject} from 'aurelia-framework';
 
+import {IShape} from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 import {DataModels} from '@process-engine/management_api_contracts';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
@@ -15,7 +16,6 @@ import {
   IElementRegistry,
   IEvent,
   IModeling,
-  IShape,
   NotificationType,
 } from '../../../../../contracts/index';
 import environment from '../../../../../environment';

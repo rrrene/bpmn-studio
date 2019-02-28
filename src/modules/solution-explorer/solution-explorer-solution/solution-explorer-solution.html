@@ -15,7 +15,7 @@
           <input ref="createNewDiagramInput" class.bind="hasValidationErrors ? 'input-holder__input input-holder__input--error' : 'input-holder__input'" type="text" value.bind="_diagramCreationState.currentDiagramInputValue & validateOnChange">
         </div>
         <ul if.bind="hasValidationErrors" class="diagram-create__errors">
-          <li repeat.for="error of diagramValidationErrors" class="diagram-create__errors__error">${error.message}</li>
+          <li repeat.for="error of diagramValidationErrors" class="diagram-create__error">${error.message}</li>
         </ul>
       </li>
 
@@ -29,8 +29,8 @@
           <div class="input-holder">
             <input ref="renameDiagramInput" class.bind="hasValidationErrors ? 'input-holder__input input-holder__input--error' : 'input-holder__input'" type="text" value.bind="_diagramRenamingState.currentDiagramInputValue & validateOnChange">
           </div>
-          <ul if.bind="hasValidationErrors" class="rename-errors-container__error">
-            <li repeat.for="error of diagramValidationErrors" class="rename-errors-container__error__error">${error.message}</li>
+          <ul if.bind="hasValidationErrors" class="rename-errors-container__error-list">
+            <li repeat.for="error of diagramValidationErrors" class="rename-errors-container__error-list-entry">${error.message}</li>
           </ul>
         </div>
 
@@ -38,7 +38,7 @@
 
           <i if.bind="shouldFileIconBeShown()" class="diagram-entry__icon fa fa-cogs"></i>
           <div class="diagram-entry__name-container">
-            <span class="diagram-entry__name" title="${diagram.name}">${diagram.name}</span>
+            <span class="diagram-entry__name" title="${diagram.name}" title.bind="solutionIsSingleDiagrams ? diagram.uri : ''">${diagram.name}</span>
             <span class="diagram-entry__location" if.bind="solutionIsSingleDiagrams" title="${getDiagramLocation(diagram.uri)}">${getDiagramFolder(diagram.uri)}</span>
           </div>
 

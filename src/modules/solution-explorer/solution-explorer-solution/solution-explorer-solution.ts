@@ -8,7 +8,6 @@ import {
 import {Router} from 'aurelia-router';
 import {
   ControllerValidateResult,
-  FluentRuleCustomizer,
   ValidateResult,
   ValidationController,
   ValidationRules,
@@ -17,13 +16,15 @@ import {
 import {ForbiddenError, isError, UnauthorizedError} from '@essential-projects/errors_ts';
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
+import {join} from 'path';
 
-import {AuthenticationStateEvent,
+import {
         IDiagramCreationService,
         ISolutionEntry,
         ISolutionService,
         IUserInputValidationRule,
-        NotificationType} from '../../../contracts/index';
+        NotificationType,
+} from '../../../contracts/index';
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 import {SingleDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/SingleDiagramsSolutionExplorerService';
@@ -72,65 +73,13 @@ export class SolutionExplorerSolution {
   };
   private _refreshIntervalTask: any;
 
-  private _diagramValidationRegExpList: IUserInputValidationRule = {
-    alphanumeric: /^[a-z0-9]/i,
-    specialCharacters: /^[._ -]/i,
-    german: /^[äöüß]/i,
-  };
+  private _diagramValidationRegExpList: Array<RegExp> =  [
+    /^[a-z0-9]/i,
+    /^[._ -]/i,
+    /^[äöüß]/i,
+  ];
 
   private _currentlyRenamingDiagram: IDiagram | null = null;
-  private _diagramNameValidator: FluentRuleCustomizer<IDiagramNameInputState, IDiagramNameInputState> = ValidationRules
-      .ensure((state: IDiagramNameInputState) => state.currentDiagramInputValue)
-      .required()
-      .withMessage('Diagram name cannot be blank.')
-      .satisfies((input: string) => {
-        const inputAsCharArray: Array<string> = input.split('');
-
-        const diagramNamePassesNameChecks: boolean = !inputAsCharArray.some((letter: string) => {
-          for (const regExIndex in this._diagramValidationRegExpList) {
-            const letterIsInvalid: boolean = letter.match(this._diagramValidationRegExpList[regExIndex]) !== null;
-
-            if (letterIsInvalid) {
-              return false;
-            }
-          }
-
-          return true;
-        });
-
-        return diagramNamePassesNameChecks;
-      })
-      .withMessage(`Your diagram contains at least one invalid-character: \${$value}`)
-      .satisfies((input: string) => {
-        const diagramDoesNotStartWithWhitespace: boolean = !input.match(/^\s/);
-
-        return diagramDoesNotStartWithWhitespace;
-      })
-      .withMessage('The diagram name can not start with a whitespace character.')
-      .satisfies((input: string) => {
-        const diagramDoesNotEndWithWhitespace: boolean = !input.match(/\s+$/);
-
-        return diagramDoesNotEndWithWhitespace;
-      })
-      .withMessage('The diagram name can not end with a whitespace character.')
-      .then()
-      .satisfies(async(input: string) => {
-        const diagramNameIsUnchanged: boolean = this._isCurrentlyRenamingDiagram
-                                             && this._currentlyRenamingDiagram.name.toLowerCase() === input.toLowerCase();
-        if (diagramNameIsUnchanged) {
-          return true;
-        }
-
-        // The solution may have changed on the file system.
-        await this.updateSolution();
-
-        const diagramUri: string = `${this._openedSolution.uri}/${input}.bpmn`;
-        const diagramWithUriDoesNotExist: boolean = this.
-          _findURIObject(this._openedSolution.diagrams, diagramUri) === undefined;
-
-        return diagramWithUriDoesNotExist;
-      })
-      .withMessage('A diagram with that name already exists.');
 
   // Fields below are bound from the html view.
   @bindable public solutionService: ISolutionExplorerService;
@@ -163,6 +112,7 @@ export class SolutionExplorerSolution {
   public attached(): void {
     this._originalIconClass = this.fontAwesomeIconClass;
     this._updateSolutionExplorer();
+    this._setValidationRules();
 
     this._subscriptions = [
       this._eventAggregator.subscribe('router:navigation:success', () => {
@@ -289,7 +239,6 @@ export class SolutionExplorerSolution {
     window.setTimeout(() => {
       this._renameDiagramInput.focus();
       this._diagramRenamingState.currentDiagramInputValue = diagram.name;
-      this._diagramNameValidator.on(this._diagramRenamingState);
       this._validationController.validate();
     }, 0);
 
@@ -316,7 +265,7 @@ export class SolutionExplorerSolution {
     }
 
     this._diagramCreationState.isCreateDiagramInputShown = true;
-    this._diagramNameValidator.on(this._diagramCreationState);
+    this._validationController.validate();
 
     // The templating update must happen before we can set the focus.
     window.setTimeout(() => {
@@ -382,9 +331,9 @@ export class SolutionExplorerSolution {
   }
 
   public getDiagramLocation(diagramUri: string): string {
-    const isWindows: boolean = diagramUri.lastIndexOf('/') === -1;
-    const seperator: string = isWindows ? '\\' : '/';
-    const indexBeforeFilename: number = diagramUri.lastIndexOf(seperator);
+    const lastIndexOfSlash: number = diagramUri.lastIndexOf('/');
+    const lastIndexOfBackSlash: number = diagramUri.lastIndexOf('\\');
+    const indexBeforeFilename: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash);
 
     const diagramLocationWithoutFileName: string = diagramUri.slice(0, indexBeforeFilename);
 
@@ -394,9 +343,9 @@ export class SolutionExplorerSolution {
   public getDiagramFolder(diagramUri: string): string {
     const diagramLocation: string = this.getDiagramLocation(diagramUri);
 
-    const isWindows: boolean = diagramUri.lastIndexOf('/') === -1;
-    const seperator: string = isWindows ? '\\' : '/';
-    const indexBeforeFoldername: number = diagramLocation.lastIndexOf(seperator);
+    const lastIndexOfSlash: number = diagramLocation.lastIndexOf('/');
+    const lastIndexOfBackSlash: number = diagramLocation.lastIndexOf('\\');
+    const indexBeforeFoldername: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash);
 
     const diagramFolder: string = diagramLocation.slice(indexBeforeFoldername, diagramLocation.length);
 
@@ -734,6 +683,7 @@ export class SolutionExplorerSolution {
     }
 
     const validationResult: ControllerValidateResult = await this._validationController.validate();
+
     const inputWasNotValid: boolean = !validationResult.valid
                                       || (this._validationController.errors
                                           && this._validationController.errors.length > 0);
@@ -839,4 +789,79 @@ export class SolutionExplorerSolution {
       }
     }
   }
+
+  private _setValidationRules(): void {
+    ValidationRules
+      .ensure((state: IDiagramNameInputState) => state.currentDiagramInputValue)
+      .required()
+      .withMessage('Diagram name cannot be blank.')
+      .satisfies((input: string) => {
+        const inputIsNotEmpty: boolean = input !== undefined;
+
+        const inputAsCharArray: Array<string> = inputIsNotEmpty
+                                              ? input.split('')
+                                              : [];
+
+        const diagramNamePassesNameChecks: boolean = inputAsCharArray.every((letter: string) => {
+          // tslint:disable-next-line:typedef
+          const letterMatches = (regExp: RegExp): boolean => regExp.test(letter);
+
+          return this._diagramValidationRegExpList.some(letterMatches);
+        });
+
+        return diagramNamePassesNameChecks;
+      })
+      .withMessage(`Your diagram contains at least one invalid-character: \${$value}`)
+      .satisfies((input: string) => {
+        const inputIsNotEmpty: boolean = input !== undefined;
+
+        const diagramDoesNotStartWithWhitespace: boolean = inputIsNotEmpty
+                                                         ? !/^\s/.test(input)
+                                                         : true;
+
+        return diagramDoesNotStartWithWhitespace;
+      })
+      .withMessage('The diagram name cannot start with a whitespace character.')
+      .satisfies((input: string) => {
+        const inputIsNotEmpty: boolean = input !== undefined;
+
+        const diagramDoesNotEndWithWhitespace: boolean = inputIsNotEmpty
+                                                       ? !/\s+$/.test(input)
+                                                       : true;
+
+        return diagramDoesNotEndWithWhitespace;
+      })
+      .withMessage('The diagram name cannot end with a whitespace character.')
+      .then()
+      .satisfies(async(input: string) => {
+
+        const diagramNameIsUnchanged: boolean = this._isCurrentlyRenamingDiagram
+                                             && this._currentlyRenamingDiagram.name.toLowerCase() === input.toLowerCase();
+
+        if (diagramNameIsUnchanged) {
+          return true;
+        }
+
+        // The solution may have changed on the file system.
+        await this.updateSolution();
+
+        const isRemoteSolution: boolean = this._openedSolution.uri.startsWith('http');
+        const isRunningInElectron: boolean = (window as any).nodeRequire;
+
+        let expectedDiagramUri: string;
+        if (isRemoteSolution) {
+          expectedDiagramUri = `${this._openedSolution.uri}/${input}.bpmn`;
+        } else if (isRunningInElectron) {
+          expectedDiagramUri = join(this._openedSolution.uri, `${input}.bpmn`);
+        }
+
+        const diagramWithUriDoesNotExist: boolean = this.
+          _findURIObject(this._openedSolution.diagrams, expectedDiagramUri) === undefined;
+        return diagramWithUriDoesNotExist;
+      })
+      .withMessage('A diagram with that name already exists.')
+      .on(this._diagramRenamingState)
+      .on(this._diagramCreationState);
+  }
+
 }
