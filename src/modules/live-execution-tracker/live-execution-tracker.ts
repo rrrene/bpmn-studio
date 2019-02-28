@@ -116,7 +116,11 @@ export class LiveExecutionTracker {
     this._parentProcessModelId = await this._getParentProcessModelId();
 
     this.correlation = await this._managementApiClient.getCorrelationById(this.activeSolutionEntry.identity, this.correlationId);
-    this.activeDiagram = await this.activeSolutionEntry.service.loadDiagram(this.processModelId);
+
+    // This is needed to make sure the SolutionExplorerService is completely initiated
+    setTimeout(async() => {
+      this.activeDiagram = await this.activeSolutionEntry.service.loadDiagram(this.processModelId);
+    }, 0);
   }
 
   public async attached(): Promise<void> {
