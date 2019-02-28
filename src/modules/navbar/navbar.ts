@@ -335,6 +335,11 @@ export class NavBar {
 
     this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(solutionUri);
 
+    const activeSolutionIsUndefined: boolean = this.activeSolutionEntry === undefined;
+    if (activeSolutionIsUndefined) {
+      return;
+    }
+
     this.savingTargetIsRemoteSolution = this.activeSolutionEntry.uri.startsWith('http');
 
     const solutionIsSet: boolean = this.activeSolutionEntry !== undefined;
