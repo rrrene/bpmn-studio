@@ -96,15 +96,15 @@ export class SolutionService implements ISolutionService {
    */
 
   public addSingleDiagram(diagramToAdd: IDiagram): void {
-    const diagramAlreadyPersisted: boolean = this._persistedSingleDiagrams.some((diagram: IDiagram) => {
-      return diagramToAdd.uri === diagram.uri;
-    });
+    const indexOfDiagram: number = this._persistedSingleDiagrams.indexOf(diagramToAdd);
+    const diagramIsPersisted: boolean = indexOfDiagram > 0;
 
-    if (diagramAlreadyPersisted) {
-      return;
+    if (diagramIsPersisted) {
+      this._persistedSingleDiagrams[indexOfDiagram] = diagramToAdd;
+    } else {
+      this._persistedSingleDiagrams.push(diagramToAdd);
     }
 
-    this._persistedSingleDiagrams.push(diagramToAdd);
     this._persistSingleDiagramsInLocalStorage();
   }
 
@@ -123,7 +123,7 @@ export class SolutionService implements ISolutionService {
 
   public persistSolutionsInLocalStorage(): void {
     /**
-     * Right now the single diagrams don't get persisted.
+     * Right now the single diagram solution entry doesn't get persisted.
      */
     const entriesToPersist: Array<ISolutionEntry> = this._allSolutionEntries.filter((entry: ISolutionEntry) => {
       const entryIsNotSingleDiagramSolution: boolean = entry.uri !== 'Single Diagrams';

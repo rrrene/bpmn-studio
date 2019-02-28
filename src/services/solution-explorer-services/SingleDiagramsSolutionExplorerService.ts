@@ -2,7 +2,7 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 
-import {IDiagramValidationService} from '../../contracts';
+import {IDiagramValidationService, ISolutionService} from '../../contracts';
 
 /**
  * This service allows to keep all opened single diagrams inside a solution.
@@ -23,17 +23,20 @@ export class SingleDiagramsSolutionExplorerService implements ISolutionExplorerS
   private _uriOfSingleDiagramService: string;
   private _nameOfSingleDiagramService: string;
   private _openedDiagrams: Array<IDiagram> = [];
+  private _solutionService: ISolutionService;
 
   constructor(
     validationService: IDiagramValidationService,
     solutionExplorerToOpenDiagrams: ISolutionExplorerService,
     uriOfSingleDiagramService: string,
     nameOfSingleDiagramService: string,
+    solutionService: ISolutionService,
   ) {
     this._validationService = validationService;
     this._solutionExplorerToOpenDiagrams = solutionExplorerToOpenDiagrams;
     this._uriOfSingleDiagramService = uriOfSingleDiagramService;
     this._nameOfSingleDiagramService = nameOfSingleDiagramService;
+    this._solutionService = solutionService;
   }
 
   public getOpenedDiagrams(): Array<IDiagram> {
@@ -138,6 +141,8 @@ export class SingleDiagramsSolutionExplorerService implements ISolutionExplorerS
   }
 
   public saveDiagram(diagram: IDiagram): Promise<void> {
+    this._solutionService.addSingleDiagram(diagram);
+
     return this._solutionExplorerToOpenDiagrams.saveDiagram(diagram);
   }
 

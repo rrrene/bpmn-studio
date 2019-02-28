@@ -343,6 +343,7 @@ export class SolutionExplorerList {
         fileSystemSolutionExplorer,
         uriOfSingleDiagramService,
         nameOfSingleDiagramService,
+        this._solutionService,
       );
 
     const identity: IIdentity = this._createIdentityForSolutionExplorer();
