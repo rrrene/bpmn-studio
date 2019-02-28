@@ -44,9 +44,9 @@ describe('Diff view', () => {
 
     expect(currentBrowserUrl).toContain(liveExecutionTracker.url);
 
-    const visibilityOfDiffViewContainer: boolean = await liveExecutionTracker.getVisibilityOfLiveExecutionTrackerContainer();
+    const visibilityOfLETViewContainer: boolean = await liveExecutionTracker.getVisibilityOfLiveExecutionTrackerContainer();
 
-    expect(visibilityOfDiffViewContainer).toBeTruthy();
+    expect(visibilityOfLETViewContainer).toBeTruthy();
   });
 
 });
