@@ -343,8 +343,8 @@ export class SolutionExplorerSolution {
   public getDiagramFolder(diagramUri: string): string {
     const diagramLocation: string = this.getDiagramLocation(diagramUri);
 
-    const lastIndexOfSlash: number = diagramUri.lastIndexOf('/');
-    const lastIndexOfBackSlash: number = diagramUri.lastIndexOf('\\');
+    const lastIndexOfSlash: number = diagramLocation.lastIndexOf('/');
+    const lastIndexOfBackSlash: number = diagramLocation.lastIndexOf('\\');
     const indexBeforeFoldername: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash);
 
     const diagramFolder: string = diagramLocation.slice(indexBeforeFoldername, diagramLocation.length);
