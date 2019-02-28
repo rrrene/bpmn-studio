@@ -8,7 +8,7 @@ import {LiveExecutionTracker} from './pages/liveExecutionTracker';
 import {RouterView} from './pages/routerView';
 import {StatusBar} from './pages/statusBar';
 
-describe('Diff view', () => {
+describe('Live Execution Tracker', () => {
 
   let routerView: RouterView;
   let targetDiagram: DiagramWithUserTask;
@@ -39,7 +39,7 @@ describe('Diff view', () => {
     await liveExecutionTracker.show();
   });
 
-  it('should display the diagram when on Live Execution Tracker.', async() => {
+  it('should display the diagram.', async() => {
     const currentBrowserUrl: string = await browser.getCurrentUrl();
 
     expect(currentBrowserUrl).toContain(liveExecutionTracker.url);
@@ -49,7 +49,7 @@ describe('Diff view', () => {
     expect(visibilityOfLETViewContainer).toBeTruthy();
   });
 
-  it('should display the CallActivity with an overlay when on Live Execution Tracker.', async() => {
+  it('should display the CallActivity with an overlay.', async() => {
     const currentBrowserUrl: string = await browser.getCurrentUrl();
 
     expect(currentBrowserUrl).toContain(liveExecutionTracker.url);
