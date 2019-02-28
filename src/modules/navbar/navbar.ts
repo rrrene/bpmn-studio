@@ -228,10 +228,6 @@ export class NavBar {
   }
 
   public exportDiagram(exportAs: string): void {
-    if (this.validationError) {
-      return;
-    }
-
     const eventToPublish: string = this.showExportOnInspectCorrelation
                                  ? environment.events.inspect.exportDiagramAs
                                  : environment.events.diagramDetail.exportDiagramAs;
@@ -338,6 +334,11 @@ export class NavBar {
       : solutionUriFromNavigation;
 
     this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(solutionUri);
+
+    const activeSolutionIsUndefined: boolean = this.activeSolutionEntry === undefined;
+    if (activeSolutionIsUndefined) {
+      return;
+    }
 
     this.savingTargetIsRemoteSolution = this.activeSolutionEntry.uri.startsWith('http');
 
