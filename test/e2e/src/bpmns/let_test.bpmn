@@ -62,7 +62,7 @@
       <bpmn:incoming>SequenceFlow_0z1d7lk</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_04oukte</bpmn:outgoing>
     </bpmn:manualTask>
-    <bpmn:task id="Task_064hsv6" name="Blank Task">
+    <bpmn:task id="Task_064hsv6" name="Empty Task">
       <bpmn:incoming>SequenceFlow_012lf31</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_03ptk9b</bpmn:outgoing>
     </bpmn:task>

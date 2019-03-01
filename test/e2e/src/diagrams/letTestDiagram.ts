@@ -4,7 +4,6 @@ import {HttpClient} from 'protractor-http-client';
 import {IRequestHeaders, IRequestPayload} from '../contracts/index';
 
 export class LETTestDiagram {
-    // tslint:disable-next-line:no-magic-numbers
     public name: string =  'let_test';
     public userTaskId: string = 'Task_1yftx0l';
     public manualTaskId: string = 'Task_0u4cnp4';
@@ -99,7 +98,7 @@ export class LETTestDiagram {
               <bpmn:incoming>SequenceFlow_0z1d7lk</bpmn:incoming>
               <bpmn:outgoing>SequenceFlow_04oukte</bpmn:outgoing>
             </bpmn:manualTask>
-            <bpmn:task id="Task_064hsv6" name="Blank Task">
+            <bpmn:task id="Task_064hsv6" name="Empty Task">
               <bpmn:incoming>SequenceFlow_012lf31</bpmn:incoming>
               <bpmn:outgoing>SequenceFlow_03ptk9b</bpmn:outgoing>
             </bpmn:task>

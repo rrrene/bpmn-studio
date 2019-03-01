@@ -334,20 +334,20 @@ export class LiveExecutionTracker {
       return [];
     }
 
-    const activeBlankTasks: Array<IShape> = elements.filter((element: IShape) => {
-      const elementIsBlankTask: boolean = element.type === 'bpmn:Task';
+    const activeEmptyTasks: Array<IShape> = elements.filter((element: IShape) => {
+      const elementIsEmptyTask: boolean = element.type === 'bpmn:Task';
 
-      return elementIsBlankTask;
+      return elementIsEmptyTask;
     });
 
-    const activeBlankTaskIds: Array<string> = activeBlankTasks.map((element: IShape) => element.id).sort();
+    const activeEmptyTaskIds: Array<string> = activeEmptyTasks.map((element: IShape) => element.id).sort();
 
     const elementsWithActiveTokenDidNotChange: boolean =
-      activeBlankTaskIds.toString() === this._previousEmptyTasksWithActiveToken.toString();
+      activeEmptyTaskIds.toString() === this._previousEmptyTasksWithActiveToken.toString();
 
     const overlayIds: Array<string> = Object.keys(this._overlays._overlays);
 
-    const allActiveElementsHaveAnOverlay: boolean = activeBlankTaskIds.every((taskId: string): boolean => {
+    const allActiveElementsHaveAnOverlay: boolean = activeEmptyTaskIds.every((taskId: string): boolean => {
       const overlayFound: boolean = overlayIds.find((overlayId: string): boolean => {
         return this._overlays._overlays[overlayId].element.id === taskId;
       }) !== undefined;
@@ -356,7 +356,7 @@ export class LiveExecutionTracker {
     });
 
     if (elementsWithActiveTokenDidNotChange && allActiveElementsHaveAnOverlay) {
-      return activeBlankTaskIds;
+      return activeEmptyTaskIds;
     }
 
     for (const elementId of this._elementsWithEventListeners) {
@@ -370,7 +370,7 @@ export class LiveExecutionTracker {
     this._elementsWithEventListeners = [];
     this._overlays.clear();
 
-    for (const element of activeBlankTasks) {
+    for (const element of activeEmptyTasks) {
       this._overlays.add(element, {
         position: {
           left: 30,
@@ -384,7 +384,7 @@ export class LiveExecutionTracker {
       this._elementsWithEventListeners.push(element.id);
     }
 
-    return activeBlankTaskIds;
+    return activeEmptyTaskIds;
   }
 
   private _addOverlaysToUserAndManualTasks(elements: Array<IShape>): Array<string> {
@@ -558,7 +558,7 @@ export class LiveExecutionTracker {
       const emptyTasksInProcessInstance: DataModels.EmptyActivities.EmptyActivityList =
         await this._managementApiClient.getEmptyActivitiesForProcessInstance(this.activeSolutionEntry.identity, this.processInstanceId);
 
-      const blankTask: DataModels.EmptyActivities.EmptyActivity =
+      const emptyTask: DataModels.EmptyActivities.EmptyActivity =
         emptyTasksInProcessInstance.emptyActivities.find((activity: DataModels.EmptyActivities.EmptyActivity) => {
           return activity.id === this.taskId;
       });
@@ -566,7 +566,7 @@ export class LiveExecutionTracker {
       this._managementApiClient.finishEmptyActivity(this.activeSolutionEntry.identity,
                                                     this.processInstanceId,
                                                     this.correlationId,
-                                                    blankTask.flowNodeInstanceId);
+                                                    emptyTask.flowNodeInstanceId);
     }
 
   private _handleActiveCallActivityClick: (event: MouseEvent) => Promise<void> =
