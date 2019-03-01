@@ -86,6 +86,7 @@ export class LiveExecutionTracker {
   private _attached: boolean;
   private _previousManualAndUserTaskIdsWithActiveToken: Array<string> = [];
   private _previousCallActivitiesWithActiveToken: Array<string> = [];
+  private _previousBlankTasksWithActiveToken: Array<string> = [];
   private _activeTokens: Array<ActiveToken>;
   private _parentProcessInstanceId: string;
   private _parentProcessModelId: string;
@@ -313,16 +314,77 @@ export class LiveExecutionTracker {
     this._colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
 
     const activeUserAndManualTaskIds: Array<string> = this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
+    const activeBlankTaskIds: Array<string> =  this._addOverlaysToBlankTasks(elementsWithActiveToken);
     const activeCallActivityIds: Array<string> = this._addOverlaysToActiveCallActivities(elementsWithActiveToken);
 
     this._addOverlaysToInactiveCallActivities(allElements);
 
     this._previousManualAndUserTaskIdsWithActiveToken = activeUserAndManualTaskIds;
     this._previousCallActivitiesWithActiveToken = activeCallActivityIds;
+    this._previousBlankTasksWithActiveToken = activeBlankTaskIds;
 
     // Export the colored xml from the modeler
     const colorizedXml: string = await this._exportXmlFromDiagramModeler();
     return colorizedXml;
+  }
+
+  private _addOverlaysToBlankTasks(elements: Array<IShape>): Array<string> {
+    const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
+    if (liveExecutionTrackerIsNotAttached) {
+      return [];
+    }
+
+    const activeBlankTasks: Array<IShape> = elements.filter((element: IShape) => {
+      const elementIsBlankTask: boolean = element.type === 'bpmn:Task';
+
+      return elementIsBlankTask;
+    });
+
+    const activeBlankTaskIds: Array<string> = activeBlankTasks.map((element: IShape) => element.id).sort();
+
+    const elementsWithActiveTokenDidNotChange: boolean =
+      activeBlankTaskIds.toString() === this._previousBlankTasksWithActiveToken.toString();
+
+    const overlayIds: Array<string> = Object.keys(this._overlays._overlays);
+
+    const allActiveElementsHaveAnOverlay: boolean = activeBlankTaskIds.every((taskId: string): boolean => {
+      const overlayFound: boolean = overlayIds.find((overlayId: string): boolean => {
+        return this._overlays._overlays[overlayId].element.id === taskId;
+      }) !== undefined;
+
+      return overlayFound;
+    });
+
+    if (elementsWithActiveTokenDidNotChange && allActiveElementsHaveAnOverlay) {
+      return activeBlankTaskIds;
+    }
+
+    for (const elementId of this._elementsWithEventListeners) {
+      document.getElementById(elementId).removeEventListener('click', this._handleBlankTaskClick);
+    }
+
+    for (const callActivity of this._activeCallActivities) {
+      document.getElementById(callActivity.id).removeEventListener('click', this._handleActiveCallActivityClick);
+    }
+
+    this._elementsWithEventListeners = [];
+    this._overlays.clear();
+
+    for (const element of activeBlankTasks) {
+      this._overlays.add(element, {
+        position: {
+          left: 30,
+          top: 25,
+        },
+        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-play let__overlay-button-icon"></i></div>`,
+      });
+
+      document.getElementById(element.id).addEventListener('click', this._handleBlankTaskClick);
+
+      this._elementsWithEventListeners.push(element.id);
+    }
+
+    return activeBlankTaskIds;
   }
 
   private _addOverlaysToUserAndManualTasks(elements: Array<IShape>): Array<string> {
