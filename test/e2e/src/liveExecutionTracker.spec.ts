@@ -32,6 +32,7 @@ describe('Live Execution Tracker', () => {
   });
 
   beforeEach(async() => {
+
     await routerView.show();
     await liveExecutionTracker.show();
   });
@@ -47,16 +48,12 @@ describe('Live Execution Tracker', () => {
   });
 
   it('should display the CallActivity with an overlay.', async() => {
-    const currentBrowserUrl: string = await browser.getCurrentUrl();
-
-    expect(currentBrowserUrl).toContain(liveExecutionTracker.url);
-
     const visibilityOfInactiveCallActivityOverlay: boolean = await liveExecutionTracker.getVisibilityOfInactiveCallActivityOverlay();
 
     expect(visibilityOfInactiveCallActivityOverlay).toBeTruthy();
   });
 
-  it('should display a suspended Empty Task with an overlay.', async() => {
+  it('should display a suspended EmptyTask with an overlay.', async() => {
     const visibilityOfInactiveCallActivityOverlay: boolean = await liveExecutionTracker.getVisbilityOfEmptyTaskOverlay();
 
     expect(visibilityOfInactiveCallActivityOverlay).toBeTruthy();

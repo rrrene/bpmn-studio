@@ -53,13 +53,13 @@ export class LETTestDiagram {
                 <bpmn:flowNodeRef>ExclusiveGateway_1nujyjh</bpmn:flowNodeRef>
                 <bpmn:flowNodeRef>Task_1yftx0l</bpmn:flowNodeRef>
                 <bpmn:flowNodeRef>ExclusiveGateway_033l1q7</bpmn:flowNodeRef>
-                <bpmn:flowNodeRef>Task_0f8akhm</bpmn:flowNodeRef>
                 <bpmn:flowNodeRef>Task_0u4cnp4</bpmn:flowNodeRef>
                 <bpmn:flowNodeRef>Task_064hsv6</bpmn:flowNodeRef>
                 <bpmn:flowNodeRef>EndEvent_0eie6q6</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>Task_0f8akhm</bpmn:flowNodeRef>
+                <bpmn:flowNodeRef>Task_1wba5if</bpmn:flowNodeRef>
               </bpmn:lane>
             </bpmn:laneSet>
-            <bpmn:sequenceFlow id="SequenceFlow_1cwomj3" sourceRef="ExclusiveGateway_1nujyjh" targetRef="Task_0f8akhm" />
             <bpmn:sequenceFlow id="SequenceFlow_0equnaa" sourceRef="Task_0f8akhm" targetRef="ExclusiveGateway_033l1q7" />
             <bpmn:sequenceFlow id="SequenceFlow_1b6zaue" sourceRef="ExclusiveGateway_033l1q7" targetRef="EndEvent_0eie6q6" />
             <bpmn:sequenceFlow id="SequenceFlow_0z1d7lk" sourceRef="ExclusiveGateway_1nujyjh" targetRef="Task_0u4cnp4" />
@@ -73,10 +73,10 @@ export class LETTestDiagram {
             </bpmn:startEvent>
             <bpmn:parallelGateway id="ExclusiveGateway_1nujyjh" name="">
               <bpmn:incoming>SequenceFlow_1gnfgy8</bpmn:incoming>
-              <bpmn:outgoing>SequenceFlow_1cwomj3</bpmn:outgoing>
               <bpmn:outgoing>SequenceFlow_0z1d7lk</bpmn:outgoing>
               <bpmn:outgoing>SequenceFlow_012lf31</bpmn:outgoing>
               <bpmn:outgoing>SequenceFlow_0mrk81n</bpmn:outgoing>
+              <bpmn:outgoing>SequenceFlow_0xz3tyu</bpmn:outgoing>
             </bpmn:parallelGateway>
             <bpmn:userTask id="Task_1yftx0l" name="User Task" camunda:formKey="Form Key">
               <bpmn:extensionElements>
@@ -95,13 +95,6 @@ export class LETTestDiagram {
               <bpmn:incoming>SequenceFlow_0zfh1ld</bpmn:incoming>
               <bpmn:outgoing>SequenceFlow_1b6zaue</bpmn:outgoing>
             </bpmn:parallelGateway>
-            <bpmn:callActivity id="Task_0f8akhm" name="CallAcitivity" calledElement="${this.callActivityTargetDiagramId}">
-              <bpmn:extensionElements>
-                <camunda:formData />
-              </bpmn:extensionElements>
-              <bpmn:incoming>SequenceFlow_1cwomj3</bpmn:incoming>
-              <bpmn:outgoing>SequenceFlow_0equnaa</bpmn:outgoing>
-            </bpmn:callActivity>
             <bpmn:manualTask id="Task_0u4cnp4" name="ManualTask">
               <bpmn:incoming>SequenceFlow_0z1d7lk</bpmn:incoming>
               <bpmn:outgoing>SequenceFlow_04oukte</bpmn:outgoing>
@@ -117,6 +110,19 @@ export class LETTestDiagram {
               <bpmn:incoming>SequenceFlow_1b6zaue</bpmn:incoming>
             </bpmn:endEvent>
             <bpmn:sequenceFlow id="SequenceFlow_1gnfgy8" sourceRef="StartEvent_1mox3jl" targetRef="ExclusiveGateway_1nujyjh" />
+            <bpmn:callActivity id="Task_0f8akhm" name="CallAcitivity" calledElement="${this.callActivityTargetDiagramId}">
+              <bpmn:extensionElements>
+                <camunda:formData />
+              </bpmn:extensionElements>
+              <bpmn:incoming>SequenceFlow_13bmeft</bpmn:incoming>
+              <bpmn:outgoing>SequenceFlow_0equnaa</bpmn:outgoing>
+            </bpmn:callActivity>
+            <bpmn:task id="Task_1wba5if">
+              <bpmn:incoming>SequenceFlow_0xz3tyu</bpmn:incoming>
+              <bpmn:outgoing>SequenceFlow_13bmeft</bpmn:outgoing>
+            </bpmn:task>
+            <bpmn:sequenceFlow id="SequenceFlow_13bmeft" sourceRef="Task_1wba5if" targetRef="Task_0f8akhm" />
+            <bpmn:sequenceFlow id="SequenceFlow_0xz3tyu" sourceRef="ExclusiveGateway_1nujyjh" targetRef="Task_1wba5if" />
           </bpmn:process>
           <bpmndi:BPMNDiagram id="BPMNDiagram_1">
             <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1cidyxu">
@@ -147,19 +153,11 @@ export class LETTestDiagram {
                   <dc:Bounds x="174" y="112" width="90" height="20" />
                 </bpmndi:BPMNLabel>
               </bpmndi:BPMNShape>
-              <bpmndi:BPMNEdge id="SequenceFlow_1cwomj3_di" bpmnElement="SequenceFlow_1cwomj3">
-                <di:waypoint x="-638" y="-30" />
-                <di:waypoint x="-638" y="87" />
-                <di:waypoint x="-518" y="87" />
-                <bpmndi:BPMNLabel>
-                  <dc:Bounds x="189" y="144.5" width="90" height="20" />
-                </bpmndi:BPMNLabel>
-              </bpmndi:BPMNEdge>
               <bpmndi:BPMNShape id="CallActivity_097qa7j_di" bpmnElement="Task_0f8akhm">
-                <dc:Bounds x="-518" y="47" width="100" height="80" />
+                <dc:Bounds x="-418" y="47" width="100" height="80" />
               </bpmndi:BPMNShape>
               <bpmndi:BPMNEdge id="SequenceFlow_0equnaa_di" bpmnElement="SequenceFlow_0equnaa">
-                <di:waypoint x="-418" y="87" />
+                <di:waypoint x="-318" y="87" />
                 <di:waypoint x="-272" y="87" />
                 <di:waypoint x="-272" y="-30" />
               </bpmndi:BPMNEdge>
@@ -225,6 +223,18 @@ export class LETTestDiagram {
               <bpmndi:BPMNEdge id="SequenceFlow_1gnfgy8_di" bpmnElement="SequenceFlow_1gnfgy8">
                 <di:waypoint x="-788" y="-55" />
                 <di:waypoint x="-663" y="-55" />
+              </bpmndi:BPMNEdge>
+              <bpmndi:BPMNShape id="Task_1wba5if_di" bpmnElement="Task_1wba5if">
+                <dc:Bounds x="-583" y="47" width="100" height="80" />
+              </bpmndi:BPMNShape>
+              <bpmndi:BPMNEdge id="SequenceFlow_13bmeft_di" bpmnElement="SequenceFlow_13bmeft">
+                <di:waypoint x="-483" y="87" />
+                <di:waypoint x="-418" y="87" />
+              </bpmndi:BPMNEdge>
+              <bpmndi:BPMNEdge id="SequenceFlow_0xz3tyu_di" bpmnElement="SequenceFlow_0xz3tyu">
+                <di:waypoint x="-638" y="-30" />
+                <di:waypoint x="-638" y="87" />
+                <di:waypoint x="-583" y="87" />
               </bpmndi:BPMNEdge>
             </bpmndi:BPMNPlane>
           </bpmndi:BPMNDiagram>

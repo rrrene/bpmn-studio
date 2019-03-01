@@ -1,4 +1,4 @@
-import {browser, by, element, ElementFinder, ExpectedConditions} from 'protractor';
+import {browser, by, element, ElementArrayFinder, ElementFinder, ExpectedConditions} from 'protractor';
 
 import {By} from 'selenium-webdriver';
 
@@ -54,7 +54,7 @@ export class LiveExecutionTracker {
   }
 
   private get _callActivityOverlays(): ElementFinder {
-    const _callActivityOverlaysByCss: By = by.className('fa-search let__overlay-button-icon');
+    const _callActivityOverlaysByCss: By = by.className('fas fa-search let__overlay-button-icon');
 
     return element(_callActivityOverlaysByCss);
   }
@@ -62,6 +62,8 @@ export class LiveExecutionTracker {
   private get _emptyTaskOverlays(): ElementFinder {
     const _emptyTaskOverlaysByCss: By = by.className('fas fa-play let__overlay-button-icon overlay__empty-task');
 
-    return element(_emptyTaskOverlaysByCss);
+    const allEmptyTaskOverlays: ElementArrayFinder = element.all(_emptyTaskOverlaysByCss);
+
+    return allEmptyTaskOverlays.first();
   }
 }
