@@ -86,7 +86,7 @@ export class LiveExecutionTracker {
   private _attached: boolean;
   private _previousManualAndUserTaskIdsWithActiveToken: Array<string> = [];
   private _previousCallActivitiesWithActiveToken: Array<string> = [];
-  private _previousBlankTasksWithActiveToken: Array<string> = [];
+  private _previousEmptyTasksWithActiveToken: Array<string> = [];
   private _activeTokens: Array<ActiveToken>;
   private _parentProcessInstanceId: string;
   private _parentProcessModelId: string;
@@ -314,21 +314,21 @@ export class LiveExecutionTracker {
     this._colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
 
     const activeUserAndManualTaskIds: Array<string> = this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
-    const activeBlankTaskIds: Array<string> =  this._addOverlaysToBlankTasks(elementsWithActiveToken);
+    const activeEmptyTaskIds: Array<string> =  this._addOverlaysToEmptyTasks(elementsWithActiveToken);
     const activeCallActivityIds: Array<string> = this._addOverlaysToActiveCallActivities(elementsWithActiveToken);
 
     this._addOverlaysToInactiveCallActivities(allElements);
 
     this._previousManualAndUserTaskIdsWithActiveToken = activeUserAndManualTaskIds;
     this._previousCallActivitiesWithActiveToken = activeCallActivityIds;
-    this._previousBlankTasksWithActiveToken = activeBlankTaskIds;
+    this._previousEmptyTasksWithActiveToken = activeEmptyTaskIds;
 
     // Export the colored xml from the modeler
     const colorizedXml: string = await this._exportXmlFromDiagramModeler();
     return colorizedXml;
   }
 
-  private _addOverlaysToBlankTasks(elements: Array<IShape>): Array<string> {
+  private _addOverlaysToEmptyTasks(elements: Array<IShape>): Array<string> {
     const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
     if (liveExecutionTrackerIsNotAttached) {
       return [];
@@ -343,7 +343,7 @@ export class LiveExecutionTracker {
     const activeBlankTaskIds: Array<string> = activeBlankTasks.map((element: IShape) => element.id).sort();
 
     const elementsWithActiveTokenDidNotChange: boolean =
-      activeBlankTaskIds.toString() === this._previousBlankTasksWithActiveToken.toString();
+      activeBlankTaskIds.toString() === this._previousEmptyTasksWithActiveToken.toString();
 
     const overlayIds: Array<string> = Object.keys(this._overlays._overlays);
 
@@ -360,7 +360,7 @@ export class LiveExecutionTracker {
     }
 
     for (const elementId of this._elementsWithEventListeners) {
-      document.getElementById(elementId).removeEventListener('click', this._handleBlankTaskClick);
+      document.getElementById(elementId).removeEventListener('click', this._handleEmptyTaskClick);
     }
 
     for (const callActivity of this._activeCallActivities) {
@@ -376,10 +376,10 @@ export class LiveExecutionTracker {
           left: 30,
           top: 25,
         },
-        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-play let__overlay-button-icon"></i></div>`,
+        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-play let__overlay-button-icon overlay__empty-task"></i></div>`,
       });
 
-      document.getElementById(element.id).addEventListener('click', this._handleBlankTaskClick);
+      document.getElementById(element.id).addEventListener('click', this._handleEmptyTaskClick);
 
       this._elementsWithEventListeners.push(element.id);
     }
@@ -550,15 +550,16 @@ export class LiveExecutionTracker {
       this.showDynamicUiModal = true;
     }
 
-  private _handleBlankTaskClick: (event: MouseEvent) => void =
+  private _handleEmptyTaskClick: (event: MouseEvent) => void =
     async(event: MouseEvent): Promise<void> => {
       const elementId: string = (event.target as HTMLDivElement).id;
       this.taskId = elementId;
-      const blankTasksInProcessInstance: DataModels.EmptyActivities.EmptyActivityList =
+
+      const emptyTasksInProcessInstance: DataModels.EmptyActivities.EmptyActivityList =
         await this._managementApiClient.getEmptyActivitiesForProcessInstance(this.activeSolutionEntry.identity, this.processInstanceId);
 
       const blankTask: DataModels.EmptyActivities.EmptyActivity =
-        blankTasksInProcessInstance.emptyActivities.find((activity: DataModels.EmptyActivities.EmptyActivity) => {
+        emptyTasksInProcessInstance.emptyActivities.find((activity: DataModels.EmptyActivities.EmptyActivity) => {
           return activity.id === this.taskId;
       });
 
