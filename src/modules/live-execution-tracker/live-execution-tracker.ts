@@ -550,6 +550,24 @@ export class LiveExecutionTracker {
       this.showDynamicUiModal = true;
     }
 
+  private _handleBlankTaskClick: (event: MouseEvent) => void =
+    async(event: MouseEvent): Promise<void> => {
+      const elementId: string = (event.target as HTMLDivElement).id;
+      this.taskId = elementId;
+      const blankTasksInProcessInstance: DataModels.EmptyActivities.EmptyActivityList =
+        await this._managementApiClient.getEmptyActivitiesForProcessInstance(this.activeSolutionEntry.identity, this.processInstanceId);
+
+      const blankTask: DataModels.EmptyActivities.EmptyActivity =
+        blankTasksInProcessInstance.emptyActivities.find((activity: DataModels.EmptyActivities.EmptyActivity) => {
+          return activity.id === this.taskId;
+      });
+
+      this._managementApiClient.finishEmptyActivity(this.activeSolutionEntry.identity,
+                                                    this.processInstanceId,
+                                                    this.correlationId,
+                                                    blankTask.flowNodeInstanceId);
+    }
+
   private _handleActiveCallActivityClick: (event: MouseEvent) => Promise<void> =
     async(event: MouseEvent): Promise<void> => {
       const elementId: string = (event.target as HTMLDivElement).id;
