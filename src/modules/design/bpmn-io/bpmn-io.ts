@@ -260,6 +260,8 @@ export class BpmnIo {
       }),
 
       this._eventAggregator.subscribe(environment.events.diagramChange, async() => {
+        this._linting.update();
+
         /*
         * This Regex removes all newlines and spaces to make sure that both xml
         * are not formatted.
