@@ -6,6 +6,9 @@ const diffAgainstOtherDiagramButtonId: string = 'js-diff-against-other-diagramBu
 const diffViewContainerId: string = 'js-diagram-diffContainer';
 const chooseDiagramModalId: string = 'js-chooseDiagram-modal';
 const diagramDropdownId: string = 'js-diagram-dropdown';
+const compareButtonId: string = 'js-choose-diagram';
+const cancelButtonId: string = 'js-cancel-diagram-selection';
+const diffIdentifierId: string = 'js-diff-identifier';
 
 export class DiffView {
 
@@ -22,13 +25,13 @@ export class DiffView {
   }
 
   public async getVisibilityOfDiffViewContainer(): Promise<boolean> {
-    await browser.wait(ExpectedConditions.visibilityOf(this._diffViewContainer), browser.params.defaultTimeoutMS);
+    await this._waitForVisbilityOfElement(this._diffViewContainer);
 
     return this._diffViewContainer.isDisplayed();
   }
 
   public async getVisibilityOfDiffAgainstOtherDiagramButton(): Promise<boolean> {
-    await browser.wait(ExpectedConditions.visibilityOf(this._diffAgainstOtherDiagramButton), browser.params.defaultTimeoutMS);
+    await this._waitForVisbilityOfElement(this._diffAgainstOtherDiagramButton);
 
     return this._diffAgainstOtherDiagramButton.isDisplayed();
   }
@@ -37,16 +40,43 @@ export class DiffView {
     this._diffAgainstOtherDiagramButton.click();
   }
 
+  public clickOnCancelButton(): void {
+    this._cancelButton.click();
+  }
+
+  public clickOnCompareButton(): void {
+    this._compareButton.click();
+  }
+
+  public async getDiffIdentifierText(): Promise<string> {
+    await this._waitForVisbilityOfElement(this._diffIdentifier);
+    const identifierString: string = await this._diffIdentifier.getText();
+
+    return identifierString;
+  }
+
   public async getVisibilityOfChooseDiagramModal(): Promise<boolean> {
-    await browser.wait(ExpectedConditions.visibilityOf(this._chooseDiagramModal), browser.params.defaultTimeoutMS);
+    await this._waitForVisbilityOfElement(this._chooseDiagramModal);
 
     return this._chooseDiagramModal.isDisplayed();
   }
 
   public async getVisibilityOfDiagramDropdown(): Promise<boolean> {
-    await browser.wait(ExpectedConditions.visibilityOf(this._diagramDropdown), browser.params.defaultTimeoutMS);
+    await this._waitForVisbilityOfElement(this._diagramDropdown);
 
     return this._diagramDropdown.isDisplayed();
+  }
+
+  public async getVisibilityOfCompareButton(): Promise<boolean> {
+    await this._waitForVisbilityOfElement(this._compareButton);
+
+    return this._compareButton.isDisplayed();
+  }
+
+  public async getVisibilityOfCancelButton(): Promise<boolean> {
+    await this._waitForVisbilityOfElement(this._cancelButton);
+
+    return this._cancelButton.isDisplayed();
   }
 
   public async getDropdownOptions(): Promise<Array<ElementFinder>> {
@@ -85,5 +115,33 @@ export class DiffView {
     const diagramDropdownById: By = by.id(diagramDropdownId);
 
     return element(diagramDropdownById);
+  }
+
+  private get _cancelButton(): ElementFinder {
+    const cancelButtonById: By = by.id(cancelButtonId);
+
+    return element(cancelButtonById);
+  }
+
+  private get _compareButton(): ElementFinder {
+    const compareButtonById: By = by.id(compareButtonId);
+
+    return element(compareButtonById);
+  }
+
+  private get _diffIdentifier(): ElementFinder {
+    const diffIdentifierById: By = by.id(diffIdentifierId);
+
+    return element(diffIdentifierById);
+  }
+
+  private async _waitForVisbilityOfElement(finder: ElementFinder): Promise<void> {
+    const finderVisibility: Function = ExpectedConditions.visibilityOf(finder);
+
+    await browser.wait(finderVisibility, browser.params.defaultTimeoutMS).catch(() => {
+      // If this timeouts do nothing.
+      // We are basically supressing the timeout error here.
+      // This way we get better error messages for debugging by the actual test function.
+    });
   }
 }

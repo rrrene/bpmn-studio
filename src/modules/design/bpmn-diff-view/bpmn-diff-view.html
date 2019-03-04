@@ -23,7 +23,7 @@
         <span class="diff-legend-entry diff-legend-entry-last"><i class="fas fa-stop purple"></i> Layout Changed</span>
       </div>
       <span if.bind="diffModeIsNewVsOld" class="diff-canvas-title">
-        <p class="diff-mode">${currentXmlIdentifier} vs. ${previousXmlIdentifier}</p>
+        <p class="diff-mode" id="js-diff-identifier">${currentXmlIdentifier} vs. ${previousXmlIdentifier}</p>
       </span>
       <span else class="diff-canvas-title">
         <p class="diff-mode">${previousXmlIdentifier} vs. ${currentXmlIdentifier}</p>

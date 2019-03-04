@@ -9,7 +9,8 @@ import {StatusBar} from './pages/statusBar';
 describe('Diff view', () => {
 
   let routerView: RouterView;
-  let diagram: SimpleDiagram;
+  let diagram1: SimpleDiagram;
+  let diagram2: SimpleDiagram;
   let statusBar: StatusBar;
   let diagramDetail: DiagramDetail;
   let diffView: DiffView;
@@ -18,17 +19,20 @@ describe('Diff view', () => {
 
   beforeAll(async() => {
     routerView = new RouterView();
-    diagram = new SimpleDiagram();
+    diagram1 = new SimpleDiagram();
+    diagram2 = new SimpleDiagram();
     statusBar = new StatusBar();
-    diagramDetail = new DiagramDetail(applicationUrl, diagram.name);
-    diffView = new DiffView(applicationUrl, diagram.name);
+    diagramDetail = new DiagramDetail(applicationUrl, diagram1.name);
+    diffView = new DiffView(applicationUrl, diagram1.name);
 
-    await diagram.deployDiagram();
+    await diagram1.deployDiagram();
+    await diagram2.deployDiagram();
   });
 
   afterAll(async() => {
 
-    await diagram.deleteDiagram();
+    await diagram2.deleteDiagram();
+    await diagram1.deleteDiagram();
   });
 
   beforeEach(async() => {
@@ -79,6 +83,37 @@ describe('Diff view', () => {
     expect(diagramDropdownIsDisplayed).toBeTruthy();
   });
 
+  it('should contain `cancelButton` within the modal.', async() => {
+    await diffView.show();
+    diffView.clickOnDiffAgainstOtherDiagramButton();
+
+    const cancelButtonIsDisplayed: boolean = await diffView.getVisibilityOfCancelButton();
+
+    expect(cancelButtonIsDisplayed).toBeTruthy();
+  });
+
+  it('should contain `compareButton` within the modal.', async() => {
+    await diffView.show();
+    diffView.clickOnDiffAgainstOtherDiagramButton();
+
+    const compareButtonIsDisplayed: boolean = await diffView.getVisibilityOfCompareButton();
+
+    expect(compareButtonIsDisplayed).toBeTruthy();
+  });
+
+  it('should cancel the modal.', async() => {
+    await diffView.show();
+    diffView.clickOnDiffAgainstOtherDiagramButton();
+
+    const cancelButtonIsDisplayed: boolean = await diffView.getVisibilityOfCancelButton();
+    expect(cancelButtonIsDisplayed).toBeTruthy();
+
+    diffView.clickOnCancelButton();
+
+    const chooseDiagramModalIsDisplayed: boolean = await diffView.getVisibilityOfChooseDiagramModal();
+    expect(chooseDiagramModalIsDisplayed).toBeFalsy();
+  });
+
   it('should select a diagram', async() => {
     await diffView.show();
     diffView.clickOnDiffAgainstOtherDiagramButton();
@@ -89,12 +124,29 @@ describe('Diff view', () => {
      * The third option gets selected because the first two are always there.
      */
     // tslint:disable-next-line:no-magic-numbers
-    expect(arrayOfOptions.length).toBeGreaterThan(1);
+    expect(arrayOfOptions.length).toBeGreaterThan(2);
     // tslint:disable-next-line:no-magic-numbers
-    await arrayOfOptions[1].click();
+    await arrayOfOptions[2].click();
     // tslint:disable-next-line:no-magic-numbers
-    expect(await arrayOfOptions[1].isSelected()).toBe(true);
+    expect(await arrayOfOptions[2].isSelected()).toBe(true);
+  });
 
+  it('should compare the current diagram with another', async() => {
+    await diffView.show();
+    diffView.clickOnDiffAgainstOtherDiagramButton();
+
+    const arrayOfOptions: Array<ElementFinder> = await diffView.getDropdownOptions();
+
+    // tslint:disable-next-line:no-magic-numbers
+    await arrayOfOptions[2].click();
+    diffView.clickOnCompareButton();
+
+    const chooseDiagramModalIsDisplayed: boolean = await diffView.getVisibilityOfChooseDiagramModal();
+    const diffIdentifierText: string = await diffView.getDiffIdentifierText();
+
+    expect(chooseDiagramModalIsDisplayed).toBeFalsy();
+    expect(diffIdentifierText).not.toBe('New vs. Old');
+    expect(diffIdentifierText).toBe(`${diagram1.name} vs. ${diagram2.name}`);
   });
 
 });
