@@ -5,4 +5,5 @@ export interface ILinting {
   deactivateLinting(): void;
   lint(): IValidateResult;
   update(): void;
+  clearIssues(): void;
 }
