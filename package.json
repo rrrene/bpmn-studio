@@ -107,7 +107,7 @@
     "@fortawesome/fontawesome-free": "^5.1.0",
     "@process-engine/bpmn-js-custom-bundle": "2.5.1",
     "@process-engine/bpmn-lint_rules": "1.3.0",
-    "@process-engine/management_api_client": "4.0.0",
+    "@process-engine/management_api_client": "4.0.1",
     "@process-engine/process_engine_runtime": "7.0.0",
     "@process-engine/solutionexplorer.repository.filesystem": "4.0.1",
     "@process-engine/solutionexplorer.repository.management_api": "3.0.0",
