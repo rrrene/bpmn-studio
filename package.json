@@ -138,7 +138,7 @@
   "devDependencies": {
     "@essential-projects/http_contracts": "~2.3.8",
     "@essential-projects/iam_contracts": "~3.4.2",
-    "@process-engine/bpmn-elements_contracts": "1.1.0-a5eb8a3d-b3",
+    "@process-engine/bpmn-elements_contracts": "1.1.0-df756a8f-b4",
     "@process-engine/consumer_api_contracts": "5.0.0",
     "@process-engine/kpi_api_contracts": "1.2.4",
     "@process-engine/management_api_contracts": "feature~implement_blank_handlers",
