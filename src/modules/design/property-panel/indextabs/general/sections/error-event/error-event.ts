@@ -14,6 +14,7 @@ import {
   IBpmnModdle,
   IBpmnModeler,
   IElementRegistry,
+  ILinting,
   IPageModel,
   ISection,
 } from '../../../../../../../contracts';
@@ -34,6 +35,7 @@ export class ErrorEventSection implements ISection {
   private _businessObjInPanel: IErrorEventElement;
   private _moddle: IBpmnModdle;
   private _modeler: IBpmnModeler;
+  private _linter: ILinting;
   private _generalService: GeneralService;
   private _eventAggregator: EventAggregator;
 
@@ -47,6 +49,8 @@ export class ErrorEventSection implements ISection {
 
     this._moddle = model.modeler.get('moddle');
     this._modeler = model.modeler;
+    this._linter = model.modeler.get('linting');
+
     this.errors = await this._getErrors();
 
     this._init();
@@ -77,6 +81,7 @@ export class ErrorEventSection implements ISection {
       this.errorMessageVariable = errorElement.errorMessageVariable;
     }
     this._publishDiagramChange();
+    this._linter.update();
   }
 
   public updateErrorName(): void {
