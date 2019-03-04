@@ -114,7 +114,7 @@ describe('Diff view', () => {
     expect(chooseDiagramModalIsDisplayed).toBeFalsy();
   });
 
-  it('should select a diagram', async() => {
+  it('should select a diagram.', async() => {
     await diffView.show();
     diffView.clickOnDiffAgainstOtherDiagramButton();
 
@@ -131,7 +131,7 @@ describe('Diff view', () => {
     expect(await arrayOfOptions[2].isSelected()).toBe(true);
   });
 
-  it('should compare the current diagram with another', async() => {
+  it('should compare the current diagram with another.', async() => {
     await diffView.show();
     diffView.clickOnDiffAgainstOtherDiagramButton();
 
