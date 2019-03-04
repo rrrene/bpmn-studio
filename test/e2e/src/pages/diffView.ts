@@ -40,11 +40,11 @@ export class DiffView {
     this._diffAgainstOtherDiagramButton.click();
   }
 
-  public clickOnCancelButton(): void {
+  public clickOnModalCancelButton(): void {
     this._cancelButton.click();
   }
 
-  public clickOnCompareButton(): void {
+  public clickOnModalCompareButton(): void {
     this._compareButton.click();
   }
 

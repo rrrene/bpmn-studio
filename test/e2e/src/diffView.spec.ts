@@ -108,7 +108,7 @@ describe('Diff view', () => {
     const cancelButtonIsDisplayed: boolean = await diffView.getVisibilityOfCancelButton();
     expect(cancelButtonIsDisplayed).toBeTruthy();
 
-    diffView.clickOnCancelButton();
+    diffView.clickOnModalCancelButton();
 
     const chooseDiagramModalIsDisplayed: boolean = await diffView.getVisibilityOfChooseDiagramModal();
     expect(chooseDiagramModalIsDisplayed).toBeFalsy();
@@ -139,7 +139,7 @@ describe('Diff view', () => {
 
     // tslint:disable-next-line:no-magic-numbers
     await arrayOfOptions[2].click();
-    diffView.clickOnCompareButton();
+    diffView.clickOnModalCompareButton();
 
     const chooseDiagramModalIsDisplayed: boolean = await diffView.getVisibilityOfChooseDiagramModal();
     const diffIdentifierText: string = await diffView.getDiffIdentifierText();
