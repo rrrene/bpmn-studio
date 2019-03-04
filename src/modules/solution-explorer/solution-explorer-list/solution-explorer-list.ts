@@ -165,7 +165,7 @@ export class SolutionExplorerList {
       throw new Error('Solution is already opened.');
     }
 
-    this._addSolutionEntry(uri, solutionExplorer, identity, insertAtBeginning);
+    this._addSolutionEntry(uri, solutionExplorer, identity, insertAtBeginning, processEngineVersion);
   }
 
   /**
@@ -418,7 +418,12 @@ export class SolutionExplorerList {
     return indexOfSolutionWithURI;
   }
 
-  private async _addSolutionEntry(uri: string, service: ISolutionExplorerService, identity: IIdentity, insertAtBeginning: boolean): Promise<void> {
+  private async _addSolutionEntry(
+    uri: string, service: ISolutionExplorerService,
+    identity: IIdentity,
+    insertAtBeginning: boolean,
+    processEngineVersion?: string,
+    ): Promise<void> {
     const isSingleDiagramService: boolean = this._isSingleDiagramService(service);
     const fontAwesomeIconClass: string = this._getFontAwesomeIconForSolution(service, uri);
     const canCloseSolution: boolean = this._canCloseSolution(service, uri);
@@ -449,6 +454,7 @@ export class SolutionExplorerList {
       authority,
       isLoggedIn,
       userName,
+      processEngineVersion,
     };
 
     this._solutionService.addSolutionEntry(entry);
