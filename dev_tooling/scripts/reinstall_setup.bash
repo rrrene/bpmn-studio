@@ -37,7 +37,7 @@ if [[ ! -z $OLD_PATH ]]; then
   PATH=$OLD_PATH
 fi
 
-npm install --no-package-lock
+npm install
 
 # If npm install fails, its likely that also the build process would fail,
 # so we can exit here.
