@@ -86,6 +86,7 @@ export class LiveExecutionTracker {
   private _attached: boolean;
   private _previousManualAndUserTaskIdsWithActiveToken: Array<string> = [];
   private _previousCallActivitiesWithActiveToken: Array<string> = [];
+  private _previousEmptyTasksWithActiveToken: Array<string> = [];
   private _activeTokens: Array<ActiveToken>;
   private _parentProcessInstanceId: string;
   private _parentProcessModelId: string;
@@ -313,16 +314,77 @@ export class LiveExecutionTracker {
     this._colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
 
     const activeUserAndManualTaskIds: Array<string> = this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
+    const activeEmptyTaskIds: Array<string> =  this._addOverlaysToEmptyTasks(elementsWithActiveToken);
     const activeCallActivityIds: Array<string> = this._addOverlaysToActiveCallActivities(elementsWithActiveToken);
 
     this._addOverlaysToInactiveCallActivities(allElements);
 
     this._previousManualAndUserTaskIdsWithActiveToken = activeUserAndManualTaskIds;
     this._previousCallActivitiesWithActiveToken = activeCallActivityIds;
+    this._previousEmptyTasksWithActiveToken = activeEmptyTaskIds;
 
     // Export the colored xml from the modeler
     const colorizedXml: string = await this._exportXmlFromDiagramModeler();
     return colorizedXml;
+  }
+
+  private _addOverlaysToEmptyTasks(elements: Array<IShape>): Array<string> {
+    const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
+    if (liveExecutionTrackerIsNotAttached) {
+      return [];
+    }
+
+    const activeEmptyTasks: Array<IShape> = elements.filter((element: IShape) => {
+      const elementIsEmptyTask: boolean = element.type === 'bpmn:Task';
+
+      return elementIsEmptyTask;
+    });
+
+    const activeEmptyTaskIds: Array<string> = activeEmptyTasks.map((element: IShape) => element.id).sort();
+
+    const elementsWithActiveTokenDidNotChange: boolean =
+      activeEmptyTaskIds.toString() === this._previousEmptyTasksWithActiveToken.toString();
+
+    const overlayIds: Array<string> = Object.keys(this._overlays._overlays);
+
+    const allActiveElementsHaveAnOverlay: boolean = activeEmptyTaskIds.every((taskId: string): boolean => {
+      const overlayFound: boolean = overlayIds.find((overlayId: string): boolean => {
+        return this._overlays._overlays[overlayId].element.id === taskId;
+      }) !== undefined;
+
+      return overlayFound;
+    });
+
+    if (elementsWithActiveTokenDidNotChange && allActiveElementsHaveAnOverlay) {
+      return activeEmptyTaskIds;
+    }
+
+    for (const elementId of this._elementsWithEventListeners) {
+      document.getElementById(elementId).removeEventListener('click', this._handleEmptyTaskClick);
+    }
+
+    for (const callActivity of this._activeCallActivities) {
+      document.getElementById(callActivity.id).removeEventListener('click', this._handleActiveCallActivityClick);
+    }
+
+    this._elementsWithEventListeners = [];
+    this._overlays.clear();
+
+    for (const element of activeEmptyTasks) {
+      this._overlays.add(element, {
+        position: {
+          left: 30,
+          top: 25,
+        },
+        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-play let__overlay-button-icon overlay__empty-task"></i></div>`,
+      });
+
+      document.getElementById(element.id).addEventListener('click', this._handleEmptyTaskClick);
+
+      this._elementsWithEventListeners.push(element.id);
+    }
+
+    return activeEmptyTaskIds;
   }
 
   private _addOverlaysToUserAndManualTasks(elements: Array<IShape>): Array<string> {
@@ -486,6 +548,25 @@ export class LiveExecutionTracker {
       this.taskId = elementId;
 
       this.showDynamicUiModal = true;
+    }
+
+  private _handleEmptyTaskClick: (event: MouseEvent) => void =
+    async(event: MouseEvent): Promise<void> => {
+      const elementId: string = (event.target as HTMLDivElement).id;
+      this.taskId = elementId;
+
+      const emptyTasksInProcessInstance: DataModels.EmptyActivities.EmptyActivityList =
+        await this._managementApiClient.getEmptyActivitiesForProcessInstance(this.activeSolutionEntry.identity, this.processInstanceId);
+
+      const emptyTask: DataModels.EmptyActivities.EmptyActivity =
+        emptyTasksInProcessInstance.emptyActivities.find((activity: DataModels.EmptyActivities.EmptyActivity) => {
+          return activity.id === this.taskId;
+      });
+
+      this._managementApiClient.finishEmptyActivity(this.activeSolutionEntry.identity,
+                                                    this.processInstanceId,
+                                                    this.correlationId,
+                                                    emptyTask.flowNodeInstanceId);
     }
 
   private _handleActiveCallActivityClick: (event: MouseEvent) => Promise<void> =
