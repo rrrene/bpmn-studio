@@ -5,6 +5,7 @@ import {IEventElement, IModdleElement, IShape, ITimerEventElement} from '@proces
 
 import {
   IBpmnModdle,
+  ILinting,
   IPageModel,
   ISection,
 } from '../../../../../../../contracts';
@@ -27,6 +28,7 @@ export class TimerEventSection implements ISection {
 
   private _businessObjInPanel: ITimerEventElement;
   private _moddle: IBpmnModdle;
+  private _linter: ILinting;
   private _eventAggregator: EventAggregator;
 
   constructor(eventAggregator?: EventAggregator) {
@@ -37,6 +39,8 @@ export class TimerEventSection implements ISection {
     this._businessObjInPanel = model.elementInPanel.businessObject as ITimerEventElement;
 
     this._moddle = model.modeler.get('moddle');
+    this._linter = model.modeler.get('linting');
+
     this.timerElement = this._getTimerElement();
 
     this._init();
@@ -89,7 +93,9 @@ export class TimerEventSection implements ISection {
 
     Object.assign(this._businessObjInPanel.eventDefinitions[0], timerTypeObject);
     this.timerElement.body = '';
+
     this._publishDiagramChange();
+    this._linter.update();
   }
 
   public updateTimerDefinition(): void {
