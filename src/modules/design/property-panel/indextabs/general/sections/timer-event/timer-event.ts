@@ -1,7 +1,7 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {inject} from 'aurelia-framework';
 
-import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
+import {IEventElement, IModdleElement, IShape, ITimerEventElement} from '@process-engine/bpmn-elements_contracts';
 
 import {
   IBpmnModdle,
@@ -25,7 +25,7 @@ export class TimerEventSection implements ISection {
   public TimerType: typeof TimerType = TimerType;
   public timerType: TimerType;
 
-  private _businessObjInPanel: IModdleElement;
+  private _businessObjInPanel: ITimerEventElement;
   private _moddle: IBpmnModdle;
   private _eventAggregator: EventAggregator;
 
@@ -34,7 +34,7 @@ export class TimerEventSection implements ISection {
   }
 
   public activate(model: IPageModel): void {
-    this._businessObjInPanel = model.elementInPanel.businessObject;
+    this._businessObjInPanel = model.elementInPanel.businessObject as ITimerEventElement;
 
     this._moddle = model.modeler.get('moddle');
     this.timerElement = this._getTimerElement();
@@ -43,11 +43,19 @@ export class TimerEventSection implements ISection {
   }
 
   public isSuitableForElement(element: IShape): boolean {
-    return element !== undefined
-        && element.businessObject !== undefined
-        && element.businessObject.eventDefinitions !== undefined
-        && element.businessObject.eventDefinitions[0] !== undefined
-        && element.businessObject.eventDefinitions[0].$type === 'bpmn:TimerEventDefinition';
+    const elementHasNoBusinessObject: boolean = element === undefined || element.businessObject === undefined;
+
+    if (elementHasNoBusinessObject) {
+      return false;
+    }
+
+    const eventElement: IEventElement = element.businessObject as IEventElement;
+
+    const elementIsTimerEvent: boolean = eventElement.eventDefinitions !== undefined
+                                      && eventElement.eventDefinitions[0] !== undefined
+                                      && eventElement.eventDefinitions[0].$type === 'bpmn:TimerEventDefinition';
+
+    return elementIsTimerEvent;
   }
 
   public updateTimerType(): void {
