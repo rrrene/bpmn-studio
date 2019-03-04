@@ -14,6 +14,7 @@ import {
   IBpmnModdle,
   IBpmnModeler,
   IElementRegistry,
+  ILinting,
   IPageModel,
   ISection,
 } from '../../../../../../../contracts';
@@ -32,6 +33,7 @@ export class SignalEventSection implements ISection {
   private _businessObjInPanel: ISignalEventElement;
   private _moddle: IBpmnModdle;
   private _modeler: IBpmnModeler;
+  private _linter: ILinting;
   private _generalService: GeneralService;
   private _eventAggregator: EventAggregator;
 
@@ -44,6 +46,7 @@ export class SignalEventSection implements ISection {
     this._businessObjInPanel = model.elementInPanel.businessObject as ISignalEventElement;
     this._moddle = model.modeler.get('moddle');
     this._modeler = model.modeler;
+    this._linter = this._modeler.get('linting');
 
     this.signals = await this._getSignals();
 
@@ -62,6 +65,9 @@ export class SignalEventSection implements ISection {
     const signalElement: ISignalEventDefinition = this._businessObjInPanel.eventDefinitions[0];
     signalElement.signalRef = this.selectedSignal;
     this._publishDiagramChange();
+
+    this._linter.clearIssues();
+    this._linter.update();
   }
 
   public updateName(): void {
@@ -110,7 +116,6 @@ export class SignalEventSection implements ISection {
     this._modeler._definitions.rootElements.splice(this._getRootElementsIndex(this.selectedId), 1);
 
     this.updateSignal();
-    this._publishDiagramChange();
   }
 
   private _getRootElementsIndex(elementId: string): number {
