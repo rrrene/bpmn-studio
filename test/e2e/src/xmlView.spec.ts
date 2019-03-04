@@ -78,5 +78,4 @@ describe('XML view', () => {
     expect(visiblityOfCodeLines).toBeTruthy();
   });
 
-  // TODO Test: Check if XML is formatted.
 });
