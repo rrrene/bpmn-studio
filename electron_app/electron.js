@@ -374,7 +374,7 @@ Main._createMainWindow = function () {
               product_name: 'BPMN-Studio',
               bug_report_url: 'https://github.com/process-engine/bpmn-studio/issues/new',
               homepage: 'www.process-engine.io',
-              copyright: 'Copyright © ' + copyrightYear + ' process-engine',
+              copyright: `Copyright © ${copyrightYear} process-engine`,
               win_options: {
                 minimizable: false,
                 maximizable: false,
