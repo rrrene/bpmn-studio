@@ -13,7 +13,7 @@ import {
 
 enum ButtonClickActions {
   cancel = 'cancel',
-  process = 'proceed',
+  proceed = 'proceed',
   decline = 'decline',
 }
 
@@ -51,7 +51,7 @@ export class DynamicUiWrapper {
     this._activeSolutionEntry = solutionEntry;
   }
 
-  public async handleUserTaskButtonClick(action: ButtonClickActions, userTask: any): Promise<void> {
+  public async handleUserTaskButtonClick(action: ButtonClickActions, userTask: DataModels.UserTasks.UserTask): Promise<void> {
     const actionCanceled: boolean = action === ButtonClickActions.cancel;
 
     if (actionCanceled) {
@@ -141,7 +141,7 @@ export class DynamicUiWrapper {
 
     const buttonClickHandlerExists: boolean = this.onButtonClick !== undefined;
     if (buttonClickHandlerExists) {
-      this.onButtonClick(ButtonClickActions.process);
+      this.onButtonClick(ButtonClickActions.proceed);
     }
   }
 }
