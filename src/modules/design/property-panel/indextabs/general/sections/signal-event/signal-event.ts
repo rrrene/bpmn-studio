@@ -62,7 +62,7 @@ export class SignalEventSection implements ISection {
       return signal.id === this.selectedId;
     });
 
-    const signalElement: ISignalElement = this._businessObjInPanel.eventDefinitions[0];
+    const signalElement: ISignalEventDefinition = this._businessObjInPanel.eventDefinitions[0];
     const eventDefinitionSet: boolean = signalElement.signalRef !== undefined;
     const signalGotSelected: boolean = this.selectedSignal !== undefined;
 
