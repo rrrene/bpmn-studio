@@ -65,26 +65,27 @@ export class TimerEventSection implements ISection {
   public updateTimerType(): void {
     const moddleElement: IModdleElement = this._moddle.create('bpmn:FormalExpression', {body: this.timerElement.body});
 
-    const timerDefinitionIsDate: boolean = this.timerType === TimerType.Date;
-    const timerDefinitionIsDuration: boolean = this.timerType === TimerType.Duration;
-    const timerDefinitionIsCycle: boolean = this.timerType === TimerType.Cycle;
-
     let timerTypeObject: Object;
 
-    if (timerDefinitionIsDate) {
-      timerTypeObject = {
-        timeDate: moddleElement,
-      };
-    } else if (timerDefinitionIsCycle) {
-      timerTypeObject = {
-        timeCycle: moddleElement,
-      };
-    } else if (timerDefinitionIsDuration) {
-      timerTypeObject = {
-        timeDuration: moddleElement,
-      };
-    } else {
-      timerTypeObject = {};
+    switch (this.timerType) {
+      case TimerType.Date: {
+        timerTypeObject = {
+          timeDate: moddleElement,
+        };
+      }
+      case TimerType.Duration: {
+        timerTypeObject = {
+          timeDuration: moddleElement,
+        };
+      }
+      case TimerType.Cycle: {
+        timerTypeObject = {
+          timeCycle: moddleElement,
+        };
+      }
+      default: {
+        timerTypeObject = {};
+      }
     }
 
     delete this._businessObjInPanel.eventDefinitions[0].timeCycle;
