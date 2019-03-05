@@ -57,7 +57,7 @@ export class SignalEventSection implements ISection {
     return this._elementIsSignalEvent(element);
   }
 
-  public async updateSignal(): Promise<void> {
+  public updateSignal(): void {
     this.selectedSignal = this.signals.find((signal: ISignal) => {
       return signal.id === this.selectedId;
     });
