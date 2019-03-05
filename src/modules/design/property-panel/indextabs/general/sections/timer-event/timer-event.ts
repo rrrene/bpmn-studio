@@ -95,6 +95,7 @@ export class TimerEventSection implements ISection {
     this.timerElement.body = '';
 
     this._publishDiagramChange();
+
     this._linter.update();
   }
 

@@ -81,6 +81,7 @@ export class ErrorEventSection implements ISection {
       this.errorMessageVariable = errorElement.errorMessageVariable;
     }
     this._publishDiagramChange();
+
     this._linter.update();
   }
 

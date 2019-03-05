@@ -57,16 +57,26 @@ export class SignalEventSection implements ISection {
     return this._elementIsSignalEvent(element);
   }
 
-  public updateSignal(): void {
+  public async updateSignal(): Promise<void> {
     this.selectedSignal = this.signals.find((signal: ISignal) => {
       return signal.id === this.selectedId;
     });
 
-    const signalElement: ISignalEventDefinition = this._businessObjInPanel.eventDefinitions[0];
+    const signalElement: ISignalElement = this._businessObjInPanel.eventDefinitions[0];
+    const eventDefinitionSet: boolean = signalElement.signalRef !== undefined;
+    const signalGotSelected: boolean = this.selectedSignal !== undefined;
+
+    if (eventDefinitionSet && signalGotSelected) {
+      const signalIsAlreadySet: boolean = signalElement.signalRef.id === this.selectedSignal.id;
+
+      if (signalIsAlreadySet) {
+        return;
+      }
+    }
+
     signalElement.signalRef = this.selectedSignal;
     this._publishDiagramChange();
 
-    this._linter.clearIssues();
     this._linter.update();
   }
 
