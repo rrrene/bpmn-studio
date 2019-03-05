@@ -77,7 +77,6 @@ export class Heatmap {
     await this._pushXmlToBpmnModeler(this.activeDiagram.xml, this._modeler);
 
     const elementRegistry: IElementRegistry  = this._modeler.get('elementRegistry');
-
     /*
      * TODO: Refactoring opportunity; HeatmapService could use a fluent API; This is how it would look like:
      * this._heatmapService
