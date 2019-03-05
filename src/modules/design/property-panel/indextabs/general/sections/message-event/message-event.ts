@@ -14,6 +14,7 @@ import {
   IBpmnModdle,
   IBpmnModeler,
   IElementRegistry,
+  ILinting,
   IPageModel,
   ISection,
 } from '../../../../../../../contracts';
@@ -33,6 +34,7 @@ export class MessageEventSection implements ISection {
   private _businessObjInPanel: IMessageEventElement;
   private _moddle: IBpmnModdle;
   private _modeler: IBpmnModeler;
+  private _linter: ILinting;
   private _generalService: GeneralService;
   private _eventAggregator: EventAggregator;
 
@@ -46,6 +48,7 @@ export class MessageEventSection implements ISection {
 
     this._moddle = model.modeler.get('moddle');
     this._modeler = model.modeler;
+    this._linter = model.modeler.get('linting');
 
     this.messages = await this._getMessages();
 
@@ -57,6 +60,7 @@ export class MessageEventSection implements ISection {
   }
 
   public updateMessage(): void {
+
     this.selectedMessage = this.messages.find((message: IMessage) => {
       return message.id === this.selectedId;
     });
@@ -64,6 +68,8 @@ export class MessageEventSection implements ISection {
     const messageEventDefinition: IMessageEventDefinition = this._businessObjInPanel.eventDefinitions[0] as IMessageEventDefinition;
     messageEventDefinition.messageRef = this.selectedMessage;
     this._publishDiagramChange();
+
+    this._linter.update();
   }
 
   public updateName(): void {
