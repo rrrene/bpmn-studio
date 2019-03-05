@@ -1,7 +1,7 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {inject} from 'aurelia-framework';
 
-import {IMessage, IMessageElement, IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
+import {IMessage, IMessageTask, IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 
 import {
   IBpmnModdle,
@@ -22,7 +22,7 @@ export class MessageTaskSection implements ISection {
   public selectedId: string;
   public selectedMessage: IMessage;
 
-  private _businessObjInPanel: IMessageElement;
+  private _businessObjInPanel: IMessageTask;
   private _moddle: IBpmnModdle;
   private _modeler: IBpmnModeler;
   private _generalService: GeneralService;
