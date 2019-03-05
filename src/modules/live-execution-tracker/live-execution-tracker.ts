@@ -482,7 +482,7 @@ export class LiveExecutionTracker {
       return elementIsCallActivity;
     });
 
-    const activeCallActivityIds: Array<string> = activeCallActivities.map((element: IShape) => element.id).sort();
+    const callActivityIds: Array<string> = callActivities.map((element: IShape) => element.id).sort();
 
     const overlayIds: Array<string> = Object.keys(this._overlays._overlays);
     const allCallActivitiesHaveAnOverlay: boolean = callActivityIds.every((callActivityId: string): boolean => {
@@ -706,6 +706,16 @@ export class LiveExecutionTracker {
 
     this.showDynamicUiModal = true;
     this.taskId = clickedElement.id;
+  }
+
+  private _hasElementActiveToken(elementId: string): boolean {
+    const activeTokenForFlowNodeInstance: ActiveToken = this._activeTokens.find((activeToken: ActiveToken) => {
+      const activeTokenIsFromFlowNodeInstance: boolean = activeToken.flowNodeId === elementId;
+
+      return activeTokenIsFromFlowNodeInstance;
+    });
+
+    return activeTokenForFlowNodeInstance !== undefined;
   }
 
   private async _getElementsWithActiveToken(elements: Array<IShape>): Promise<Array<IShape> | null> {
