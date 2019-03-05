@@ -361,6 +361,8 @@ Main._createMainWindow = function () {
 
   function setElectronMenubar() {
 
+    const copyrightYear = new Date().getFullYear();
+
     const getApplicationMenu = () => {
       return {
         label: "BPMN-Studio",
@@ -372,7 +374,7 @@ Main._createMainWindow = function () {
               product_name: 'BPMN-Studio',
               bug_report_url: 'https://github.com/process-engine/bpmn-studio/issues/new',
               homepage: 'www.process-engine.io',
-              copyright: 'Copyright © 2018 process-engine',
+              copyright: `Copyright © ${copyrightYear} process-engine`,
               win_options: {
                 minimizable: false,
                 maximizable: false,
