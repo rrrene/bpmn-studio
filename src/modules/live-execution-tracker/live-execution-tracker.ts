@@ -370,7 +370,6 @@ export class LiveExecutionTracker {
     }
 
     this._elementsWithEventListeners = [];
-    this._overlays.clear();
 
     for (const element of activeEmptyTasks) {
       this._overlays.add(element, {
