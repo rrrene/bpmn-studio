@@ -20,7 +20,7 @@ export class ServiceTaskSection implements ISection {
   public canHandleElement: boolean = false;
   public businessObjInPanel: IServiceTaskElement;
   public model: IPageModel;
-  public selectedKind: string;
+  public selectedKind: ServiceKind;
 
   private _eventAggregator: EventAggregator;
   private _moddle: IBpmnModdle;
@@ -30,7 +30,6 @@ export class ServiceTaskSection implements ISection {
   }
 
   public activate(model: IPageModel): void {
-    this.selectedKind = '';
     this.businessObjInPanel = model.elementInPanel.businessObject;
     this.model = model;
     this._moddle = model.modeler.get('moddle');
@@ -127,14 +126,13 @@ export class ServiceTaskSection implements ISection {
     const taskIsExternalTask: boolean = this.businessObjInPanel.type === 'external';
 
     if (taskIsExternalTask) {
-      this.selectedKind = this.businessObjInPanel.type;
-
+      this.selectedKind = ServiceKind.External;
       return;
     }
 
     const modulePropertyExists: boolean = this._getProperty('module') !== undefined;
     if (modulePropertyExists) {
-      this.selectedKind = this._getProperty('module').value;
+      this.selectedKind = ServiceKind[this._getProperty('module').value];
 
       return;
     }
