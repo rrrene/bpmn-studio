@@ -26,7 +26,6 @@
   opacity: 0.2 !important;
 }
 
-
 .design__diff-destination-button:hover {
   opacity: 1;
 }
@@ -48,7 +47,7 @@
 
 .design-layout__tool {
   display: block;
-  padding: 2px;
+  padding: 5px;
   text-align: center;
 }
 
@@ -77,4 +76,8 @@
   height: 120px;
   max-height: 200px;
   min-height: 30px;
+}
+
+.diagram-list_dropdown {
+  max-width: 100%;
 }
