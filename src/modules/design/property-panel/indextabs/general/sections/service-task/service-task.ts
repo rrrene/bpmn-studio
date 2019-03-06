@@ -13,7 +13,7 @@ export class ServiceTaskSection implements ISection {
   public canHandleElement: boolean = false;
   public businessObjInPanel: IServiceTaskElement;
   public model: IPageModel;
-  @observable public selectedKind: string;
+  public selectedKind: string;
 
   private _eventAggregator: EventAggregator;
   private _moddle: IBpmnModdle;
@@ -35,7 +35,7 @@ export class ServiceTaskSection implements ISection {
     return this._elementIsServiceTask(element);
   }
 
-  public selectedKindChanged(): void {
+  public kindChanged(): void {
     const selectedKindIsHttpService: boolean = this.selectedKind === 'HttpClient';
     const selectedKindIsExternalTask: boolean = this.selectedKind === 'external';
 
@@ -126,7 +126,6 @@ export class ServiceTaskSection implements ISection {
     }
 
     const modulePropertyExists: boolean = this._getProperty('module') !== undefined;
-
     if (modulePropertyExists) {
       this.selectedKind = this._getProperty('module').value;
 
