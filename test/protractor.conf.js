@@ -33,7 +33,7 @@ exports.config = {
   params: {
     aureliaUrl: string = 'http://localhost:9000',
     processEngineUrl: string = 'http://localhost:8000',
-    defaultTimeoutMS: number = 4000,
+    defaultTimeoutMS: number = 8000,
   },
 
   framework: 'jasmine',
