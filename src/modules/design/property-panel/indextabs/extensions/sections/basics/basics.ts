@@ -125,12 +125,14 @@ export class BasicsSection implements ISection {
   public changeName(index: number): void {
     this._propertiesElement.values[index].name = this.newNames[index];
     this._checkAndRemoveEmptyProperties(index);
+
     this._publishDiagramChange();
   }
 
   public changeValue(index: number): void {
     this._propertiesElement.values[index].value = this.newValues[index];
     this._checkAndRemoveEmptyProperties(index);
+
     this._publishDiagramChange();
   }
 
