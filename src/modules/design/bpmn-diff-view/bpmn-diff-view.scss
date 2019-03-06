@@ -76,6 +76,7 @@
   left: 10px;
   max-width: 140px;
   background: whitesmoke;
+  user-select: none;
 }
 
 .diff-legend-entry {
@@ -151,6 +152,7 @@
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  user-select: none;
 }
 
 .badge-red {
