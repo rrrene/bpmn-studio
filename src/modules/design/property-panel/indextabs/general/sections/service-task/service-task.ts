@@ -1,19 +1,26 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject, observable} from 'aurelia-framework';
+import {inject} from 'aurelia-framework';
 
 import {IExtensionElement, IModdleElement, IPropertiesElement, IProperty, IServiceTaskElement, IShape} from '@process-engine/bpmn-elements_contracts';
 
 import {IBpmnModdle, IPageModel, ISection} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
+enum ServiceKind {
+  None = 'null',
+  HttpClient = 'HttpClient',
+  External = 'external',
+}
+
 @inject(EventAggregator)
 export class ServiceTaskSection implements ISection {
 
   public path: string = '/sections/service-task/service-task';
+  public ServiceKind: typeof ServiceKind = ServiceKind;
   public canHandleElement: boolean = false;
   public businessObjInPanel: IServiceTaskElement;
   public model: IPageModel;
-  @observable public selectedKind: string;
+  public selectedKind: ServiceKind;
 
   private _eventAggregator: EventAggregator;
   private _moddle: IBpmnModdle;
@@ -23,7 +30,6 @@ export class ServiceTaskSection implements ISection {
   }
 
   public activate(model: IPageModel): void {
-    this.selectedKind = '';
     this.businessObjInPanel = model.elementInPanel.businessObject;
     this.model = model;
     this._moddle = model.modeler.get('moddle');
@@ -35,9 +41,9 @@ export class ServiceTaskSection implements ISection {
     return this._elementIsServiceTask(element);
   }
 
-  public selectedKindChanged(): void {
-    const selectedKindIsHttpService: boolean = this.selectedKind === 'HttpClient';
-    const selectedKindIsExternalTask: boolean = this.selectedKind === 'external';
+  public kindChanged(): void {
+    const selectedKindIsHttpService: boolean = this.selectedKind === ServiceKind.HttpClient;
+    const selectedKindIsExternalTask: boolean = this.selectedKind === ServiceKind.External;
 
     if (selectedKindIsHttpService) {
       let moduleProperty: IProperty = this._getProperty('module');
@@ -120,15 +126,13 @@ export class ServiceTaskSection implements ISection {
     const taskIsExternalTask: boolean = this.businessObjInPanel.type === 'external';
 
     if (taskIsExternalTask) {
-      this.selectedKind = this.businessObjInPanel.type;
-
+      this.selectedKind = ServiceKind.External;
       return;
     }
 
     const modulePropertyExists: boolean = this._getProperty('module') !== undefined;
-
     if (modulePropertyExists) {
-      this.selectedKind = this._getProperty('module').value;
+      this.selectedKind = ServiceKind[this._getProperty('module').value];
 
       return;
     }
