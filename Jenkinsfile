@@ -73,6 +73,9 @@ pipeline {
       }
     }
     stage('end to end tests') {
+      agent {
+        label "macos"
+      }
       steps {
         script {
           unstash('post_build')
