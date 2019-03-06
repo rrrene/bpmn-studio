@@ -7,6 +7,7 @@ import {
   IBpmnModdle,
   IBpmnModeler,
   IElementRegistry,
+  ILinting,
   IPageModel,
   ISection,
 } from '../../../../../../../contracts';
@@ -23,6 +24,7 @@ export class MessageTaskSection implements ISection {
   public selectedMessage: IMessage;
 
   private _businessObjInPanel: IMessageTask;
+  private _linter: ILinting;
   private _moddle: IBpmnModdle;
   private _modeler: IBpmnModeler;
   private _generalService: GeneralService;
@@ -38,6 +40,7 @@ export class MessageTaskSection implements ISection {
 
     this._moddle = model.modeler.get('moddle');
     this._modeler = model.modeler;
+    this._linter = model.modeler.get('linting');
 
     this.messages = await this._getMessages();
 
@@ -55,6 +58,8 @@ export class MessageTaskSection implements ISection {
 
     this._businessObjInPanel.messageRef = this.selectedMessage;
     this._publishDiagramChange();
+
+    this._linter.update();
   }
 
   public updateName(): void {

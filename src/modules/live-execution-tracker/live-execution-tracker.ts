@@ -109,7 +109,9 @@ export class LiveExecutionTracker {
   public async activate(routeParameters: RouteParameters): Promise<void> {
     this.correlationId = routeParameters.correlationId;
     this.processModelId = routeParameters.diagramName;
+
     this.activeSolutionEntry = await this._solutionService.getSolutionEntryForUri(routeParameters.solutionUri);
+    this.activeSolutionEntry.service.openSolution(routeParameters.solutionUri, this.activeSolutionEntry.identity);
 
     this.processInstanceId = routeParameters.processInstanceId;
 
@@ -368,7 +370,6 @@ export class LiveExecutionTracker {
     }
 
     this._elementsWithEventListeners = [];
-    this._overlays.clear();
 
     for (const element of activeEmptyTasks) {
       this._overlays.add(element, {

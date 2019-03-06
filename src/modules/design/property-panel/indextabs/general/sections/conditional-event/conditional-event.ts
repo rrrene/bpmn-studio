@@ -3,7 +3,7 @@ import {inject} from 'aurelia-framework';
 
 import {IConditionalEventElement, IEventElement, IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 
-import {IBpmnModdle, IPageModel, ISection} from '../../../../../../../contracts';
+import {IBpmnModdle, ILinting, IPageModel, ISection} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
 @inject(EventAggregator)
@@ -17,6 +17,7 @@ export class ConditionalEventSection implements ISection {
 
   private _businessObjInPanel: IConditionalEventElement;
   private _moddle: IBpmnModdle;
+  private _linter: ILinting;
   private _conditionObject: IModdleElement;
   private _eventAggregator: EventAggregator;
 
@@ -26,6 +27,7 @@ export class ConditionalEventSection implements ISection {
 
   public activate(model: IPageModel): void {
     this._moddle = model.modeler.get('moddle');
+    this._linter = model.modeler.get('linting');
     this._businessObjInPanel = model.elementInPanel.businessObject as IConditionalEventElement;
 
     const {variableName, variableEvent, condition} = this._businessObjInPanel.eventDefinitions[0];
@@ -56,6 +58,8 @@ export class ConditionalEventSection implements ISection {
   public updateCondition(): void {
     this._businessObjInPanel.eventDefinitions[0].condition.body = this.conditionBody;
     this._publishDiagramChange();
+
+    this._linter.update();
   }
 
   public updateVariableName(): void {
