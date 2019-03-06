@@ -1,15 +1,22 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject, observable} from 'aurelia-framework';
+import {inject} from 'aurelia-framework';
 
 import {IExtensionElement, IModdleElement, IPropertiesElement, IProperty, IServiceTaskElement, IShape} from '@process-engine/bpmn-elements_contracts';
 
 import {IBpmnModdle, IPageModel, ISection} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
+enum ServiceKind {
+  None = 'null',
+  HttpClient = 'HttpClient',
+  External = 'external',
+}
+
 @inject(EventAggregator)
 export class ServiceTaskSection implements ISection {
 
   public path: string = '/sections/service-task/service-task';
+  public ServiceKind: typeof ServiceKind = ServiceKind;
   public canHandleElement: boolean = false;
   public businessObjInPanel: IServiceTaskElement;
   public model: IPageModel;
@@ -36,8 +43,8 @@ export class ServiceTaskSection implements ISection {
   }
 
   public kindChanged(): void {
-    const selectedKindIsHttpService: boolean = this.selectedKind === 'HttpClient';
-    const selectedKindIsExternalTask: boolean = this.selectedKind === 'external';
+    const selectedKindIsHttpService: boolean = this.selectedKind === ServiceKind.HttpClient;
+    const selectedKindIsExternalTask: boolean = this.selectedKind === ServiceKind.External;
 
     if (selectedKindIsHttpService) {
       let moduleProperty: IProperty = this._getProperty('module');

@@ -11,9 +11,9 @@
           <th>Kind</th>
           <td>
             <select class="props-input props-select" value.bind="selectedKind" change.delegate="kindChanged()">
-              <option value="null">-Choose Kind-</option>
-              <option value="HttpClient">HTTP REST Service</option>
-              <option value="external">External Task</option>
+              <option value.one-time=ServiceKind.None>-Choose Kind-</option>
+              <option value.one-time=ServiceKind.HttpClient>HTTP REST Service</option>
+              <option value.one-time=ServiceKind.External>External Task</option>
             </select>
           </td>
         </tr>
