@@ -37,26 +37,26 @@ describe('Live Execution Tracker', () => {
     await liveExecutionTracker.show();
   });
 
-  it('should display the diagram.', async() => {
-    const currentBrowserUrl: string = await browser.getCurrentUrl();
+  // it('should display the diagram.', async() => {
+  //   const currentBrowserUrl: string = await browser.getCurrentUrl();
 
-    expect(currentBrowserUrl).toContain(liveExecutionTracker.url);
+  //   expect(currentBrowserUrl).toContain(liveExecutionTracker.url);
 
-    const visibilityOfLETViewContainer: boolean = await liveExecutionTracker.getVisibilityOfLiveExecutionTrackerContainer();
+  //   const visibilityOfLETViewContainer: boolean = await liveExecutionTracker.getVisibilityOfLiveExecutionTrackerContainer();
 
-    expect(visibilityOfLETViewContainer).toBeTruthy();
-  });
+  //   expect(visibilityOfLETViewContainer).toBeTruthy();
+  // });
 
-  it('should display the CallActivity with an overlay.', async() => {
-    const visibilityOfInactiveCallActivityOverlay: boolean = await liveExecutionTracker.getVisibilityOfInactiveCallActivityOverlay();
+  // it('should display the CallActivity with an overlay.', async() => {
+  //   const visibilityOfInactiveCallActivityOverlay: boolean = await liveExecutionTracker.getVisibilityOfInactiveCallActivityOverlay();
 
-    expect(visibilityOfInactiveCallActivityOverlay).toBeTruthy();
-  });
+  //   expect(visibilityOfInactiveCallActivityOverlay).toBeTruthy();
+  // });
 
-  it('should display a suspended EmptyTask with an overlay.', async() => {
-    const visibilityOfInactiveCallActivityOverlay: boolean = await liveExecutionTracker.getVisbilityOfEmptyTaskOverlay();
+  // it('should display a suspended EmptyTask with an overlay.', async() => {
+  //   const visibilityOfInactiveCallActivityOverlay: boolean = await liveExecutionTracker.getVisbilityOfEmptyTaskOverlay();
 
-    expect(visibilityOfInactiveCallActivityOverlay).toBeTruthy();
-  });
+  //   expect(visibilityOfInactiveCallActivityOverlay).toBeTruthy();
+  // });
 
 });
