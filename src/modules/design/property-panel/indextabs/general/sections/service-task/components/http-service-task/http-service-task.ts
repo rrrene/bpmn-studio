@@ -17,7 +17,7 @@ export class HttpServiceTask {
 
   @bindable() public model: IPageModel;
   public businessObjInPanel: IServiceTaskElement;
-  @observable public selectedHttpMethod: string;
+  public selectedHttpMethod: string;
   public selectedHttpUrl: string;
   public selectedHttpBody: string;
   public selectedHttpAuth: string;
@@ -64,7 +64,7 @@ export class HttpServiceTask {
     this._publishDiagramChange();
   }
 
-  public selectedHttpMethodChanged(): void {
+  public httpMethodChanged(): void {
     const property: IProperty = this._getProperty('method');
     property.value = this.selectedHttpMethod;
 
