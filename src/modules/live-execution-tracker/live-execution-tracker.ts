@@ -1183,6 +1183,8 @@ export class LiveExecutionTracker {
         return;
       }
 
+      this._handleElementColorization();
+
       this._processStopped = true;
       this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
     }, true);
@@ -1195,6 +1197,8 @@ export class LiveExecutionTracker {
 
         return;
       }
+
+      this._handleElementColorization();
 
       this._processStopped = true;
       this._notificationService.showNotification(NotificationType.INFO, 'Process terminated.');
