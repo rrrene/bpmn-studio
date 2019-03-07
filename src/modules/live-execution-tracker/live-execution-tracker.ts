@@ -1111,45 +1111,6 @@ export class LiveExecutionTracker {
     clearTimeout(this._pollingTimer);
   }
 
-  private async _isCorrelationStillActive(): Promise<boolean | RequestError> {
-
-    const getActiveTokens: Function = async(): Promise<Array<ActiveToken> | RequestError> => {
-      for (let retries: number = 0; retries < this._maxRetries; retries++) {
-        try {
-          return await this._managementApiClient
-                           .getActiveTokensForProcessInstance(this.activeSolutionEntry.identity, this.processInstanceId);
-        } catch (error) {
-          const errorIsConnectionLost: boolean = error.message === 'Failed to fetch';
-
-          if (errorIsConnectionLost) {
-            return RequestError.ConnectionLost;
-          }
-        }
-      }
-    };
-
-    const activeTokensOrRequestError: Array<ActiveToken> | RequestError = await getActiveTokens();
-
-    const couldNotGetActiveTokens: boolean = activeTokensOrRequestError === RequestError.ConnectionLost
-      || activeTokensOrRequestError === RequestError.OtherError;
-    if (couldNotGetActiveTokens) {
-      const requestError: RequestError = (activeTokensOrRequestError as RequestError);
-
-      return requestError;
-    }
-
-    const allActiveTokens: Array<ActiveToken> =
-      (activeTokensOrRequestError as Array<ActiveToken>);
-
-    const correlationIsNotActive: boolean = allActiveTokens.length === 0;
-
-    if (correlationIsNotActive) {
-      this._correlationEnded();
-    }
-
-    return !correlationIsNotActive;
-  }
-
   private _correlationEnded(): void {
     this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
   }
