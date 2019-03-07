@@ -9,7 +9,7 @@ import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import {ActiveToken} from '@process-engine/kpi_api_contracts';
 import {CorrelationProcessInstance} from '@process-engine/management_api_contracts/dist/data_models/correlation';
 import {TokenHistoryEntry} from '@process-engine/management_api_contracts/dist/data_models/token_history';
-import {EndEventReachedMessage} from '@process-engine/management_api_contracts/dist/messages/bpmn_events';
+import {EndEventReachedMessage, TerminateEndEventReachedMessage} from '@process-engine/management_api_contracts/dist/messages/bpmn_events';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
 import {
@@ -1279,6 +1279,19 @@ export class LiveExecutionTracker {
 
       this._processStopped = true;
       this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
+    }, true);
+  }
+
+  private _createProcessTerminatedCallback(): void {
+    this._managementApiClient.onProcessTerminated(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
+      if (message.correlationId !== this.correlationId) {
+        this._createProcessTerminatedCallback();
+
+        return;
+      }
+
+      this._processStopped = true;
+      this._notificationService.showNotification(NotificationType.INFO, 'Process terminated.');
     }, true);
   }
 }
