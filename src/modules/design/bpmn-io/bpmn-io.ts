@@ -272,6 +272,8 @@ export class BpmnIo {
 
         const diagramIsChanged: boolean = unformattedSaveXml !== unformattedXml;
 
+        this._validateDiagram();
+
         this._eventAggregator.publish(environment.events.differsFromOriginal, diagramIsChanged);
       }),
 
