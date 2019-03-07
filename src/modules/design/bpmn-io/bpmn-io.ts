@@ -266,8 +266,8 @@ export class BpmnIo {
         */
         const whitespaceAndNewLineRegex: RegExp = /\r?\n|\r|\s/g;
 
-        const currentXml: string = await this.getXML();
-        const unformattedXml: string = currentXml.replace(whitespaceAndNewLineRegex, '');
+        this.xml = await this.getXML();
+        const unformattedXml: string = this.xml.replace(whitespaceAndNewLineRegex, '');
         const unformattedSaveXml: string = this.savedXml.replace(whitespaceAndNewLineRegex, '');
 
         const diagramIsChanged: boolean = unformattedSaveXml !== unformattedXml;
