@@ -1,12 +1,20 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {inject} from 'aurelia-framework';
 
-import {IModdleElement, IShape, ISignal, ISignalElement} from '@process-engine/bpmn-elements_contracts';
+import {
+  IEventElement,
+  IModdleElement,
+  IShape,
+  ISignal,
+  ISignalEventDefinition,
+  ISignalEventElement,
+} from '@process-engine/bpmn-elements_contracts';
 
 import {
   IBpmnModdle,
   IBpmnModeler,
   IElementRegistry,
+  ILinting,
   IPageModel,
   ISection,
 } from '../../../../../../../contracts';
@@ -22,9 +30,10 @@ export class SignalEventSection implements ISection {
   public selectedId: string;
   public selectedSignal: ISignal;
 
-  private _businessObjInPanel: ISignalElement;
+  private _businessObjInPanel: ISignalEventElement;
   private _moddle: IBpmnModdle;
   private _modeler: IBpmnModeler;
+  private _linter: ILinting;
   private _generalService: GeneralService;
   private _eventAggregator: EventAggregator;
 
@@ -34,9 +43,10 @@ export class SignalEventSection implements ISection {
   }
 
   public async activate(model: IPageModel): Promise<void> {
-    this._businessObjInPanel = model.elementInPanel.businessObject;
+    this._businessObjInPanel = model.elementInPanel.businessObject as ISignalEventElement;
     this._moddle = model.modeler.get('moddle');
     this._modeler = model.modeler;
+    this._linter = this._modeler.get('linting');
 
     this.signals = await this._getSignals();
 
@@ -52,9 +62,25 @@ export class SignalEventSection implements ISection {
       return signal.id === this.selectedId;
     });
 
-    const signalElement: ISignalElement = this._businessObjInPanel.eventDefinitions[0];
+    const signalElement: ISignalEventDefinition = this._businessObjInPanel.eventDefinitions[0];
+    const eventDefinitionSet: boolean = signalElement.signalRef !== undefined;
+    const signalGotSelected: boolean = this.selectedSignal !== undefined;
+
+    if (eventDefinitionSet && signalGotSelected) {
+      const signalIsAlreadySet: boolean = signalElement.signalRef.id === this.selectedSignal.id;
+
+      if (signalIsAlreadySet) {
+        return;
+      }
+    }
+
     signalElement.signalRef = this.selectedSignal;
     this._publishDiagramChange();
+
+    if (this._linter.lintingActive()) {
+      this._linter.update();
+    }
+
   }
 
   public updateName(): void {
@@ -73,7 +99,7 @@ export class SignalEventSection implements ISection {
       id: `Signal_${this._generalService.generateRandomId()}`,
       name: 'Signal Name',
     };
-    const bpmnSignal: ISignalElement = this._moddle.create('bpmn:Signal', bpmnSignalProperty);
+    const bpmnSignal: ISignal = this._moddle.create('bpmn:Signal', bpmnSignalProperty);
 
     this._modeler._definitions.rootElements.push(bpmnSignal);
 
@@ -103,7 +129,6 @@ export class SignalEventSection implements ISection {
     this._modeler._definitions.rootElements.splice(this._getRootElementsIndex(this.selectedId), 1);
 
     this.updateSignal();
-    this._publishDiagramChange();
   }
 
   private _getRootElementsIndex(elementId: string): number {
@@ -117,15 +142,23 @@ export class SignalEventSection implements ISection {
   }
 
   private _elementIsSignalEvent(element: IShape): boolean {
-    return element !== undefined
-        && element.businessObject !== undefined
-        && element.businessObject.eventDefinitions !== undefined
-        && element.businessObject.eventDefinitions[0] !== undefined
-        && element.businessObject.eventDefinitions[0].$type === 'bpmn:SignalEventDefinition';
+    const elementHasNoBusinessObject: boolean = element === undefined || element.businessObject === undefined;
+
+    if (elementHasNoBusinessObject) {
+      return false;
+    }
+
+    const eventElement: IEventElement = element.businessObject as IEventElement;
+
+    const elementIsSignalEvent: boolean = eventElement.eventDefinitions !== undefined
+                                       && eventElement.eventDefinitions[0] !== undefined
+                                       && eventElement.eventDefinitions[0].$type === 'bpmn:SignalEventDefinition';
+
+    return elementIsSignalEvent;
   }
 
   private _init(): void {
-    const eventDefinitions: Array<IModdleElement> = this._businessObjInPanel.eventDefinitions;
+    const eventDefinitions: Array<ISignalEventDefinition> = this._businessObjInPanel.eventDefinitions;
     const businessObjectHasNoSignalEvents: boolean = eventDefinitions === undefined
                                                   || eventDefinitions === null
                                                   || eventDefinitions[0].$type !== 'bpmn:SignalEventDefinition';
@@ -133,7 +166,7 @@ export class SignalEventSection implements ISection {
       return;
     }
 
-    const signalElement: ISignalElement = this._businessObjInPanel.eventDefinitions[0];
+    const signalElement: ISignalEventDefinition = this._businessObjInPanel.eventDefinitions[0];
     const elementHasNoSignalRef: boolean = signalElement.signalRef === undefined;
 
     if (elementHasNoSignalRef) {
@@ -180,7 +213,7 @@ export class SignalEventSection implements ISection {
   private _setBusinessObj(): void {
       const elementRegistry: IElementRegistry = this._modeler.get('elementRegistry');
       const elementInPanel: IShape = elementRegistry.get(this._businessObjInPanel.id);
-      this._businessObjInPanel = elementInPanel.businessObject;
+      this._businessObjInPanel = elementInPanel.businessObject as ISignalEventElement;
   }
 
   private _publishDiagramChange(): void {

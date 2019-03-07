@@ -18,4 +18,5 @@ export interface ISolutionEntry {
   identity: IIdentity;
   isLoggedIn: boolean;
   userName?: string;
+  processEngineVersion?: string;
 }

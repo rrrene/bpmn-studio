@@ -1,12 +1,20 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {inject} from 'aurelia-framework';
 
-import {IMessage, IMessageElement, IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
+import {
+  IEventElement,
+  IMessage,
+  IMessageEventDefinition,
+  IMessageEventElement,
+  IModdleElement,
+  IShape,
+} from '@process-engine/bpmn-elements_contracts';
 
 import {
   IBpmnModdle,
   IBpmnModeler,
   IElementRegistry,
+  ILinting,
   IPageModel,
   ISection,
 } from '../../../../../../../contracts';
@@ -23,9 +31,10 @@ export class MessageEventSection implements ISection {
   public selectedId: string;
   public selectedMessage: IMessage;
 
-  private _businessObjInPanel: IMessageElement;
+  private _businessObjInPanel: IMessageEventElement;
   private _moddle: IBpmnModdle;
   private _modeler: IBpmnModeler;
+  private _linter: ILinting;
   private _generalService: GeneralService;
   private _eventAggregator: EventAggregator;
 
@@ -35,10 +44,11 @@ export class MessageEventSection implements ISection {
   }
 
   public async activate(model: IPageModel): Promise<void> {
-    this._businessObjInPanel = model.elementInPanel.businessObject;
+    this._businessObjInPanel = model.elementInPanel.businessObject as IMessageEventElement;
 
     this._moddle = model.modeler.get('moddle');
     this._modeler = model.modeler;
+    this._linter = model.modeler.get('linting');
 
     this.messages = await this._getMessages();
 
@@ -50,13 +60,18 @@ export class MessageEventSection implements ISection {
   }
 
   public updateMessage(): void {
+
     this.selectedMessage = this.messages.find((message: IMessage) => {
       return message.id === this.selectedId;
     });
 
-    const messageElement: IMessageElement = this._businessObjInPanel.eventDefinitions[0];
-    messageElement.messageRef = this.selectedMessage;
+    const messageEventDefinition: IMessageEventDefinition = this._businessObjInPanel.eventDefinitions[0] as IMessageEventDefinition;
+    messageEventDefinition.messageRef = this.selectedMessage;
     this._publishDiagramChange();
+
+    if (this._linter.lintingActive()) {
+      this._linter.update();
+    }
   }
 
   public updateName(): void {
@@ -120,15 +135,22 @@ export class MessageEventSection implements ISection {
   }
 
   private _elementIsMessageEvent(element: IShape): boolean {
-    return element !== undefined
-        && element.businessObject !== undefined
-        && element.businessObject.eventDefinitions !== undefined
-        && element.businessObject.eventDefinitions[0] !== undefined
-        && element.businessObject.eventDefinitions[0].$type === 'bpmn:MessageEventDefinition';
+    const elementHasNoBusinessObject: boolean = element === undefined || element.businessObject === undefined;
+    if (elementHasNoBusinessObject) {
+      return false;
+    }
+
+    const eventElement: IEventElement = element.businessObject as IEventElement;
+
+    const elementIsMessageEvent: boolean = eventElement.eventDefinitions !== undefined
+                                        && eventElement.eventDefinitions[0] !== undefined
+                                        && eventElement.eventDefinitions[0].$type === 'bpmn:MessageEventDefinition';
+
+    return elementIsMessageEvent;
   }
 
   private _init(): void {
-    const eventDefinitions: Array<IModdleElement> = this._businessObjInPanel.eventDefinitions;
+    const eventDefinitions: Array<IMessageEventDefinition> = this._businessObjInPanel.eventDefinitions;
     const businessObjectHasNoMessageEvents: boolean = eventDefinitions === undefined
                                                    || eventDefinitions === null
                                                    || eventDefinitions[0].$type !== 'bpmn:MessageEventDefinition';
@@ -136,8 +158,8 @@ export class MessageEventSection implements ISection {
       return;
     }
 
-    const messageElement: IMessageElement = this._businessObjInPanel.eventDefinitions[0];
-    const elementHasNoMessageRef: boolean = messageElement.messageRef === undefined;
+    const messageEventDefinition: IMessageEventDefinition = this._businessObjInPanel.eventDefinitions[0];
+    const elementHasNoMessageRef: boolean = messageEventDefinition.messageRef === undefined;
 
     if (elementHasNoMessageRef) {
       this.selectedMessage = null;
@@ -146,11 +168,11 @@ export class MessageEventSection implements ISection {
       return;
     }
 
-    const messageId: string = messageElement.messageRef.id;
-    const elementReferencesMessage: boolean = this._getMessageById(messageId) !== undefined;
+    const messageRefId: string = messageEventDefinition.messageRef.id;
+    const elementReferencesMessage: boolean = this._getMessageById(messageRefId) !== undefined;
 
     if (elementReferencesMessage) {
-      this.selectedId = messageId;
+      this.selectedId = messageRefId;
       this.updateMessage();
     } else {
       this.selectedMessage = undefined;
@@ -184,7 +206,7 @@ export class MessageEventSection implements ISection {
     const elementRegistry: IElementRegistry = this._modeler.get('elementRegistry');
     const elementInPanel: IShape = elementRegistry.get(this._businessObjInPanel.id);
 
-    this._businessObjInPanel = elementInPanel.businessObject;
+    this._businessObjInPanel = elementInPanel.businessObject as IMessageEventElement;
   }
 
   private _publishDiagramChange(): void {

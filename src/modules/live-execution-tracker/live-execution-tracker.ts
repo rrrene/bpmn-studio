@@ -45,10 +45,14 @@ enum RequestError {
 @inject(Router, 'NotificationService', 'ManagementApiClientService', 'SolutionService')
 export class LiveExecutionTracker {
   public canvasModel: HTMLElement;
+  public previewCanvasModel: HTMLElement;
   public showDynamicUiModal: boolean = false;
+  public showDiagramPreviewViewer: boolean = false;
+  public nameOfDiagramToPreview: string;
   public dynamicUi: TaskDynamicUi;
   public liveExecutionTracker: LiveExecutionTracker = this;
   public modalStyleString: string = 'position: relative; top: 20%; bottom: 20%; width: 400px; height: 60%;';
+  public contentStyleString: string = 'height: auto;';
 
   @observable public tokenViewerWidth: number = 250;
   public tokenViewer: HTMLElement;
@@ -66,6 +70,7 @@ export class LiveExecutionTracker {
 
   private _diagramModeler: IBpmnModeler;
   private _diagramViewer: IBpmnModeler;
+  private _diagramPreviewViewer: IBpmnModeler;
   private _modeling: IModeling;
   private _elementRegistry: IElementRegistry;
   private _viewerCanvas: ICanvas;
@@ -80,7 +85,9 @@ export class LiveExecutionTracker {
 
   private _pollingTimer: NodeJS.Timer;
   private _attached: boolean;
-  private _previousElementIdsWithActiveToken: Array<string> = [];
+  private _previousManualAndUserTaskIdsWithActiveToken: Array<string> = [];
+  private _previousCallActivitiesWithActiveToken: Array<string> = [];
+  private _previousEmptyTasksWithActiveToken: Array<string> = [];
   private _activeTokens: Array<ActiveToken>;
   private _parentProcessInstanceId: string;
   private _parentProcessModelId: string;
@@ -103,7 +110,9 @@ export class LiveExecutionTracker {
   public async activate(routeParameters: RouteParameters): Promise<void> {
     this.correlationId = routeParameters.correlationId;
     this.processModelId = routeParameters.diagramName;
+
     this.activeSolutionEntry = await this._solutionService.getSolutionEntryForUri(routeParameters.solutionUri);
+    this.activeSolutionEntry.service.openSolution(routeParameters.solutionUri, this.activeSolutionEntry.identity);
 
     this.processInstanceId = routeParameters.processInstanceId;
 
@@ -111,7 +120,11 @@ export class LiveExecutionTracker {
     this._parentProcessModelId = await this._getParentProcessModelId();
 
     this.correlation = await this._managementApiClient.getCorrelationById(this.activeSolutionEntry.identity, this.correlationId);
-    this.activeDiagram = await this.activeSolutionEntry.service.loadDiagram(this.processModelId);
+
+    // This is needed to make sure the SolutionExplorerService is completely initiated
+    setTimeout(async() => {
+      this.activeDiagram = await this.activeSolutionEntry.service.loadDiagram(this.processModelId);
+    }, 0);
   }
 
   public async attached(): Promise<void> {
@@ -119,6 +132,15 @@ export class LiveExecutionTracker {
 
     this._diagramModeler = new bundle.modeler();
     this._diagramViewer = new bundle.viewer({
+      additionalModules:
+      [
+        bundle.ZoomScrollModule,
+        bundle.MoveCanvasModule,
+        bundle.MiniMap,
+      ],
+    });
+
+    this._diagramPreviewViewer = new bundle.viewer({
       additionalModules:
       [
         bundle.ZoomScrollModule,
@@ -203,6 +225,8 @@ export class LiveExecutionTracker {
     this._diagramViewer.detach();
     this._diagramViewer.destroy();
 
+    this._diagramPreviewViewer.destroy();
+
     this._stopPolling();
   }
 
@@ -228,6 +252,13 @@ export class LiveExecutionTracker {
     this.showDynamicUiModal = false;
 
     this.dynamicUi.clearTasks();
+  }
+
+  public closeDiagramPreview(): void {
+    this.showDiagramPreviewViewer = false;
+
+    this._diagramPreviewViewer.clear();
+    this._diagramPreviewViewer.detach();
   }
 
   public toggleShowTokenViewer(): void {
@@ -284,21 +315,84 @@ export class LiveExecutionTracker {
     // Colorize the found elements and add overlay to those that can be started.
     this._colorizeElements(elementsWithTokenHistory, defaultBpmnColors.green);
     this._colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
-    this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
-    this._addOverlaysToCallActivities(elementsWithActiveToken);
 
-    // Get the elementIds of the elements with an active token and sort them alphabetically
-    this._previousElementIdsWithActiveToken = elementsWithActiveToken.map((element: IShape) => element.id).sort();
+    const activeUserAndManualTaskIds: Array<string> = this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
+    const activeEmptyTaskIds: Array<string> =  this._addOverlaysToEmptyTasks(elementsWithActiveToken);
+    const activeCallActivityIds: Array<string> = this._addOverlaysToActiveCallActivities(elementsWithActiveToken);
+
+    this._addOverlaysToInactiveCallActivities(allElements);
+
+    this._previousManualAndUserTaskIdsWithActiveToken = activeUserAndManualTaskIds;
+    this._previousCallActivitiesWithActiveToken = activeCallActivityIds;
+    this._previousEmptyTasksWithActiveToken = activeEmptyTaskIds;
 
     // Export the colored xml from the modeler
     const colorizedXml: string = await this._exportXmlFromDiagramModeler();
     return colorizedXml;
   }
 
-  private _addOverlaysToUserAndManualTasks(elements: Array<IShape>): void {
+  private _addOverlaysToEmptyTasks(elements: Array<IShape>): Array<string> {
     const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
     if (liveExecutionTrackerIsNotAttached) {
-      return;
+      return [];
+    }
+
+    const activeEmptyTasks: Array<IShape> = elements.filter((element: IShape) => {
+      const elementIsEmptyTask: boolean = element.type === 'bpmn:Task';
+
+      return elementIsEmptyTask;
+    });
+
+    const activeEmptyTaskIds: Array<string> = activeEmptyTasks.map((element: IShape) => element.id).sort();
+
+    const elementsWithActiveTokenDidNotChange: boolean =
+      activeEmptyTaskIds.toString() === this._previousEmptyTasksWithActiveToken.toString();
+
+    const overlayIds: Array<string> = Object.keys(this._overlays._overlays);
+
+    const allActiveElementsHaveAnOverlay: boolean = activeEmptyTaskIds.every((taskId: string): boolean => {
+      const overlayFound: boolean = overlayIds.find((overlayId: string): boolean => {
+        return this._overlays._overlays[overlayId].element.id === taskId;
+      }) !== undefined;
+
+      return overlayFound;
+    });
+
+    if (elementsWithActiveTokenDidNotChange && allActiveElementsHaveAnOverlay) {
+      return activeEmptyTaskIds;
+    }
+
+    for (const elementId of this._elementsWithEventListeners) {
+      document.getElementById(elementId).removeEventListener('click', this._handleEmptyTaskClick);
+    }
+
+    for (const callActivity of this._activeCallActivities) {
+      document.getElementById(callActivity.id).removeEventListener('click', this._handleActiveCallActivityClick);
+    }
+
+    this._elementsWithEventListeners = [];
+
+    for (const element of activeEmptyTasks) {
+      this._overlays.add(element, {
+        position: {
+          left: 30,
+          top: 25,
+        },
+        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-play let__overlay-button-icon overlay__empty-task"></i></div>`,
+      });
+
+      document.getElementById(element.id).addEventListener('click', this._handleEmptyTaskClick);
+
+      this._elementsWithEventListeners.push(element.id);
+    }
+
+    return activeEmptyTaskIds;
+  }
+
+  private _addOverlaysToUserAndManualTasks(elements: Array<IShape>): Array<string> {
+    const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
+    if (liveExecutionTrackerIsNotAttached) {
+      return [];
     }
 
     const activeManualAndUserTasks: Array<IShape> = elements.filter((element: IShape) => {
@@ -310,11 +404,21 @@ export class LiveExecutionTracker {
 
     const activeManualAndUserTaskIds: Array<string> =  activeManualAndUserTasks.map((element: IShape) => element.id).sort();
 
-    const elementsWithActiveTokenDidNotChange: boolean = activeManualAndUserTaskIds.toString() === this._previousElementIdsWithActiveToken.toString();
-    const allActiveElementsHaveAnOverlay: boolean = activeManualAndUserTaskIds.length === Object.keys(this._overlays._overlays).length;
+    const elementsWithActiveTokenDidNotChange: boolean =
+      activeManualAndUserTaskIds.toString() === this._previousManualAndUserTaskIdsWithActiveToken.toString();
+
+    const overlayIds: Array<string> = Object.keys(this._overlays._overlays);
+
+    const allActiveElementsHaveAnOverlay: boolean = activeManualAndUserTaskIds.every((taskId: string): boolean => {
+      const overlayFound: boolean = overlayIds.find((overlayId: string): boolean => {
+        return this._overlays._overlays[overlayId].element.id === taskId;
+      }) !== undefined;
+
+      return overlayFound;
+     });
 
     if (elementsWithActiveTokenDidNotChange && allActiveElementsHaveAnOverlay) {
-      return;
+      return activeManualAndUserTaskIds;
     }
 
     for (const elementId of this._elementsWithEventListeners) {
@@ -322,7 +426,7 @@ export class LiveExecutionTracker {
     }
 
     for (const callActivity of this._activeCallActivities) {
-      document.getElementById(callActivity.id).removeEventListener('click', this._handleCallActivityClick);
+      document.getElementById(callActivity.id).removeEventListener('click', this._handleActiveCallActivityClick);
     }
 
     this._elementsWithEventListeners = [];
@@ -334,34 +438,91 @@ export class LiveExecutionTracker {
           left: 30,
           top: 25,
         },
-        html: `<div class="play-task-button-container" id="${element.id}"><i class="fas fa-play play-task-button"></i></div>`,
+        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-play let__overlay-button-icon"></i></div>`,
       });
 
       document.getElementById(element.id).addEventListener('click', this._handleTaskClick);
 
       this._elementsWithEventListeners.push(element.id);
     }
+
+    return activeManualAndUserTaskIds;
   }
 
-  private _addOverlaysToCallActivities(elements: Array<IShape>): void {
+  private _addOverlaysToInactiveCallActivities(elements: Array<IShape>): void {
     const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
     if (liveExecutionTrackerIsNotAttached) {
       return;
     }
 
-    const activeCallActivities: Array<IShape> = elements.filter((element: IShape) => {
+    const callActivities: Array<IShape> = elements.filter((element: IShape) => {
       const elementIsCallActivity: boolean = element.type === 'bpmn:CallActivity';
 
       return elementIsCallActivity;
     });
 
-    const activeCallActivityIds: Array<string> =  activeCallActivities.map((element: IShape) => element.id).sort();
+    const callActivityIds: Array<string> = callActivities.map((element: IShape) => element.id).sort();
 
-    const elementsWithActiveTokenDidNotChange: boolean = activeCallActivityIds.toString() === this._previousElementIdsWithActiveToken.toString();
-    const allActiveElementsHaveAnOverlay: boolean = activeCallActivityIds.length === Object.keys(this._overlays._overlays).length;
+    const overlayIds: Array<string> = Object.keys(this._overlays._overlays);
+    const allCallActivitiesHaveAnOverlay: boolean = callActivityIds.every((callActivityId: string): boolean => {
+      const overlayFound: boolean = overlayIds.find((overlayId: string): boolean => {
+        return this._overlays._overlays[overlayId].element.id === callActivityId;
+      }) !== undefined;
 
-    if (elementsWithActiveTokenDidNotChange && allActiveElementsHaveAnOverlay) {
+      return overlayFound;
+     });
+
+    if (allCallActivitiesHaveAnOverlay) {
       return;
+    }
+
+    for (const element of callActivities) {
+      if (this._elementHasActiveToken(element.id)) {
+        continue;
+      }
+
+      this._overlays.add(element, {
+        position: {
+          left: 30,
+          top: 25,
+        },
+        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-search let__overlay-button-icon"></i></div>`,
+      });
+
+      document.getElementById(element.id).addEventListener('click', this._handleCallActivityClick);
+
+      this._elementsWithEventListeners.push(element.id);
+    }
+  }
+
+  private _addOverlaysToActiveCallActivities(activeElements: Array<IShape>): Array<string> {
+    const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
+    if (liveExecutionTrackerIsNotAttached) {
+      return [];
+    }
+
+    const activeCallActivities: Array<IShape> = activeElements.filter((element: IShape) => {
+      const elementIsCallActivity: boolean = element.type === 'bpmn:CallActivity';
+
+      return elementIsCallActivity;
+    });
+
+    const activeCallActivityIds: Array<string> = activeCallActivities.map((element: IShape) => element.id).sort();
+
+    const activeElementsWithActiveTokenDidNotChange: boolean =
+      activeCallActivityIds.toString() === this._previousCallActivitiesWithActiveToken.toString();
+
+    const overlayIds: Array<string> = Object.keys(this._overlays._overlays);
+    const allActiveCallActivitiesHaveAnOverlay: boolean = activeCallActivityIds.every((callActivityId: string): boolean => {
+      const overlayFound: boolean = overlayIds.find((overlayId: string): boolean => {
+        return this._overlays._overlays[overlayId].element.id === callActivityId;
+      }) !== undefined;
+
+      return overlayFound;
+     });
+
+    if (activeElementsWithActiveTokenDidNotChange && allActiveCallActivitiesHaveAnOverlay) {
+      return activeCallActivityIds;
     }
 
     this._activeCallActivities = activeCallActivities;
@@ -372,13 +533,15 @@ export class LiveExecutionTracker {
           left: 30,
           top: 25,
         },
-        html: `<div class="play-task-button-container" id="${element.id}"><i class="fas fa-external-link-square-alt play-task-button"></i></div>`,
+        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-external-link-square-alt let__overlay-button-icon"></i></div>`,
       });
 
-      document.getElementById(element.id).addEventListener('click', this._handleCallActivityClick);
+      document.getElementById(element.id).addEventListener('click', this._handleActiveCallActivityClick);
 
       this._elementsWithEventListeners.push(element.id);
     }
+
+    return activeCallActivityIds;
   }
 
   private _handleTaskClick: (event: MouseEvent) => void =
@@ -389,7 +552,26 @@ export class LiveExecutionTracker {
       this.showDynamicUiModal = true;
     }
 
-  private _handleCallActivityClick: (event: MouseEvent) => Promise<void> =
+  private _handleEmptyTaskClick: (event: MouseEvent) => void =
+    async(event: MouseEvent): Promise<void> => {
+      const elementId: string = (event.target as HTMLDivElement).id;
+      this.taskId = elementId;
+
+      const emptyTasksInProcessInstance: DataModels.EmptyActivities.EmptyActivityList =
+        await this._managementApiClient.getEmptyActivitiesForProcessInstance(this.activeSolutionEntry.identity, this.processInstanceId);
+
+      const emptyTask: DataModels.EmptyActivities.EmptyActivity =
+        emptyTasksInProcessInstance.emptyActivities.find((activity: DataModels.EmptyActivities.EmptyActivity) => {
+          return activity.id === this.taskId;
+      });
+
+      this._managementApiClient.finishEmptyActivity(this.activeSolutionEntry.identity,
+                                                    this.processInstanceId,
+                                                    this.correlationId,
+                                                    emptyTask.flowNodeInstanceId);
+    }
+
+  private _handleActiveCallActivityClick: (event: MouseEvent) => Promise<void> =
     async(event: MouseEvent): Promise<void> => {
       const elementId: string = (event.target as HTMLDivElement).id;
       const element: IShape = this._elementRegistry.get(elementId);
@@ -416,6 +598,37 @@ export class LiveExecutionTracker {
         processInstanceId: targetProcessInstanceId,
       });
     }
+
+    private _handleCallActivityClick: (event: MouseEvent) => Promise<void> =
+    async(event: MouseEvent): Promise<void> => {
+      const elementId: string = (event.target as HTMLDivElement).id;
+      const element: IShape = this._elementRegistry.get(elementId);
+      const callActivityTargetProcess: string = element.businessObject.calledElement;
+
+      const callActivityHasNoTargetProcess: boolean = callActivityTargetProcess === undefined;
+      if (callActivityHasNoTargetProcess) {
+        const notificationMessage: string = 'The CallActivity has no target configured. Please configure a target in the designer.';
+
+        this._notificationService.showNotification(NotificationType.INFO, notificationMessage);
+      }
+
+      const xml: string = await this._getXmlByProcessModelId(callActivityTargetProcess);
+      await this._importXmlIntoDiagramPreviewViewer(xml);
+
+      this.nameOfDiagramToPreview = callActivityTargetProcess;
+      this.showDiagramPreviewViewer = true;
+
+      setTimeout(() => {
+        this._diagramPreviewViewer.attachTo(this.previewCanvasModel);
+      }, 0);
+    }
+
+  private async _getXmlByProcessModelId(processModelId: string): Promise<string> {
+    const processModel: DataModels.ProcessModels.ProcessModel =
+      await this._managementApiClient.getProcessModelById(this.activeSolutionEntry.identity, processModelId);
+
+    return processModel.xml;
+  }
 
   private async _getProcessInstanceIdOfCallActivityTarget(callActivityTargetId: string): Promise<string> {
     // This is necessary because the managementApi sometimes throws an error when the correlation is not yet existing.
@@ -558,8 +771,8 @@ export class LiveExecutionTracker {
         continue;
       }
 
-      const outgoingElementHasNoActiveToken: boolean = !this._hasElementActiveToken(targetOfOutgoingElement.id);
-      const targetOfOutgoingElementHasNoTokenHistory: boolean = !this._hasElementTokenHistory(targetOfOutgoingElement.id, tokenHistoryGroups);
+      const outgoingElementHasNoActiveToken: boolean = !this._elementHasActiveToken(targetOfOutgoingElement.id);
+      const targetOfOutgoingElementHasNoTokenHistory: boolean = !this._elementHasTokenHistory(targetOfOutgoingElement.id, tokenHistoryGroups);
 
       if (outgoingElementHasNoActiveToken && targetOfOutgoingElementHasNoTokenHistory) {
         continue;
@@ -603,14 +816,14 @@ export class LiveExecutionTracker {
     });
   }
 
-  private _hasElementTokenHistory(elementId: string, tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup): boolean {
+  private _elementHasTokenHistory(elementId: string, tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup): boolean {
 
     const tokenHistoryFromFlowNodeInstanceFound: boolean = tokenHistoryGroups[elementId] !== undefined;
 
     return tokenHistoryFromFlowNodeInstanceFound;
   }
 
-  private _hasElementActiveToken(elementId: string): boolean {
+  private _elementHasActiveToken(elementId: string): boolean {
     const activeTokenForFlowNodeInstance: ActiveToken = this._activeTokens.find((activeToken: ActiveToken) => {
       const activeTokenIsFromFlowNodeInstance: boolean = activeToken.flowNodeId === elementId;
 
@@ -690,6 +903,31 @@ export class LiveExecutionTracker {
 
     const xmlImportPromise: Promise<void> = new Promise((resolve: Function, reject: Function): void => {
       this._diagramViewer.importXML(xml, (importXmlError: Error) => {
+        if (importXmlError) {
+          reject(importXmlError);
+
+          return;
+        }
+        resolve();
+      });
+    });
+
+    return xmlImportPromise;
+  }
+
+  private async _importXmlIntoDiagramPreviewViewer(xml: string): Promise<void> {
+    const xmlIsNotLoaded: boolean = (xml === undefined || xml === null);
+
+    if (xmlIsNotLoaded) {
+      const notificationMessage: string = 'The xml could not be loaded. Please try to start the process again.';
+
+      this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
+
+      return;
+    }
+
+    const xmlImportPromise: Promise<void> = new Promise((resolve: Function, reject: Function): void => {
+      this._diagramPreviewViewer.importXML(xml, (importXmlError: Error) => {
         if (importXmlError) {
           reject(importXmlError);
 

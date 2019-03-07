@@ -74,3 +74,20 @@
   display: inline-flex;
   float: left;
 }
+
+.status-bar__diff-view {
+  display: inline-flex;
+  max-width: 280px;
+}
+
+.identifier {
+  max-width: 200px;
+  margin-right: 5px;
+  margin-left: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.arrow-icon {
+  margin-top: 2px;
+}

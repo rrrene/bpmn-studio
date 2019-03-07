@@ -11,7 +11,7 @@
 
           <i class="fa ${solutionEntry.fontAwesomeIconClass} solution-entry__solution-icon" title.bind="solutionEntry.fontAwesomeIconClass === 'fa-bolt' ? 'ProcessEngine Disconnected!' : ''"></i>
 
-          <span class="solution-entry__solution-name" title.bind="solutionEntry.uri">${getSolutionName(solutionEntry.uri)}</span>
+          <span class="solution-entry__solution-name" title.bind="solutionEntry.processEngineVersion ? `ProcessEngine Version: ${solutionEntry.processEngineVersion}` : solutionEntry.uri">${getSolutionName(solutionEntry.uri)}</span>
           <div class="solution-entry__solution-path">
             <span
               if.bind="!solutionEntryIsRemote(solutionEntry) && getSolutionName(solutionEntry.uri) !== solutionEntry.uri"

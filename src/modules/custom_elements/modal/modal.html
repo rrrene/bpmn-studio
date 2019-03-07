@@ -1,9 +1,9 @@
-<template bindable="modalStyle,headerStyle,bodyStyle,footerStyle,headerText,bodyText,footerText,origin">
+<template bindable="modalStyle,contentStyle,headerStyle,bodyStyle,footerStyle,headerText,bodyText,footerText,origin">
   <require from="./modal.css"></require>
 
   <div class="modal show show-modal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-style" style.bind="modalStyle" role="document">
-      <div class="modal-content" style="max-height: 100%">
+      <div class="modal-content" style.bind="contentStyle">
         <div class="modal-header" style.bind="headerStyle">
           <template replaceable part="modal-header">
             <h3>

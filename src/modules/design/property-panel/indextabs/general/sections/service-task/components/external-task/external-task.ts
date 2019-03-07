@@ -11,8 +11,8 @@ export class ExternalTask {
 
   @bindable() public model: IPageModel;
   public businessObjInPanel: IServiceTaskElement;
-  @observable public selectedTopic: string;
-  @observable public selectedPayload: string;
+  public selectedTopic: string;
+  public selectedPayload: string;
 
   private _eventAggregator: EventAggregator;
   private _moddle: IBpmnModdle;
@@ -35,13 +35,15 @@ export class ExternalTask {
     this.selectedPayload = this._getPayloadFromModel();
   }
 
-  public selectedTopicChanged(): void {
+  public topicChanged(): void {
     this.businessObjInPanel.topic = this.selectedTopic;
+
     this._publishDiagramChange();
   }
 
-  public selectedPayloadChanged(): void {
+  public payloadChanged(): void {
     this._setPayloadToModel(this.selectedPayload);
+
     this._publishDiagramChange();
   }
 

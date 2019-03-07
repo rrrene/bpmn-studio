@@ -12,7 +12,7 @@
     <div show.bind="showXML" class="design__xml-view-container" id="diagramXmlContainer">
       <bpmn-xml-view xml.bind="xml"></bpmn-xml-view>
     </div>
-    <div if.bind="showDiff" class="design__diff-view-container" id="diagramDiffContainer">
+    <div if.bind="showDiff" class="design__diff-view-container" id="js-diagram-diffContainer">
       <bpmn-diff-view saved-xml.bind="activeDiagram.xml" current-xml.bind="xmlForDiff" process-model-id.bind="activeDiagram.name"></bpmn-diff-view>
     </div>
 
@@ -23,14 +23,17 @@
             <i class="fas fa-sliders-h"></i>
           </button>
         </div>
-        <button type="button" if.bind="showDiffDestinationButton" class="design-layout__tool design__diff-destination-button dropdown-toggle" title.bind="remoteSolutions.length > 0 ? 'Set diff destination' : 'There is no other diff destination'" disabled.bind="remoteSolutions.length < 1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-database" class.bind="remoteSolutions.length < 1 ? 'design__diff-destination-button--disabled' : ''"></i>
-          <i class="fas fa-angle-down start-options__icon" class.bind="remoteSolutions.length < 1 ? 'design__diff-destination-button--disabled' : ''"></i>
+        <button type="button" if.bind="showDiffDestinationButton" class="design-layout__tool design__diff-destination-button dropdown-toggle" class.bind="remoteSolutions.length < 1 ? 'design__diff-destination-button--disabled' : ''" title.bind="remoteSolutions.length > 0 ? 'Set diff destination' : 'There is no other diff destination'" disabled.bind="remoteSolutions.length < 1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-database"></i>
+          <i class="fas fa-angle-down start-options__icon"></i>
         </button>
         <div class="dropdown-menu">
           <li class="dropdown-item" click.delegate="setDiffDestination('lastSaved')">Last saved version</li>
           <li repeat.for="solution of remoteSolutions" class="dropdown-item" click.delegate="setDiffDestination(solution.uri)">${solution.uri}</li>
         </div>
+        <button type="button" if.bind="!showPropertyPanelButton && showXML === false" class="design-layout__tool design__diff-destination-button dropdown-toggle" title="Diff against other diagrams" click.delegate="openSelectDiagramModal()" id="js-diff-against-other-diagramButton">
+          <i class="fas fa-exchange-alt"></i>
+        </button>
       </div>
     </div>
 
@@ -92,27 +95,25 @@
           body-text="Your process has unsaved changes. Save changes to diagram before starting the process?"
           origin.bind="design">
       <template replace-part="modal-body">
-        <form>
-          <div class="form-group">
-            <label for="correlationId"><b>Custom Correlation ID</b></label>
-            <input class="form-control input-field" class.bind="diagramDetail.hasValidationError ? 'wrong-input' : ''" id="correlationId" aria-describedby="correlationIdHelp" placeholder="Correlation ID" type="text" value.bind="diagramDetail.customCorrelationId">
-            <ul if.bind="diagramDetail.hasValidationError" class="correlation-id-error__container">
-              <li class="error-list__container">Your diagram contains at least one invalid-character
-                Supported characters: [a-z, 0-9, -, _, ä, ü, ö, ß, .]
-              </li>
-            </ul>
-            <small id="correlationIdHelp" class="form-text text-muted">
-                Setting a correlation ID is optional; a correlation ID is useful to identify a process instance; this does not need to be unique.
-            </small>
-          </div>
-          <div class="form-group">
-            <label for="initialToken"><b>Initial StartEvent Token</b></label>
-            <textarea class="form-control input-field design-modal__textarea" id="initialToken" rows="4" placeholder="Put your JSON payload here." value.bind="origin.diagramDetail.initialToken"></textarea>
-            <small class="form-text text-muted">
-                Setting an initial token (JSON payload) is optional; use this if you want to start your process with parameter.
-            </small>
-          </div>
-        </form>
+        <div class="form-group">
+          <label for="correlationId"><b>Custom Correlation ID</b></label>
+          <input class="form-control input-field" class.bind="diagramDetail.hasValidationError ? 'wrong-input' : ''" id="correlationId" aria-describedby="correlationIdHelp" placeholder="Correlation ID" type="text" value.bind="diagramDetail.customCorrelationId">
+          <ul if.bind="diagramDetail.hasValidationError" class="correlation-id-error__container">
+            <li class="error-list__container">Your diagram contains at least one invalid-character
+              Supported characters: [a-z, 0-9, -, _, ä, ü, ö, ß, .]
+            </li>
+          </ul>
+          <small id="correlationIdHelp" class="form-text text-muted">
+              Setting a correlation ID is optional; a correlation ID is useful to identify a process instance; this does not need to be unique.
+          </small>
+        </div>
+        <div class="form-group">
+          <label for="initialToken"><b>Initial StartEvent Token</b></label>
+          <textarea class="form-control input-field design-modal__textarea" id="initialToken" rows="4" placeholder="Put your JSON payload here." value.bind="origin.diagramDetail.initialToken"></textarea>
+          <small class="form-text text-muted">
+              Setting an initial token (JSON payload) is optional; use this if you want to start your process with parameter.
+          </small>
+        </div>
 
         <small if.bind="diagramHasChanged" class="form-text text-muted">
             Your diagram contains unsaved changes. Please save them before starting.
@@ -128,7 +129,7 @@
     <modal show.bind="showStartEventModal"
           header-text="Select initial StartEvent"
           body-text="Your process has unsaved changes. Save changes to diagram before starting the process?">
-      <template <template replace-part="modal-body">
+      <template replace-part="modal-body">
         This process contains more than one start event.<br>
         Please select a start event that should be used to start the process.
         <div>
@@ -143,5 +144,21 @@
         <button type="button" class="btn btn-default" data-dismiss="modal" id="startProcessWithSelectedStartEvent" click.delegate="diagramDetail.continueStarting()" disabled.bind="!diagramDetail.selectedStartEventId">Start Process</button>
       </template>
     </modal>
+
+    <modal show.bind="showSelectDiagramModal"
+          header-text="Choose a Diagram"
+          id="js-chooseDiagram-modal">
+      <template replace-part="modal-body">
+        <select value.bind="selectedDiagram" class="diagram-list_dropdown" id="js-diagram-dropdown">
+          <option>Select a diagram to compare it to the currently opened diagram</option>
+          <option repeat.for="diagram of diagramArray" id="${diagram.diagram.name}" model.bind="diagram">${diagram.solutionName === 'Last Saved' ? diagram.solutionName : `${diagram.solutionName} | ${diagram.diagram.name}`}</option>
+        </select>
+      </template>
+      <template replace-part="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" id="js-cancel-diagram-selection" click.delegate="cancelDialog()">Cancel</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal" id="js-choose-diagram" click.delegate="setDiffDestination(selectedDiagram.solutionUri, selectedDiagram.diagram.name)">Compare</button>
+      </template>
+    </modal>
+
   </div>
 </template>

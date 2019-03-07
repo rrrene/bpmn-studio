@@ -126,6 +126,7 @@ export class SolutionExplorerList {
     const uriIsRemote: boolean = uri.startsWith('http');
 
     let solutionExplorer: ISolutionExplorerService;
+
     if (uriIsRemote) {
       solutionExplorer = await this._solutionExplorerServiceFactory.newManagementApiSolutionExplorer();
     } else {
@@ -137,9 +138,18 @@ export class SolutionExplorerList {
       identity = this._createIdentityForSolutionExplorer();
     }
 
+    let processEngineVersion: string;
     try {
       await solutionExplorer.openSolution(uri, identity);
+
+      if (uriIsRemote) {
+        const response: Response = await fetch(uri);
+        const responseJSON: object & {version: string} = await response.json();
+
+        processEngineVersion = responseJSON.version;
+      }
     } catch (error) {
+
       this._solutionService.removeSolutionEntryByUri(uri);
 
       /**
@@ -159,7 +169,7 @@ export class SolutionExplorerList {
       throw new Error('Solution is already opened.');
     }
 
-    this._addSolutionEntry(uri, solutionExplorer, identity, insertAtBeginning);
+    this._addSolutionEntry(uri, solutionExplorer, identity, insertAtBeginning, processEngineVersion);
   }
 
   /**
@@ -412,7 +422,12 @@ export class SolutionExplorerList {
     return indexOfSolutionWithURI;
   }
 
-  private async _addSolutionEntry(uri: string, service: ISolutionExplorerService, identity: IIdentity, insertAtBeginning: boolean): Promise<void> {
+  private async _addSolutionEntry(
+    uri: string, service: ISolutionExplorerService,
+    identity: IIdentity,
+    insertAtBeginning: boolean,
+    processEngineVersion?: string,
+    ): Promise<void> {
     const isSingleDiagramService: boolean = this._isSingleDiagramService(service);
     const fontAwesomeIconClass: string = this._getFontAwesomeIconForSolution(service, uri);
     const canCloseSolution: boolean = this._canCloseSolution(service, uri);
@@ -443,6 +458,7 @@ export class SolutionExplorerList {
       authority,
       isLoggedIn,
       userName,
+      processEngineVersion,
     };
 
     this._solutionService.addSolutionEntry(entry);

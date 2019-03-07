@@ -1,6 +1,6 @@
 import {inject} from 'aurelia-dependency-injection';
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {bindable} from 'aurelia-framework';
+import {bindable, computedFrom} from 'aurelia-framework';
 
 import {IShape} from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
@@ -47,7 +47,6 @@ export class BpmnDiffView {
   public rightCanvasModel: HTMLElement;
   public lowerCanvasModel: HTMLElement;
   public currentDiffMode: DiffMode = DiffMode.NewVsOld;
-  public diffModeTitle: string = '';
   public showChangeList: boolean;
   public noChangesExisting: boolean = true;
   public noChangesReason: string;
@@ -73,6 +72,7 @@ export class BpmnDiffView {
   private _subscriptions: Array<Subscription>;
   private _elementNameService: ElementNameService;
   private _diffDestination: string = 'lastSaved';
+  private _diagramName: string | undefined;
   private _solutionService: SolutionService;
 
   constructor(notificationService: NotificationService,
@@ -117,16 +117,23 @@ export class BpmnDiffView {
         this.showChangeList = !this.showChangeList;
       }),
 
-      this._eventAggregator.subscribe(environment.events.diffView.setDiffDestination, async(diffDestination: string) => {
-        this._diffDestination = diffDestination;
+      this._eventAggregator.subscribe(environment.events.diffView.setDiffDestination, async(data: Array<string>) => {
+        [this._diffDestination, this._diagramName] = data;
 
-        const diffLastSavedXml: boolean = diffDestination === 'lastSaved';
+        const diffLastSavedXml: boolean = this._diffDestination === 'lastSaved';
         if (diffLastSavedXml) {
           this._setSavedProcessModelAsPreviousXml();
         } else {
-          const updatingDeployedXmlWasSuccessfull: boolean = await this._updateDeployedXml();
+          const updatingDeployedXmlWasSuccessful: boolean = await this._updateDeployedXml();
+          const diagramNameIsSet: boolean = this._diagramName !== undefined;
 
-          if (updatingDeployedXmlWasSuccessfull) {
+          if (updatingDeployedXmlWasSuccessful && diagramNameIsSet) {
+            this._setCustomProcessModelAsPreviousXml();
+
+            return;
+          }
+
+          if (updatingDeployedXmlWasSuccessful) {
             this._setDeployedProcessModelAsPreviousXml();
           }
         }
@@ -186,32 +193,6 @@ export class BpmnDiffView {
     this._updateDiffView();
   }
 
-  public _setDeployedProcessModelAsPreviousXml(): void {
-    this.previousXml = this.deployedXml;
-
-    this.previousXmlIdentifier = 'Deployed';
-    this.currentXmlIdentifier = 'Filesystem';
-
-    this._eventAggregator.publish(environment.events.statusBar.setXmlIdentifier,
-      [
-        this.previousXmlIdentifier,
-        this.currentXmlIdentifier,
-      ]);
-  }
-
-  public _setSavedProcessModelAsPreviousXml(): void {
-    this.previousXml = this.savedXml;
-
-    this.previousXmlIdentifier = 'Old';
-    this.currentXmlIdentifier = 'New';
-
-    this._eventAggregator.publish(environment.events.statusBar.setXmlIdentifier,
-      [
-        this.previousXmlIdentifier,
-        this.currentXmlIdentifier,
-      ]);
-  }
-
   public togglePreviousXml(): void {
     this.showSavedXml = !this.showSavedXml;
 
@@ -220,6 +201,16 @@ export class BpmnDiffView {
     } else {
       this._setDeployedProcessModelAsPreviousXml();
     }
+  }
+
+  @computedFrom('currentDiffMode')
+  public get diffModeIsNewVsOld(): boolean {
+    return this.currentDiffMode === DiffMode.NewVsOld;
+  }
+
+  @computedFrom('currentDiffMode')
+  public get diffModeIsOldVsNew(): boolean {
+    return this.currentDiffMode === DiffMode.OldVsNew;
   }
 
   private _syncAllViewers(): void {
@@ -232,6 +223,47 @@ export class BpmnDiffView {
     rightCanvas.viewbox(changedViewbox);
   }
 
+  private _setDeployedProcessModelAsPreviousXml(): void {
+    this.previousXml = this.deployedXml;
+
+    this.previousXmlIdentifier = 'Deployed';
+    this.currentXmlIdentifier = 'Filesystem';
+
+    this._eventAggregator.publish(environment.events.statusBar.setXmlIdentifier,
+      [
+        this.previousXmlIdentifier,
+        this.currentXmlIdentifier,
+      ]);
+  }
+
+  private _setCustomProcessModelAsPreviousXml(): void {
+    this.previousXml = this.deployedXml;
+
+    this.previousXmlIdentifier = this._diagramName;
+    this.currentXmlIdentifier = this.processModelId;
+
+    this._eventAggregator.publish(environment.events.statusBar.setXmlIdentifier,
+      [
+        this.previousXmlIdentifier,
+        this.currentXmlIdentifier,
+      ]);
+
+    this._diagramName = undefined;
+  }
+
+  private _setSavedProcessModelAsPreviousXml(): void {
+    this.previousXml = this.savedXml;
+
+    this.previousXmlIdentifier = 'Old';
+    this.currentXmlIdentifier = 'New';
+
+    this._eventAggregator.publish(environment.events.statusBar.setXmlIdentifier,
+      [
+        this.previousXmlIdentifier,
+        this.currentXmlIdentifier,
+      ]);
+  }
+
   private async _updateDeployedXml(): Promise<boolean> {
     const activeSolutionEntry: ISolutionEntry = this._solutionService.getSolutionEntryForUri(this._diffDestination);
 
@@ -240,9 +272,13 @@ export class BpmnDiffView {
       return false;
     }
 
+    const diagramName: string = this._diagramName
+                              ? this._diagramName
+                              : this.processModelId;
+
     const getXmlFromDeployed: () => Promise<string> = (async(): Promise<string> => {
       try {
-        const diagram: IDiagram = await activeSolutionEntry.service.loadDiagram(this.processModelId);
+        const diagram: IDiagram = await activeSolutionEntry.service.loadDiagram(diagramName);
 
         const diagramFound: boolean = diagram !== undefined;
 
@@ -464,17 +500,10 @@ export class BpmnDiffView {
   }
 
   private _updateDiffView(): void {
-    const diffModeIsNewVsOld: boolean = this.currentDiffMode === DiffMode.NewVsOld;
-    const diffModeIsOldVsNew: boolean = this.currentDiffMode === DiffMode.OldVsNew;
-
-    if (diffModeIsNewVsOld) {
+    if (this.diffModeIsNewVsOld) {
       this._updateLowerDiff(this.currentXml);
-      this.diffModeTitle = `${this.currentXmlIdentifier} vs. ${this.previousXmlIdentifier}`;
-    } else if (diffModeIsOldVsNew) {
+    } else if (this.diffModeIsOldVsNew) {
       this._updateLowerDiff(this.previousXml);
-      this.diffModeTitle = `${this.previousXmlIdentifier} vs. ${this.currentXmlIdentifier}`;
-    } else {
-      this.diffModeTitle = '';
     }
   }
 

@@ -202,16 +202,19 @@
 }
 
 .bpmn-js-bpmnlint-button {
-  top: 20px;
-  left: 50px;
+  // Overwriting existing style of the plugin
+  top: unset;
+
+  bottom: 20px;
+  left: 55px;
   height: 30px;
   cursor: default;
-  pointer-events: none
+  pointer-events: none;
 }
 
 .linter-toggle-button {
   position: absolute;
-  top: 20px;
+  bottom: 20px;
   left: 10px;
   width: 31px;
   height: 31px;
@@ -219,6 +222,15 @@
   background-color: rgba(255, 255, 255, 0.9);
   border: solid 1px #ccc;
   border-radius: 2px;
+}
+
+.bpmn-js-bpmnlint-process-issues {
+  //Overwriting the existing style of the plugin
+  top: unset;
+  right: unset;
+
+  bottom: 20px;
+  left: 240px;
 }
 
 /*

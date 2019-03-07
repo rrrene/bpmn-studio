@@ -8,7 +8,7 @@ import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
 import {bindable, bindingMode, inject} from 'aurelia-framework';
 import {activationStrategy, NavigationInstruction, Redirect, Router} from 'aurelia-router';
 
-import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 
 import {ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
 import environment from '../../environment';
@@ -26,6 +26,12 @@ type IEventListener = {
   function: Function,
 };
 
+type DiagramWithSolution = {
+  diagram: IDiagram,
+  solutionName: string,
+  solutionUri: string,
+};
+
 @inject(EventAggregator, 'SolutionService', Router, 'NotificationService')
 export class Design {
 
@@ -34,18 +40,22 @@ export class Design {
   @bindable() public xmlForDiff: string;
   @bindable({defaultBindingMode: bindingMode.oneWay}) public xml: string;
 
-  public showQuitModal: boolean;
-  public showLeaveModal: boolean;
+  public showQuitModal: boolean = false;
+  public showLeaveModal: boolean = false;
+  public showSelectDiagramModal: boolean = false;
 
   public showDetail: boolean = true;
-  public showXML: boolean;
-  public showDiff: boolean;
-  public propertyPanelShown: boolean;
+  public showXML: boolean = false;
+  public showDiff: boolean = false;
+  public propertyPanelShown: boolean = false;
   public showPropertyPanelButton: boolean = true;
   public showDiffDestinationButton: boolean = false;
   public design: Design = this;
 
   public diagramDetail: DiagramDetail;
+  public filteredSolutions: Array<ISolution> = [];
+  public diagramArray: Array<IDiagram | object> = [];
+  public selectedDiagram: DiagramWithSolution;
 
   private _eventAggregator: EventAggregator;
   private _notificationService: NotificationService;
@@ -201,8 +211,66 @@ export class Design {
     return activationStrategy.invokeLifecycle;
   }
 
-  public setDiffDestination(diffDestination: string): void {
-    this._eventAggregator.publish(environment.events.diffView.setDiffDestination, diffDestination);
+  public setDiffDestination(diffDestination: string, diagramName?: string): void {
+    this._eventAggregator.publish(environment.events.diffView.setDiffDestination,
+      [
+        diffDestination,
+        diagramName,
+      ]);
+
+    this.showSelectDiagramModal = false;
+  }
+
+  public async openSelectDiagramModal(): Promise<void> {
+    this.diagramArray = [];
+
+    const allSolutions: Array<ISolutionEntry> = this._solutionService.getAllSolutionEntries();
+
+    const loadedSolutionPromises: Array<Promise<ISolution>> = allSolutions.map(async(value: ISolutionEntry) => {
+      const loadedSolution: ISolution = await value.service.loadSolution();
+
+      return loadedSolution;
+    });
+
+    const loadedSolutions: Array<ISolution> = await Promise.all(loadedSolutionPromises);
+    this.filteredSolutions = loadedSolutions.filter((solution: ISolution) => {
+
+      return solution.diagrams.length !== 0;
+    });
+
+    loadedSolutions.forEach((solution: ISolution) => {
+      solution.diagrams.forEach((diagram: IDiagram) => {
+        const diagramWithSolutionName: DiagramWithSolution = {
+          diagram,
+          solutionName: solution.name,
+          solutionUri: solution.uri,
+        };
+
+        this.diagramArray.push(diagramWithSolutionName);
+      });
+    });
+
+    const lastSaved: DiagramWithSolution = {
+      diagram: this.activeDiagram,
+      solutionName: 'Last Saved',
+      solutionUri: 'lastSaved',
+    };
+
+    this.diagramArray.unshift(lastSaved);
+
+    const openedDiagramIndex: number = this.diagramArray.findIndex((diagram: DiagramWithSolution) => {
+      const diagramIsOpenedDiagram: boolean = diagram.solutionUri === this.activeSolutionEntry.uri
+                                           && diagram.diagram.name === this.activeDiagram.name;
+      return diagramIsOpenedDiagram;
+    });
+
+    this.diagramArray.splice(openedDiagramIndex, 1);
+
+    this.showSelectDiagramModal = true;
+  }
+
+  public cancelDialog(): void {
+    this.showSelectDiagramModal = false;
   }
 
   public togglePanel(): void {
