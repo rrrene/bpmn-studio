@@ -95,27 +95,25 @@
           body-text="Your process has unsaved changes. Save changes to diagram before starting the process?"
           origin.bind="design">
       <template replace-part="modal-body">
-        <form>
-          <div class="form-group">
-            <label for="correlationId"><b>Custom Correlation ID</b></label>
-            <input class="form-control input-field" class.bind="diagramDetail.hasValidationError ? 'wrong-input' : ''" id="correlationId" aria-describedby="correlationIdHelp" placeholder="Correlation ID" type="text" value.bind="diagramDetail.customCorrelationId">
-            <ul if.bind="diagramDetail.hasValidationError" class="correlation-id-error__container">
-              <li class="error-list__container">Your diagram contains at least one invalid-character
-                Supported characters: [a-z, 0-9, -, _, ä, ü, ö, ß, .]
-              </li>
-            </ul>
-            <small id="correlationIdHelp" class="form-text text-muted">
-                Setting a correlation ID is optional; a correlation ID is useful to identify a process instance; this does not need to be unique.
-            </small>
-          </div>
-          <div class="form-group">
-            <label for="initialToken"><b>Initial StartEvent Token</b></label>
-            <textarea class="form-control input-field design-modal__textarea" id="initialToken" rows="4" placeholder="Put your JSON payload here." value.bind="origin.diagramDetail.initialToken"></textarea>
-            <small class="form-text text-muted">
-                Setting an initial token (JSON payload) is optional; use this if you want to start your process with parameter.
-            </small>
-          </div>
-        </form>
+        <div class="form-group">
+          <label for="correlationId"><b>Custom Correlation ID</b></label>
+          <input class="form-control input-field" class.bind="diagramDetail.hasValidationError ? 'wrong-input' : ''" id="correlationId" aria-describedby="correlationIdHelp" placeholder="Correlation ID" type="text" value.bind="diagramDetail.customCorrelationId">
+          <ul if.bind="diagramDetail.hasValidationError" class="correlation-id-error__container">
+            <li class="error-list__container">Your diagram contains at least one invalid-character
+              Supported characters: [a-z, 0-9, -, _, ä, ü, ö, ß, .]
+            </li>
+          </ul>
+          <small id="correlationIdHelp" class="form-text text-muted">
+              Setting a correlation ID is optional; a correlation ID is useful to identify a process instance; this does not need to be unique.
+          </small>
+        </div>
+        <div class="form-group">
+          <label for="initialToken"><b>Initial StartEvent Token</b></label>
+          <textarea class="form-control input-field design-modal__textarea" id="initialToken" rows="4" placeholder="Put your JSON payload here." value.bind="origin.diagramDetail.initialToken"></textarea>
+          <small class="form-text text-muted">
+              Setting an initial token (JSON payload) is optional; use this if you want to start your process with parameter.
+          </small>
+        </div>
 
         <small if.bind="diagramHasChanged" class="form-text text-muted">
             Your diagram contains unsaved changes. Please save them before starting.

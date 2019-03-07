@@ -63,7 +63,9 @@ export class TimerEventSection implements ISection {
   }
 
   public updateTimerType(): void {
-    const moddleElement: IModdleElement = this._moddle.create('bpmn:FormalExpression', {body: this.timerElement.body});
+    const moddleElement: IModdleElement = this._moddle.create('bpmn:FormalExpression', {
+                                            body: this.timerElement.body,
+                                          });
 
     let timerTypeObject: Object;
 
@@ -72,16 +74,19 @@ export class TimerEventSection implements ISection {
         timerTypeObject = {
           timeDate: moddleElement,
         };
+        break;
       }
       case TimerType.Duration: {
         timerTypeObject = {
           timeDuration: moddleElement,
         };
+        break;
       }
       case TimerType.Cycle: {
         timerTypeObject = {
           timeCycle: moddleElement,
         };
+        break;
       }
       default: {
         timerTypeObject = {};
@@ -97,7 +102,9 @@ export class TimerEventSection implements ISection {
 
     this._publishDiagramChange();
 
-    this._linter.update();
+    if (this._linter.lintingActive()) {
+      this._linter.update();
+    }
   }
 
   public updateTimerDefinition(): void {

@@ -69,7 +69,9 @@ export class MessageEventSection implements ISection {
     messageEventDefinition.messageRef = this.selectedMessage;
     this._publishDiagramChange();
 
-    this._linter.update();
+    if (this._linter.lintingActive()) {
+      this._linter.update();
+    }
   }
 
   public updateName(): void {

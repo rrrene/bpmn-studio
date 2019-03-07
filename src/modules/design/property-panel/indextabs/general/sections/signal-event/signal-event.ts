@@ -77,7 +77,10 @@ export class SignalEventSection implements ISection {
     signalElement.signalRef = this.selectedSignal;
     this._publishDiagramChange();
 
-    this._linter.update();
+    if (this._linter.lintingActive()) {
+      this._linter.update();
+    }
+
   }
 
   public updateName(): void {
