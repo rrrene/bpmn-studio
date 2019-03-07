@@ -1260,4 +1260,20 @@ export class LiveExecutionTracker {
       }
     }, true);
   }
+
+  private _createManualTaskWaitingCallback(): void {
+    this._managementApiClient.onManualTaskWaiting(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
+      if (message.correlationId !== this.correlationId) {
+        this._createManualTaskWaitingCallback();
+
+        return;
+      }
+
+      this._handleElementColorization();
+
+      if (!this._processStopped) {
+        this._createManualTaskWaitingCallback();
+      }
+    }, true);
+  }
 }
