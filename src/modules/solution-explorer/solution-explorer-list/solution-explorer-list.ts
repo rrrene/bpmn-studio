@@ -126,14 +126,9 @@ export class SolutionExplorerList {
     const uriIsRemote: boolean = uri.startsWith('http');
 
     let solutionExplorer: ISolutionExplorerService;
-    let processEngineVersion: string;
+
     if (uriIsRemote) {
       solutionExplorer = await this._solutionExplorerServiceFactory.newManagementApiSolutionExplorer();
-
-      const response: Response = await fetch(uri);
-      const responseJSON: object & {version: string} = await response.json();
-
-      processEngineVersion = responseJSON.version;
     } else {
       solutionExplorer = await this._solutionExplorerServiceFactory.newFileSystemSolutionExplorer();
     }
@@ -143,9 +138,18 @@ export class SolutionExplorerList {
       identity = this._createIdentityForSolutionExplorer();
     }
 
+    let processEngineVersion: string;
     try {
       await solutionExplorer.openSolution(uri, identity);
+
+      if (uriIsRemote) {
+        const response: Response = await fetch(uri);
+        const responseJSON: object & {version: string} = await response.json();
+
+        processEngineVersion = responseJSON.version;
+      }
     } catch (error) {
+
       this._solutionService.removeSolutionEntryByUri(uri);
 
       /**
