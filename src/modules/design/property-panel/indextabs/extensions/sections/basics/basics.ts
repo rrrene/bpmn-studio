@@ -230,5 +230,4 @@ export class BasicsSection implements ISection {
   private _publishDiagramChange(): void {
     this._eventAggregator.publish(environment.events.diagramChange);
   }
-
 }
