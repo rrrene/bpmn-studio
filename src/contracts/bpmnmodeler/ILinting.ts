@@ -6,4 +6,5 @@ export interface ILinting {
   lint(): IValidateResult;
   update(): void;
   clearIssues(): void;
+  lintingActive(): boolean;
 }

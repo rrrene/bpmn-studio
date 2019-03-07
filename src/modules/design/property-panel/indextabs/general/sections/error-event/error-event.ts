@@ -82,7 +82,9 @@ export class ErrorEventSection implements ISection {
     }
     this._publishDiagramChange();
 
-    this._linter.update();
+    if (this._linter.lintingActive()) {
+      this._linter.update();
+    }
   }
 
   public updateErrorName(): void {
