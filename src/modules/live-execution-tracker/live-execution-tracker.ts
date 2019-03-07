@@ -39,11 +39,6 @@ type RouteParameters = {
   taskId?: string,
 };
 
-enum RequestError {
-  ConnectionLost = 'connectionLost',
-  OtherError = 'otherError',
-}
-
 @inject(Router, 'NotificationService', 'ManagementApiClientService', 'SolutionService')
 export class LiveExecutionTracker {
   public canvasModel: HTMLElement;
