@@ -139,6 +139,11 @@ export class LiveExecutionTracker {
     this._createProcessEndedCallback();
     this._createProcessTerminatedCallback();
 
+    this._createUserTaskFinishedCallback();
+    this._createUserTaskWaitingCallback();
+    this._createManualTaskWaitingCallback();
+    this._createManualTaskFinishedCallback();
+
     this._diagramModeler = new bundle.modeler();
     this._diagramViewer = new bundle.viewer({
       additionalModules:
