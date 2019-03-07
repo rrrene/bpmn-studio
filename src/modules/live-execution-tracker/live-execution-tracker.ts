@@ -9,6 +9,7 @@ import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import {ActiveToken} from '@process-engine/kpi_api_contracts';
 import {CorrelationProcessInstance} from '@process-engine/management_api_contracts/dist/data_models/correlation';
 import {TokenHistoryEntry} from '@process-engine/management_api_contracts/dist/data_models/token_history';
+import {EndEventReachedMessage} from '@process-engine/management_api_contracts/dist/messages/bpmn_events';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
 import {
@@ -93,6 +94,7 @@ export class LiveExecutionTracker {
   private _parentProcessModelId: string;
   private _maxRetries: number = 5;
   private _activeCallActivities: Array<IShape> = [];
+  private _processStopped: boolean = false;
 
   private _elementsWithEventListeners: Array<string> = [];
 
@@ -1265,5 +1267,18 @@ export class LiveExecutionTracker {
      * if the new width is smaller than the minimum or bigger than the maximum width.
      */
     this.tokenViewerWidth = Math.min(maxTokenViewerWidth, Math.max(newTokenViewerWidth, minTokenViewerWidth));
+  }
+
+  private _createProcessEndedCallback(): void {
+    this._managementApiClient.onProcessEnded(this.activeSolutionEntry.identity, (message: EndEventReachedMessage): void => {
+      if (message.correlationId !== this.correlationId) {
+        this._createProcessEndedCallback();
+
+        return;
+      }
+
+      this._processStopped = true;
+      this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
+    }, true);
   }
 }
