@@ -52,6 +52,7 @@ export class LiveExecutionTracker {
   public dynamicUi: TaskDynamicUi;
   public liveExecutionTracker: LiveExecutionTracker = this;
   public modalStyleString: string = 'position: relative; top: 20%; bottom: 20%; width: 400px; height: 60%;';
+  public contentStyleString: string = 'height: auto;';
 
   @observable public tokenViewerWidth: number = 250;
   public tokenViewer: HTMLElement;
