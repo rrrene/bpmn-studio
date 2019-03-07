@@ -1111,10 +1111,6 @@ export class LiveExecutionTracker {
     clearTimeout(this._pollingTimer);
   }
 
-  private _correlationEnded(): void {
-    this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
-  }
-
   private async _getParentProcessInstanceId(): Promise<string> {
     // This is necessary because the managementApi sometimes throws an error when the correlation is not yet existing.
     const getCorrelation: () => Promise<DataModels.Correlations.Correlation> = async(): Promise<DataModels.Correlations.Correlation> => {
