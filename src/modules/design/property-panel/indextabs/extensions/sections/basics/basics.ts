@@ -100,23 +100,9 @@ export class BasicsSection implements ISection {
   }
 
   public removeProperty(index: number): void {
-    const propertyIsLast: boolean = this._propertiesElement.values.length === 1;
-
-    if (propertyIsLast) {
-
-      const indexOfCamundaProperties: number = this._businessObjInPanel
-        .extensionElements.values.findIndex((extensionElement: IPropertiesElement) => {
-          const elementIsCamundaPropertiesElement: boolean = extensionElement.$type === 'camunda:Properties';
-
-          return elementIsCamundaPropertiesElement;
-        });
-
-      this._businessObjInPanel.extensionElements.values.splice(indexOfCamundaProperties, 1);
-    } else {
-      this._propertiesElement
+    this._propertiesElement
         .values
         .splice(index, 1);
-    }
 
     this._reloadProperties();
     this._publishDiagramChange();
