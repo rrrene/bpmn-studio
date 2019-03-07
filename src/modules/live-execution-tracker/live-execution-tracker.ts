@@ -60,6 +60,7 @@ export class LiveExecutionTracker {
   public tokenViewerResizeDiv: HTMLElement;
   public showTokenViewer: boolean = false;
 
+  public activeSolutionEntry: ISolutionEntry;
   public activeDiagram: IDiagram;
   public selectedFlowNode: IShape;
   public correlation: DataModels.Correlations.Correlation;
@@ -81,8 +82,6 @@ export class LiveExecutionTracker {
   private _notificationService: NotificationService;
   private _managementApiClient: IManagementApi;
   private _solutionService: ISolutionService;
-
-  private activeSolutionEntry: ISolutionEntry;
 
   private _pollingTimer: NodeJS.Timer;
   private _attached: boolean;
