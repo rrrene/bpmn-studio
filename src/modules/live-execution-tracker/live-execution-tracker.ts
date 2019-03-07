@@ -229,8 +229,6 @@ export class LiveExecutionTracker {
       document.addEventListener('mousemove', mousemoveFunction);
       document.addEventListener('mouseup', mouseUpFunction);
     });
-
-    this._startPolling();
   }
 
   public detached(): void {
@@ -1054,62 +1052,31 @@ export class LiveExecutionTracker {
     return saveXmlPromise;
   }
 
-  private async _startPolling(): Promise<void> {
-    const handleElementColorization: Function = async(): Promise<void> => {
-      const previousXml: string = await this._exportXmlFromDiagramViewer();
-      const xml: string = await this._getXml();
+  private async _handleElementColorization(): Promise<void> {
+    const previousXml: string = await this._exportXmlFromDiagramViewer();
 
-      const couldNotGetXml: boolean = xml === undefined;
-      if (couldNotGetXml) {
-        const notificationMessage: string = 'XML could not be found. If the error persists, '
-                                          + 'try reopening the Live Execution Tracker or restarting the process.';
-
-        this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
-
-        return;
+    const colorizedXml: string = await (async(): Promise<string> => {
+      try {
+        return await this._colorizeXml();
+      } catch {
+        return undefined;
       }
+    })();
 
-      const colorizedXml: string = await (async(): Promise<string> => {
-        try {
-          return await this._colorizeXml();
-        } catch {
-          return undefined;
-        }
-      })();
+    const colorizingFailed: boolean = colorizedXml === undefined;
+    if (colorizingFailed) {
+      const notificationMessage: string = 'Could not get tokens. If the error persists, '
+                                        + 'try reopening the Live Execution Tracker or restarting the process.';
 
-      const colorizingFailed: boolean = colorizedXml === undefined;
-      if (colorizingFailed) {
-        const notificationMessage: string = 'Could not get tokens. If the error persists, '
-                                          + 'try reopening the Live Execution Tracker or restarting the process.';
+      this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
 
-        this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
+      return;
+    }
 
-        return;
-      }
-
-      const xmlChanged: boolean = previousXml !== colorizedXml;
-      if (xmlChanged) {
-        await this._importXmlIntoDiagramViewer(colorizedXml);
-      }
-    };
-
-    this._pollingTimer = setTimeout(async() => {
-      // Stop polling if not attached
-      const notAttached: boolean = !this._attached;
-      if (notAttached) {
-        return;
-      }
-
-      await handleElementColorization();
-
-      if (this._processStopped) {
-        // Clear overlays after process stopped
-        this._elementsWithEventListeners = [];
-        this._overlays.clear();
-      } else {
-        this._startPolling();
-      }
-    }, environment.processengine.liveExecutionTrackerPollingIntervalInMs);
+    const xmlChanged: boolean = previousXml !== colorizedXml;
+    if (xmlChanged) {
+      await this._importXmlIntoDiagramViewer(colorizedXml);
+    }
   }
 
   private _stopPolling(): void {
