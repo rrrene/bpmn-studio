@@ -59,12 +59,16 @@ export class ProcessList {
   }
 
   public async attached(): Promise<void> {
-
     this._activeSolutionUri = this._router.currentInstruction.queryParams.solutionUri;
 
     const activeSolutionUriIsNotSet: boolean = this._activeSolutionUri === undefined;
 
     if (activeSolutionUriIsNotSet) {
+      this._activeSolutionUri = window.localStorage.getItem('InternalProcessEngineRoute');
+    }
+
+    const activeSolutionUriIsNotRemote: boolean = !this._activeSolutionUri.startsWith('http');
+    if (activeSolutionUriIsNotRemote) {
       this._activeSolutionUri = window.localStorage.getItem('InternalProcessEngineRoute');
     }
 
