@@ -14,7 +14,7 @@ export async function configure(config: FrameworkConfiguration): Promise<void> {
   const urlPrefix: string = `${configuredBaseRoute}/`;
   const proxiedHttpClient: HttpClientProxy = new HttpClientProxy(httpClient, urlPrefix);
 
-  const clientService: ManagementApiClientService = createManagementApiClient(proxiedHttpClient);
+  const clientService: ManagementApiClientService = createManagementApiClient(proxiedHttpClient, configuredBaseRoute);
 
   // register event to change url prefix
   const eventAggregator: EventAggregator = config.container.get(EventAggregator);
@@ -25,9 +25,13 @@ export async function configure(config: FrameworkConfiguration): Promise<void> {
   config.container.registerInstance('ManagementApiClientService', clientService);
 }
 
-function createManagementApiClient(httpClient: IHttpClient): ManagementApiClientService {
+function createManagementApiClient(httpClient: IHttpClient, socketUrl: string): ManagementApiClientService {
 
   const externalAccessor: ExternalAccessor = new ExternalAccessor(httpClient);
+
+  externalAccessor.config = {
+    socketUrl: socketUrl,
+  };
 
   return new ManagementApiClientService(externalAccessor);
 }
