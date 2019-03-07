@@ -65,7 +65,6 @@ export class TimerEventSection implements ISection {
   public updateTimerType(): void {
     const moddleElement: IModdleElement = this._moddle.create('bpmn:FormalExpression', {
                                             body: this.timerElement.body,
-                                            $parent: this._businessObjInPanel.eventDefinitions[0],
                                           });
 
     let timerTypeObject: Object;
