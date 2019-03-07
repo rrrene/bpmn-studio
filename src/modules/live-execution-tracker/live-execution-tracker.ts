@@ -1228,4 +1228,20 @@ export class LiveExecutionTracker {
       this._notificationService.showNotification(NotificationType.INFO, 'Process terminated.');
     }, true);
   }
+
+  private _createUserTaskWaitingCallback(): void {
+    this._managementApiClient.onUserTaskWaiting(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
+      if (message.correlationId !== this.correlationId) {
+        this._createUserTaskWaitingCallback();
+
+        return;
+      }
+
+      this._handleElementColorization();
+
+      if (!this._processStopped) {
+        this._createUserTaskWaitingCallback();
+      }
+    }, true);
+  }
 }
