@@ -141,6 +141,9 @@ export class LiveExecutionTracker {
   public async attached(): Promise<void> {
     this._attached = true;
 
+    this._createProcessEndedCallback();
+    this._createProcessTerminatedCallback();
+
     this._diagramModeler = new bundle.modeler();
     this._diagramViewer = new bundle.viewer({
       additionalModules:
@@ -1097,35 +1100,14 @@ export class LiveExecutionTracker {
         return;
       }
 
-      const correlationIsStillActive: boolean | RequestError = await this._isCorrelationStillActive();
-
-      const connectionLost: boolean = correlationIsStillActive === RequestError.ConnectionLost;
-      const errorCheckingCorrelationState: boolean = correlationIsStillActive === RequestError.OtherError;
-
-      // Keep polling if connectionLost
-      if (connectionLost) {
-        this._startPolling();
-
-        return;
-      }
-
-      // Stop polling if checking the correlation state was not successfull
-      if (errorCheckingCorrelationState) {
-        const notificationMessage: string = 'Could not get active correlations. Please try to start the process again.';
-
-        this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
-
-        return;
-      }
-
       await handleElementColorization();
 
-      if (correlationIsStillActive && this._attached) {
-        this._startPolling();
-      } else {
+      if (this._processStopped) {
         // Clear overlays after process stopped
         this._elementsWithEventListeners = [];
         this._overlays.clear();
+      } else {
+        this._startPolling();
       }
     }, environment.processengine.liveExecutionTrackerPollingIntervalInMs);
   }
