@@ -37,6 +37,12 @@ describe('Live Execution Tracker', () => {
     await liveExecutionTracker.show();
   });
 
+  /**
+   * This Tests are currently disabled sicne they produce a faulty behaviour
+   * in our build Pipeline.
+   * They can be used for local testing nonetheless.
+   */
+
   // it('should display the diagram.', async() => {
   //   const currentBrowserUrl: string = await browser.getCurrentUrl();
 
