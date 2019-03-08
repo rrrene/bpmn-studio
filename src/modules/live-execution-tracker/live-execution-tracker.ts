@@ -132,15 +132,15 @@ export class LiveExecutionTracker {
   public async attached(): Promise<void> {
     this._attached = true;
 
-    this._createProcessEndedCallback();
-    this._createProcessTerminatedCallback();
+    this._createProcessEndedEventListener();
+    this._createProcessTerminatedEventListener();
 
-    this._createUserTaskFinishedCallback();
-    this._createUserTaskWaitingCallback();
-    this._createManualTaskWaitingCallback();
-    this._createManualTaskFinishedCallback();
-    this._createEmptyActivityWaitingCallback();
-    this._createEmptyActivityFinishedCallback();
+    this._createUserTaskFinishedEventListener();
+    this._createUserTaskWaitingEventListener();
+    this._createManualTaskWaitingEventListener();
+    this._createManualTaskFinishedEventListener();
+    this._createEmptyActivityWaitingEventListener();
+    this._createEmptyActivityFinishedEventListener();
 
     this._diagramModeler = new bundle.modeler();
     this._diagramViewer = new bundle.viewer({
@@ -1143,10 +1143,10 @@ export class LiveExecutionTracker {
     this.tokenViewerWidth = Math.min(maxTokenViewerWidth, Math.max(newTokenViewerWidth, minTokenViewerWidth));
   }
 
-  private _createProcessEndedCallback(): void {
+  private _createProcessEndedEventListener(): void {
     this._managementApiClient.onProcessEnded(this.activeSolutionEntry.identity, (message: EndEventReachedMessage): void => {
       if (message.correlationId !== this.correlationId) {
-        this._createProcessEndedCallback();
+        this._createProcessEndedEventListener();
 
         return;
       }
@@ -1158,10 +1158,10 @@ export class LiveExecutionTracker {
     }, true);
   }
 
-  private _createProcessTerminatedCallback(): void {
+  private _createProcessTerminatedEventListener(): void {
     this._managementApiClient.onProcessTerminated(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
       if (message.correlationId !== this.correlationId) {
-        this._createProcessTerminatedCallback();
+        this._createProcessTerminatedEventListener();
 
         return;
       }
@@ -1173,10 +1173,10 @@ export class LiveExecutionTracker {
     }, true);
   }
 
-  private _createUserTaskWaitingCallback(): void {
+  private _createUserTaskWaitingEventListener(): void {
     this._managementApiClient.onUserTaskWaiting(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
       if (message.correlationId !== this.correlationId) {
-        this._createUserTaskWaitingCallback();
+        this._createUserTaskWaitingEventListener();
 
         return;
       }
@@ -1184,15 +1184,15 @@ export class LiveExecutionTracker {
       this._handleElementColorization();
 
       if (!this._processStopped) {
-        this._createUserTaskWaitingCallback();
+        this._createUserTaskWaitingEventListener();
       }
     }, true);
   }
 
-  private _createUserTaskFinishedCallback(): void {
+  private _createUserTaskFinishedEventListener(): void {
     this._managementApiClient.onUserTaskFinished(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
       if (message.correlationId !== this.correlationId) {
-        this._createUserTaskFinishedCallback();
+        this._createUserTaskFinishedEventListener();
 
         return;
       }
@@ -1200,15 +1200,15 @@ export class LiveExecutionTracker {
       this._handleElementColorization();
 
       if (!this._processStopped) {
-        this._createUserTaskFinishedCallback();
+        this._createUserTaskFinishedEventListener();
       }
     }, true);
   }
 
-  private _createManualTaskWaitingCallback(): void {
+  private _createManualTaskWaitingEventListener(): void {
     this._managementApiClient.onManualTaskWaiting(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
       if (message.correlationId !== this.correlationId) {
-        this._createManualTaskWaitingCallback();
+        this._createManualTaskWaitingEventListener();
 
         return;
       }
@@ -1216,15 +1216,15 @@ export class LiveExecutionTracker {
       this._handleElementColorization();
 
       if (!this._processStopped) {
-        this._createManualTaskWaitingCallback();
+        this._createManualTaskWaitingEventListener();
       }
     }, true);
   }
 
-  private _createManualTaskFinishedCallback(): void {
+  private _createManualTaskFinishedEventListener(): void {
     this._managementApiClient.onManualTaskFinished(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
       if (message.correlationId !== this.correlationId) {
-        this._createManualTaskFinishedCallback();
+        this._createManualTaskFinishedEventListener();
 
         return;
       }
@@ -1232,15 +1232,15 @@ export class LiveExecutionTracker {
       this._handleElementColorization();
 
       if (!this._processStopped) {
-        this._createManualTaskFinishedCallback();
+        this._createManualTaskFinishedEventListener();
       }
     }, true);
   }
 
-  private _createEmptyActivityWaitingCallback(): void {
+  private _createEmptyActivityWaitingEventListener(): void {
     this._managementApiClient.onEmptyActivityWaiting(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
       if (message.correlationId !== this.correlationId) {
-        this._createEmptyActivityWaitingCallback();
+        this._createEmptyActivityWaitingEventListener();
 
         return;
       }
@@ -1248,15 +1248,15 @@ export class LiveExecutionTracker {
       this._handleElementColorization();
 
       if (!this._processStopped) {
-        this._createEmptyActivityWaitingCallback();
+        this._createEmptyActivityWaitingEventListener();
       }
     }, true);
   }
 
-  private _createEmptyActivityFinishedCallback(): void {
+  private _createEmptyActivityFinishedEventListener(): void {
     this._managementApiClient.onEmptyActivityFinished(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
       if (message.correlationId !== this.correlationId) {
-        this._createEmptyActivityFinishedCallback();
+        this._createEmptyActivityFinishedEventListener();
 
         return;
       }
@@ -1264,7 +1264,7 @@ export class LiveExecutionTracker {
       this._handleElementColorization();
 
       if (!this._processStopped) {
-        this._createEmptyActivityFinishedCallback();
+        this._createEmptyActivityFinishedEventListener();
       }
     }, true);
   }
