@@ -300,9 +300,37 @@ export class LiveExecutionTracker {
     return parentProcessModel.processModelId;
   }
 
-  private async _colorizeXml(): Promise<string> {
-    // Get all elements that can have a token
-    const allElements: Array<IShape> = this._elementRegistry.filter((element: IShape): boolean => {
+  private async _colorizeXml(elementsWithTokenHistory: Array<IShape>, elementsWithActiveToken: Array<IShape>): Promise<string> {
+    // Colorize the found elements and add overlay to those that can be started.
+    this._colorizeElements(elementsWithTokenHistory, defaultBpmnColors.green);
+    this._colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
+
+    // Export the colored xml from the modeler
+    const colorizedXml: string = await this._exportXmlFromDiagramModeler();
+    return colorizedXml;
+  }
+
+  private async _addOverlays(): Promise<void> {
+
+    this._overlays.clear();
+
+    const elementsThatCanHaveAToken: Array<IShape> = this._getAllElementsThatCanHaveAToken();
+    const elementsWithActiveToken: Array<IShape> = await this._filterElementsWithActiveTokens(elementsThatCanHaveAToken);
+    const inactiveCallActivities: Array<IShape> = this._filterInactveCallActivities(elementsThatCanHaveAToken);
+
+    const activeUserAndManualTaskIds: Array<string> = this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
+    const activeEmptyTaskIds: Array<string> =  this._addOverlaysToEmptyTasks(elementsWithActiveToken);
+    const activeCallActivityIds: Array<string> = this._addOverlaysToActiveCallActivities(elementsWithActiveToken);
+
+    this._addOverlaysToInactiveCallActivities(inactiveCallActivities);
+
+    this._previousManualAndUserTaskIdsWithActiveToken = activeUserAndManualTaskIds;
+    this._previousCallActivitiesWithActiveToken = activeCallActivityIds;
+    this._previousEmptyTasksWithActiveToken = activeEmptyTaskIds;
+  }
+
+  private _getAllElementsThatCanHaveAToken(): Array<IShape> {
+    const allElementsThatCanHaveAToken: Array<IShape> = this._elementRegistry.filter((element: IShape): boolean => {
       const elementCanHaveAToken: boolean = element.type !== 'bpmn:SequenceFlow'
                                          && element.type !== 'bpmn:Collaboration'
                                          && element.type !== 'bpmn:Participant'
@@ -312,8 +340,22 @@ export class LiveExecutionTracker {
       return elementCanHaveAToken;
     });
 
+    return allElementsThatCanHaveAToken;
+  }
+
+  private _filterInactveCallActivities(elements: Array<IShape>): Array<IShape> {
+    const inactiveCallActivities: Array<IShape> = elements.filter((element: IShape): boolean => {
+      const elementIsCallActivity: boolean = element.type === 'bpmn:CallActivity';
+
+      return elementIsCallActivity && this._elementHasActiveToken(element.id);
+    });
+
+    return inactiveCallActivities;
+  }
+
+  private async _filterElementsWithActiveTokens(elements: Array<IShape>): Promise<Array<IShape>> {
     // Get all elements that already have an active token.
-    const elementsWithActiveToken: Array<IShape> = await this._getElementsWithActiveToken(allElements);
+    const elementsWithActiveToken: Array<IShape> = await this._getElementsWithActiveToken(elements);
 
     // If the backend returned an error the diagram should not be rendered.
     const couldNotGetActiveTokens: boolean = elementsWithActiveToken === null;
@@ -321,8 +363,12 @@ export class LiveExecutionTracker {
       throw new Error('Could not get ActiveTokens.');
     }
 
+    return elementsWithActiveToken;
+  }
+
+  private async _filterElementsWithTokenHistory(elements: Array<IShape>): Promise<Array<IShape>> {
     // Get all elements that already have a token.
-    const elementsWithTokenHistory: Array<IShape> = await this._getElementsWithTokenHistory(allElements);
+    const elementsWithTokenHistory: Array<IShape> = await this._getElementsWithTokenHistory(elements);
 
     // If the backend returned an error the diagram should not be rendered.
     const couldNotGetTokenHistory: boolean = elementsWithTokenHistory === null;
@@ -330,23 +376,7 @@ export class LiveExecutionTracker {
       throw new Error('Could not get TokenHistories.');
     }
 
-    // Colorize the found elements and add overlay to those that can be started.
-    this._colorizeElements(elementsWithTokenHistory, defaultBpmnColors.green);
-    this._colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
-
-    const activeUserAndManualTaskIds: Array<string> = this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
-    const activeEmptyTaskIds: Array<string> =  this._addOverlaysToEmptyTasks(elementsWithActiveToken);
-    const activeCallActivityIds: Array<string> = this._addOverlaysToActiveCallActivities(elementsWithActiveToken);
-
-    this._addOverlaysToInactiveCallActivities(allElements);
-
-    this._previousManualAndUserTaskIdsWithActiveToken = activeUserAndManualTaskIds;
-    this._previousCallActivitiesWithActiveToken = activeCallActivityIds;
-    this._previousEmptyTasksWithActiveToken = activeEmptyTaskIds;
-
-    // Export the colored xml from the modeler
-    const colorizedXml: string = await this._exportXmlFromDiagramModeler();
-    return colorizedXml;
+    return elementsWithTokenHistory;
   }
 
   private _addOverlaysToEmptyTasks(elements: Array<IShape>): Array<string> {
@@ -448,7 +478,6 @@ export class LiveExecutionTracker {
     }
 
     this._elementsWithEventListeners = [];
-    this._overlays.clear();
 
     for (const element of activeManualAndUserTasks) {
       this._overlays.add(element, {
@@ -467,17 +496,11 @@ export class LiveExecutionTracker {
     return activeManualAndUserTaskIds;
   }
 
-  private _addOverlaysToInactiveCallActivities(elements: Array<IShape>): void {
+  private _addOverlaysToInactiveCallActivities(callActivities: Array<IShape>): void {
     const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
     if (liveExecutionTrackerIsNotAttached) {
       return;
     }
-
-    const callActivities: Array<IShape> = elements.filter((element: IShape) => {
-      const elementIsCallActivity: boolean = element.type === 'bpmn:CallActivity';
-
-      return elementIsCallActivity;
-    });
 
     const callActivityIds: Array<string> = callActivities.map((element: IShape) => element.id).sort();
 
@@ -495,10 +518,6 @@ export class LiveExecutionTracker {
     }
 
     for (const element of callActivities) {
-      if (this._elementHasActiveToken(element.id)) {
-        continue;
-      }
-
       this._overlays.add(element, {
         position: {
           left: 30,
@@ -1046,9 +1065,13 @@ export class LiveExecutionTracker {
   }
 
   private async _getColorizedXml(): Promise<string> {
+    const elementsThatCanHaveAToken: Array<IShape> = this._getAllElementsThatCanHaveAToken();
+    const elementsWithActiveToken: Array<IShape> = await this._filterElementsWithActiveTokens(elementsThatCanHaveAToken);
+    const elementsWithTokenHistory: Array<IShape> = await this._filterElementsWithTokenHistory(elementsThatCanHaveAToken);
+
     const colorizedXml: string = await (async(): Promise<string> => {
       try {
-        return await this._colorizeXml();
+        return await this._colorizeXml(elementsWithTokenHistory, elementsWithActiveToken);
       } catch {
         return undefined;
       }
@@ -1077,6 +1100,8 @@ export class LiveExecutionTracker {
     if (xmlChanged && colorizingWasSuccessfull) {
       await this._importXmlIntoDiagramViewer(colorizedXml);
     }
+
+    await this._addOverlays();
   }
 
   private _stopPolling(): void {
