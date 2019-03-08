@@ -73,6 +73,9 @@ pipeline {
       }
     }
     stage('end to end tests') {
+      agent {
+        label 'bpmn-studio-e2e'
+      }
       steps {
         script {
           unstash('post_build')
