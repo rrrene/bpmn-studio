@@ -1267,4 +1267,20 @@ export class LiveExecutionTracker {
       }
     }, true);
   }
+
+  private _createEmptyActivityWaitingCallback(): void {
+    this._managementApiClient.onEmptyActivityWaiting(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
+      if (message.correlationId !== this.correlationId) {
+        this._createEmptyActivityWaitingCallback();
+
+        return;
+      }
+
+      this._handleElementColorization();
+
+      if (!this._processStopped) {
+        this._createEmptyActivityWaitingCallback();
+      }
+    }, true);
+  }
 }
