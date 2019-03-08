@@ -187,7 +187,7 @@ export class LiveExecutionTracker {
      * the diagram, one would think in LiveExecutionTracker that the element is
      * active although it is not active.
     */
-    this._clearColors();
+    this._clearDiagramColors();
 
     const colorizedXml: string = await this._getColorizedXml();
 
@@ -870,7 +870,7 @@ export class LiveExecutionTracker {
     return xmlFromProcessModel;
   }
 
-  private _clearColors(): void {
+  private _clearDiagramColors(): void {
     const elementsWithColor: Array<IShape> = this._elementRegistry.filter((element: IShape): boolean => {
       const elementHasFillColor: boolean = element.businessObject.di.fill !== undefined;
       const elementHasBorderColor: boolean = element.businessObject.di.stroke !== undefined;
