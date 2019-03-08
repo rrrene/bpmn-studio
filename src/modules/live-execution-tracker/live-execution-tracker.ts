@@ -142,6 +142,8 @@ export class LiveExecutionTracker {
     this._createUserTaskWaitingCallback();
     this._createManualTaskWaitingCallback();
     this._createManualTaskFinishedCallback();
+    this._createEmptyActivityWaitingCallback();
+    this._createEmptyActivityFinishedCallback();
 
     this._diagramModeler = new bundle.modeler();
     this._diagramViewer = new bundle.viewer({
