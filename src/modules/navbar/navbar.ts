@@ -283,6 +283,14 @@ export class NavBar {
     return 'Start Process';
   }
 
+  public get saveButtonTitle(): string {
+    if (this.validationError && this.savingTargetIsRemoteSolution) {
+      return 'There was a problem with this diagram. Please check the linter for more Information.';
+    }
+
+    return 'Save Diagram';
+  }
+
   /**
    * Updates the title of the navbar including the navbar icon which
    * indicates, if the process was opened from the local filesystem
