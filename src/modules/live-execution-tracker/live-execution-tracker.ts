@@ -27,7 +27,6 @@ import {
   ISolutionService,
   NotificationType,
 } from '../../contracts/index';
-import environment from '../../environment';
 import {NotificationService} from '../../services/notification-service/notification.service';
 import {TaskDynamicUi} from '../task-dynamic-ui/task-dynamic-ui';
 
