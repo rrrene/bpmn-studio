@@ -271,9 +271,7 @@ export class LiveExecutionTracker {
 
   public get processIsActive(): boolean {
 
-    const processIsActive: boolean = Array.isArray(this._activeTokens)
-                                   ? this._activeTokens.length > 0
-                                   : false;
+    const processIsActive: boolean = Array.isArray(this._activeTokens) && this._activeTokens.length > 0;
 
     return processIsActive;
   }
