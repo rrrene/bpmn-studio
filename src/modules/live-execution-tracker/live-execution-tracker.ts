@@ -1283,4 +1283,20 @@ export class LiveExecutionTracker {
       }
     }, true);
   }
+
+  private _createEmptyActivityFinishedCallback(): void {
+    this._managementApiClient.onEmptyActivityFinished(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
+      if (message.correlationId !== this.correlationId) {
+        this._createEmptyActivityFinishedCallback();
+
+        return;
+      }
+
+      this._handleElementColorization();
+
+      if (!this._processStopped) {
+        this._createEmptyActivityFinishedCallback();
+      }
+    }, true);
+  }
 }
