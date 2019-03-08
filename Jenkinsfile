@@ -86,7 +86,7 @@ pipeline {
 
           try {
             def docker_run_cmd = 'docker run'
-            docker_run_cmd += ' --user 112:116' // Use the jenkins system user.
+            docker_run_cmd += ' --user 1001:1001' // Use the jenkins system user.
             docker_run_cmd += " --env HOME=${env.WORKSPACE}" // Override home folder.
             docker_run_cmd += " --workdir \"${env.WORKSPACE}\"" // Use workspace as workdir.
             docker_run_cmd += " --volume=\"${env.WORKSPACE}:${env.WORKSPACE}:Z\"" // Mount workspace into the container. Z flags fixes the permissions.
