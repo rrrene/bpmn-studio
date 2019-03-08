@@ -126,15 +126,12 @@ export class ProcessList {
     return this._correlations.slice((this.currentPage - 1) * this.pageSize, this.pageSize * this.currentPage);
   }
 
-  public async stopProcessInstance(processInstaceId: string): Promise<void> {
+  public async stopProcessInstance(processInstanceId: string): Promise<void> {
     try {
-      await this._managementApiService.terminateProcessInstance(this.activeSolutionEntry.identity, processInstaceId);
+      await this._managementApiService.terminateProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
 
-      this._correlations.filter((correlation: DataModels.Correlations.Correlation) => {
-        return correlation.processModels.some((processModel: DataModels.Correlations.CorrelationProcessModel) => {
-          return processModel.processInstanceId === processInstaceId;
-        });
-      });
+      this._correlations = await this._getCorrelations();
+
     } catch (error) {
       this._notificationService
         .showNotification(NotificationType.ERROR, `Error while stopping Process! ${error}`);
