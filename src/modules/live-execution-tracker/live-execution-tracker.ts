@@ -80,9 +80,6 @@ export class LiveExecutionTracker {
 
   private _pollingTimer: NodeJS.Timer;
   private _attached: boolean;
-  private _previousManualAndUserTaskIdsWithActiveToken: Array<string> = [];
-  private _previousCallActivitiesWithActiveToken: Array<string> = [];
-  private _previousEmptyTasksWithActiveToken: Array<string> = [];
   private _activeTokens: Array<ActiveToken>;
   private _parentProcessInstanceId: string;
   private _parentProcessModelId: string;
@@ -318,15 +315,10 @@ export class LiveExecutionTracker {
     const elementsWithActiveToken: Array<IShape> = await this._filterElementsWithActiveTokens(elementsThatCanHaveAToken);
     const inactiveCallActivities: Array<IShape> = this._filterInactveCallActivities(elementsThatCanHaveAToken);
 
-    const activeUserAndManualTaskIds: Array<string> = this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
-    const activeEmptyTaskIds: Array<string> =  this._addOverlaysToEmptyTasks(elementsWithActiveToken);
-    const activeCallActivityIds: Array<string> = this._addOverlaysToActiveCallActivities(elementsWithActiveToken);
-
+    this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
+    this._addOverlaysToEmptyTasks(elementsWithActiveToken);
+    this._addOverlaysToActiveCallActivities(elementsWithActiveToken);
     this._addOverlaysToInactiveCallActivities(inactiveCallActivities);
-
-    this._previousManualAndUserTaskIdsWithActiveToken = activeUserAndManualTaskIds;
-    this._previousCallActivitiesWithActiveToken = activeCallActivityIds;
-    this._previousEmptyTasksWithActiveToken = activeEmptyTaskIds;
   }
 
   private _getAllElementsThatCanHaveAToken(): Array<IShape> {
@@ -393,23 +385,6 @@ export class LiveExecutionTracker {
 
     const activeEmptyTaskIds: Array<string> = activeEmptyTasks.map((element: IShape) => element.id).sort();
 
-    const elementsWithActiveTokenDidNotChange: boolean =
-      activeEmptyTaskIds.toString() === this._previousEmptyTasksWithActiveToken.toString();
-
-    const overlayIds: Array<string> = Object.keys(this._overlays._overlays);
-
-    const allActiveElementsHaveAnOverlay: boolean = activeEmptyTaskIds.every((taskId: string): boolean => {
-      const overlayFound: boolean = overlayIds.find((overlayId: string): boolean => {
-        return this._overlays._overlays[overlayId].element.id === taskId;
-      }) !== undefined;
-
-      return overlayFound;
-    });
-
-    if (elementsWithActiveTokenDidNotChange && allActiveElementsHaveAnOverlay) {
-      return activeEmptyTaskIds;
-    }
-
     for (const elementId of this._elementsWithEventListeners) {
       document.getElementById(elementId).removeEventListener('click', this._handleEmptyTaskClick);
     }
@@ -451,23 +426,6 @@ export class LiveExecutionTracker {
     });
 
     const activeManualAndUserTaskIds: Array<string> = activeManualAndUserTasks.map((element: IShape) => element.id).sort();
-
-    const elementsWithActiveTokenDidNotChange: boolean =
-      activeManualAndUserTaskIds.toString() === this._previousManualAndUserTaskIdsWithActiveToken.toString();
-
-    const overlayIds: Array<string> = Object.keys(this._overlays._overlays);
-
-    const allActiveElementsHaveAnOverlay: boolean = activeManualAndUserTaskIds.every((taskId: string): boolean => {
-      const overlayFound: boolean = overlayIds.find((overlayId: string): boolean => {
-        return this._overlays._overlays[overlayId].element.id === taskId;
-      }) !== undefined;
-
-      return overlayFound;
-     });
-
-    if (elementsWithActiveTokenDidNotChange && allActiveElementsHaveAnOverlay) {
-      return activeManualAndUserTaskIds;
-    }
 
     for (const elementId of this._elementsWithEventListeners) {
       document.getElementById(elementId).removeEventListener('click', this._handleTaskClick);
@@ -545,22 +503,6 @@ export class LiveExecutionTracker {
     });
 
     const activeCallActivityIds: Array<string> = activeCallActivities.map((element: IShape) => element.id).sort();
-
-    const activeElementsWithActiveTokenDidNotChange: boolean =
-      activeCallActivityIds.toString() === this._previousCallActivitiesWithActiveToken.toString();
-
-    const overlayIds: Array<string> = Object.keys(this._overlays._overlays);
-    const allActiveCallActivitiesHaveAnOverlay: boolean = activeCallActivityIds.every((callActivityId: string): boolean => {
-      const overlayFound: boolean = overlayIds.find((overlayId: string): boolean => {
-        return this._overlays._overlays[overlayId].element.id === callActivityId;
-      }) !== undefined;
-
-      return overlayFound;
-     });
-
-    if (activeElementsWithActiveTokenDidNotChange && allActiveCallActivitiesHaveAnOverlay) {
-      return activeCallActivityIds;
-    }
 
     this._activeCallActivities = activeCallActivities;
 
