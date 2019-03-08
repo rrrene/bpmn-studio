@@ -1,7 +1,7 @@
 <template>
   <require from="./dynamic-ui-wrapper.css"></require>
   <template if.bind="isHandlingUserTask">
-    <dynamic-usertask-component submitted.delegate="handleUserTaskButtonClick('proceed', $event.detail)"
+    <dynamic-usertask-component submitted.delegate="handleUserTaskButtonClick('proceed', $event.detail, $event.detail.results)"
       canceled.delegate="handleUserTaskButtonClick('cancel')"
       usertask.bind="currentUserTask">
     </dynamic-usertask-component>

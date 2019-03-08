@@ -51,7 +51,10 @@ export class DynamicUiWrapper {
     this._activeSolutionEntry = solutionEntry;
   }
 
-  public async handleUserTaskButtonClick(action: ButtonClickActions, userTask: DataModels.UserTasks.UserTask): Promise<void> {
+  public async handleUserTaskButtonClick(action: ButtonClickActions,
+                                         userTask: DataModels.UserTasks.UserTask,
+                                         results: DataModels.UserTasks.UserTaskResult): Promise<void> {
+
     const actionCanceled: boolean = action === ButtonClickActions.cancel;
 
     if (actionCanceled) {
@@ -60,7 +63,7 @@ export class DynamicUiWrapper {
       return;
     }
 
-    this._finishUserTask(action, userTask);
+    this._finishUserTask(action, userTask, results);
   }
 
   public async handleManualTaskButtonClick(action: ButtonClickActions): Promise<void> {
@@ -98,19 +101,21 @@ export class DynamicUiWrapper {
     });
   }
 
-  private _finishUserTask(action: ButtonClickActions, userTask: any): Promise<void> {
+  private _finishUserTask(action: ButtonClickActions,
+                          userTask: DataModels.UserTasks.UserTask,
+                          results: DataModels.UserTasks.UserTaskResult): Promise<void> {
+
     const noUserTaskKnown: boolean = !this.isHandlingUserTask;
 
     if (noUserTaskKnown) {
       return;
     }
 
-    const {correlationId, processInstanceId, userTaskInstanceId, results} = userTask;
-
+    const {correlationId, processInstanceId, flowNodeInstanceId} = userTask;
     this._dynamicUiService.finishUserTask(this._identity,
                                           processInstanceId,
                                           correlationId,
-                                          userTaskInstanceId,
+                                          flowNodeInstanceId,
                                           results);
 
     this.currentUserTask = undefined;
