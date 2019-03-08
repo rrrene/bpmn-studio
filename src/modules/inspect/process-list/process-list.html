@@ -19,6 +19,7 @@
               <td class="process-list__last-table-cell">
                 <a route-href="route: task-list-processinstance; params.bind: { processInstanceId: processModel.processInstanceId, solutionUri: activeSolutionEntry.uri }" class="process-list-item-user-tasks btn btn-default">Tasks</a>
                 <a route-href="route: live-execution-tracker; params.bind: { diagramName: processModel.processModelId, solutionUri: activeSolutionEntry.uri, correlationId: correlation.id, processInstanceId: processModel.processInstanceId }" class="btn btn-default">Live Execution Tracking</a>
+                <button class="btn btn-default" click.delegate="stopProcessInstance(processModel.processInstanceId)">Stop</button>
               </td>
             </tr>
           </template>

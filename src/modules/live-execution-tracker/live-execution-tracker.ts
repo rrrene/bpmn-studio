@@ -265,6 +265,17 @@ export class LiveExecutionTracker {
     this.showTokenViewer = !this.showTokenViewer;
   }
 
+  public async stopProcessInstance(): Promise<void> {
+    this._managementApiClient.terminateProcessInstance(this.activeSolutionEntry.identity, this.processInstanceId);
+  }
+
+  public get processIsActive(): boolean {
+
+    const processIsActive: boolean = Array.isArray(this._activeTokens) && this._activeTokens.length > 0;
+
+    return processIsActive;
+  }
+
   private async _getParentProcessModelId(): Promise<string> {
     const parentProcessInstanceIdNotFound: boolean = this._parentProcessInstanceId === undefined;
     if (parentProcessInstanceIdNotFound) {

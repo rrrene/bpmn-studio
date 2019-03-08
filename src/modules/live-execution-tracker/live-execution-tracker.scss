@@ -53,13 +53,20 @@
   opacity: 1;
 }
 
-.let__parent-process-button {
+.let__button-row {
   position: absolute;
+  display: flex;
+  justify-content: space-around;
   bottom: 100px;
-  left: 50%;
+  width: 100%;
+}
+
+.let__parent-process-button {
   width: 200px;
-  // half the width
-  margin-left: -100px;
+}
+
+.let__stop-process-button {
+  width: 200px;
 }
 
 .let__diagram-preview-header {
