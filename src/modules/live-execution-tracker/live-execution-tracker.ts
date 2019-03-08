@@ -197,6 +197,7 @@ export class LiveExecutionTracker {
       await this._importXmlIntoDiagramViewer(xml);
     }
 
+    await this._addOverlays();
 
     this._diagramViewer.on('element.click', this._elementClickHandler);
 
