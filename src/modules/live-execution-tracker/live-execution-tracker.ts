@@ -161,6 +161,9 @@ export class LiveExecutionTracker {
       ],
     });
 
+    this._diagramViewer.on('element.click', this._elementClickHandler);
+    this._viewerCanvas.zoom('fit-viewport', 'auto');
+
     this._modeling = this._diagramModeler.get('modeling');
     this._elementRegistry = this._diagramModeler.get('elementRegistry');
     this._viewerCanvas = this._diagramViewer.get('canvas');
@@ -189,7 +192,7 @@ export class LiveExecutionTracker {
     const colorizedXml: string = await this._getColorizedXml();
 
     const colorizingWasSuccessfull: boolean = colorizedXml !== undefined;
-    if(colorizingWasSuccessfull) {
+    if (colorizingWasSuccessfull) {
       await this._importXmlIntoDiagramViewer(colorizedXml);
     } else {
       const xml: string = await this._exportXmlFromDiagramModeler();
@@ -198,10 +201,6 @@ export class LiveExecutionTracker {
     }
 
     await this._addOverlays();
-
-    this._diagramViewer.on('element.click', this._elementClickHandler);
-
-    this._viewerCanvas.zoom('fit-viewport', 'auto');
 
     this.tokenViewerResizeDiv.addEventListener('mousedown', (mouseDownEvent: Event) => {
       const windowEvent: Event = mouseDownEvent || window.event;
