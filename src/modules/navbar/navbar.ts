@@ -265,10 +265,22 @@ export class NavBar {
     }
 
     if (this.validationError) {
-      return 'There was a problem with this diagram; Please check the linter for more Information.';
+      return 'There was a problem with this diagram. Please check the linter for more Information.';
     }
 
     return 'Deploy to ProcessEngine';
+  }
+
+  public get startButtonTitle(): string {
+    if (this.disableStartButton) {
+      return 'Before starting the process please deploy it to the ProcessEngine.';
+    }
+
+    if (this.validationError) {
+      return 'There was a problem with this diagram. Please check the linter for more Information.';
+    }
+
+    return 'Start Process';
   }
 
   /**
