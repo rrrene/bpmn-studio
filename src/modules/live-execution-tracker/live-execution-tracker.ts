@@ -189,25 +189,17 @@ export class LiveExecutionTracker {
     */
     this._clearColors();
 
-    const colorizedXml: string = await (async(): Promise<string> => {
-      try {
-        return await this._colorizeXml();
-      } catch {
-        return undefined;
-      }
-    })();
+    const colorizedXml: string = await this._getColorizedXml();
 
-    const colorizingFailed: boolean = colorizedXml === undefined;
-    if (colorizingFailed) {
-      const notificationMessage: string = 'Could not get tokens. '
-                                        + 'Please try reopening the Live Execution Tracker or restarting the process.';
+    const colorizingWasSuccessfull: boolean = colorizedXml !== undefined;
+    if(colorizingWasSuccessfull) {
+      await this._importXmlIntoDiagramViewer(colorizedXml);
+    } else {
+      const xml: string = await this._exportXmlFromDiagramModeler();
 
-      this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
-
-      return;
+      await this._importXmlIntoDiagramViewer(xml);
     }
 
-    await this._importXmlIntoDiagramViewer(colorizedXml);
 
     this._diagramViewer.on('element.click', this._elementClickHandler);
 
@@ -1053,9 +1045,7 @@ export class LiveExecutionTracker {
     return saveXmlPromise;
   }
 
-  private async _handleElementColorization(): Promise<void> {
-    const previousXml: string = await this._exportXmlFromDiagramViewer();
-
+  private async _getColorizedXml(): Promise<string> {
     const colorizedXml: string = await (async(): Promise<string> => {
       try {
         return await this._colorizeXml();
@@ -1074,8 +1064,17 @@ export class LiveExecutionTracker {
       return;
     }
 
+    return colorizedXml;
+  }
+
+  private async _handleElementColorization(): Promise<void> {
+    const previousXml: string = await this._exportXmlFromDiagramViewer();
+
+    const colorizedXml: string = await this._getColorizedXml();
+
+    const colorizingWasSuccessfull: boolean = colorizedXml !== undefined;
     const xmlChanged: boolean = previousXml !== colorizedXml;
-    if (xmlChanged) {
+    if (xmlChanged && colorizingWasSuccessfull) {
       await this._importXmlIntoDiagramViewer(colorizedXml);
     }
   }
