@@ -132,6 +132,7 @@ export class LiveExecutionTracker {
   public async attached(): Promise<void> {
     this._attached = true;
 
+    // Create Backend EventListeners
     this._createProcessEndedEventListener();
     this._createProcessTerminatedEventListener();
 
@@ -142,6 +143,7 @@ export class LiveExecutionTracker {
     this._createEmptyActivityWaitingEventListener();
     this._createEmptyActivityFinishedEventListener();
 
+    // Create Modeler & Viewer
     this._diagramModeler = new bundle.modeler();
     this._diagramViewer = new bundle.viewer({
       additionalModules:
@@ -171,6 +173,7 @@ export class LiveExecutionTracker {
 
     this._diagramViewer.attachTo(this.canvasModel);
 
+    // Prepare modeler
     const xml: string = await this._getXml();
 
     const couldNotGetXml: boolean = xml === undefined;
@@ -181,6 +184,7 @@ export class LiveExecutionTracker {
     // Import the xml to the modeler to add colors to it
     await this._importXmlIntoDiagramModeler(xml);
 
+    // Colorize xml & Add overlays
     /*
      * Remove all colors if the diagram has already colored elements.
      * For example, if the user has some elements colored orange and is running
@@ -202,6 +206,7 @@ export class LiveExecutionTracker {
 
     await this._addOverlays();
 
+    // Add EventListener for Resizing
     this.tokenViewerResizeDiv.addEventListener('mousedown', (mouseDownEvent: Event) => {
       const windowEvent: Event = mouseDownEvent || window.event;
       windowEvent.cancelBubble = true;
