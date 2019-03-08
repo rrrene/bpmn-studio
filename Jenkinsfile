@@ -126,7 +126,7 @@ pipeline {
       parallel {
         stage('Build on Linux') {
           agent {
-            label "linux"
+            label "linux && snapcraft-2.41"
           }
           steps {
             unstash('post_build')
