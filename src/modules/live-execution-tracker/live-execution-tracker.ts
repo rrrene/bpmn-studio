@@ -163,15 +163,15 @@ export class LiveExecutionTracker {
       ],
     });
 
-    this._diagramViewer.on('element.click', this._elementClickHandler);
-    this._viewerCanvas.zoom('fit-viewport', 'auto');
-
     this._modeling = this._diagramModeler.get('modeling');
     this._elementRegistry = this._diagramModeler.get('elementRegistry');
     this._viewerCanvas = this._diagramViewer.get('canvas');
     this._overlays = this._diagramViewer.get('overlays');
 
     this._diagramViewer.attachTo(this.canvasModel);
+
+    this._diagramViewer.on('element.click', this._elementClickHandler);
+    this._viewerCanvas.zoom('fit-viewport', 'auto');
 
     // Prepare modeler
     const xml: string = await this._getXml();
