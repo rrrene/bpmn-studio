@@ -111,6 +111,10 @@ export class TimerEventSection implements ISection {
     const timeElement: IModdleElement = this._getTimerElement();
     timeElement.body = this.timerElement.body;
     this._publishDiagramChange();
+
+    if (this._linter.lintingActive()) {
+      this._linter.update();
+    }
   }
 
   private _init(): void {
