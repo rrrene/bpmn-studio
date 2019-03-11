@@ -87,11 +87,14 @@ export class SolutionExplorerSolution {
   @bindable public displayedSolutionEntry: ISolutionEntry;
   @bindable public fontAwesomeIconClass: string;
   public createNewDiagramInput: HTMLInputElement;
+  public diagramContextMenu: HTMLElement;
+  public showContextMenu: boolean = false;
   public deleteDiagramModal: DeleteDiagramModal;
 
   private _renameDiagramInput: HTMLInputElement;
   private _originalIconClass: string;
   private _globalSolutionService: ISolutionService;
+  private _diagramInContextMenu: IDiagram;
 
   constructor(
     router: Router,
@@ -695,7 +698,7 @@ export class SolutionExplorerSolution {
       return;
     }
 
-    const emptyDiagram: IDiagram = this._diagramCreationService
+    const emptyDiagram: IDiagram = await this._diagramCreationService
       .createNewDiagram(this._openedSolution.uri, this._diagramCreationState.currentDiagramInputValue);
 
     try {
