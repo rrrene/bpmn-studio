@@ -1,15 +1,14 @@
-import {computedFrom, inject, observable} from 'aurelia-framework';
+import {bindable, computedFrom, inject, observable} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 
-import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
+import {DataModels} from '@process-engine/management_api_contracts';
 
 import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import {ActiveToken} from '@process-engine/kpi_api_contracts';
 import {CorrelationProcessInstance} from '@process-engine/management_api_contracts/dist/data_models/correlation';
 import {TokenHistoryEntry} from '@process-engine/management_api_contracts/dist/data_models/token_history';
-import {EndEventReachedMessage, TerminateEndEventReachedMessage} from '@process-engine/management_api_contracts/dist/messages/bpmn_events';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
 import {
@@ -27,8 +26,10 @@ import {
   ISolutionService,
   NotificationType,
 } from '../../contracts/index';
+
 import {NotificationService} from '../../services/notification-service/notification.service';
 import {TaskDynamicUi} from '../task-dynamic-ui/task-dynamic-ui';
+import {ILiveExecutionTrackerService} from './contracts/index';
 
 type RouteParameters = {
   diagramName: string,
@@ -38,7 +39,7 @@ type RouteParameters = {
   taskId?: string,
 };
 
-@inject(Router, 'NotificationService', 'ManagementApiClientService', 'SolutionService')
+@inject(Router, 'NotificationService', 'SolutionService', 'LiveExecutionTrackerService')
 export class LiveExecutionTracker {
   public canvasModel: HTMLElement;
   public previewCanvasModel: HTMLElement;
@@ -55,7 +56,7 @@ export class LiveExecutionTracker {
   public tokenViewerResizeDiv: HTMLElement;
   public showTokenViewer: boolean = false;
 
-  public activeSolutionEntry: ISolutionEntry;
+  @observable public activeSolutionEntry: ISolutionEntry;
   public activeDiagram: IDiagram;
   public selectedFlowNode: IShape;
   public correlation: DataModels.Correlations.Correlation;
@@ -75,7 +76,6 @@ export class LiveExecutionTracker {
 
   private _router: Router;
   private _notificationService: NotificationService;
-  private _managementApiClient: IManagementApi;
   private _solutionService: ISolutionService;
 
   private _pollingTimer: NodeJS.Timer;
@@ -83,21 +83,22 @@ export class LiveExecutionTracker {
   private _activeTokens: Array<ActiveToken>;
   private _parentProcessInstanceId: string;
   private _parentProcessModelId: string;
-  private _maxRetries: number = 5;
   private _activeCallActivities: Array<IShape> = [];
   private _processStopped: boolean = false;
 
   private _elementsWithEventListeners: Array<string> = [];
 
+  private _liveExecutionTrackerService: ILiveExecutionTrackerService;
+
   constructor(router: Router,
               notificationService: NotificationService,
-              managementApiClient: IManagementApi,
-              solutionService: ISolutionService) {
+              solutionService: ISolutionService,
+              liveExecutionTrackerService: ILiveExecutionTrackerService) {
 
     this._router = router;
     this._notificationService = notificationService;
-    this._managementApiClient = managementApiClient;
     this._solutionService = solutionService;
+    this._liveExecutionTrackerService = liveExecutionTrackerService;
   }
 
   public async activate(routeParameters: RouteParameters): Promise<void> {
@@ -112,16 +113,7 @@ export class LiveExecutionTracker {
     this._parentProcessInstanceId = await this._getParentProcessInstanceId();
     this._parentProcessModelId = await this._getParentProcessModelId();
 
-    const routeParameterContainTaskId: boolean = routeParameters.taskId !== undefined
-                                              && routeParameters.taskId !== null
-                                              && routeParameters.taskId !== '';
-
-    if (routeParameterContainTaskId) {
-      this.taskId = routeParameters.taskId;
-      this.showDynamicUiModal = true;
-    }
-
-    this.correlation = await this._managementApiClient.getCorrelationById(this.activeSolutionEntry.identity, this.correlationId);
+    this.correlation = await this._liveExecutionTrackerService.getCorrelationById(this.correlationId);
 
     // This is needed to make sure the SolutionExplorerService is completely initiated
     setTimeout(async() => {
@@ -132,16 +124,35 @@ export class LiveExecutionTracker {
   public async attached(): Promise<void> {
     this._attached = true;
 
-    // Create Backend EventListeners
-    this._createProcessEndedEventListener();
-    this._createProcessTerminatedEventListener();
+    const processEndedCallback: Function = (): void => {
+      this._handleElementColorization();
 
-    this._createUserTaskFinishedEventListener();
-    this._createUserTaskWaitingEventListener();
-    this._createManualTaskWaitingEventListener();
-    this._createManualTaskFinishedEventListener();
-    this._createEmptyActivityWaitingEventListener();
-    this._createEmptyActivityFinishedEventListener();
+      this._processStopped = true;
+      this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
+    };
+
+    const taskReachedCallback: Function = (): void => {
+      this._handleElementColorization();
+    };
+
+    const taskFinishedCallback: Function = (): void => {
+      this._handleElementColorization();
+    };
+
+    const getProcessStopped: () => boolean = (): boolean => {
+      return this._processStopped;
+    };
+
+    // Create Backend EventListeners
+    this._liveExecutionTrackerService.createProcessEndedEventListener(this.correlationId, processEndedCallback);
+    this._liveExecutionTrackerService.createProcessTerminatedEventListener(this.correlationId, processEndedCallback);
+
+    this._liveExecutionTrackerService.createUserTaskWaitingEventListener(this.correlationId, getProcessStopped, taskReachedCallback);
+    this._liveExecutionTrackerService.createUserTaskFinishedEventListener(this.correlationId, getProcessStopped, taskFinishedCallback);
+    this._liveExecutionTrackerService.createManualTaskWaitingEventListener(this.correlationId, getProcessStopped, taskReachedCallback);
+    this._liveExecutionTrackerService.createManualTaskFinishedEventListener(this.correlationId, getProcessStopped, taskFinishedCallback);
+    this._liveExecutionTrackerService.createEmptyActivityWaitingEventListener(this.correlationId, getProcessStopped, taskReachedCallback);
+    this._liveExecutionTrackerService.createEmptyActivityFinishedEventListener(this.correlationId, getProcessStopped, taskFinishedCallback);
 
     // Create Modeler & Viewer
     this._diagramModeler = new bundle.modeler();
@@ -239,6 +250,10 @@ export class LiveExecutionTracker {
 
   public determineActivationStrategy(): string {
     return 'replace';
+  }
+
+  public activeSolutionEntryChanged(): void {
+    this._liveExecutionTrackerService.setIdentity(this.activeSolutionEntry.identity);
   }
 
   @computedFrom('_previousProcessModels.length')
@@ -541,17 +556,14 @@ export class LiveExecutionTracker {
       this.taskId = elementId;
 
       const emptyActivitiesInProcessInstance: DataModels.EmptyActivities.EmptyActivityList =
-        await this._managementApiClient.getEmptyActivitiesForProcessInstance(this.activeSolutionEntry.identity, this.processInstanceId);
+        await this._liveExecutionTrackerService.getEmptyActivitiesForProcessInstance(this.processInstanceId);
 
       const emptyActivity: DataModels.EmptyActivities.EmptyActivity =
         emptyActivitiesInProcessInstance.emptyActivities.find((activity: DataModels.EmptyActivities.EmptyActivity) => {
           return activity.id === this.taskId;
       });
 
-      this._managementApiClient.finishEmptyActivity(this.activeSolutionEntry.identity,
-                                                    this.processInstanceId,
-                                                    this.correlationId,
-                                                    emptyActivity.flowNodeInstanceId);
+      this._liveExecutionTrackerService.finishEmptyActivity(this.processInstanceId, this.correlationId, emptyActivity);
     }
 
   private _handleActiveCallActivityClick: (event: MouseEvent) => Promise<void> =
@@ -607,34 +619,20 @@ export class LiveExecutionTracker {
     }
 
   private async _getXmlByProcessModelId(processModelId: string): Promise<string> {
-    const processModel: DataModels.ProcessModels.ProcessModel =
-      await this._managementApiClient.getProcessModelById(this.activeSolutionEntry.identity, processModelId);
+    const processModel: DataModels.ProcessModels.ProcessModel = await this._liveExecutionTrackerService.getProcessModelById(processModelId);
 
     return processModel.xml;
   }
 
   private async _getProcessInstanceIdOfCallActivityTarget(callActivityTargetId: string): Promise<string> {
-    // This is necessary because the managementApi sometimes throws an error when the correlation is not yet existing.
-    const getCorrelation: () => Promise<DataModels.Correlations.Correlation> = async(): Promise<DataModels.Correlations.Correlation> => {
-      for (let retries: number = 0; retries < this._maxRetries; retries++) {
-        try {
-          return await this._managementApiClient.getCorrelationById(this.activeSolutionEntry.identity, this.correlationId);
-        } catch {
-          continue;
-        }
-      }
+    const correlation: DataModels.Correlations.Correlation = await this._liveExecutionTrackerService.getCorrelationById(this.correlationId);
 
+    const errorGettingCorrelation: boolean = correlation === undefined;
+    if (errorGettingCorrelation) {
       const notificationMessage: string = 'Could not get correlation. Please try to click on the call activity again.';
 
       this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
 
-      return undefined;
-    };
-
-    const correlation: DataModels.Correlations.Correlation = await getCorrelation();
-
-    const errorGettingCorrelation: boolean = correlation === undefined;
-    if (errorGettingCorrelation) {
       return undefined;
     }
 
@@ -680,20 +678,7 @@ export class LiveExecutionTracker {
   }
 
   private async _getElementsWithActiveToken(elements: Array<IShape>): Promise<Array<IShape> | null> {
-
-    const getActiveTokens: Function = async(): Promise<Array<ActiveToken> | null> => {
-      for (let retries: number = 0; retries < this._maxRetries; retries++) {
-        try {
-          return await this._managementApiClient.getActiveTokensForProcessInstance(this.activeSolutionEntry.identity, this.processInstanceId);
-        } catch {
-          continue;
-        }
-      }
-
-      return null;
-    };
-
-    const activeTokens: Array<ActiveToken> | null = await getActiveTokens();
+    const activeTokens: Array<ActiveToken> | null = await this._liveExecutionTrackerService.getActiveTokensForProcessInstance(this.processInstanceId);
 
     const couldNotGetActiveTokens: boolean = activeTokens === null;
     if (couldNotGetActiveTokens) {
@@ -714,19 +699,9 @@ export class LiveExecutionTracker {
 
   private async _getElementsWithTokenHistory(elements: Array<IShape>): Promise<Array<IShape> | null> {
 
-    const getTokenHistoryGroup: Function = async(): Promise<DataModels.TokenHistory.TokenHistoryGroup | null> => {
-      for (let retries: number = 0; retries < this._maxRetries; retries++) {
-        try {
-          return await this._managementApiClient.getTokensForProcessInstance(this.activeSolutionEntry.identity, this.processInstanceId);
-        } catch {
-          continue;
-        }
-      }
+    const tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup =
+      await this._liveExecutionTrackerService.getTokenHistoryGroupForProcessInstance(this.processInstanceId);
 
-      return null;
-    };
-
-    const tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup = await getTokenHistoryGroup();
     const couldNotGetTokenHistory: boolean = tokenHistoryGroups === null;
     if (couldNotGetTokenHistory) {
       return null;
@@ -840,26 +815,12 @@ export class LiveExecutionTracker {
   }
 
   private async _getXml(): Promise<string> {
-
-    // This is necessary because the managementApi sometimes throws an error when the correlation is not yet existing.
-    const getCorrelation: () => Promise<DataModels.Correlations.Correlation> = async(): Promise<DataModels.Correlations.Correlation> => {
-      for (let retries: number = 0; retries < this._maxRetries; retries++) {
-        try {
-          return await this._managementApiClient.getCorrelationById(this.activeSolutionEntry.identity, this.correlationId);
-        } catch {
-          continue;
-        }
-      }
-
-      this._notificationService.showNotification(NotificationType.ERROR, 'Could not get correlation. Please try to start the process again.');
-
-      return undefined;
-    };
-
-    const correlation: DataModels.Correlations.Correlation = await getCorrelation();
+    const correlation: DataModels.Correlations.Correlation = await this._liveExecutionTrackerService.getCorrelationById(this.correlationId);
 
     const errorGettingCorrelation: boolean = correlation === undefined;
     if (errorGettingCorrelation) {
+      this._notificationService.showNotification(NotificationType.ERROR, 'Could not get correlation. Please try to start the process again.');
+
       return;
     }
 
@@ -1056,23 +1017,8 @@ export class LiveExecutionTracker {
   }
 
   private async _getParentProcessInstanceId(): Promise<string> {
-    // This is necessary because the managementApi sometimes throws an error when the correlation is not yet existing.
-    const getCorrelation: () => Promise<DataModels.Correlations.Correlation> = async(): Promise<DataModels.Correlations.Correlation> => {
 
-      for (let retries: number = 0; retries < this._maxRetries; retries++) {
-        try {
-          return await this._managementApiClient.getCorrelationById(this.activeSolutionEntry.identity, this.correlationId);
-        } catch {
-          continue;
-        }
-      }
-
-      this._notificationService.showNotification(NotificationType.ERROR, 'Could not get correlation. Please try to start the process again.');
-
-      return undefined;
-    };
-
-    const correlation: DataModels.Correlations.Correlation = await getCorrelation();
+    const correlation: DataModels.Correlations.Correlation = await this._liveExecutionTrackerService.getCorrelationById(this.correlationId);
 
     const errorGettingCorrelation: boolean = correlation === undefined;
     if (errorGettingCorrelation) {
@@ -1091,28 +1037,13 @@ export class LiveExecutionTracker {
     return parentProcessInstanceId;
   }
 
-  private async _getProcessModelByProcessInstanceId(processInstanceId: string): Promise<DataModels.Correlations.CorrelationProcessInstance> {
-
-    // This is necessary because the managementApi sometimes throws an error when the correlation is not yet existing.
-    const getCorrelation: () => Promise<DataModels.Correlations.Correlation> = async(): Promise<DataModels.Correlations.Correlation> => {
-
-      for (let retries: number = 0; retries < this._maxRetries; retries++) {
-        try {
-          return await this._managementApiClient.getCorrelationById(this.activeSolutionEntry.identity, this.correlationId);
-        } catch {
-          continue;
-        }
-      }
-
-      this._notificationService.showNotification(NotificationType.ERROR, 'Could not get correlation. Please try to start the process again.');
-
-      return undefined;
-    };
-
-    const correlation: DataModels.Correlations.Correlation = await getCorrelation();
+  private async _getProcessModelByProcessInstanceId(processInstanceId: string): Promise<DataModels.Correlations.CorrelationProcessModel> {
+    const correlation: DataModels.Correlations.Correlation = await  this._liveExecutionTrackerService.getCorrelationById(this.correlationId);
 
     const errorGettingCorrelation: boolean = correlation === undefined;
     if (errorGettingCorrelation) {
+      this._notificationService.showNotification(NotificationType.ERROR, 'Could not get correlation. Please try to start the process again.');
+
       return undefined;
     }
 
@@ -1145,131 +1076,5 @@ export class LiveExecutionTracker {
      * if the new width is smaller than the minimum or bigger than the maximum width.
      */
     this.tokenViewerWidth = Math.min(maxTokenViewerWidth, Math.max(newTokenViewerWidth, minTokenViewerWidth));
-  }
-
-  private _createProcessEndedEventListener(): void {
-    this._managementApiClient.onProcessEnded(this.activeSolutionEntry.identity, (message: EndEventReachedMessage): void => {
-      if (message.correlationId !== this.correlationId) {
-        this._createProcessEndedEventListener();
-
-        return;
-      }
-
-      this._handleElementColorization();
-
-      this._processStopped = true;
-      this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
-    }, true);
-  }
-
-  private _createProcessTerminatedEventListener(): void {
-    this._managementApiClient.onProcessTerminated(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
-      if (message.correlationId !== this.correlationId) {
-        this._createProcessTerminatedEventListener();
-
-        return;
-      }
-
-      this._handleElementColorization();
-
-      this._processStopped = true;
-      this._notificationService.showNotification(NotificationType.INFO, 'Process terminated.');
-    }, true);
-  }
-
-  private _createUserTaskWaitingEventListener(): void {
-    this._managementApiClient.onUserTaskWaiting(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
-      if (message.correlationId !== this.correlationId) {
-        this._createUserTaskWaitingEventListener();
-
-        return;
-      }
-
-      this._handleElementColorization();
-
-      if (!this._processStopped) {
-        this._createUserTaskWaitingEventListener();
-      }
-    }, true);
-  }
-
-  private _createUserTaskFinishedEventListener(): void {
-    this._managementApiClient.onUserTaskFinished(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
-      if (message.correlationId !== this.correlationId) {
-        this._createUserTaskFinishedEventListener();
-
-        return;
-      }
-
-      this._handleElementColorization();
-
-      if (!this._processStopped) {
-        this._createUserTaskFinishedEventListener();
-      }
-    }, true);
-  }
-
-  private _createManualTaskWaitingEventListener(): void {
-    this._managementApiClient.onManualTaskWaiting(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
-      if (message.correlationId !== this.correlationId) {
-        this._createManualTaskWaitingEventListener();
-
-        return;
-      }
-
-      this._handleElementColorization();
-
-      if (!this._processStopped) {
-        this._createManualTaskWaitingEventListener();
-      }
-    }, true);
-  }
-
-  private _createManualTaskFinishedEventListener(): void {
-    this._managementApiClient.onManualTaskFinished(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
-      if (message.correlationId !== this.correlationId) {
-        this._createManualTaskFinishedEventListener();
-
-        return;
-      }
-
-      this._handleElementColorization();
-
-      if (!this._processStopped) {
-        this._createManualTaskFinishedEventListener();
-      }
-    }, true);
-  }
-
-  private _createEmptyActivityWaitingEventListener(): void {
-    this._managementApiClient.onEmptyActivityWaiting(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
-      if (message.correlationId !== this.correlationId) {
-        this._createEmptyActivityWaitingEventListener();
-
-        return;
-      }
-
-      this._handleElementColorization();
-
-      if (!this._processStopped) {
-        this._createEmptyActivityWaitingEventListener();
-      }
-    }, true);
-  }
-
-  private _createEmptyActivityFinishedEventListener(): void {
-    this._managementApiClient.onEmptyActivityFinished(this.activeSolutionEntry.identity, (message: TerminateEndEventReachedMessage): void => {
-      if (message.correlationId !== this.correlationId) {
-        this._createEmptyActivityFinishedEventListener();
-
-        return;
-      }
-
-      this._handleElementColorization();
-
-      if (!this._processStopped) {
-        this._createEmptyActivityFinishedEventListener();
-      }
-    }, true);
   }
 }
