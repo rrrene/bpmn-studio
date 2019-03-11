@@ -102,9 +102,7 @@ export class TimerEventSection implements ISection {
 
     this._publishDiagramChange();
 
-    if (this._linter.lintingActive()) {
-      this._linter.update();
-    }
+    this._updateLinterWhenActive();
   }
 
   public updateTimerDefinition(): void {
@@ -112,9 +110,7 @@ export class TimerEventSection implements ISection {
     timeElement.body = this.timerElement.body;
     this._publishDiagramChange();
 
-    if (this._linter.lintingActive()) {
-      this._linter.update();
-    }
+    this._updateLinterWhenActive();
   }
 
   private _init(): void {
@@ -161,6 +157,12 @@ export class TimerEventSection implements ISection {
 
   private _publishDiagramChange(): void {
     this._eventAggregator.publish(environment.events.diagramChange);
+  }
+
+  private _updateLinterWhenActive(): void {
+    if (this._linter.lintingActive()) {
+      this._linter.update();
+    }
   }
 
 }
