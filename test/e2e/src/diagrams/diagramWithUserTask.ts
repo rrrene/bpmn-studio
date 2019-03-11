@@ -15,6 +15,7 @@ export class DiagramWithUserTask {
     private _processEngineUrl: string = browser.params.processEngineUrl;
     private _http: HttpClient = new HttpClient(this._processEngineUrl);
     private _applicationUrl: string = browser.params.aureliaUrl;
+    private _processEngineActionTimeout: number = browser.params.processEngineActionTimeout;
 
     public async deployDiagram(): Promise<void> {
       const requestDestination: string = `/api/management/v1/process_models/${this.name}/update`;
@@ -82,7 +83,7 @@ export class DiagramWithUserTask {
 
       await this._http.post(requestDestination, requestPayload, requestHeaders);
 
-      browser.sleep(1000);
+      browser.sleep(this._processEngineActionTimeout);
     }
 
     public async deleteDiagram(): Promise<void> {
@@ -110,7 +111,7 @@ export class DiagramWithUserTask {
                                   '/instance/' + this.processInstanceId +
                                   '/task/' + this.userTaskId;
 
-      browser.sleep(1000);
+      browser.sleep(this._processEngineActionTimeout);
     }
 
     private _getRequestHeaders(): IRequestHeaders {
