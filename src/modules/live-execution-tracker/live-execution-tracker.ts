@@ -11,15 +11,11 @@ import {CorrelationProcessModel} from '@process-engine/management_api_contracts/
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
 import {
-  defaultBpmnColors,
   IBpmnModeler,
   IBpmnXmlSaveOptions,
   ICanvas,
-  IColorPickerColor,
-  IElementRegistry,
   IEvent,
   IEventFunction,
-  IModeling,
   IOverlayManager,
   ISolutionEntry,
   ISolutionService,
