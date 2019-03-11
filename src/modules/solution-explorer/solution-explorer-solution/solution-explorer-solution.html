@@ -8,6 +8,12 @@
       <i class="fa fa-spinner fa-spin"></i>
     </div>
 
+    <div class="diagram-contextmenu" ref="diagramContextMenu" show.bind="showContextMenu && canRenameDiagram()">
+      <div class="contextmenu__copy" click.delegate="copyDiagram()">
+        Copy
+      </div>
+    </div>
+
     <ul class="solution__diagram-list">
 
       <li if.bind="_diagramCreationState.isCreateDiagramInputShown" class="diagram-create">
