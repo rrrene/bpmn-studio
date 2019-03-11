@@ -125,7 +125,17 @@
 .diagram-contextmenu {
   position: absolute;
   background: white;
-  padding: 0 10px;
   border: 1px solid #dcdbdb;
   border-radius: 5px;
+}
+
+.diagram-contextmenu__entry {
+  width: 100%;
+  text-align: center;
+  padding: 0 10px;
+}
+
+.diagram-contextmenu__entry:hover {
+  background-color: #dcdbdb;
+  text-decoration: underline;
 }
