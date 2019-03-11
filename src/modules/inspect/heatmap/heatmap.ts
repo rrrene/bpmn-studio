@@ -108,7 +108,10 @@ export class Heatmap {
 
     this._heatmapService.addOverlays(overlays, elementRegistry, this.activeDiagram.id);
 
-    this._viewer.attachTo(this.viewerContainer);
+    const containerIsPresent: boolean =  this.viewerContainer !== null;
+    if (containerIsPresent) {
+      this._viewer.attachTo(this.viewerContainer);
+    }
 
     this._fitDiagramToViewport();
   }
