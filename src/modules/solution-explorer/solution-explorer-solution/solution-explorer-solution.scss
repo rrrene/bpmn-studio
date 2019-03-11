@@ -121,3 +121,11 @@
   width: calc(100% + 30px);
   margin-left: -30px;
 }
+
+.diagram-contextmenu {
+  position: absolute;
+  background: white;
+  padding: 0 10px;
+  border: 1px solid #dcdbdb;
+  border-radius: 5px;
+}
