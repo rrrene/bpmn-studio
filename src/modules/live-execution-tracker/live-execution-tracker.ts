@@ -5,6 +5,7 @@ import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 
 import {DataModels} from '@process-engine/management_api_contracts';
 
+import {Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import {ActiveToken} from '@process-engine/kpi_api_contracts';
 import {CorrelationProcessInstance} from '@process-engine/management_api_contracts/dist/data_models/correlation';
@@ -82,6 +83,8 @@ export class LiveExecutionTracker {
   private _activeCallActivities: Array<IShape> = [];
   private _processStopped: boolean = false;
 
+  private _eventListenerSubscriptions: Array<Subscription> = [];
+
   private _elementsWithEventListeners: Array<string> = [];
 
   private _liveExecutionTrackerService: ILiveExecutionTrackerService;
@@ -120,35 +123,8 @@ export class LiveExecutionTracker {
   public async attached(): Promise<void> {
     this._attached = true;
 
-    const processEndedCallback: Function = (): void => {
-      this._handleElementColorization();
-
-      this._processStopped = true;
-      this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
-    };
-
-    const taskReachedCallback: Function = (): void => {
-      this._handleElementColorization();
-    };
-
-    const taskFinishedCallback: Function = (): void => {
-      this._handleElementColorization();
-    };
-
-    const getProcessStopped: () => boolean = (): boolean => {
-      return this._processStopped;
-    };
-
     // Create Backend EventListeners
-    this._liveExecutionTrackerService.createProcessEndedEventListener(this.correlationId, processEndedCallback);
-    this._liveExecutionTrackerService.createProcessTerminatedEventListener(this.correlationId, processEndedCallback);
-
-    this._liveExecutionTrackerService.createUserTaskWaitingEventListener(this.correlationId, getProcessStopped, taskReachedCallback);
-    this._liveExecutionTrackerService.createUserTaskFinishedEventListener(this.correlationId, getProcessStopped, taskFinishedCallback);
-    this._liveExecutionTrackerService.createManualTaskWaitingEventListener(this.correlationId, getProcessStopped, taskReachedCallback);
-    this._liveExecutionTrackerService.createManualTaskFinishedEventListener(this.correlationId, getProcessStopped, taskFinishedCallback);
-    this._liveExecutionTrackerService.createEmptyActivityWaitingEventListener(this.correlationId, getProcessStopped, taskReachedCallback);
-    this._liveExecutionTrackerService.createEmptyActivityFinishedEventListener(this.correlationId, getProcessStopped, taskFinishedCallback);
+    this._eventListenerSubscriptions = await this._createBackendEventListeners();
 
     // Create Viewer
     this._diagramViewer = new bundle.viewer({
@@ -232,6 +208,13 @@ export class LiveExecutionTracker {
     this._diagramViewer.destroy();
 
     this._diagramPreviewViewer.destroy();
+
+    this._eventListenerSubscriptions.forEach(async(subscription: Subscription, index: number) => {
+      await this._liveExecutionTrackerService.removeSubscription(subscription);
+
+      this._eventListenerSubscriptions.splice(index, 1);
+    });
+
   }
 
   public determineActivationStrategy(): string {
@@ -737,6 +720,51 @@ export class LiveExecutionTracker {
     const {parentProcessInstanceId} = processModelFromCorrelation;
 
     return parentProcessInstanceId;
+  }
+
+  private _createBackendEventListeners(): Promise<Array<Subscription>> {
+    const processEndedCallback: Function = (): void => {
+      this._handleElementColorization();
+
+      this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
+    };
+
+    const taskReachedCallback: Function = (): void => {
+      this._handleElementColorization();
+    };
+
+    const taskFinishedCallback: Function = (): void => {
+      this._handleElementColorization();
+    };
+
+    const processEndedSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createProcessEndedEventListener(this.correlationId, processEndedCallback);
+    const processTerminatedSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createProcessTerminatedEventListener(this.correlationId, processEndedCallback);
+
+    const userTaskWaitingSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createUserTaskWaitingEventListener(this.correlationId, taskReachedCallback);
+    const userTaskFinishedSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createUserTaskFinishedEventListener(this.correlationId, taskFinishedCallback);
+    const manualTaskWaitingSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createManualTaskWaitingEventListener(this.correlationId, taskReachedCallback);
+    const manualTaskFinishedSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createManualTaskFinishedEventListener(this.correlationId, taskFinishedCallback);
+    const emptyActivityWaitingSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createEmptyActivityWaitingEventListener(this.correlationId, taskReachedCallback);
+    const emptyActivityFinishedSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createEmptyActivityFinishedEventListener(this.correlationId, taskFinishedCallback);
+
+    const subscriptionPromises: Array<Promise<Subscription>> = [processEndedSubscriptionPromise,
+                                                                processTerminatedSubscriptionPromise,
+                                                                userTaskWaitingSubscriptionPromise,
+                                                                userTaskFinishedSubscriptionPromise,
+                                                                manualTaskWaitingSubscriptionPromise,
+                                                                manualTaskFinishedSubscriptionPromise,
+                                                                emptyActivityWaitingSubscriptionPromise,
+                                                                emptyActivityFinishedSubscriptionPromise];
+
+    return Promise.all(subscriptionPromises);
   }
 
   private _resizeTokenViewer(mouseEvent: MouseEvent): void {

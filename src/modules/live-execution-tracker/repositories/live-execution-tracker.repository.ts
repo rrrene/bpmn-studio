@@ -1,5 +1,6 @@
 import {inject} from 'aurelia-framework';
 
+import {Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
 import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_models/kpi/index';
@@ -103,123 +104,95 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     this._identity = identity;
   }
 
-  public createProcessEndedEventListener(correlationId: string, callback: Function): void {
-    this._managementApiClient.onProcessEnded(this._identity, (message: EndEventReachedMessage): void => {
-      if (message.correlationId !== correlationId) {
-        this.createProcessEndedEventListener(correlationId, callback);
-
+  public createProcessEndedEventListener(correlationId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onProcessEnded(this._identity, (message: EndEventReachedMessage): void => {
+      const eventIsAboutAnotherCorrelation: boolean = message.correlationId !== correlationId;
+      if (eventIsAboutAnotherCorrelation) {
         return;
       }
 
       callback();
-    }, true);
+    });
   }
 
-  public createProcessTerminatedEventListener(correlationId: string, callback: Function): void {
-    this._managementApiClient.onProcessTerminated(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      if (message.correlationId !== correlationId) {
-        this.createProcessTerminatedEventListener(correlationId, callback);
-
+  public createProcessTerminatedEventListener(correlationId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onProcessTerminated(this._identity, (message: TerminateEndEventReachedMessage): void => {
+      const eventIsAboutAnotherCorrelation: boolean = message.correlationId !== correlationId;
+      if (eventIsAboutAnotherCorrelation) {
         return;
       }
 
       callback();
-    }, true);
+    });
   }
 
-  public createUserTaskWaitingEventListener(correlationId: string, processStopped: () => boolean, callback: Function): void {
-    this._managementApiClient.onUserTaskWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      if (message.correlationId !== correlationId) {
-        this.createUserTaskWaitingEventListener(correlationId, processStopped, callback);
-
+  public createUserTaskWaitingEventListener(correlationId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onUserTaskWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
+      const eventIsAboutAnotherCorrelation: boolean = message.correlationId !== correlationId;
+      if (eventIsAboutAnotherCorrelation) {
         return;
       }
 
       callback();
-
-      if (!processStopped()) {
-        this.createUserTaskWaitingEventListener(correlationId, processStopped, callback);
-      }
-    }, true);
+    });
   }
 
-  public createUserTaskFinishedEventListener(correlationId: string, processStopped: () => boolean, callback: Function): void {
-    this._managementApiClient.onUserTaskFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      if (message.correlationId !== correlationId) {
-        this.createUserTaskFinishedEventListener(correlationId, processStopped, callback);
-
+  public createUserTaskFinishedEventListener(correlationId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onUserTaskFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
+      const eventIsAboutAnotherCorrelation: boolean = message.correlationId !== correlationId;
+      if (eventIsAboutAnotherCorrelation) {
         return;
       }
 
       callback();
-
-      if (!processStopped()) {
-        this.createUserTaskFinishedEventListener(correlationId, processStopped, callback);
-      }
-    }, true);
+    });
   }
 
-  public createManualTaskWaitingEventListener(correlationId: string, processStopped: () => boolean, callback: Function): void {
-    this._managementApiClient.onManualTaskWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      if (message.correlationId !== correlationId) {
-        this.createManualTaskWaitingEventListener(correlationId, processStopped, callback);
-
+  public createManualTaskWaitingEventListener(correlationId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onManualTaskWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
+      const eventIsAboutAnotherCorrelation: boolean = message.correlationId !== correlationId;
+      if (eventIsAboutAnotherCorrelation) {
         return;
       }
 
       callback();
-
-      if (!processStopped()) {
-        this.createManualTaskWaitingEventListener(correlationId, processStopped, callback);
-      }
-    }, true);
+    });
   }
 
-  public createManualTaskFinishedEventListener(correlationId: string, processStopped: () => boolean, callback: Function): void {
-    this._managementApiClient.onManualTaskFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      if (message.correlationId !== correlationId) {
-        this.createManualTaskFinishedEventListener(correlationId, processStopped, callback);
-
+  public createManualTaskFinishedEventListener(correlationId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onManualTaskFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
+      const eventIsAboutAnotherCorrelation: boolean = message.correlationId !== correlationId;
+      if (eventIsAboutAnotherCorrelation) {
         return;
       }
 
       callback();
-
-      if (!processStopped()) {
-        this.createManualTaskFinishedEventListener(correlationId, processStopped, callback);
-      }
-    }, true);
+    });
   }
 
-  public createEmptyActivityWaitingEventListener(correlationId: string, processStopped: () => boolean, callback: Function): void {
-    this._managementApiClient.onEmptyActivityWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      if (message.correlationId !== correlationId) {
-        this.createEmptyActivityWaitingEventListener(correlationId, processStopped, callback);
-
+  public createEmptyActivityWaitingEventListener(correlationId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onEmptyActivityWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
+      const eventIsAboutAnotherCorrelation: boolean = message.correlationId !== correlationId;
+      if (eventIsAboutAnotherCorrelation) {
         return;
       }
 
       callback();
-
-      if (!processStopped()) {
-        this.createEmptyActivityWaitingEventListener(correlationId, processStopped, callback);
-      }
-    }, true);
+    });
   }
 
-  public createEmptyActivityFinishedEventListener(correlationId: string, processStopped: () => boolean, callback: Function): void {
-    this._managementApiClient.onEmptyActivityFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      if (message.correlationId !== correlationId) {
-        this.createEmptyActivityFinishedEventListener(correlationId, processStopped, callback);
-
+  public createEmptyActivityFinishedEventListener(correlationId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onEmptyActivityFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
+      const eventIsAboutAnotherCorrelation: boolean = message.correlationId !== correlationId;
+      if (eventIsAboutAnotherCorrelation) {
         return;
       }
 
       callback();
+    });
+  }
 
-      if (!processStopped()) {
-        this.createEmptyActivityFinishedEventListener(correlationId, processStopped, callback);
-      }
-    }, true);
+  public removeSubscription(subscription: Subscription): Promise<void> {
+    return this._managementApiClient.removeSubscription(this._identity, subscription);
   }
 }
