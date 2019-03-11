@@ -220,4 +220,24 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
     return activeTokenForFlowNodeInstance !== undefined;
   }
+
+  public async getProcessModelByProcessInstanceId(correlationId: string,
+                                                  processInstanceId: string): Promise<DataModels.Correlations.CorrelationProcessModel> {
+
+    const correlation: DataModels.Correlations.Correlation = await  this.getCorrelationById(correlationId);
+
+    const errorGettingCorrelation: boolean = correlation === undefined;
+    if (errorGettingCorrelation) {
+      return undefined;
+    }
+
+    const processModel: DataModels.Correlations.CorrelationProcessModel =
+      correlation.processModels.find((correlationProcessModel: DataModels.Correlations.CorrelationProcessModel): boolean => {
+        const processModelFound: boolean = correlationProcessModel.processInstanceId === processInstanceId;
+
+        return processModelFound;
+      });
+
+    return processModel;
+  }
 }
