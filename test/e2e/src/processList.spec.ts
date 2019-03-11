@@ -32,18 +32,19 @@ describe('Process List', () => {
     await diagram.deleteDiagram();
   });
 
-  beforeEach(async() => {
+  it('should show the started process.', async() => {
     await routerView.show();
     await processList.show();
-  });
 
-  it('should show the started process.', async() => {
     const visibilityOfListEntry: boolean = await processList.getVisibilityOfListEntry(diagram.correlationId);
 
     expect(visibilityOfListEntry).toBeTruthy();
   });
 
   it('should navigate to the `detail view`, after clicking on the corresponding link in the table.', async() => {
+    await routerView.show();
+    await processList.show();
+
     await processList.clickOnDiagramDesignLink(diagram.correlationId);
 
     const currentBrowserUrl: string = await browser.getCurrentUrl();
@@ -54,6 +55,9 @@ describe('Process List', () => {
   });
 
   it('should navigate to the `task list`, after clicking on the corresponding link in the table.', async() => {
+    await routerView.show();
+    await processList.show();
+
     await processList.clickOnUserTaskLink(diagram.correlationId);
 
     const currentBrowserUrl: string = await browser.getCurrentUrl();
