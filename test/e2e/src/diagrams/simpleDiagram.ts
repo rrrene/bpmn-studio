@@ -66,7 +66,7 @@ export class SimpleDiagram {
     const requestPayload: IRequestPayload = {};
     const requestHeaders: IRequestHeaders = this._getRequestHeaders();
 
-    this._http.post(requestDestination, requestPayload, requestHeaders).jsonBody.then((jsonBody: JSON) => {
+    await this._http.post(requestDestination, requestPayload, requestHeaders).jsonBody.then((jsonBody: JSON) => {
       this.correlationId = jsonBody['correlationId'];
       this.processInstanceId = jsonBody['processInstanceId'];
     });
