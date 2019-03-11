@@ -321,7 +321,7 @@ export class LiveExecutionTracker {
     const inactiveCallActivities: Array<IShape> = this._filterInactveCallActivities(elementsThatCanHaveAToken);
 
     this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
-    this._addOverlaysToEmptyTasks(elementsWithActiveToken);
+    this._addOverlaysToEmptyActivities(elementsWithActiveToken);
     this._addOverlaysToActiveCallActivities(elementsWithActiveToken);
     this._addOverlaysToInactiveCallActivities(inactiveCallActivities);
   }
@@ -376,22 +376,22 @@ export class LiveExecutionTracker {
     return elementsWithTokenHistory;
   }
 
-  private _addOverlaysToEmptyTasks(elements: Array<IShape>): Array<string> {
+  private _addOverlaysToEmptyActivities(elements: Array<IShape>): Array<string> {
     const liveExecutionTrackerIsNotAttached: boolean = !this._attached;
     if (liveExecutionTrackerIsNotAttached) {
       return [];
     }
 
-    const activeEmptyTasks: Array<IShape> = elements.filter((element: IShape) => {
-      const elementIsEmptyTask: boolean = element.type === 'bpmn:Task';
+    const activeEmptyActivities: Array<IShape> = elements.filter((element: IShape) => {
+      const elementIsEmptyActivity: boolean = element.type === 'bpmn:Task';
 
-      return elementIsEmptyTask;
+      return elementIsEmptyActivity;
     });
 
-    const activeEmptyTaskIds: Array<string> = activeEmptyTasks.map((element: IShape) => element.id).sort();
+    const activeEmptyActivitiesIds: Array<string> = activeEmptyActivities.map((element: IShape) => element.id).sort();
 
     for (const elementId of this._elementsWithEventListeners) {
-      document.getElementById(elementId).removeEventListener('click', this._handleEmptyTaskClick);
+      document.getElementById(elementId).removeEventListener('click', this._handleEmptyActivityClick);
     }
 
     for (const callActivity of this._activeCallActivities) {
@@ -400,7 +400,7 @@ export class LiveExecutionTracker {
 
     this._elementsWithEventListeners = [];
 
-    for (const element of activeEmptyTasks) {
+    for (const element of activeEmptyActivities) {
       this._overlays.add(element, {
         position: {
           left: 30,
@@ -409,12 +409,12 @@ export class LiveExecutionTracker {
         html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-play let__overlay-button-icon overlay__empty-task"></i></div>`,
       });
 
-      document.getElementById(element.id).addEventListener('click', this._handleEmptyTaskClick);
+      document.getElementById(element.id).addEventListener('click', this._handleEmptyActivityClick);
 
       this._elementsWithEventListeners.push(element.id);
     }
 
-    return activeEmptyTaskIds;
+    return activeEmptyActivitiesIds;
   }
 
   private _addOverlaysToUserAndManualTasks(elements: Array<IShape>): Array<string> {
@@ -535,23 +535,23 @@ export class LiveExecutionTracker {
       this.showDynamicUiModal = true;
     }
 
-  private _handleEmptyTaskClick: (event: MouseEvent) => void =
+  private _handleEmptyActivityClick: (event: MouseEvent) => void =
     async(event: MouseEvent): Promise<void> => {
       const elementId: string = (event.target as HTMLDivElement).id;
       this.taskId = elementId;
 
-      const emptyTasksInProcessInstance: DataModels.EmptyActivities.EmptyActivityList =
+      const emptyActivitiesInProcessInstance: DataModels.EmptyActivities.EmptyActivityList =
         await this._managementApiClient.getEmptyActivitiesForProcessInstance(this.activeSolutionEntry.identity, this.processInstanceId);
 
-      const emptyTask: DataModels.EmptyActivities.EmptyActivity =
-        emptyTasksInProcessInstance.emptyActivities.find((activity: DataModels.EmptyActivities.EmptyActivity) => {
+      const emptyActivity: DataModels.EmptyActivities.EmptyActivity =
+        emptyActivitiesInProcessInstance.emptyActivities.find((activity: DataModels.EmptyActivities.EmptyActivity) => {
           return activity.id === this.taskId;
       });
 
       this._managementApiClient.finishEmptyActivity(this.activeSolutionEntry.identity,
                                                     this.processInstanceId,
                                                     this.correlationId,
-                                                    emptyTask.flowNodeInstanceId);
+                                                    emptyActivity.flowNodeInstanceId);
     }
 
   private _handleActiveCallActivityClick: (event: MouseEvent) => Promise<void> =
