@@ -331,64 +331,15 @@ export class LiveExecutionTracker {
 
     this._overlays.clear();
 
-    const elementsThatCanHaveAToken: Array<IShape> = this._getAllElementsThatCanHaveAToken();
-    const elementsWithActiveToken: Array<IShape> = await this._filterElementsWithActiveTokens(elementsThatCanHaveAToken);
-    const inactiveCallActivities: Array<IShape> = this._filterInactveCallActivities(elementsThatCanHaveAToken);
+    const elementsWithActiveToken: Array<IShape> = await this._liveExecutionTrackerService.getElementsWithActiveToken(this._elementRegistry,
+                                                                                                                      this.processInstanceId);
+    const inactiveCallActivities: Array<IShape> = await this._liveExecutionTrackerService.getElementsWithTokenHistory(this._elementRegistry,
+                                                                                                                      this.processInstanceId);
 
     this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
     this._addOverlaysToEmptyActivities(elementsWithActiveToken);
     this._addOverlaysToActiveCallActivities(elementsWithActiveToken);
     this._addOverlaysToInactiveCallActivities(inactiveCallActivities);
-  }
-
-  private _getAllElementsThatCanHaveAToken(): Array<IShape> {
-    const allElementsThatCanHaveAToken: Array<IShape> = this._elementRegistry.filter((element: IShape): boolean => {
-      const elementCanHaveAToken: boolean = element.type !== 'bpmn:SequenceFlow'
-                                         && element.type !== 'bpmn:Collaboration'
-                                         && element.type !== 'bpmn:Participant'
-                                         && element.type !== 'bpmn:Lane'
-                                         && element.type !== 'label';
-
-      return elementCanHaveAToken;
-    });
-
-    return allElementsThatCanHaveAToken;
-  }
-
-  private _filterInactveCallActivities(elements: Array<IShape>): Array<IShape> {
-    const inactiveCallActivities: Array<IShape> = elements.filter((element: IShape): boolean => {
-      const elementIsCallActivity: boolean = element.type === 'bpmn:CallActivity';
-
-      return elementIsCallActivity && this._elementHasActiveToken(element.id);
-    });
-
-    return inactiveCallActivities;
-  }
-
-  private async _filterElementsWithActiveTokens(elements: Array<IShape>): Promise<Array<IShape>> {
-    // Get all elements that already have an active token.
-    const elementsWithActiveToken: Array<IShape> = await this._getElementsWithActiveToken(elements);
-
-    // If the backend returned an error the diagram should not be rendered.
-    const couldNotGetActiveTokens: boolean = elementsWithActiveToken === null;
-    if (couldNotGetActiveTokens) {
-      throw new Error('Could not get ActiveTokens.');
-    }
-
-    return elementsWithActiveToken;
-  }
-
-  private async _filterElementsWithTokenHistory(elements: Array<IShape>): Promise<Array<IShape>> {
-    // Get all elements that already have a token.
-    const elementsWithTokenHistory: Array<IShape> = await this._getElementsWithTokenHistory(elements);
-
-    // If the backend returned an error the diagram should not be rendered.
-    const couldNotGetTokenHistory: boolean = elementsWithTokenHistory === null;
-    if (couldNotGetTokenHistory) {
-      throw new Error('Could not get TokenHistories.');
-    }
-
-    return elementsWithTokenHistory;
   }
 
   private _addOverlaysToEmptyActivities(elements: Array<IShape>): Array<string> {
@@ -630,7 +581,6 @@ export class LiveExecutionTracker {
     const errorGettingCorrelation: boolean = correlation === undefined;
     if (errorGettingCorrelation) {
       const notificationMessage: string = 'Could not get correlation. Please try to click on the call activity again.';
-
       this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
 
       return undefined;
@@ -677,114 +627,6 @@ export class LiveExecutionTracker {
     return activeTokenForFlowNodeInstance !== undefined;
   }
 
-  private async _getElementsWithActiveToken(elements: Array<IShape>): Promise<Array<IShape> | null> {
-    const activeTokens: Array<ActiveToken> | null = await this._liveExecutionTrackerService.getActiveTokensForProcessInstance(this.processInstanceId);
-
-    const couldNotGetActiveTokens: boolean = activeTokens === null;
-    if (couldNotGetActiveTokens) {
-      return null;
-    }
-
-    this._activeTokens = activeTokens;
-    const elementsWithActiveToken: Array<IShape> = this._activeTokens.map((activeToken: ActiveToken): IShape => {
-      const elementWithActiveToken: IShape = elements.find((element: IShape) => {
-        return element.id === activeToken.flowNodeId;
-      });
-
-      return elementWithActiveToken;
-    });
-
-    return elementsWithActiveToken;
-  }
-
-  private async _getElementsWithTokenHistory(elements: Array<IShape>): Promise<Array<IShape> | null> {
-
-    const tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup =
-      await this._liveExecutionTrackerService.getTokenHistoryGroupForProcessInstance(this.processInstanceId);
-
-    const couldNotGetTokenHistory: boolean = tokenHistoryGroups === null;
-    if (couldNotGetTokenHistory) {
-      return null;
-    }
-
-    const elementsWithTokenHistory: Array<IShape> = [];
-
-    for (const flowNodeId in tokenHistoryGroups) {
-      const elementFromTokenHistory: IShape = elements.find((element: IShape) => {
-        return element.id === flowNodeId;
-      });
-
-      const elementFinished: boolean = tokenHistoryGroups[flowNodeId].find((tokenHistoryEntry: TokenHistoryEntry) => {
-        return tokenHistoryEntry.tokenEventType === DataModels.TokenHistory.TokenEventType.onExit;
-      }) !== undefined;
-
-      if (elementFinished) {
-        const elementWithOutgoingElements: Array<IShape> = this._getElementWithOutgoingElements(elementFromTokenHistory, tokenHistoryGroups);
-
-        elementsWithTokenHistory.push(...elementWithOutgoingElements);
-      }
-    }
-
-    return elementsWithTokenHistory;
-  }
-
-  private _getElementWithOutgoingElements(element: IShape,
-                                          tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup): Array<IShape> {
-
-    const outgoingElementsAsIModdleElement: Array<IModdleElement> = element.businessObject.outgoing;
-
-   /*
-    * If the element has no outgoing source just return the element.
-    */
-    const elementHasOutgoingElements: boolean = outgoingElementsAsIModdleElement === undefined;
-    if (elementHasOutgoingElements) {
-      return [element];
-    }
-
-    const elementsWithOutgoingElements: Array<IShape> = [element];
-
-    for (const outgoingElement of outgoingElementsAsIModdleElement) {
-      const outgoingElementAsShape: IShape = this._elementRegistry.get(outgoingElement.id);
-      const targetOfOutgoingElement: IShape = outgoingElementAsShape.target;
-
-      const outgoingElementHasNoTarget: boolean = targetOfOutgoingElement === undefined;
-      if (outgoingElementHasNoTarget) {
-        continue;
-      }
-
-      const outgoingElementHasNoActiveToken: boolean = !this._elementHasActiveToken(targetOfOutgoingElement.id);
-      const targetOfOutgoingElementHasNoTokenHistory: boolean = !this._elementHasTokenHistory(targetOfOutgoingElement.id, tokenHistoryGroups);
-
-      if (outgoingElementHasNoActiveToken && targetOfOutgoingElementHasNoTokenHistory) {
-        continue;
-      }
-
-      const outgoingElementIsSequenceFlow: boolean = outgoingElementAsShape.type === 'bpmn:SequenceFlow';
-      if (outgoingElementIsSequenceFlow) {
-        const tokenHistoryForTarget: TokenHistoryEntry = tokenHistoryGroups[targetOfOutgoingElement.id][0];
-        const previousFlowNodeInstanceIdOfTarget: string = tokenHistoryForTarget.previousFlowNodeInstanceId;
-
-        const tokenHistoryForElement: TokenHistoryEntry = tokenHistoryGroups[element.id][0];
-        const flowNodeInstanceIdOfElement: string = tokenHistoryForElement.flowNodeInstanceId;
-
-        // This is needed because the ParallelGateway only knows the flowNodeId of the first element that reaches the ParallelGateway
-        const targetOfOutgoingElementIsGateway: boolean = targetOfOutgoingElement.type === 'bpmn:ParallelGateway';
-        const sequenceFlowWasExecuted: boolean = previousFlowNodeInstanceIdOfTarget === flowNodeInstanceIdOfElement;
-
-        const needToAddToOutgoingElements: boolean  = sequenceFlowWasExecuted || targetOfOutgoingElementIsGateway;
-        if (needToAddToOutgoingElements) {
-          elementsWithOutgoingElements.push(outgoingElementAsShape);
-        }
-
-        continue;
-      }
-
-      elementsWithOutgoingElements.push(outgoingElementAsShape);
-    }
-
-    return elementsWithOutgoingElements;
-  }
-
   private _colorizeElements(elements: Array<IShape>, color: IColorPickerColor): void {
     const noElementsToColorize: boolean = elements.length === 0;
     if (noElementsToColorize) {
@@ -795,23 +637,6 @@ export class LiveExecutionTracker {
       stroke: color.border,
       fill: color.fill,
     });
-  }
-
-  private _elementHasTokenHistory(elementId: string, tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup): boolean {
-
-    const tokenHistoryFromFlowNodeInstanceFound: boolean = tokenHistoryGroups[elementId] !== undefined;
-
-    return tokenHistoryFromFlowNodeInstanceFound;
-  }
-
-  private _elementHasActiveToken(elementId: string): boolean {
-    const activeTokenForFlowNodeInstance: ActiveToken = this._activeTokens.find((activeToken: ActiveToken) => {
-      const activeTokenIsFromFlowNodeInstance: boolean = activeToken.flowNodeId === elementId;
-
-      return activeTokenIsFromFlowNodeInstance;
-    });
-
-    return activeTokenForFlowNodeInstance !== undefined;
   }
 
   private async _getXml(): Promise<string> {
@@ -973,9 +798,11 @@ export class LiveExecutionTracker {
   }
 
   private async _getColorizedXml(): Promise<string> {
-    const elementsThatCanHaveAToken: Array<IShape> = this._getAllElementsThatCanHaveAToken();
-    const elementsWithActiveToken: Array<IShape> = await this._filterElementsWithActiveTokens(elementsThatCanHaveAToken);
-    const elementsWithTokenHistory: Array<IShape> = await this._filterElementsWithTokenHistory(elementsThatCanHaveAToken);
+    const elementsWithActiveToken: Array<IShape> = await this._liveExecutionTrackerService.getElementsWithActiveToken(this._elementRegistry,
+                                                                                                                      this.processInstanceId);
+
+    const elementsWithTokenHistory: Array<IShape> = await this._liveExecutionTrackerService.getElementsWithTokenHistory(this._elementRegistry,
+                                                                                                                        this.processInstanceId);
 
     const colorizedXml: string = await (async(): Promise<string> => {
       try {
