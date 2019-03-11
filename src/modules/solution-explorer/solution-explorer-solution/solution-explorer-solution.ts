@@ -253,6 +253,48 @@ export class SolutionExplorerSolution {
     this._renameDiagramInput = input;
   }
 
+  public activateContextMenu(event: MouseEvent, diagram: IDiagram): void {
+    this._diagramInContextMenu = diagram;
+
+    const contextMenuOffset: number = 80;
+    this.diagramContextMenu.style.top = `${event.y - contextMenuOffset}px`;
+    this.diagramContextMenu.style.left = `${event.x}px`;
+    this.showContextMenu = true;
+
+    const documentEventListener: EventListenerOrEventListenerObject = (): void => {
+      this.showContextMenu = false;
+      this._diagramInContextMenu = undefined;
+
+      document.removeEventListener('click', documentEventListener);
+    };
+
+    document.addEventListener('click', documentEventListener);
+  }
+
+  public async copyDiagram(): Promise<void> {
+    if (!this._diagramInContextMenu) { return; }
+
+    let newNameFound: boolean = false;
+    let newName: string;
+    let diagramNumber: number = 1;
+
+    while (newNameFound === false) {
+      newName = `${this._diagramInContextMenu.name} (${diagramNumber})`;
+
+      newNameFound = this.openedDiagrams.every((diagram: IDiagram) => {
+        return diagram.name !== newName;
+      });
+
+      diagramNumber += 1;
+    }
+
+    const copiedDiagram: IDiagram =
+      await this._diagramCreationService.createNewDiagram(this.displayedSolutionEntry.uri, newName, this._diagramInContextMenu.xml);
+
+    await this.solutionService.saveDiagram(copiedDiagram, copiedDiagram.uri);
+    this.updateSolution();
+  }
+
   /*
    * Called by the parent component to start the creation dialog of a new
    * diagram.
