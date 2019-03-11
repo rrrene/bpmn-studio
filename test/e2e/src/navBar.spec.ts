@@ -17,18 +17,13 @@ describe('NavBar', () => {
   let routerView: RouterView;
 
   const applicationUrl: string = browser.params.aureliaUrl;
-  const defaultTimeoutMS: number = browser.params.defaultTimeoutMS;
-
-  const expectedConditions: ProtractorExpectedConditions = protractor.ExpectedConditions;
 
   beforeAll(async() => {
     dashboard = new Dashboard(applicationUrl);
     navBar = new NavBar();
     routerView = new RouterView();
     solutionExplorer = new SolutionExplorer();
-  });
 
-  beforeEach(async() => {
     await routerView.show();
     await navBar.show();
   });
@@ -74,7 +69,6 @@ describe('NavBar', () => {
 
   it('should reopen the solution explorer on button click.', async() => {
     await navBar.clickOnSolutionExplorerButton();
-    await navBar.clickOnSolutionExplorerButton();
 
     const visibilityOfSolutionExplorer: boolean = await solutionExplorer.getVisbilityOfSolutionExplorer();
 
@@ -104,6 +98,9 @@ describe('NavBar', () => {
   });
 
   it('should navigate to the dashboard,  after clicking on the `inspect` button.', async() => {
+    await routerView.show();
+    await navBar.show();
+
     await navBar.clickOnInspectButton();
 
     const currentBrowserUrl: string = await browser.getCurrentUrl();
