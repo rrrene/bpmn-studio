@@ -80,7 +80,6 @@ export class LiveExecutionTracker {
   private _parentProcessInstanceId: string;
   private _parentProcessModelId: string;
   private _activeCallActivities: Array<IShape> = [];
-  private _processStopped: boolean = false;
 
   private _eventListenerSubscriptions: Array<Subscription> = [];
 
