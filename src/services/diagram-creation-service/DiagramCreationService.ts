@@ -1,13 +1,20 @@
-import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
-import {IDiagramCreationService} from '../../contracts';
+import {IModdleElement, IProcessRef} from '@process-engine/bpmn-elements_contracts';
+import * as bundle from '@process-engine/bpmn-js-custom-bundle';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+
+import {IBpmnModeler, IDiagramCreationService} from '../../contracts';
 
 export class DiagramCreationService implements IDiagramCreationService {
 
-  public createNewDiagram(solutionBaseUri: string, withName: string): IDiagram {
+  public async createNewDiagram(solutionBaseUri: string, withName: string, xml?: string): Promise<IDiagram> {
 
     const processName: string = withName.trim();
     const diagramUri: string = `${solutionBaseUri}/${processName}.bpmn`;
-    const processXML: string = this._getInitialProcessXML(processName);
+
+    const xmlGiven: boolean = xml !== undefined;
+    const processXML: string = xmlGiven
+                             ? await this._renameDiagram(xml, withName)
+                             : this._getInitialProcessXML(processName);
 
     const diagram: IDiagram = {
       id: processName,
@@ -17,6 +24,42 @@ export class DiagramCreationService implements IDiagramCreationService {
     };
 
     return diagram;
+  }
+
+  private async _renameDiagram(xml: string, name: string): Promise<string> {
+    const modeler: IBpmnModeler = new bundle.modeler({});
+
+    modeler.importXML(xml, (error: any) => {
+      // Do nothing for now
+    });
+
+    const promise: Promise<string> = new Promise((resolve: Function): void => {
+      modeler.on('import.done', () => {
+
+        const rootElements: Array<any> = modeler._definitions.rootElements;
+        const process: IProcessRef = rootElements.find((element: any) => {
+          return element.$type === 'bpmn:Process';
+        });
+
+        process.id = name;
+        process.name = name;
+
+        const collaboration: IModdleElement = rootElements.find((element: IModdleElement) => {
+          return element.$type === 'bpmn:Collaboration';
+        });
+        const participant: IModdleElement = collaboration.participants[0];
+
+        participant.name = name;
+        participant.processRef = process;
+
+        modeler.saveXML({}, (error: Error, result: string) => {
+          resolve(result);
+        });
+
+      });
+    });
+
+    return promise;
   }
 
   private _getInitialProcessXML(processModelId: string): string {
