@@ -83,7 +83,7 @@ export class DiagramWithUserTask {
 
       await this._http.post(requestDestination, requestPayload, requestHeaders);
 
-      browser.sleep(this._processEngineActionTimeout);
+      await browser.sleep(this._processEngineActionTimeout);
     }
 
     public async deleteDiagram(): Promise<void> {
@@ -111,7 +111,7 @@ export class DiagramWithUserTask {
                                   '/instance/' + this.processInstanceId +
                                   '/task/' + this.userTaskId;
 
-      browser.sleep(this._processEngineActionTimeout);
+      await browser.sleep(this._processEngineActionTimeout);
     }
 
     private _getRequestHeaders(): IRequestHeaders {

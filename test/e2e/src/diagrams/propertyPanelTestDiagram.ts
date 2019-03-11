@@ -323,7 +323,7 @@ export class PropertyPanelTestDiagram {
 
     await this._http.post(requestDestination, requestPayload, requestHeaders);
 
-    browser.sleep(this._processEngineActionTimeout);
+    await browser.sleep(this._processEngineActionTimeout);
   }
 
   public async deleteDiagram(): Promise<void> {
