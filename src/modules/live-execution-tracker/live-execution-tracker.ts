@@ -1,4 +1,4 @@
-import {bindable, computedFrom, inject, observable} from 'aurelia-framework';
+import {computedFrom, inject, observable} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
@@ -6,10 +6,8 @@ import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 import {DataModels} from '@process-engine/management_api_contracts';
 
 import {Subscription} from '@essential-projects/event_aggregator_contracts';
-import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
-import {ActiveToken} from '@process-engine/kpi_api_contracts';
-import {CorrelationProcessInstance} from '@process-engine/management_api_contracts/dist/data_models/correlation';
-import {TokenHistoryEntry} from '@process-engine/management_api_contracts/dist/data_models/token_history';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
+import {CorrelationProcessModel} from '@process-engine/management_api_contracts/dist/data_models/correlation';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
 import {
