@@ -232,8 +232,6 @@ export class LiveExecutionTracker {
     this._diagramViewer.destroy();
 
     this._diagramPreviewViewer.destroy();
-
-    this._stopPolling();
   }
 
   public determineActivationStrategy(): string {
@@ -718,10 +716,6 @@ export class LiveExecutionTracker {
     }
 
     await this._addOverlays();
-  }
-
-  private _stopPolling(): void {
-    clearTimeout(this._pollingTimer);
   }
 
   private async _getParentProcessInstanceId(): Promise<string> {
