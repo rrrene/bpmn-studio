@@ -2,19 +2,28 @@ import {inject} from 'aurelia-framework';
 
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
+import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 import {DataModels} from '@process-engine/management_api_contracts';
 import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_models/kpi';
+import {TokenHistoryEntry} from '@process-engine/management_api_contracts/dist/data_models/token_history';
 
-import { TokenHistoryEntry } from '@process-engine/management_api_contracts/dist/data_models/token_history';
-import {IElementRegistry} from '../../../contracts/index';
+import {defaultBpmnColors, IBpmnModeler, IBpmnXmlSaveOptions, IColorPickerColor, IElementRegistry, IModeling} from '../../../contracts/index';
 import {ILiveExecutionTrackerRepository, ILiveExecutionTrackerService} from '../contracts/index';
 
 @inject('LiveExecutionTrackerRepository')
 export class LiveExecutionTrackerService implements ILiveExecutionTrackerService {
   private _liveExecutionTrackerRepository: ILiveExecutionTrackerRepository;
 
+  private _diagramModeler: IBpmnModeler;
+  private _modeling: IModeling;
+  private _elementRegistry: IElementRegistry;
+
   constructor(liveExecutionTrackerRepository: ILiveExecutionTrackerRepository) {
     this._liveExecutionTrackerRepository = liveExecutionTrackerRepository;
+
+    this._diagramModeler = new bundle.modeler();
+    this._modeling = this._diagramModeler.get('modeling');
+    this._elementRegistry = this._diagramModeler.get('elementRegistry');
   }
 
   public setIdentity(identity: IIdentity): void {
@@ -74,8 +83,8 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     this._liveExecutionTrackerRepository.createEmptyActivityFinishedEventListener(correlationId, processStopped, callback);
   }
 
-  public async getElementsWithActiveToken(elementRegistry: IElementRegistry, processInstanceId: string): Promise<Array<IShape> | null> {
-    const elements: Array<IShape> = this.getAllElementsThatCanHaveAToken(elementRegistry);
+  public async getElementsWithActiveToken(processInstanceId: string): Promise<Array<IShape> | null> {
+    const elements: Array<IShape> = this.getAllElementsThatCanHaveAToken();
 
     const activeTokens: Array<ActiveToken> | null = await this.getActiveTokensForProcessInstance(processInstanceId);
     const couldNotGetActiveTokens: boolean = activeTokens === null;
@@ -95,9 +104,9 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return elementsWithActiveToken;
   }
 
-  public async getElementsWithTokenHistory(elementRegistry: IElementRegistry, processInstanceId: string): Promise<Array<IShape> | null> {
+  public async getElementsWithTokenHistory(processInstanceId: string): Promise<Array<IShape> | null> {
 
-    const elements: Array<IShape> = this.getAllElementsThatCanHaveAToken(elementRegistry);
+    const elements: Array<IShape> = this.getAllElementsThatCanHaveAToken();
 
     const tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup = await this.getTokenHistoryGroupForProcessInstance(processInstanceId);
 
@@ -122,8 +131,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
       if (elementFinished) {
         elementsWithTokenHistory.push(elementFromTokenHistory);
 
-        const outgoingElements: Array<IShape> = this.getOutgoingElementsOfElement(elementRegistry,
-                                                                                  elementFromTokenHistory,
+        const outgoingElements: Array<IShape> = this.getOutgoingElementsOfElement(elementFromTokenHistory,
                                                                                   tokenHistoryGroups,
                                                                                   activeTokens);
 
@@ -134,8 +142,8 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return elementsWithTokenHistory;
   }
 
-  public getAllElementsThatCanHaveAToken(elementRegistry: IElementRegistry): Array<IShape> {
-    const allElementsThatCanHaveAToken: Array<IShape> = elementRegistry.filter((element: IShape): boolean => {
+  public getAllElementsThatCanHaveAToken(): Array<IShape> {
+    const allElementsThatCanHaveAToken: Array<IShape> = this._elementRegistry.filter((element: IShape): boolean => {
       const elementCanHaveAToken: boolean = element.type !== 'bpmn:SequenceFlow'
                                          && element.type !== 'bpmn:Collaboration'
                                          && element.type !== 'bpmn:Participant'
@@ -148,8 +156,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return allElementsThatCanHaveAToken;
   }
 
-    public getOutgoingElementsOfElement(elementRegistry: IElementRegistry,
-                                        element: IShape,
+    public getOutgoingElementsOfElement(element: IShape,
                                         tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup,
                                         activeTokens: Array<ActiveToken>): Array<IShape> {
 
@@ -163,7 +170,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     const elementsWithOutgoingElements: Array<IShape> = [];
 
     for (const outgoingElement of outgoingElementsAsIModdleElement) {
-      const outgoingElementAsShape: IShape = elementRegistry.get(outgoingElement.id);
+      const outgoingElementAsShape: IShape = this._elementRegistry.get(outgoingElement.id);
       const targetOfOutgoingElement: IShape = outgoingElementAsShape.target;
 
       const outgoingElementHasNoTarget: boolean = targetOfOutgoingElement === undefined;
@@ -221,18 +228,18 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return activeTokenForFlowNodeInstance !== undefined;
   }
 
-  public getCallActivities(elementRegistry: IElementRegistry): Array<IShape> {
-    const callActivities: Array<IShape> = elementRegistry.filter((element: IShape): boolean => {
+  public getCallActivities(): Array<IShape> {
+    const callActivities: Array<IShape> = this._elementRegistry.filter((element: IShape): boolean => {
       return element.type === 'bpmn:CallActivity';
     });
 
     return callActivities;
   }
 
-  public async getActiveCallActivities(elementRegistry: IElementRegistry, processInstanceId: string): Promise<Array<IShape>> {
+  public async getActiveCallActivities(processInstanceId: string): Promise<Array<IShape>> {
     const activeTokens: Array<ActiveToken> = await this._liveExecutionTrackerRepository.getActiveTokensForProcessInstance(processInstanceId);
 
-    const callActivities: Array<IShape> = this.getCallActivities(elementRegistry);
+    const callActivities: Array<IShape> = this.getCallActivities();
 
     const inactiveCallActivities: Array<IShape> = callActivities.filter((callActivity: IShape) => {
       return this.elementHasActiveToken(callActivity.id, activeTokens);
@@ -241,10 +248,10 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return inactiveCallActivities;
   }
 
-  public async getInactiveCallActivities(elementRegistry: IElementRegistry, processInstanceId: string): Promise<Array<IShape>> {
+  public async getInactiveCallActivities(processInstanceId: string): Promise<Array<IShape>> {
     const activeTokens: Array<ActiveToken> = await this._liveExecutionTrackerRepository.getActiveTokensForProcessInstance(processInstanceId);
 
-    const callActivities: Array<IShape> = this.getCallActivities(elementRegistry);
+    const callActivities: Array<IShape> = this.getCallActivities();
 
     const inactiveCallActivities: Array<IShape> = callActivities.filter((callActivity: IShape) => {
       return !this.elementHasActiveToken(callActivity.id, activeTokens);
@@ -271,5 +278,89 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
       });
 
     return processModel;
+  }
+
+  public getElementById(elementId: string): IShape {
+    return this._elementRegistry.get(elementId);
+  }
+
+  public async importXmlIntoDiagramModeler(xml: string): Promise<void> {
+    const xmlImportPromise: Promise<void> = new Promise((resolve: Function, reject: Function): void => {
+      this._diagramModeler.importXML(xml, (importXmlError: Error) => {
+        if (importXmlError) {
+          reject(importXmlError);
+
+          return;
+        }
+        resolve();
+      });
+    });
+
+    return xmlImportPromise;
+  }
+
+  public async exportXmlFromDiagramModeler(): Promise<string> {
+    const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void =>  {
+      const xmlSaveOptions: IBpmnXmlSaveOptions = {
+        format: true,
+      };
+
+      this._diagramModeler.saveXML(xmlSaveOptions, async(saveXmlError: Error, xml: string) => {
+        if (saveXmlError) {
+          reject(saveXmlError);
+
+          return;
+        }
+
+        resolve(xml);
+      });
+    });
+
+    return saveXmlPromise;
+  }
+
+  public clearDiagramColors(): void {
+    const elementsWithColor: Array<IShape> = this._elementRegistry.filter((element: IShape): boolean => {
+      const elementHasFillColor: boolean = element.businessObject.di.fill !== undefined;
+      const elementHasBorderColor: boolean = element.businessObject.di.stroke !== undefined;
+
+      const elementHasColor: boolean = elementHasFillColor || elementHasBorderColor;
+
+      return elementHasColor;
+    });
+
+    const noElementsWithColor: boolean = elementsWithColor.length === 0;
+    if (noElementsWithColor) {
+      return;
+    }
+
+    this._modeling.setColor(elementsWithColor, {
+      stroke: defaultBpmnColors.none.border,
+      fill: defaultBpmnColors.none.fill,
+    });
+  }
+
+  public async getColorizedXml(processInstanceId: string): Promise<string> {
+    const elementsWithActiveToken: Array<IShape> = await this.getElementsWithActiveToken(processInstanceId);
+    const elementsWithTokenHistory: Array<IShape> = await this.getElementsWithTokenHistory(processInstanceId);
+
+    this._colorizeElements(elementsWithTokenHistory, defaultBpmnColors.green);
+    this._colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
+
+    const colorizedXml: string = await this.exportXmlFromDiagramModeler();
+
+    return colorizedXml;
+  }
+
+  private _colorizeElements(elements: Array<IShape>, color: IColorPickerColor): void {
+    const noElementsToColorize: boolean = elements.length === 0;
+    if (noElementsToColorize) {
+      return;
+    }
+
+    this._modeling.setColor(elements, {
+      stroke: color.border,
+      fill: color.fill,
+    });
   }
 }

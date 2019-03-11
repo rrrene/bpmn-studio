@@ -14,14 +14,14 @@ export interface ILiveExecutionTrackerService {
   getProcessModelById(processModelId: string): Promise<DataModels.ProcessModels.ProcessModel>;
   getTokenHistoryGroupForProcessInstance(processInstanceId: string): Promise<DataModels.TokenHistory.TokenHistoryGroup | null>;
 
-  getAllElementsThatCanHaveAToken(elementRegistry: IElementRegistry): Array<IShape>;
-  getElementsWithActiveToken(elementRegistry: IElementRegistry, processInstanceId: string): Promise<Array<IShape> | null>;
-  getElementsWithTokenHistory(elementRegistry: IElementRegistry, processInstanceId: string): Promise<Array<IShape> | null>;
-  getCallActivities(elementRegistry: IElementRegistry): Array<IShape>;
-  getActiveCallActivities(elementRegistry: IElementRegistry, processInstanceId: string): Promise<Array<IShape>>;
-  getInactiveCallActivities(elementRegistry: IElementRegistry, processInstanceId: string): Promise<Array<IShape>>;
-  getOutgoingElementsOfElement(elementRegistry: IElementRegistry,
-                               element: IShape,
+  getElementById(elementId: string): IShape;
+  getAllElementsThatCanHaveAToken(): Array<IShape>;
+  getElementsWithActiveToken(processInstanceId: string): Promise<Array<IShape> | null>;
+  getElementsWithTokenHistory(processInstanceId: string): Promise<Array<IShape> | null>;
+  getCallActivities(): Array<IShape>;
+  getActiveCallActivities(processInstanceId: string): Promise<Array<IShape>>;
+  getInactiveCallActivities(processInstanceId: string): Promise<Array<IShape>>;
+  getOutgoingElementsOfElement(element: IShape,
                                tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup,
                                activeTokens: Array<ActiveToken>): Array<IShape>;
 
@@ -29,6 +29,11 @@ export interface ILiveExecutionTrackerService {
   elementHasTokenHistory(elementId: string, tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup): boolean;
 
   setIdentity(identity: IIdentity): void;
+
+  importXmlIntoDiagramModeler(xml: string): Promise<void>;
+  exportXmlFromDiagramModeler(): Promise<string>;
+  clearDiagramColors(): void;
+  getColorizedXml(processInstanceId: string): Promise<string>;
 
   createProcessEndedEventListener(correlationId: string, callback: Function): void;
   createProcessTerminatedEventListener(correlationId: string, callback: Function): void;

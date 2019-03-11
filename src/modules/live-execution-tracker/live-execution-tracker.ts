@@ -66,11 +66,8 @@ export class LiveExecutionTracker {
   public processInstanceId: string;
   public taskId: string;
 
-  private _diagramModeler: IBpmnModeler;
   private _diagramViewer: IBpmnModeler;
   private _diagramPreviewViewer: IBpmnModeler;
-  private _modeling: IModeling;
-  private _elementRegistry: IElementRegistry;
   private _viewerCanvas: ICanvas;
   private _overlays: IOverlayManager;
 
@@ -154,8 +151,7 @@ export class LiveExecutionTracker {
     this._liveExecutionTrackerService.createEmptyActivityWaitingEventListener(this.correlationId, getProcessStopped, taskReachedCallback);
     this._liveExecutionTrackerService.createEmptyActivityFinishedEventListener(this.correlationId, getProcessStopped, taskFinishedCallback);
 
-    // Create Modeler & Viewer
-    this._diagramModeler = new bundle.modeler();
+    // Create Viewer
     this._diagramViewer = new bundle.viewer({
       additionalModules:
         [
@@ -174,8 +170,6 @@ export class LiveExecutionTracker {
       ],
     });
 
-    this._modeling = this._diagramModeler.get('modeling');
-    this._elementRegistry = this._diagramModeler.get('elementRegistry');
     this._viewerCanvas = this._diagramViewer.get('canvas');
     this._overlays = this._diagramViewer.get('overlays');
 
@@ -193,7 +187,7 @@ export class LiveExecutionTracker {
     }
 
     // Import the xml to the modeler to add colors to it
-    await this._importXmlIntoDiagramModeler(xml);
+    await this._liveExecutionTrackerService.importXmlIntoDiagramModeler(xml);
 
     // Colorize xml & Add overlays
     /*
@@ -202,18 +196,13 @@ export class LiveExecutionTracker {
      * the diagram, one would think in LiveExecutionTracker that the element is
      * active although it is not active.
     */
-    this._clearDiagramColors();
+    this._liveExecutionTrackerService.clearDiagramColors();
 
-    const colorizedXml: string = await this._getColorizedXml();
+    // Import the xml without colors to DiagramViewer
+    const xmlFromModeler: string = await this._liveExecutionTrackerService.exportXmlFromDiagramModeler();
+    await this._importXmlIntoDiagramViewer(xmlFromModeler);
 
-    const colorizingWasSuccessfull: boolean = colorizedXml !== undefined;
-    if (colorizingWasSuccessfull) {
-      await this._importXmlIntoDiagramViewer(colorizedXml);
-    } else {
-      const xmlFromModeler: string = await this._exportXmlFromDiagramModeler();
-
-      await this._importXmlIntoDiagramViewer(xmlFromModeler);
-    }
+    await this._handleElementColorization();
 
     await this._addOverlays();
 
@@ -317,24 +306,12 @@ export class LiveExecutionTracker {
     return parentProcessModel.processModelId;
   }
 
-  private async _colorizeXml(elementsWithTokenHistory: Array<IShape>, elementsWithActiveToken: Array<IShape>): Promise<string> {
-    // Colorize the found elements and add overlay to those that can be started.
-    this._colorizeElements(elementsWithTokenHistory, defaultBpmnColors.green);
-    this._colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
-
-    // Export the colored xml from the modeler
-    const colorizedXml: string = await this._exportXmlFromDiagramModeler();
-    return colorizedXml;
-  }
-
   private async _addOverlays(): Promise<void> {
 
     this._overlays.clear();
 
-    const elementsWithActiveToken: Array<IShape> = await this._liveExecutionTrackerService.getElementsWithActiveToken(this._elementRegistry,
-                                                                                                                      this.processInstanceId);
-    const inactiveCallActivities: Array<IShape> = await this._liveExecutionTrackerService.getInactiveCallActivities(this._elementRegistry,
-                                                                                                                    this.processInstanceId);
+    const elementsWithActiveToken: Array<IShape> = await this._liveExecutionTrackerService.getElementsWithActiveToken(this.processInstanceId);
+    const inactiveCallActivities: Array<IShape> = await this._liveExecutionTrackerService.getInactiveCallActivities(this.processInstanceId);
 
     this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
     this._addOverlaysToEmptyActivities(elementsWithActiveToken);
@@ -520,7 +497,7 @@ export class LiveExecutionTracker {
   private _handleActiveCallActivityClick: (event: MouseEvent) => Promise<void> =
     async(event: MouseEvent): Promise<void> => {
       const elementId: string = (event.target as HTMLDivElement).id;
-      const element: IShape = this._elementRegistry.get(elementId);
+      const element: IShape = this._liveExecutionTrackerService.getElementById(elementId);
       const callActivityTargetProcess: string = element.businessObject.calledElement;
 
       const callAcitivityHasNoTargetProcess: boolean = callActivityTargetProcess === undefined;
@@ -548,7 +525,7 @@ export class LiveExecutionTracker {
     private _handleCallActivityClick: (event: MouseEvent) => Promise<void> =
     async(event: MouseEvent): Promise<void> => {
       const elementId: string = (event.target as HTMLDivElement).id;
-      const element: IShape = this._elementRegistry.get(elementId);
+      const element: IShape = this._liveExecutionTrackerService.getElementById(elementId);
       const callActivityTargetProcess: string = element.businessObject.calledElement;
 
       const callActivityHasNoTargetProcess: boolean = callActivityTargetProcess === undefined;
@@ -627,18 +604,6 @@ export class LiveExecutionTracker {
     return activeTokenForFlowNodeInstance !== undefined;
   }
 
-  private _colorizeElements(elements: Array<IShape>, color: IColorPickerColor): void {
-    const noElementsToColorize: boolean = elements.length === 0;
-    if (noElementsToColorize) {
-      return;
-    }
-
-    this._modeling.setColor(elements, {
-      stroke: color.border,
-      fill: color.fill,
-    });
-  }
-
   private async _getXml(): Promise<string> {
     const correlation: DataModels.Correlations.Correlation = await this._liveExecutionTrackerService.getCorrelationById(this.correlationId);
 
@@ -659,27 +624,6 @@ export class LiveExecutionTracker {
     const xmlFromProcessModel: string = processModelFromCorrelation.xml;
 
     return xmlFromProcessModel;
-  }
-
-  private _clearDiagramColors(): void {
-    const elementsWithColor: Array<IShape> = this._elementRegistry.filter((element: IShape): boolean => {
-      const elementHasFillColor: boolean = element.businessObject.di.fill !== undefined;
-      const elementHasBorderColor: boolean = element.businessObject.di.stroke !== undefined;
-
-      const elementHasColor: boolean = elementHasFillColor || elementHasBorderColor;
-
-      return elementHasColor;
-    });
-
-    const noElementsWithColor: boolean = elementsWithColor.length === 0;
-    if (noElementsWithColor) {
-      return;
-    }
-
-    this._modeling.setColor(elementsWithColor, {
-      stroke: defaultBpmnColors.none.border,
-      fill: defaultBpmnColors.none.fill,
-    });
   }
 
   private async _importXmlIntoDiagramViewer(xml: string): Promise<void> {
@@ -732,51 +676,6 @@ export class LiveExecutionTracker {
     return xmlImportPromise;
   }
 
-  private async _importXmlIntoDiagramModeler(xml: string): Promise<void> {
-    const xmlIsNotLoaded: boolean = (xml === undefined || xml === null);
-
-    if (xmlIsNotLoaded) {
-      const notificationMessage: string = 'The xml could not be loaded. Please try to start the process again.';
-
-      this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
-
-      return;
-    }
-
-    const xmlImportPromise: Promise<void> = new Promise((resolve: Function, reject: Function): void => {
-      this._diagramModeler.importXML(xml, (importXmlError: Error) => {
-        if (importXmlError) {
-          reject(importXmlError);
-
-          return;
-        }
-        resolve();
-      });
-    });
-
-    return xmlImportPromise;
-  }
-
-  private async _exportXmlFromDiagramModeler(): Promise<string> {
-    const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
-      const xmlSaveOptions: IBpmnXmlSaveOptions = {
-        format: true,
-      };
-
-      this._diagramModeler.saveXML(xmlSaveOptions, async(saveXmlError: Error, xml: string) => {
-        if (saveXmlError) {
-          reject(saveXmlError);
-
-          return;
-        }
-
-        resolve(xml);
-      });
-    });
-
-    return saveXmlPromise;
-  }
-
   private async _exportXmlFromDiagramViewer(): Promise<string> {
     const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
       const xmlSaveOptions: IBpmnXmlSaveOptions = {
@@ -797,40 +696,23 @@ export class LiveExecutionTracker {
     return saveXmlPromise;
   }
 
-  private async _getColorizedXml(): Promise<string> {
-    const elementsWithActiveToken: Array<IShape> = await this._liveExecutionTrackerService.getElementsWithActiveToken(this._elementRegistry,
-                                                                                                                      this.processInstanceId);
-
-    const elementsWithTokenHistory: Array<IShape> = await this._liveExecutionTrackerService.getElementsWithTokenHistory(this._elementRegistry,
-                                                                                                                        this.processInstanceId);
-
-    const colorizedXml: string = await (async(): Promise<string> => {
-      try {
-        return await this._colorizeXml(elementsWithTokenHistory, elementsWithActiveToken);
-      } catch {
-        return undefined;
-      }
-    })();
-
-    const colorizingFailed: boolean = colorizedXml === undefined;
-    if (colorizingFailed) {
-      const notificationMessage: string = 'Could not get tokens. If the error persists, '
-                                        + 'try reopening the Live Execution Tracker or restarting the process.';
-
-      this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
-
-      return;
-    }
-
-    return colorizedXml;
-  }
-
   private async _handleElementColorization(): Promise<void> {
     const previousXml: string = await this._exportXmlFromDiagramViewer();
 
-    const colorizedXml: string = await this._getColorizedXml();
+    const colorizedXml: string | undefined = await (async(): Promise<string | undefined> => {
+      try {
+        return await this._liveExecutionTrackerService.getColorizedXml(this.processInstanceId);
+      } catch (error) {
+        const message: string = `Could not colorize XML: ${error}`;
+
+        this._notificationService.showNotification(NotificationType.ERROR, message);
+
+        return;
+      }
+    })();
 
     const colorizingWasSuccessfull: boolean = colorizedXml !== undefined;
+
     const xmlChanged: boolean = previousXml !== colorizedXml;
     if (xmlChanged && colorizingWasSuccessfull) {
       await this._importXmlIntoDiagramViewer(colorizedXml);
