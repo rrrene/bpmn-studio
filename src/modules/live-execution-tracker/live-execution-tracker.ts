@@ -76,7 +76,6 @@ export class LiveExecutionTracker {
   private _notificationService: NotificationService;
   private _solutionService: ISolutionService;
 
-  private _pollingTimer: NodeJS.Timer;
   private _attached: boolean;
   private _parentProcessInstanceId: string;
   private _parentProcessModelId: string;
