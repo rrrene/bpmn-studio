@@ -19,16 +19,14 @@ describe('Dashboard', () => {
 
     await diagram.deployDiagram();
     await diagram.startProcess();
+
+    await routerView.show();
+    await dashboard.show();
   });
 
   afterAll(async() => {
 
     await diagram.deleteDiagram();
-  });
-
-  beforeEach(async() => {
-    await routerView.show();
-    await dashboard.show();
   });
 
   it('should contain the process list.', async() => {
