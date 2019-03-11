@@ -14,6 +14,7 @@ export interface ILiveExecutionTrackerService {
   getProcessModelById(processModelId: string): Promise<DataModels.ProcessModels.ProcessModel>;
   getTokenHistoryGroupForProcessInstance(processInstanceId: string): Promise<DataModels.TokenHistory.TokenHistoryGroup | null>;
 
+  getProcessInstanceIdOfCallActivityTarget(correlationId: string, processInstanceIdOfOrigin: string, callActivityTargetId: string): Promise<string>;
   getElementById(elementId: string): IShape;
   getAllElementsThatCanHaveAToken(): Array<IShape>;
   getElementsWithActiveToken(processInstanceId: string): Promise<Array<IShape> | null>;

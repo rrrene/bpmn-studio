@@ -1,13 +1,14 @@
 import {inject} from 'aurelia-framework';
 
+import {Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 import {DataModels} from '@process-engine/management_api_contracts';
+import {CorrelationProcessModel} from '@process-engine/management_api_contracts/dist/data_models/correlation';
 import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_models/kpi';
 import {TokenHistoryEntry} from '@process-engine/management_api_contracts/dist/data_models/token_history';
 
-import {Subscription} from '@essential-projects/event_aggregator_contracts';
 import {defaultBpmnColors, IBpmnModeler, IBpmnXmlSaveOptions, IColorPickerColor, IElementRegistry, IModeling} from '../../../contracts/index';
 import {ILiveExecutionTrackerRepository, ILiveExecutionTrackerService} from '../contracts/index';
 
@@ -293,6 +294,28 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
   public getElementById(elementId: string): IShape {
     return this._elementRegistry.get(elementId);
+  }
+
+  public async getProcessInstanceIdOfCallActivityTarget(correlationId: string,
+                                                        processInstanceIdOfOrigin: string,
+                                                        callActivityTargetId: string): Promise<string> {
+
+    const correlation: DataModels.Correlations.Correlation = await this.getCorrelationById(correlationId);
+
+    const errorGettingCorrelation: boolean = correlation === undefined;
+    if (errorGettingCorrelation) {
+      return undefined;
+    }
+
+    const {processInstanceId} = correlation.processModels
+      .find((correlationProcessModel: CorrelationProcessModel): boolean => {
+        const targetProcessModelFound: boolean = correlationProcessModel.parentProcessInstanceId === processInstanceIdOfOrigin
+                                              && correlationProcessModel.processModelId === callActivityTargetId;
+
+        return targetProcessModelFound;
+      });
+
+    return processInstanceId;
   }
 
   public async importXmlIntoDiagramModeler(xml: string): Promise<void> {

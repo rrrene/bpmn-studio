@@ -479,7 +479,13 @@ export class LiveExecutionTracker {
         this._notificationService.showNotification(NotificationType.INFO, notificationMessage);
       }
 
-      const targetProcessInstanceId: string = await this._getProcessInstanceIdOfCallActivityTarget(callActivityTargetProcess);
+      const targetProcessInstanceId: string =
+        await this._liveExecutionTrackerService.getProcessInstanceIdOfCallActivityTarget(this.correlationId,
+                                                                                         this.processInstanceId,
+                                                                                         callActivityTargetProcess);
+
+      const notificationMessage: string = 'Could not get correlation. Please try to click on the call activity again.';
+      this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
 
       const errorGettingTargetProcessInstanceId: boolean = targetProcessInstanceId === undefined;
       if (errorGettingTargetProcessInstanceId) {
@@ -522,28 +528,6 @@ export class LiveExecutionTracker {
     const processModel: DataModels.ProcessModels.ProcessModel = await this._liveExecutionTrackerService.getProcessModelById(processModelId);
 
     return processModel.xml;
-  }
-
-  private async _getProcessInstanceIdOfCallActivityTarget(callActivityTargetId: string): Promise<string> {
-    const correlation: DataModels.Correlations.Correlation = await this._liveExecutionTrackerService.getCorrelationById(this.correlationId);
-
-    const errorGettingCorrelation: boolean = correlation === undefined;
-    if (errorGettingCorrelation) {
-      const notificationMessage: string = 'Could not get correlation. Please try to click on the call activity again.';
-      this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
-
-      return undefined;
-    }
-
-    const callActivityTarget: CorrelationProcessInstance = correlation.processInstances
-      .find((correlationProcessModel: CorrelationProcessInstance): boolean => {
-        const targetProcessModelFound: boolean = correlationProcessModel.parentProcessInstanceId === this.processInstanceId
-          && correlationProcessModel.processModelId === callActivityTargetId;
-
-        return targetProcessModelFound;
-      });
-
-    return callActivityTarget.processInstanceId;
   }
 
   private _elementClickHandler: (event: IEvent) => Promise<void> = async(event: IEvent) => {
