@@ -77,7 +77,6 @@ export class LiveExecutionTracker {
 
   private _pollingTimer: NodeJS.Timer;
   private _attached: boolean;
-  private _activeTokens: Array<ActiveToken>;
   private _parentProcessInstanceId: string;
   private _parentProcessModelId: string;
   private _activeCallActivities: Array<IShape> = [];
