@@ -17,6 +17,9 @@ export interface ILiveExecutionTrackerService {
   getAllElementsThatCanHaveAToken(elementRegistry: IElementRegistry): Array<IShape>;
   getElementsWithActiveToken(elementRegistry: IElementRegistry, processInstanceId: string): Promise<Array<IShape> | null>;
   getElementsWithTokenHistory(elementRegistry: IElementRegistry, processInstanceId: string): Promise<Array<IShape> | null>;
+  getCallActivities(elementRegistry: IElementRegistry): Array<IShape>;
+  getActiveCallActivities(elementRegistry: IElementRegistry, processInstanceId: string): Promise<Array<IShape>>;
+  getInactiveCallActivities(elementRegistry: IElementRegistry, processInstanceId: string): Promise<Array<IShape>>;
   getOutgoingElementsOfElement(elementRegistry: IElementRegistry,
                                element: IShape,
                                tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup,

@@ -221,6 +221,38 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return activeTokenForFlowNodeInstance !== undefined;
   }
 
+  public getCallActivities(elementRegistry: IElementRegistry): Array<IShape> {
+    const callActivities: Array<IShape> = elementRegistry.filter((element: IShape): boolean => {
+      return element.type === 'bpmn:CallActivity';
+    });
+
+    return callActivities;
+  }
+
+  public async getActiveCallActivities(elementRegistry: IElementRegistry, processInstanceId: string): Promise<Array<IShape>> {
+    const activeTokens: Array<ActiveToken> = await this._liveExecutionTrackerRepository.getActiveTokensForProcessInstance(processInstanceId);
+
+    const callActivities: Array<IShape> = this.getCallActivities(elementRegistry);
+
+    const inactiveCallActivities: Array<IShape> = callActivities.filter((callActivity: IShape) => {
+      return this.elementHasActiveToken(callActivity.id, activeTokens);
+    });
+
+    return inactiveCallActivities;
+  }
+
+  public async getInactiveCallActivities(elementRegistry: IElementRegistry, processInstanceId: string): Promise<Array<IShape>> {
+    const activeTokens: Array<ActiveToken> = await this._liveExecutionTrackerRepository.getActiveTokensForProcessInstance(processInstanceId);
+
+    const callActivities: Array<IShape> = this.getCallActivities(elementRegistry);
+
+    const inactiveCallActivities: Array<IShape> = callActivities.filter((callActivity: IShape) => {
+      return !this.elementHasActiveToken(callActivity.id, activeTokens);
+    });
+
+    return inactiveCallActivities;
+  }
+
   public async getProcessModelByProcessInstanceId(correlationId: string,
                                                   processInstanceId: string): Promise<DataModels.Correlations.CorrelationProcessModel> {
 

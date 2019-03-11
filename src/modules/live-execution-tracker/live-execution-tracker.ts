@@ -333,8 +333,8 @@ export class LiveExecutionTracker {
 
     const elementsWithActiveToken: Array<IShape> = await this._liveExecutionTrackerService.getElementsWithActiveToken(this._elementRegistry,
                                                                                                                       this.processInstanceId);
-    const inactiveCallActivities: Array<IShape> = await this._liveExecutionTrackerService.getElementsWithTokenHistory(this._elementRegistry,
-                                                                                                                      this.processInstanceId);
+    const inactiveCallActivities: Array<IShape> = await this._liveExecutionTrackerService.getInactiveCallActivities(this._elementRegistry,
+                                                                                                                    this.processInstanceId);
 
     this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
     this._addOverlaysToEmptyActivities(elementsWithActiveToken);
