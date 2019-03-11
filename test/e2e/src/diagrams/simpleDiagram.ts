@@ -47,6 +47,8 @@ export class SimpleDiagram {
     const requestHeaders: IRequestHeaders = this._getRequestHeaders();
 
     await this._http.post(requestDestination, requestPayload, requestHeaders);
+
+    browser.sleep(1000);
   }
 
   public async deleteDiagram(): Promise<void> {
@@ -67,6 +69,8 @@ export class SimpleDiagram {
       this.correlationId = jsonBody['correlationId'];
       this.processInstanceId = jsonBody['processInstanceId'];
     });
+
+    browser.sleep(1000);
   }
 
   private _getRequestHeaders(): IRequestHeaders {

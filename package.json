@@ -105,9 +105,15 @@
   "dependencies": {
     "@essential-projects/errors_ts": "1.4.4",
     "@fortawesome/fontawesome-free": "^5.1.0",
+<<<<<<< 70b47983c0aa27942a3bec17fd7fe2b5895834a8
     "@process-engine/bpmn-js-custom-bundle": "2.6.1",
     "@process-engine/bpmn-lint_rules": "1.4.0",
     "@process-engine/management_api_client": "4.1.0",
+=======
+    "@process-engine/bpmn-js-custom-bundle": "2.5.1-facb057d-b23",
+    "@process-engine/bpmn-lint_rules": "1.3.0-eb2e4859-b8",
+    "@process-engine/management_api_client": "4.1.0-ecf3790d-b71",
+>>>>>>> :construction: Wait After Deploy and Start of Processes
     "@process-engine/process_engine_runtime": "7.1.1",
     "@process-engine/solutionexplorer.repository.filesystem": "4.0.1",
     "@process-engine/solutionexplorer.repository.management_api": "3.0.0",
