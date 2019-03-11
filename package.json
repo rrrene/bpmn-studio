@@ -1,7 +1,7 @@
 {
   "name": "bpmn-studio",
   "description": "An Aurelia application for designing BPMN diagrams, which can also be connected to a process engine to execute these diagrams.",
-  "version": "4.24.0",
+  "version": "4.24.1",
   "author": {
     "name": "process-engine",
     "email": "hello@process-engine.io",
