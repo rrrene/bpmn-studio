@@ -265,7 +265,7 @@ export class NavBar {
     }
 
     if (this.validationError) {
-      return 'There was a problem with this diagram. Please check the linter for more Information.';
+      return 'There was a problem with this diagram. Please check the linter for more information.';
     }
 
     return 'Deploy to ProcessEngine';
@@ -277,7 +277,7 @@ export class NavBar {
     }
 
     if (this.validationError) {
-      return 'There was a problem with this diagram. Please check the linter for more Information.';
+      return 'There was a problem with this diagram. Please check the linter for more information.';
     }
 
     return 'Start Process';
@@ -285,7 +285,7 @@ export class NavBar {
 
   public get saveButtonTitle(): string {
     if (this.validationError && this.savingTargetIsRemoteSolution) {
-      return 'There was a problem with this diagram. Please check the linter for more Information.';
+      return 'There was a problem with this diagram. Please check the linter for more information.';
     }
 
     return 'Save Diagram';
