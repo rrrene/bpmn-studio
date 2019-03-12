@@ -7,24 +7,23 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
 
 import {
-  IBooleanFormField,
   IDynamicUiService,
-  IEnumFormField,
   ISolutionEntry,
-  IStringFormField,
 } from '../../contracts';
+
+enum ButtonClickActions {
+  cancel = 'cancel',
+  proceed = 'proceed',
+  decline = 'decline',
+}
 
 @inject('DynamicUiService', Router, Element)
 export class DynamicUiWrapper {
 
-  public cancelButtonText: string = 'Cancel';
-  public confirmButtonText: string = 'Continue';
-  public declineButtonText: string = 'Decline';
-  public onButtonClick: (action: 'cancel' | 'proceed' | 'decline') => void;
-  @bindable({changeHandler: 'userTaskChanged'}) public currentUserTask: DataModels.UserTasks.UserTask;
-  @bindable({changeHandler: 'manualTaskChanged'}) public currentManualTask: DataModels.ManualTasks.ManualTask;
-  @bindable() public isConfirmUserTask: boolean = false;
-  @bindable() public isFormUserTask: boolean = false;
+  public onButtonClick: (action: ButtonClickActions) => void;
+  @bindable() public currentUserTask: DataModels.UserTasks.UserTask;
+  @bindable() public currentManualTask: DataModels.ManualTasks.ManualTask;
+
   @bindable() public isModal: boolean;
 
   private _element: Element;
@@ -52,8 +51,11 @@ export class DynamicUiWrapper {
     this._activeSolutionEntry = solutionEntry;
   }
 
-  public async handleUserTaskButtonClick(action: 'cancel' | 'proceed' | 'decline'): Promise<void> {
-    const actionCanceled: boolean = action === 'cancel';
+  public async handleUserTaskButtonClick(action: ButtonClickActions,
+                                         userTask: DataModels.UserTasks.UserTask,
+                                         results: DataModels.UserTasks.UserTaskResult): Promise<void> {
+
+    const actionCanceled: boolean = action === ButtonClickActions.cancel;
 
     if (actionCanceled) {
       this._cancelTask();
@@ -61,27 +63,11 @@ export class DynamicUiWrapper {
       return;
     }
 
-    if (this.isConfirmUserTask) {
-      const formFields: Array<DataModels.UserTasks.UserTaskFormField> = this.currentUserTask.data.formFields;
-
-      const booleanFormFieldIndex: number = formFields.findIndex((formField: DataModels.UserTasks.UserTaskFormField) => {
-        return formField.type === DataModels.UserTasks.UserTaskFormFieldType.boolean;
-      });
-
-      const hasBooleanFormField: boolean = formFields[booleanFormFieldIndex] !== undefined;
-
-      if (hasBooleanFormField) {
-        (formFields[booleanFormFieldIndex] as IBooleanFormField).value = action === 'proceed';
-      }
-
-      this._finishUserTask(action);
-    } else if (this.isFormUserTask) {
-      this._finishUserTask(action);
-    }
+    this._finishUserTask(action, userTask, results);
   }
 
-  public async handleManualTaskButtonClick(action: 'cancel' | 'proceed'): Promise<void> {
-    const actionCanceled: boolean = action === 'cancel';
+  public async handleManualTaskButtonClick(action: ButtonClickActions): Promise<void> {
+    const actionCanceled: boolean = action === ButtonClickActions.cancel;
 
     if (actionCanceled) {
       this._cancelTask();
@@ -90,39 +76,6 @@ export class DynamicUiWrapper {
     }
 
     this._finishManualTask();
-  }
-
-  public userTaskChanged(newUserTask: DataModels.UserTasks.UserTask): void {
-    const isUserTaskEmpty: boolean = newUserTask === undefined;
-    if (isUserTaskEmpty) {
-      return;
-    }
-
-    const preferredControlSet: boolean = newUserTask.data.preferredControl !== undefined;
-
-    this.isConfirmUserTask = preferredControlSet
-      ? newUserTask.data.preferredControl.toLowerCase() === 'confirm'
-      : false;
-
-    this.isFormUserTask = !this.isConfirmUserTask;
-
-    if (this.isConfirmUserTask) {
-      this.confirmButtonText = 'Confirm';
-      this.declineButtonText = 'Decline';
-    } else {
-      this.confirmButtonText = 'Continue';
-      this.declineButtonText = '';
-    }
-  }
-
-  public manualTaskChanged(newManualTask: DataModels.ManualTasks.ManualTask): void {
-    const isManualTaskEmpty: boolean = newManualTask === undefined;
-    if (isManualTaskEmpty) {
-      return;
-    }
-
-    this.confirmButtonText = 'Continue';
-    this.declineButtonText = '';
   }
 
   public get isHandlingManualTask(): boolean {
@@ -148,23 +101,22 @@ export class DynamicUiWrapper {
     });
   }
 
-  private _finishUserTask(action: 'cancel' | 'proceed' | 'decline'): Promise<void> {
+  private _finishUserTask(action: ButtonClickActions,
+                          userTask: DataModels.UserTasks.UserTask,
+                          results: DataModels.UserTasks.UserTaskResult): Promise<void> {
+
     const noUserTaskKnown: boolean = !this.isHandlingUserTask;
 
     if (noUserTaskKnown) {
       return;
     }
 
-    const correlationId: string = this.currentUserTask.correlationId;
-    const processInstanceId: string = this.currentUserTask.processInstanceId;
-    const userTaskInstanceId: string = this.currentUserTask.flowNodeInstanceId;
-    const userTaskResult: DataModels.UserTasks.UserTaskResult = this._getUserTaskResults();
-
+    const {correlationId, processInstanceId, flowNodeInstanceId} = userTask;
     this._dynamicUiService.finishUserTask(this._identity,
                                           processInstanceId,
                                           correlationId,
-                                          userTaskInstanceId,
-                                          userTaskResult);
+                                          flowNodeInstanceId,
+                                          results);
 
     this.currentUserTask = undefined;
 
@@ -194,27 +146,7 @@ export class DynamicUiWrapper {
 
     const buttonClickHandlerExists: boolean = this.onButtonClick !== undefined;
     if (buttonClickHandlerExists) {
-      this.onButtonClick('proceed');
+      this.onButtonClick(ButtonClickActions.proceed);
     }
   }
-
-  private _getUserTaskResults(): DataModels.UserTasks.UserTaskResult {
-    const userTaskResult: DataModels.UserTasks.UserTaskResult = {
-      formFields: {},
-    };
-
-    const currentFormFields: Array<DataModels.UserTasks.UserTaskFormField> = this.currentUserTask.data.formFields;
-
-    currentFormFields.forEach((formField: IStringFormField | IEnumFormField | IBooleanFormField) => {
-      const formFieldId: string = formField.id;
-
-      const formFieldValue: string | boolean = formField.value;
-      const formFieldStringValue: string = formFieldValue !== undefined ? formFieldValue.toString() : undefined;
-
-      userTaskResult.formFields[formFieldId] = formFieldStringValue;
-    });
-
-    return userTaskResult;
-  }
-
 }

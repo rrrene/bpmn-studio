@@ -34,7 +34,8 @@ type RouteParameters = {
   diagramName: string,
   solutionUri: string,
   correlationId: string,
-  processInstanceId: string;
+  processInstanceId: string,
+  taskId?: string,
 };
 
 enum RequestError {
@@ -119,6 +120,15 @@ export class LiveExecutionTracker {
     this._parentProcessInstanceId = await this._getParentProcessInstanceId();
     this._parentProcessModelId = await this._getParentProcessModelId();
 
+    const routeParameterContainTaskId: boolean = routeParameters.taskId !== undefined
+                                              && routeParameters.taskId !== null
+                                              && routeParameters.taskId !== '';
+
+    if (routeParameterContainTaskId) {
+      this.taskId = routeParameters.taskId;
+      this.showDynamicUiModal = true;
+    }
+
     this.correlation = await this._managementApiClient.getCorrelationById(this.activeSolutionEntry.identity, this.correlationId);
 
     // This is needed to make sure the SolutionExplorerService is completely initiated
@@ -133,11 +143,11 @@ export class LiveExecutionTracker {
     this._diagramModeler = new bundle.modeler();
     this._diagramViewer = new bundle.viewer({
       additionalModules:
-      [
-        bundle.ZoomScrollModule,
-        bundle.MoveCanvasModule,
-        bundle.MiniMap,
-      ],
+        [
+          bundle.ZoomScrollModule,
+          bundle.MoveCanvasModule,
+          bundle.MiniMap,
+        ],
     });
 
     this._diagramPreviewViewer = new bundle.viewer({
@@ -283,7 +293,7 @@ export class LiveExecutionTracker {
     }
 
     const parentProcessModel: DataModels.Correlations.CorrelationProcessModel =
-     await this._getProcessModelByProcessInstanceId(this._parentProcessInstanceId);
+      await this._getProcessModelByProcessInstanceId(this._parentProcessInstanceId);
 
     const parentProcessModelNotFound: boolean = parentProcessModel === undefined;
     if (parentProcessModelNotFound) {
@@ -413,7 +423,7 @@ export class LiveExecutionTracker {
       return elementIsAUserOrManualTask;
     });
 
-    const activeManualAndUserTaskIds: Array<string> =  activeManualAndUserTasks.map((element: IShape) => element.id).sort();
+    const activeManualAndUserTaskIds: Array<string> = activeManualAndUserTasks.map((element: IShape) => element.id).sort();
 
     const elementsWithActiveTokenDidNotChange: boolean =
       activeManualAndUserTaskIds.toString() === this._previousManualAndUserTaskIdsWithActiveToken.toString();
@@ -669,7 +679,7 @@ export class LiveExecutionTracker {
     const callActivityTarget: CorrelationProcessModel = correlation.processModels
       .find((correlationProcessModel: CorrelationProcessModel): boolean => {
         const targetProcessModelFound: boolean = correlationProcessModel.parentProcessInstanceId === this.processInstanceId
-                                              && correlationProcessModel.processModelId === callActivityTargetId;
+          && correlationProcessModel.processModelId === callActivityTargetId;
 
         return targetProcessModelFound;
       });
@@ -680,7 +690,32 @@ export class LiveExecutionTracker {
   private _elementClickHandler: (event: IEvent) => Promise<void> = async(event: IEvent) => {
     const clickedElement: IShape = event.element;
 
-    this.selectedFlowNode = clickedElement;
+    this.selectedFlowNode = event.element;
+
+    const clickedElementIsNotAUserOrManualTask: boolean = clickedElement.type !== 'bpmn:UserTask'
+                                                       && clickedElement.type !== 'bpmn:ManualTask';
+
+    if (clickedElementIsNotAUserOrManualTask) {
+      return;
+    }
+
+    const elementHasNoActiveToken: boolean = !this._hasElementActiveToken(clickedElement.id);
+    if (elementHasNoActiveToken) {
+      return;
+    }
+
+    this.showDynamicUiModal = true;
+    this.taskId = clickedElement.id;
+  }
+
+  private _hasElementActiveToken(elementId: string): boolean {
+    const activeTokenForFlowNodeInstance: ActiveToken = this._activeTokens.find((activeToken: ActiveToken) => {
+      const activeTokenIsFromFlowNodeInstance: boolean = activeToken.flowNodeId === elementId;
+
+      return activeTokenIsFromFlowNodeInstance;
+    });
+
+    return activeTokenForFlowNodeInstance !== undefined;
   }
 
   private async _getElementsWithActiveToken(elements: Array<IShape>): Promise<Array<IShape> | null> {
@@ -730,7 +765,7 @@ export class LiveExecutionTracker {
       return null;
     };
 
-    const tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup =  await getTokenHistoryGroup();
+    const tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup = await getTokenHistoryGroup();
 
     const couldNotGetTokenHistory: boolean = tokenHistoryGroups === null;
     if (couldNotGetTokenHistory) {
@@ -977,7 +1012,7 @@ export class LiveExecutionTracker {
   }
 
   private async _exportXmlFromDiagramModeler(): Promise<string> {
-    const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void =>  {
+    const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
       const xmlSaveOptions: IBpmnXmlSaveOptions = {
         format: true,
       };
@@ -997,7 +1032,7 @@ export class LiveExecutionTracker {
   }
 
   private async _exportXmlFromDiagramViewer(): Promise<string> {
-    const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void =>  {
+    const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
       const xmlSaveOptions: IBpmnXmlSaveOptions = {
         format: true,
       };
@@ -1120,7 +1155,7 @@ export class LiveExecutionTracker {
     const allActiveCorrelationsOrRequestError: Array<DataModels.Correlations.Correlation> | RequestError = await getActiveCorrelations();
 
     const couldNotGetCorrelation: boolean = allActiveCorrelationsOrRequestError === RequestError.ConnectionLost
-                                         || allActiveCorrelationsOrRequestError === RequestError.OtherError;
+      || allActiveCorrelationsOrRequestError === RequestError.OtherError;
     if (couldNotGetCorrelation) {
       const requestError: RequestError = (allActiveCorrelationsOrRequestError as RequestError);
 
@@ -1139,7 +1174,7 @@ export class LiveExecutionTracker {
     }
 
     return !correlationIsNotActive;
- }
+  }
 
   private _correlationEnded(): void {
     this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');

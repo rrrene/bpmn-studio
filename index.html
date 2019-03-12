@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
   <head>
     <meta charset="utf-8">
     <title>BPMN-Studio</title>
@@ -14,6 +15,7 @@
         document.getElementsByTagName('head')[0].appendChild(base);
       }
     </script>
+    <script src="node_modules/@process-engine/dynamic_ui_core/dist/webcomponent/dynamic-task-components.js"></script>
   </head>
 
   <body>
@@ -34,11 +36,7 @@
         }
       </script>
       <script src="scripts/vendor-bundle.js" data-main="aurelia-bootstrapper"></script>
-      <script>
-        // this disables a bluebird-memory-leak and drastically improves performance!
-        // see https://github.com/aurelia/framework/issues/755
-        Promise.config({ longStackTraces: false });
-      </script>
     </div>
   </body>
+
 </html>
