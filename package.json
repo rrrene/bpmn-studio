@@ -108,7 +108,7 @@
     "@process-engine/bpmn-js-custom-bundle": "2.6.1-c5da89a1-b26",
     "@process-engine/bpmn-lint_rules": "1.4.0-11da98ee-b10",
     "@process-engine/management_api_client": "4.1.0-ecf3790d-b71",
-    "@process-engine/process_engine_runtime": "7.2.0-dd5b9693-b286",
+    "@process-engine/process_engine_runtime": "feature~call_activity_termination",
     "@process-engine/dynamic_ui_core": "1.2.0-226e8395-b25",
     "@process-engine/solutionexplorer.repository.filesystem": "4.0.1",
     "@process-engine/solutionexplorer.repository.management_api": "3.0.0",
