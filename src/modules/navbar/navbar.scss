@@ -33,6 +33,7 @@ button {
   display: flex;
   flex: 1 100%;
   align-items: center;
+  overflow: hidden;
 }
 
 .menu-bar__menu--right {
@@ -109,7 +110,10 @@ button {
 }
 
 .menu__element--title {
-  margin-bottom: 1px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 0 0 1px 0;
 }
 
 .menu-bar__menu-center--back-button {
@@ -128,7 +132,7 @@ button {
 
 .process-details-title {
   float: left;
-  max-width: 220px;
+  max-width: 100%;
   margin-left: 5px;
   overflow: hidden;
   text-overflow: ellipsis;
