@@ -20,7 +20,7 @@ export class DiagramDetail {
   }
 
   public async clickOnElement(elementId: string): Promise<void> {
-    browser.wait(ExpectedConditions.visibilityOf(this._bpmnIoContainer), browser.params.defaultTimeoutMS);
+    await browser.wait(ExpectedConditions.visibilityOf(this._bpmnIoContainer), browser.params.defaultTimeoutMS);
 
     const cssString: string = `[data-element-id="${elementId}"]`;
 

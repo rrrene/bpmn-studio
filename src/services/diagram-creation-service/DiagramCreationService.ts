@@ -1,10 +1,20 @@
+import {inject} from 'aurelia-framework';
+
 import {IModdleElement, IProcessRef} from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import {IBpmnModeler, IDiagramCreationService} from '../../contracts';
+import {IBpmnModeler, IDiagramCreationService, NotificationType} from '../../contracts/index';
+import { NotificationService } from '../notification-service/notification.service';
 
+@inject('NotificationService')
 export class DiagramCreationService implements IDiagramCreationService {
+
+  private _notificationService: NotificationService;
+
+  constructor(notificationService: NotificationService) {
+    this._notificationService = notificationService;
+  }
 
   public async createNewDiagram(solutionBaseUri: string, withName: string, xml?: string): Promise<IDiagram> {
 
@@ -29,11 +39,11 @@ export class DiagramCreationService implements IDiagramCreationService {
   private async _renameDiagram(xml: string, name: string): Promise<string> {
     const modeler: IBpmnModeler = new bundle.modeler({});
 
-    modeler.importXML(xml, (error: any) => {
-      // Do nothing for now
+    modeler.importXML(xml, (error: Error) => {
+      this._notificationService.showNotification(NotificationType.ERROR, `Failed to copy diagram. ${error.message}`);
     });
 
-    const promise: Promise<string> = new Promise((resolve: Function): void => {
+    const promise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
       modeler.on('import.done', () => {
 
         const rootElements: Array<any> = modeler._definitions.rootElements;
@@ -53,6 +63,12 @@ export class DiagramCreationService implements IDiagramCreationService {
         participant.processRef = process;
 
         modeler.saveXML({}, (error: Error, result: string) => {
+          const errorOccured: boolean = error !== undefined;
+          if (errorOccured) {
+            this._notificationService.showNotification(NotificationType.ERROR, `Failed to copy diagram. ${error.message}`);
+            return reject(error);
+          }
+
           resolve(result);
         });
 
