@@ -273,7 +273,7 @@ export class NavBar {
 
   public get startButtonTitle(): string {
     if (this.disableStartButton) {
-      return 'Before starting the process please deploy it to the ProcessEngine.';
+      return 'Please deploy the process to a ProcessEngine before starting it.';
     }
 
     if (this.validationError) {
