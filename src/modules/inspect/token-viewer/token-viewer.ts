@@ -53,8 +53,13 @@ export class TokenViewer {
   }
 
   public flowNodeChanged(newFlowNode: IShape): Promise<void> {
-    const flowNodeIsSequenceFlow: boolean = newFlowNode.type === 'bpmn:SequenceFlow';
-    if (flowNodeIsSequenceFlow) {
+    const flowNodeCannotHaveTokenHistory: boolean = newFlowNode.type === 'bpmn:Participant'
+                                                 || newFlowNode.type === 'bpmn:Collaboration'
+                                                 || newFlowNode.type === 'bpmn:Lane'
+                                                 || newFlowNode.type === 'bpmn:LaneSet'
+                                                 || newFlowNode.type === 'bpmn:SequenceFlow';
+
+    if (flowNodeCannotHaveTokenHistory) {
       this.shouldShowFlowNodeId = false;
       this.showTokenEntries = false;
       this.tokenEntries = [];
