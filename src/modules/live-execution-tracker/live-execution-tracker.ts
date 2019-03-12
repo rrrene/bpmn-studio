@@ -569,7 +569,6 @@ export class LiveExecutionTracker {
     (event: MouseEvent): void => {
       const elementId: string = (event.target as HTMLDivElement).id;
       this.taskId = elementId;
-
       this.showDynamicUiModal = true;
     }
 
@@ -704,7 +703,6 @@ export class LiveExecutionTracker {
       return;
     }
 
-    this.showDynamicUiModal = true;
     this.taskId = clickedElement.id;
   }
 
