@@ -121,6 +121,10 @@ export class StatusBar {
       }),
     ];
 
+    $(document).on('click', '.update-dropdown', (event: Event) => {
+      event.stopPropagation();
+    });
+
     await this._updateStatusBar();
 
     this._refreshRightButtons();
