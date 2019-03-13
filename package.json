@@ -108,7 +108,7 @@
     "@process-engine/bpmn-js-custom-bundle": "2.6.2",
     "@process-engine/bpmn-lint_rules": "1.5.0",
     "@process-engine/management_api_client": "4.2.0",
-    "@process-engine/process_engine_runtime": "7.2.0-324a5cf0-b289",
+    "@process-engine/process_engine_runtime": "release~v7.2.0",
     "@process-engine/dynamic_ui_core": "1.3.0",
     "@process-engine/solutionexplorer.repository.filesystem": "4.0.1",
     "@process-engine/solutionexplorer.repository.management_api": "3.0.0",
