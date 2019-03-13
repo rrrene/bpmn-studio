@@ -543,16 +543,6 @@ export class LiveExecutionTracker {
     this.taskId = clickedElement.id;
   }
 
-  private _hasElementActiveToken(elementId: string): boolean {
-    const activeTokenForFlowNodeInstance: ActiveToken = this._activeTokens.find((activeToken: ActiveToken) => {
-      const activeTokenIsFromFlowNodeInstance: boolean = activeToken.flowNodeId === elementId;
-
-      return activeTokenIsFromFlowNodeInstance;
-    });
-
-    return activeTokenForFlowNodeInstance !== undefined;
-  }
-
   private async _getXml(): Promise<string> {
     const correlation: DataModels.Correlations.Correlation = await this._liveExecutionTrackerService.getCorrelationById(this.correlationId);
 
