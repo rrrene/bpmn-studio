@@ -109,34 +109,39 @@ Main._initializeApplication = function () {
     electron.ipcMain.on('app_ready', async(event) => {
       autoUpdater.autoDownload = false;
 
-      autoUpdater.checkForUpdates();
+      autoUpdater.checkForUpdates().then((result) => {
+        console.log(result.updateInfo.version);
 
-      const currentVersion = electron.app.getVersion();
-      const currentVersionIsPrerelease = prereleaseRegex.test(currentVersion);
-      autoUpdater.allowPrerelease = currentVersionIsPrerelease;
 
-      const downloadCancellationToken = new CancellationToken();
+        const currentVersion = electron.app.getVersion();
+        const currentVersionIsPrerelease = prereleaseRegex.test(currentVersion);
+        autoUpdater.allowPrerelease = currentVersionIsPrerelease;
 
-      console.log(`CurrentVersion: ${currentVersion}, CurrentVersionIsPrerelease: ${currentVersionIsPrerelease}`);
+        const downloadCancellationToken = new CancellationToken();
 
-      autoUpdater.addListener('error', (error) => {
-        event.sender.send('update_error');
-      });
+        console.log(`CurrentVersion: ${currentVersion}, CurrentVersionIsPrerelease: ${currentVersionIsPrerelease}`);
 
-      autoUpdater.addListener('update-available', (info) => {
-        event.sender.send('update_available');
-
-        electron.ipcMain.on('download_update', (event) => {
-          autoUpdater.downloadUpdate(downloadCancellationToken);
+        autoUpdater.addListener('error', (error) => {
+          event.sender.send('update_error');
         });
-      });
 
-      autoUpdater.addListener('update-downloaded', (info) => {
-        event.sender.send('update_downloaded');
+        autoUpdater.addListener('update-available', (info) => {
+          event.sender.send('update_available', result.updateInfo.version);
 
-        electron.ipcMain.on('quit_and_install', (event) => {
-          autoUpdater.quitAndInstall();
+          electron.ipcMain.on('download_update', (event) => {
+            autoUpdater.downloadUpdate(downloadCancellationToken);
+          });
         });
+
+        autoUpdater.addListener('update-downloaded', (info) => {
+          event.sender.send('update_downloaded');
+
+          electron.ipcMain.on('quit_and_install', (event) => {
+            autoUpdater.quitAndInstall();
+          });
+        });
+
+        autoUpdater.checkForUpdates();
       });
     })
 
