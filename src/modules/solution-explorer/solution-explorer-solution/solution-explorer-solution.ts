@@ -256,8 +256,7 @@ export class SolutionExplorerSolution {
   public activateContextMenu(event: MouseEvent, diagram: IDiagram): void {
     this._diagramInContextMenu = diagram;
 
-    const contextMenuOffset: number = 80;
-    this.diagramContextMenu.style.top = `${event.y - contextMenuOffset}px`;
+    this.diagramContextMenu.style.top = `${event.y}px`;
     this.diagramContextMenu.style.left = `${event.x}px`;
     this.showContextMenu = true;
 
