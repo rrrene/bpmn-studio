@@ -196,6 +196,7 @@ export class LiveExecutionTracker {
   public detached(): void {
     this._attached = false;
 
+    this._diagramViewer.clear();
     this._diagramViewer.detach();
     this._diagramViewer.destroy();
 
