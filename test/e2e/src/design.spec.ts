@@ -33,11 +33,8 @@ describe('Design view', () => {
     await diagram.deleteDiagram();
   });
 
-  beforeEach(async() => {
-    await routerView.show();
-  });
-
   it('should show the `detail view` after navigating to it.', async() => {
+    await routerView.show();
     await diagramDetail.show();
 
     const visibilityOfDiagramDetailContainer: boolean = await diagramDetail.getVisibilityOfDiagramDetailContainer();
@@ -46,6 +43,7 @@ describe('Design view', () => {
   });
 
   it('should show the `xml view` after navigating to it.', async() => {
+    await routerView.show();
     await xmlView.show();
 
     const visibilityOfXmlViewContainer: boolean = await xmlView.getVisibilityOfXmlViewContainer();
@@ -54,6 +52,7 @@ describe('Design view', () => {
   });
 
   it('should show the `diff view` after navigating to it.', async() => {
+    await routerView.show();
     await diffView.show();
 
     const visibilityOfDiffViewContainer: boolean = await diffView.getVisibilityOfDiffViewContainer();
@@ -62,6 +61,7 @@ describe('Design view', () => {
   });
 
   it('should show the `xml view` after clicking on the button in the status bar.', async() => {
+    await routerView.show();
     await diagramDetail.show();
     await statusBar.show();
 
@@ -73,9 +73,6 @@ describe('Design view', () => {
   });
 
   it('should switch from `xml view` to `detail view`, after clicking on the button in the status bar.', async() => {
-    await xmlView.show();
-    await statusBar.show();
-
     await statusBar.clickOnDisableXmlViewButton();
 
     const visibilityOfDiagramDetailContainer: boolean = await diagramDetail.getVisibilityOfDiagramDetailContainer();
@@ -84,9 +81,6 @@ describe('Design view', () => {
   });
 
   it('should show `diff view` after clicking on the button in the status bar.', async() => {
-    await diagramDetail.show();
-    await statusBar.show();
-
     await statusBar.clickOnEnableDiffViewButton();
 
     const visibilityOfDiffViewContainer: boolean = await diffView.getVisibilityOfDiffViewContainer();
@@ -95,9 +89,6 @@ describe('Design view', () => {
   });
 
   it('should switch from `diff view` to `detail view` after clicking on the button in the status bar.', async() => {
-    await diffView.show();
-    await statusBar.show();
-
     await statusBar.clickOnDisableDiffViewButton();
 
     const visibilityOfDiagramDetailContainer: boolean = await diagramDetail.getVisibilityOfDiagramDetailContainer();

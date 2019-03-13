@@ -49,7 +49,7 @@ export class SimpleDiagram {
 
     await this._http.post(requestDestination, requestPayload, requestHeaders);
 
-    browser.sleep(this._processEngineActionTimeout);
+    await browser.sleep(this._processEngineActionTimeout);
   }
 
   public async deleteDiagram(): Promise<void> {
@@ -59,19 +59,19 @@ export class SimpleDiagram {
     await this._http.get(requestDestination, requestHeaders);
   }
 
-  public startProcess(): void {
+  public async startProcess(): Promise<void> {
     const requestDestination: string =
       `/api/management/v1/process_models/${this.name}/start?start_callback_type=1&start_event_id=StartEvent_1mox3jl`;
 
     const requestPayload: IRequestPayload = {};
     const requestHeaders: IRequestHeaders = this._getRequestHeaders();
 
-    this._http.post(requestDestination, requestPayload, requestHeaders).jsonBody.then((jsonBody: JSON) => {
+    await this._http.post(requestDestination, requestPayload, requestHeaders).jsonBody.then((jsonBody: JSON) => {
       this.correlationId = jsonBody['correlationId'];
       this.processInstanceId = jsonBody['processInstanceId'];
     });
 
-    browser.sleep(this._processEngineActionTimeout);
+    await browser.sleep(this._processEngineActionTimeout);
   }
 
   private _getRequestHeaders(): IRequestHeaders {

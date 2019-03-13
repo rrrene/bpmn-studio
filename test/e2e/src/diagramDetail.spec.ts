@@ -31,12 +31,10 @@ describe('Diagram Detail', () => {
     await diagram.deleteDiagram();
   });
 
-  beforeEach(async() => {
+  it('should contain the bpmn-io container.', async() => {
     await routerView.show();
     await diagramDetail.show();
-  });
 
-  it('should contain the bpmn-io container.', async() => {
     const visibilityOfBpmnIoContainer: boolean = await diagramDetail.getVisibilityOfBpmnIoContainer();
 
     expect(visibilityOfBpmnIoContainer).toBeTruthy();

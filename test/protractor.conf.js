@@ -33,7 +33,7 @@ exports.config = {
   params: {
     aureliaUrl: string = 'http://localhost:9000',
     processEngineUrl: string = 'http://localhost:8000',
-    defaultTimeoutMS: number = 20000,
+    defaultTimeoutMS: number = 10000,
     processEngineActionTimeout: number = 1000,
   },
 

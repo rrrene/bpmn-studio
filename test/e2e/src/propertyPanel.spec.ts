@@ -21,16 +21,14 @@ describe('Property Panel', () => {
     propertyPanel = new PropertyPanel();
 
     await diagram.deployDiagram();
+
+    await routerView.show();
+    await diagramDetail.show();
+    await propertyPanel.show();
   });
 
   afterAll(async() => {
     await diagram.deleteDiagram();
-  });
-
-  beforeEach(async() => {
-    await routerView.show();
-    await diagramDetail.show();
-    await propertyPanel.show();
   });
 
   it('should show general basics section after loading of the diagram.', async() => {
