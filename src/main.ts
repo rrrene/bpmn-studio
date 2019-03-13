@@ -1,4 +1,4 @@
-import {Aurelia, RelativeViewStrategy} from 'aurelia-framework';
+import {Aurelia} from 'aurelia-framework';
 
 import {NotificationType} from './contracts/index';
 import environment from './environment';
@@ -119,7 +119,18 @@ export function configure(aurelia: Aurelia): void {
         const installButton: string = `<a class="btn btn-default" style="color: #000000;" href="javascript:nodeRequire('electron').ipcRenderer.send('download_update')">Download</a>`;
         const cancelButton: string = `<a class="btn btn-default" style="color: #000000;" href="#">Cancel</a>`;
 
-        const messageTitle: string = `<h4>Update available. Version ${version}</h4>`;
+        const messageTitle: string = `<h5>Version ${version} available.</h5>
+                                      <h6>
+                                        <a href="#" onclick="showReleaseNotes(event)">
+                                          Click here for Releasenotes
+                                        </a>
+                                      </h6>
+                                      <script>
+                                        function showReleaseNotes(event) {
+                                          event.stopPropagation();
+                                          nodeRequire('electron').ipcRenderer.send('show_release_notes');
+                                        }
+                                      </script>`;
         const messageBody: string = `${cancelButton} ${installButton}`;
 
         notificationService.showNonDisappearingNotification(NotificationType.INFO, `${messageTitle}\n${messageBody}`);
