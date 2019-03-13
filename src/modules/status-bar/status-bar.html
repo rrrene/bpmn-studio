@@ -8,7 +8,7 @@
       <a if.bind="updateAvailable" class="update-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <img class="update-button-icon" src="src/resources/images/icon.png" title.bind="isDownloading ? updateProgressData.percent.toString() + '%' : 'Update available.'">
       </a>
-      <div class="dropdown-menu update-dropdown">
+      <div class="dropdown-menu update-dropdown" ref="updateDropdown">
         <template if.bind="isDownloading">
           <div class="update-dropdown-title-container">
             <span class="update-dropdown-title">Downloading update</span>
@@ -22,6 +22,7 @@
           <div class="update-dropdown-title-container">
               <span class="update-dropdown-title">Update available</span>
           </div>
+          <button class="btn btn-default update-dropdown-cancel-button" click.delegate="cancelUpdate()">Cancel</button>
           <button class="btn btn-default update-dropdown-update-button" click.delegate="startUpdate()">Update</button>
         </template>
       </div>

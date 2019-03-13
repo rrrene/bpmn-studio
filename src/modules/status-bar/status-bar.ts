@@ -32,6 +32,7 @@ export class StatusBar {
   public activeDiagram: IDiagram;
   public updateProgressData: UpdateProgressData;
   public updateAvailable: boolean = false;
+  public updateDropdown: HTMLElement;
 
   public DiffMode: typeof DiffMode = DiffMode;
 
@@ -187,6 +188,10 @@ export class StatusBar {
     this.showInspectPanel = !this.showInspectPanel;
 
     this._eventAggregator.publish(environment.events.inspectCorrelation.showInspectPanel, this.showInspectPanel);
+  }
+
+  public cancelUpdate(): void {
+    this.updateDropdown.classList.remove('show');
   }
 
   public startUpdate(): void {
