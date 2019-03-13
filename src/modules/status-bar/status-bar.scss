@@ -101,7 +101,15 @@
   height: 15px;
 }
 
-.update-data {
+.update-progress-text {
   display: block;
-  padding: 0px 10px;
+  padding: 0px 10px 3px 10px;
+}
+
+.update-progress-title {
+  display: block;
+  width: 145px;
+  font-weight: bold;
+  padding-bottom: 15px;
+  margin: auto;
 }
