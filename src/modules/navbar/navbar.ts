@@ -259,6 +259,38 @@ export class NavBar {
     this._eventAggregator.publish(environment.events.diagramDetail.uploadProcess);
   }
 
+  public get diagramUploadButtonTitle(): string {
+    if (this.disableDiagramUploadButton) {
+      return 'This process is already deployed to the remote ProcessEngine.';
+    }
+
+    if (this.validationError) {
+      return 'There was a problem with this diagram. Please check the linter for more information.';
+    }
+
+    return 'Deploy to ProcessEngine';
+  }
+
+  public get startButtonTitle(): string {
+    if (this.disableStartButton) {
+      return 'Please deploy the process to a ProcessEngine before starting it.';
+    }
+
+    if (this.validationError) {
+      return 'There was a problem with this diagram. Please check the linter for more information.';
+    }
+
+    return 'Start Process';
+  }
+
+  public get saveButtonTitle(): string {
+    if (this.validationError && this.savingTargetIsRemoteSolution) {
+      return 'There was a problem with this diagram. Please check the linter for more information.';
+    }
+
+    return 'Save Diagram';
+  }
+
   /**
    * Updates the title of the navbar including the navbar icon which
    * indicates, if the process was opened from the local filesystem

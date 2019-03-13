@@ -50,6 +50,7 @@ export class BpmnIo {
   public colorPickerLoaded: boolean = false;
   public minCanvasWidth: number = 100;
   public minPropertyPanelWidth: number = 200;
+  public diagramIsInvalid: boolean = false;
 
   private _bpmnLintButton: HTMLElement;
   private _linting: ILinting;
@@ -63,7 +64,6 @@ export class BpmnIo {
   private _subscriptions: Array<Subscription>;
   private _diagramExportService: IDiagramExportService;
   private _diagramPrintService: IDiagramPrintService;
-  private _diagramIsInvalid: boolean = false;
 
   private _tempProcess: IProcessRef;
   private _diagramHasChanges: boolean = false;
@@ -278,11 +278,11 @@ export class BpmnIo {
       }),
 
       this._eventAggregator.subscribe(environment.events.navBar.validationError, () => {
-        this._diagramIsInvalid = true;
+        this.diagramIsInvalid = true;
       }),
 
       this._eventAggregator.subscribe(environment.events.navBar.noValidationError, () => {
-        this._diagramIsInvalid = false;
+        this.diagramIsInvalid = false;
       }),
 
       this._eventAggregator.subscribe(environment.events.bpmnio.togglePropertyPanel, () => {
@@ -657,7 +657,7 @@ export class BpmnIo {
       /**
        * We don't want the user to print an invalid diagram.
        */
-      if (this._diagramIsInvalid) {
+      if (this.diagramIsInvalid) {
         this._notificationService.showNotification(NotificationType.WARNING,
           `The Diagram is invalid. Please resolve this issues to print the diagram`);
 

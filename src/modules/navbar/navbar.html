@@ -23,7 +23,7 @@
         <button class="button menu-bar__menu-center--action-button menu-bar__menu-center--back-button back-button" click.delegate="navigateBack()" title="Navigate back">
           <i class="fas fa-arrow-circle-left"></i>
         </button>
-        <button class="button menu-bar__menu-center--action-button" class.bind="validationError && savingTargetIsRemoteSolution ? 'button--disabled' : ''" click.delegate="saveDiagram()" disabled.bind="validationError && savingTargetIsRemoteSolution" title="Save Diagram">
+        <button class="button menu-bar__menu-center--action-button" class.bind="validationError && savingTargetIsRemoteSolution ? 'button--disabled' : ''" click.delegate="saveDiagram()" disabled.bind="validationError && savingTargetIsRemoteSolution" title.bind="saveButtonTitle">
           <i class="fas fa-save"></i>
         </button>
       </template>
@@ -49,11 +49,11 @@
         <button class="button menu-bar__menu-center--action-button"  click.delegate="printDiagram()" title="Print Diagram">
           <i class="fas fa-print"></i>
         </button>
-        <button class="button menu-bar__menu-center--action-button" class.bind="validationError || disableDiagramUploadButton ? 'button--disabled' : ''" click.delegate="uploadProcess()" title.bind="disableDiagramUploadButton ? 'This process is already deployed to the remote ProcessEngine' : 'Deploy to ProcessEngine'">
+        <button class="button menu-bar__menu-center--action-button" class.bind="validationError || disableDiagramUploadButton ? 'button--disabled' : ''" click.delegate="uploadProcess()" title.bind="diagramUploadButtonTitle">
           <i class="fas fa-dolly-flatbed"></i>
         </button>
         <div class="btn-group">
-          <button class="button menu-bar__menu-center--action-button" class.bind="validationError || disableStartButton ? 'button--disabled' : ''" click.delegate="startProcess()" disabled.bind="validationError || disableStartButton" title.bind="disableStartButton ? 'Before starting the process please deploy it to the ProcessEngine' : 'Start Process'">
+          <button class="button menu-bar__menu-center--action-button" class.bind="validationError || disableStartButton ? 'button--disabled' : ''" click.delegate="startProcess()" disabled.bind="validationError || disableStartButton" title.bind="startButtonTitle">
             <i class="fas fa-play"></i>
           </button>
           <button type="button" class="button menu-bar__menu-center--action-button dropdown-toggle dropdown-toggle-split dropdown__start-button" class.bind="validationError || disableStartButton ? 'button--disabled' : ''" disabled.bind="validationError || disableStartButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
