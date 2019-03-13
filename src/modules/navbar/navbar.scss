@@ -21,12 +21,9 @@ button {
   content: "";
 }
 
-.menu-bar__menu {
-  flex: 1 100%;
-}
-
 .menu-bar__menu--left {
   display: flex;
+  flex: 2;
   justify-content: flex-start;
   align-items: stretch;
   text-align: center;
@@ -34,12 +31,14 @@ button {
 
 .menu-bar__menu--center {
   display: flex;
-  justify-content: space-around;
+  flex: 1 100%;
   align-items: center;
+  overflow: hidden;
 }
 
 .menu-bar__menu--right {
   display: flex;
+  flex: 2;
   justify-content: flex-end;
   align-items: center;
   text-align: right;
@@ -111,7 +110,10 @@ button {
 }
 
 .menu__element--title {
-  margin-bottom: 1px;
+  display: flex;
+  width: 100%;
+  margin: 0 0 1px 0;
+  justify-content: center;
 }
 
 .menu-bar__menu-center--back-button {
@@ -130,7 +132,7 @@ button {
 
 .process-details-title {
   float: left;
-  max-width: 220px;
+  max-width: 100%;
   margin-left: 5px;
   overflow: hidden;
   text-overflow: ellipsis;
