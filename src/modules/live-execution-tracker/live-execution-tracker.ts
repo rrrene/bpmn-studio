@@ -276,11 +276,13 @@ export class LiveExecutionTracker {
   }
 
   public async stopProcessInstance(): Promise<void> {
-    this._managementApiClient.terminateProcessInstance(this.activeSolutionEntry.identity, this.processInstanceId);
+    await this._managementApiClient.terminateProcessInstance(this.activeSolutionEntry.identity, this.processInstanceId);
+
+    const xml: string = await this._colorizeXml();
+    this._importXmlIntoDiagramViewer(xml);
   }
 
   public get processIsActive(): boolean {
-
     const processIsActive: boolean = Array.isArray(this._activeTokens) && this._activeTokens.length > 0;
 
     return processIsActive;
@@ -764,7 +766,6 @@ export class LiveExecutionTracker {
     };
 
     const tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup = await getTokenHistoryGroup();
-
     const couldNotGetTokenHistory: boolean = tokenHistoryGroups === null;
     if (couldNotGetTokenHistory) {
       return null;
@@ -1134,10 +1135,11 @@ export class LiveExecutionTracker {
 
   private async _isCorrelationStillActive(): Promise<boolean | RequestError> {
 
-    const getActiveCorrelations: Function = async(): Promise<Array<DataModels.Correlations.Correlation> | RequestError> => {
+    const getActiveTokens: Function = async(): Promise<Array<ActiveToken> | RequestError> => {
       for (let retries: number = 0; retries < this._maxRetries; retries++) {
         try {
-          return await this._managementApiClient.getActiveCorrelations(this.activeSolutionEntry.identity);
+          return await this._managementApiClient
+                           .getActiveTokensForCorrelationAndProcessModel(this.activeSolutionEntry.identity, this.correlationId, this.processModelId);
         } catch (error) {
           const errorIsConnectionLost: boolean = error.message === 'Failed to fetch';
 
@@ -1146,26 +1148,22 @@ export class LiveExecutionTracker {
           }
         }
       }
-
-      return RequestError.OtherError;
     };
 
-    const allActiveCorrelationsOrRequestError: Array<DataModels.Correlations.Correlation> | RequestError = await getActiveCorrelations();
+    const activeTokensOrRequestError: Array<ActiveToken> | RequestError = await getActiveTokens();
 
-    const couldNotGetCorrelation: boolean = allActiveCorrelationsOrRequestError === RequestError.ConnectionLost
-      || allActiveCorrelationsOrRequestError === RequestError.OtherError;
-    if (couldNotGetCorrelation) {
-      const requestError: RequestError = (allActiveCorrelationsOrRequestError as RequestError);
+    const couldNotGetActiveTokens: boolean = activeTokensOrRequestError === RequestError.ConnectionLost
+      || activeTokensOrRequestError === RequestError.OtherError;
+    if (couldNotGetActiveTokens) {
+      const requestError: RequestError = (activeTokensOrRequestError as RequestError);
 
       return requestError;
     }
 
-    const allActiveCorrelations: Array<DataModels.Correlations.Correlation> =
-      (allActiveCorrelationsOrRequestError as Array<DataModels.Correlations.Correlation>);
+    const allActiveTokens: Array<ActiveToken> =
+      (activeTokensOrRequestError as Array<ActiveToken>);
 
-    const correlationIsNotActive: boolean = !allActiveCorrelations.some((activeCorrelation: DataModels.Correlations.Correlation) => {
-      return activeCorrelation.id === this.correlationId;
-    });
+    const correlationIsNotActive: boolean = allActiveTokens.length === 0;
 
     if (correlationIsNotActive) {
       this._correlationEnded();
