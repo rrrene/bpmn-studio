@@ -106,8 +106,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createProcessEndedEventListener(correlationId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onProcessEnded(this._identity, (message: EndEventReachedMessage): void => {
-      const eventIsAboutAnotherCorrelation: boolean = message.correlationId !== correlationId;
-      if (eventIsAboutAnotherCorrelation) {
+      const eventIsForAnotherCorrelation: boolean = message.correlationId !== correlationId;
+      if (eventIsForAnotherCorrelation) {
         return;
       }
 
@@ -117,8 +117,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createProcessTerminatedEventListener(correlationId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onProcessTerminated(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsAboutAnotherCorrelation: boolean = message.correlationId !== correlationId;
-      if (eventIsAboutAnotherCorrelation) {
+      const eventIsForAnotherCorrelation: boolean = message.correlationId !== correlationId;
+      if (eventIsForAnotherCorrelation) {
         return;
       }
 
@@ -128,8 +128,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createUserTaskWaitingEventListener(correlationId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onUserTaskWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsAboutAnotherCorrelation: boolean = message.correlationId !== correlationId;
-      if (eventIsAboutAnotherCorrelation) {
+      const eventIsForAnotherCorrelation: boolean = message.correlationId !== correlationId;
+      if (eventIsForAnotherCorrelation) {
         return;
       }
 
@@ -139,8 +139,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createUserTaskFinishedEventListener(correlationId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onUserTaskFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsAboutAnotherCorrelation: boolean = message.correlationId !== correlationId;
-      if (eventIsAboutAnotherCorrelation) {
+      const eventIsForAnotherCorrelation: boolean = message.correlationId !== correlationId;
+      if (eventIsForAnotherCorrelation) {
         return;
       }
 
@@ -150,8 +150,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createManualTaskWaitingEventListener(correlationId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onManualTaskWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsAboutAnotherCorrelation: boolean = message.correlationId !== correlationId;
-      if (eventIsAboutAnotherCorrelation) {
+      const eventIsForAnotherCorrelation: boolean = message.correlationId !== correlationId;
+      if (eventIsForAnotherCorrelation) {
         return;
       }
 
@@ -161,8 +161,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createManualTaskFinishedEventListener(correlationId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onManualTaskFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsAboutAnotherCorrelation: boolean = message.correlationId !== correlationId;
-      if (eventIsAboutAnotherCorrelation) {
+      const eventIsForAnotherCorrelation: boolean = message.correlationId !== correlationId;
+      if (eventIsForAnotherCorrelation) {
         return;
       }
 
@@ -172,8 +172,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createEmptyActivityWaitingEventListener(correlationId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onEmptyActivityWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsAboutAnotherCorrelation: boolean = message.correlationId !== correlationId;
-      if (eventIsAboutAnotherCorrelation) {
+      const eventIsForAnotherCorrelation: boolean = message.correlationId !== correlationId;
+      if (eventIsForAnotherCorrelation) {
         return;
       }
 
@@ -183,8 +183,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createEmptyActivityFinishedEventListener(correlationId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onEmptyActivityFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsAboutAnotherCorrelation: boolean = message.correlationId !== correlationId;
-      if (eventIsAboutAnotherCorrelation) {
+      const eventIsForAnotherCorrelation: boolean = message.correlationId !== correlationId;
+      if (eventIsForAnotherCorrelation) {
         return;
       }
 

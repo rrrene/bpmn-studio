@@ -472,9 +472,9 @@ export class LiveExecutionTracker {
 
       const callAcitivityHasNoTargetProcess: boolean = callActivityTargetProcess === undefined;
       if (callAcitivityHasNoTargetProcess) {
-        const notificationMessage: string = 'The CallActivity has no target configured. Please configure a target in the designer.';
+        const noTargetMessage: string = 'The CallActivity has no target configured. Please configure a target in the designer.';
 
-        this._notificationService.showNotification(NotificationType.INFO, notificationMessage);
+        this._notificationService.showNotification(NotificationType.INFO, noTargetMessage);
       }
 
       const targetProcessInstanceId: string =
@@ -482,8 +482,8 @@ export class LiveExecutionTracker {
                                                                                          this.processInstanceId,
                                                                                          callActivityTargetProcess);
 
-      const notificationMessage: string = 'Could not get correlation. Please try to click on the call activity again.';
-      this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
+      const noCorrelationMessage: string = 'Could not get correlation. Please try to click on the call activity again.';
+      this._notificationService.showNotification(NotificationType.ERROR, noCorrelationMessage);
 
       const errorGettingTargetProcessInstanceId: boolean = targetProcessInstanceId === undefined;
       if (errorGettingTargetProcessInstanceId) {
@@ -506,9 +506,9 @@ export class LiveExecutionTracker {
 
       const callActivityHasNoTargetProcess: boolean = callActivityTargetProcess === undefined;
       if (callActivityHasNoTargetProcess) {
-        const notificationMessage: string = 'The CallActivity has no target configured. Please configure a target in the designer.';
+        const noTargetMessage: string = 'The CallActivity has no target configured. Please configure a target in the designer.';
 
-        this._notificationService.showNotification(NotificationType.INFO, notificationMessage);
+        this._notificationService.showNotification(NotificationType.INFO, noTargetMessage);
       }
 
       const xml: string = await this._getXmlByProcessModelId(callActivityTargetProcess);
@@ -569,9 +569,9 @@ export class LiveExecutionTracker {
     const xmlIsNotLoaded: boolean = (xml === undefined || xml === null);
 
     if (xmlIsNotLoaded) {
-      const notificationMessage: string = 'The xml could not be loaded. Please try to start the process again.';
+      const xmlCouldNotBeLoadedMessage: string = 'The xml could not be loaded. Please try to start the process again.';
 
-      this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
+      this._notificationService.showNotification(NotificationType.ERROR, xmlCouldNotBeLoadedMessage);
 
       return;
     }
@@ -594,9 +594,9 @@ export class LiveExecutionTracker {
     const xmlIsNotLoaded: boolean = (xml === undefined || xml === null);
 
     if (xmlIsNotLoaded) {
-      const notificationMessage: string = 'The xml could not be loaded. Please try to start the process again.';
+      const xmlCouldNotBeLoadedMessage: string = 'The xml could not be loaded. Please try to start the process again.';
 
-      this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
+      this._notificationService.showNotification(NotificationType.ERROR, xmlCouldNotBeLoadedMessage);
 
       return;
     }
