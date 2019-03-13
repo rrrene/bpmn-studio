@@ -540,11 +540,6 @@ export class LiveExecutionTracker {
       return;
     }
 
-    const elementHasNoActiveToken: boolean = !this._hasElementActiveToken(clickedElement.id);
-    if (elementHasNoActiveToken) {
-      return;
-    }
-
     this.taskId = clickedElement.id;
   }
 
