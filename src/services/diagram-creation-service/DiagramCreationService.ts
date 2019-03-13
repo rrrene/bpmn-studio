@@ -66,6 +66,7 @@ export class DiagramCreationService implements IDiagramCreationService {
           const errorOccured: boolean = error !== undefined;
           if (errorOccured) {
             this._notificationService.showNotification(NotificationType.ERROR, `Failed to copy diagram. ${error.message}`);
+
             return reject(error);
           }
 
