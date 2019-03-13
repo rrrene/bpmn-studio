@@ -18,6 +18,12 @@
             <div class="progress-bar progress-bar-striped progress-bar-animated update-dropdown-progressbar-progress" role="progressbar" css="width: ${updateProgressData.percent}%;">${updateProgressData.percent.toFixed(1)}%</div>
           </div>
         </template>
+        <template else>
+          <div class="update-dropdown-title-container">
+              <span class="update-dropdown-title">Update available</span>
+          </div>
+          <button class="btn btn-default update-dropdown-update-button" click.delegate="startUpdate()">Update</button>
+        </template>
       </div>
     </div>
     <div class="status-bar__center-bar" id="statusBarCenter">
