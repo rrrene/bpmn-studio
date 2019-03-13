@@ -46,10 +46,10 @@ export class DiagramCreationService implements IDiagramCreationService {
     const promise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
       modeler.on('import.done', () => {
 
-        const rootElements: Array<any> = modeler._definitions.rootElements;
-        const process: IProcessRef = rootElements.find((element: any) => {
+        const rootElements: Array<IModdleElement> = modeler._definitions.rootElements;
+        const process: IProcessRef = rootElements.find((element: IModdleElement) => {
           return element.$type === 'bpmn:Process';
-        });
+        }) as IProcessRef;
 
         process.id = name;
         process.name = name;
