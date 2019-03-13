@@ -131,6 +131,18 @@ Main._initializeApplication = function () {
           electron.ipcMain.on('download_update', (event) => {
             autoUpdater.downloadUpdate(downloadCancellationToken);
           });
+
+          electron.ipcMain.on('show_release_notes', () => {
+            const releaseNotesWindow = new electron.BrowserWindow({
+              width: 600,
+              height: 600,
+              title: `Release Notes ${result.updateInfo.version}`,
+              minWidth: 600,
+              minHeight: 600,
+            })
+
+            releaseNotesWindow.loadURL(`https://github.com/process-engine/bpmn-studio/releases/tag/v${result.updateInfo.version}`);
+          });
         });
 
         autoUpdater.addListener('update-downloaded', (info) => {
