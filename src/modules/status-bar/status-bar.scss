@@ -113,3 +113,18 @@
   padding-bottom: 15px;
   margin: auto;
 }
+
+.update-progress-percent {
+  width: 60px;
+  margin-left: 10px;
+}
+
+.update-progress-progressbar {
+  height: 16px;
+  margin: 0 10px;
+}
+
+.update-progress-progressbar-progress {
+  background-color: #ccc;
+  font-size: 12px;
+}
