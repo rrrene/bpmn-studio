@@ -1,5 +1,5 @@
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import {computedFrom, inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
@@ -130,6 +130,11 @@ export class StatusBar {
 
   public detached(): void {
     this._disposeAllSubscriptions();
+  }
+
+  @computedFrom('updateProgressData')
+  public get isDownloading(): boolean {
+    return this.updateProgressData !== undefined;
   }
 
   public toggleXMLView(): void {
