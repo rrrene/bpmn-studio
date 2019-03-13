@@ -112,17 +112,20 @@
   padding: 0px 10px 3px 10px;
 }
 
-.update-progress-title {
-  display: block;
-  width: 145px;
-  font-weight: bold;
+.update-progress-title-container {
   padding-bottom: 15px;
-  margin: auto;
+  text-align: center;
 }
 
 .update-progress-percent {
   width: 60px;
   margin-left: 10px;
+ } 
+
+.update-dropdown-title {
+  display: inline-block;
+  margin: auto;
+  font-weight: bold;
 }
 
 .update-progress-progressbar {
