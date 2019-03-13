@@ -8,7 +8,7 @@
       <a if.bind="updateAvailable" class="update-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <img class="update-button-icon" src="src/resources/images/icon.png" title.bind="isDownloading ? updateProgressData.percent.toString() + '%' : 'Update available.'">
       </a>
-      <div class="dropdown-menu">
+      <div class="dropdown-menu update-dropdown">
         <template if.bind="isDownloading">
           <span class="update-progress-title">Downloading update</span>
           <span class="update-progress-text">${(updateProgressData.bytesPerSecond/1000).toFixed(2)} KB/s - ${(updateProgressData.transferred/1000/1000).toFixed(2)} MB of ${(updateProgressData.total/1000/1000).toFixed(2)} MB</span>
