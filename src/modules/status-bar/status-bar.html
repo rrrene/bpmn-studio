@@ -10,12 +10,12 @@
       </a>
       <div class="dropdown-menu update-dropdown">
         <template if.bind="isDownloading">
-          <div class="update-progress-title-container">
-            <span class="update-progress-title">Downloading update</span>
+          <div class="update-dropdown-title-container">
+            <span class="update-dropdown-title">Downloading update</span>
           </div>
-          <span class="update-progress-text">${(updateProgressData.bytesPerSecond/1000).toFixed(2)} KB/s - ${(updateProgressData.transferred/1000/1000).toFixed(2)} MB of ${(updateProgressData.total/1000/1000).toFixed(2)} MB</span>
-          <div class="progress update-progress-progressbar">
-            <div class="progress-bar progress-bar-striped progress-bar-animated update-progress-progressbar-progress" role="progressbar" css="width: ${updateProgressData.percent}%;">${updateProgressData.percent.toFixed(1)}%</div>
+          <span class="update-dropdown-text">${(updateProgressData.bytesPerSecond/1000).toFixed(2)} KB/s - ${(updateProgressData.transferred/1000/1000).toFixed(2)} MB of ${(updateProgressData.total/1000/1000).toFixed(2)} MB</span>
+          <div class="progress update-dropdown-progressbar">
+            <div class="progress-bar progress-bar-striped progress-bar-animated update-dropdown-progressbar-progress" role="progressbar" css="width: ${updateProgressData.percent}%;">${updateProgressData.percent.toFixed(1)}%</div>
           </div>
         </template>
       </div>
