@@ -285,7 +285,7 @@ export class SolutionExplorerSolution {
         return diagram.name !== newName;
       });
 
-      diagramNumber += 1;
+      diagramNumber++;
     }
 
     const copiedDiagram: IDiagram =

@@ -5,7 +5,7 @@ import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
 import {IBpmnModeler, IDiagramCreationService, NotificationType} from '../../contracts/index';
-import { NotificationService } from '../notification-service/notification.service';
+import {NotificationService} from '../notification-service/notification.service';
 
 @inject('NotificationService')
 export class DiagramCreationService implements IDiagramCreationService {
