@@ -70,7 +70,8 @@ export class LiveExecutionTracker {
   private _notificationService: NotificationService;
   private _solutionService: ISolutionService;
 
-  private _attached: boolean;
+  private _processStopped: boolean = false;
+  private _attached: boolean = false;
   private _parentProcessInstanceId: string;
   private _parentProcessModelId: string;
   private _activeCallActivities: Array<IShape> = [];
@@ -218,6 +219,11 @@ export class LiveExecutionTracker {
     this._liveExecutionTrackerService.setIdentity(this.activeSolutionEntry.identity);
   }
 
+  @computedFrom('_processStopped')
+  public get processIsActive(): boolean {
+    return !this._processStopped;
+  }
+
   @computedFrom('_previousProcessModels.length')
   public get hasPreviousProcess(): boolean {
     return this._parentProcessModelId !== undefined;
@@ -250,16 +256,7 @@ export class LiveExecutionTracker {
   }
 
   public async stopProcessInstance(): Promise<void> {
-    await this._managementApiClient.terminateProcessInstance(this.activeSolutionEntry.identity, this.processInstanceId);
-
-    const xml: string = await this._colorizeXml();
-    this._importXmlIntoDiagramViewer(xml);
-  }
-
-  public get processIsActive(): boolean {
-    const processIsActive: boolean = Array.isArray(this._activeTokens) && this._activeTokens.length > 0;
-
-    return processIsActive;
+    this._liveExecutionTrackerService.terminateProcess(this.processInstanceId);
   }
 
   private async _getParentProcessModelId(): Promise<string> {
@@ -702,6 +699,8 @@ export class LiveExecutionTracker {
   private _createBackendEventListeners(): Promise<Array<Subscription>> {
     const processEndedCallback: Function = (): void => {
       this._handleElementColorization();
+
+      this._processStopped = true;
 
       this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
     };

@@ -386,6 +386,10 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return colorizedXml;
   }
 
+  public terminateProcess(processInstanceId: string): Promise<void> {
+    return this._liveExecutionTrackerRepository.terminateProcess(processInstanceId);
+  }
+
   private _colorizeElements(elements: Array<IShape>, color: IColorPickerColor): void {
     const noElementsToColorize: boolean = elements.length === 0;
     if (noElementsToColorize) {

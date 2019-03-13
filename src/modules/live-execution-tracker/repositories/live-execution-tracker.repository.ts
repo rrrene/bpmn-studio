@@ -195,4 +195,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   public removeSubscription(subscription: Subscription): Promise<void> {
     return this._managementApiClient.removeSubscription(this._identity, subscription);
   }
+
+  public terminateProcess(processInstanceId: string): Promise<void> {
+    return this._managementApiClient.terminateProcessInstance(this._identity, processInstanceId);
+  }
 }

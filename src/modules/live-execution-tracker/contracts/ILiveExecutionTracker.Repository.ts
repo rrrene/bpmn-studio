@@ -5,6 +5,7 @@ import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_mo
 
 export interface ILiveExecutionTrackerRepository {
   finishEmptyActivity(processInstanceId: string, correlationId: string, emptyActivity: DataModels.EmptyActivities.EmptyActivity): Promise<void>;
+  terminateProcess(processInstanceId: string): Promise<void>;
 
   getActiveTokensForProcessInstance(processInstanceId: string): Promise<Array<ActiveToken> | null>;
   getCorrelationById(correlationId: string): Promise<DataModels.Correlations.Correlation>;
