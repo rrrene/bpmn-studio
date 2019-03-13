@@ -747,14 +747,15 @@ export class LiveExecutionTracker {
   private _resizeTokenViewer(mouseEvent: MouseEvent): void {
     const mouseXPosition: number = mouseEvent.clientX;
 
-    const inspectCorrelation: HTMLElement = this.tokenViewer.parentElement;
+    const liveExecutionTracker: HTMLElement = this.tokenViewer.parentElement;
+
     const minSpaceForDiagramViewer: number = 320;
 
     const windowWidth: number = window.innerWidth;
     const rightToolbarWidth: number = 36;
 
     const minTokenViewerWidth: number = 250;
-    const maxTokenViewerWidth: number = inspectCorrelation.clientWidth - minSpaceForDiagramViewer;
+    const maxTokenViewerWidth: number = liveExecutionTracker.clientWidth - minSpaceForDiagramViewer;
 
     const newTokenViewerWidth: number = windowWidth - mouseXPosition - rightToolbarWidth;
 
