@@ -1148,7 +1148,7 @@ export class LiveExecutionTracker {
           }
         }
       }
-    }
+    };
 
     const activeTokensOrRequestError: Array<ActiveToken> | RequestError = await getActiveTokens();
 
