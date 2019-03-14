@@ -65,7 +65,7 @@ export class DiagramCreationService implements IDiagramCreationService {
         modeler.saveXML({}, (error: Error, result: string) => {
           const errorOccured: boolean = error !== undefined;
           if (errorOccured) {
-            this._notificationService.showNotification(NotificationType.ERROR, `Failed to copy diagram. ${error.message}`);
+            this._notificationService.showNotification(NotificationType.ERROR, `Failed to copy the diagram. Cause: ${error.message}`);
 
             return reject(error);
           }
