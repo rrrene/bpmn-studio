@@ -106,39 +106,57 @@ Main._initializeApplication = function () {
 
     const prereleaseRegex = /\d+\.\d+\.\d+-pre-b\d+/;
 
-    electron.ipcMain.on('app_ready', async(event) => {
+    electron.ipcMain.on('app_ready', async(appReadyEvent) => {
       autoUpdater.autoDownload = false;
-
-      autoUpdater.checkForUpdates();
 
       const currentVersion = electron.app.getVersion();
       const currentVersionIsPrerelease = prereleaseRegex.test(currentVersion);
       autoUpdater.allowPrerelease = currentVersionIsPrerelease;
 
+      const updateCheckResult = await autoUpdater.checkForUpdates();
+      const noUpdateAvailable = updateCheckResult.updateInfo.version === currentVersion
+      if (noUpdateAvailable) {
+        return;
+      }
+
       const downloadCancellationToken = new CancellationToken();
 
       console.log(`CurrentVersion: ${currentVersion}, CurrentVersionIsPrerelease: ${currentVersionIsPrerelease}`);
 
-      autoUpdater.addListener('error', (error) => {
-        event.sender.send('update_error');
+      autoUpdater.addListener('error', () => {
+        appReadyEvent.sender.send('update_error');
       });
 
-      autoUpdater.addListener('update-available', (info) => {
-        event.sender.send('update_available');
+      autoUpdater.addListener('update-available', () => {
+        appReadyEvent.sender.send('update_available', updateCheckResult.updateInfo.version);
 
-        electron.ipcMain.on('download_update', (event) => {
+        electron.ipcMain.on('download_update', () => {
           autoUpdater.downloadUpdate(downloadCancellationToken);
+        });
+
+        electron.ipcMain.on('show_release_notes', () => {
+          const releaseNotesWindow = new electron.BrowserWindow({
+            width: 600,
+            height: 600,
+            title: `Release Notes ${updateCheckResult.updateInfo.version}`,
+            minWidth: 600,
+            minHeight: 600,
+          })
+
+          releaseNotesWindow.loadURL(`https://github.com/process-engine/bpmn-studio/releases/tag/v${updateCheckResult.updateInfo.version}`);
         });
       });
 
-      autoUpdater.addListener('update-downloaded', (info) => {
-        event.sender.send('update_downloaded');
+      autoUpdater.addListener('update-downloaded', () => {
+        appReadyEvent.sender.send('update_downloaded');
 
-        electron.ipcMain.on('quit_and_install', (event) => {
+        electron.ipcMain.on('quit_and_install', () => {
           autoUpdater.quitAndInstall();
         });
       });
-    })
+
+      autoUpdater.checkForUpdates();
+    });
 
   }
 
