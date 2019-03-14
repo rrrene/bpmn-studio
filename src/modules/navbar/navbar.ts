@@ -354,6 +354,7 @@ export class NavBar {
       this.showExportOnInspectCorrelation = false;
     } else {
       this.showInspectTools = false;
+      this.showExportOnInspectCorrelation = false;
     }
 
   }
