@@ -240,12 +240,6 @@ export class TaskList {
 
   private async _getTasksForCorrelation(correlationId: string): Promise<Array<IUserTaskWithProcessModel & IManualTaskWithProcessModel>> {
 
-    const userTaskList: DataModels.UserTasks.UserTaskList =
-      await this._managementApiService.getUserTasksForCorrelation(this.activeSolutionEntry.identity, correlationId);
-
-    const manualTaskList: DataModels.ManualTasks.ManualTaskList =
-      await this._managementApiService.getManualTasksForCorrelation(this.activeSolutionEntry.identity, correlationId);
-
     const runningCorrelations: Array<DataModels.Correlations.Correlation> =
       await this._managementApiService.getActiveCorrelations(this.activeSolutionEntry.identity);
 
@@ -257,6 +251,12 @@ export class TaskList {
     if (correlationWasNotFound) {
       throw new NotFoundError(`No correlation found with id ${correlationId}.`);
     }
+
+    const userTaskList: DataModels.UserTasks.UserTaskList =
+      await this._managementApiService.getUserTasksForCorrelation(this.activeSolutionEntry.identity, correlationId);
+
+    const manualTaskList: DataModels.ManualTasks.ManualTaskList =
+      await this._managementApiService.getManualTasksForCorrelation(this.activeSolutionEntry.identity, correlationId);
 
     // TODO: This needs to be refactored so that the correct ProcessModel will be used depending on the user task
     const processModelOfCorrelation: DataModels.ProcessModels.ProcessModel = await
