@@ -271,7 +271,10 @@ export class SolutionExplorerSolution {
   }
 
   public async copyDiagram(): Promise<void> {
-    if (!this._diagramInContextMenu) { return; }
+    const noDiagramInContextMenu: boolean = this._diagramInContextMenu === undefined;
+    if (noDiagramInContextMenu) {
+      return;
+    }
 
     let newNameFound: boolean = false;
     let newName: string;
