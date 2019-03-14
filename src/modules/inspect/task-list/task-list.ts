@@ -39,7 +39,7 @@ export class TaskList {
   public pageSize: number = 10;
   public totalItems: number;
 
-  public successfullyRequested: boolean = false;
+  public requestSuccessful: boolean = false;
 
   private _activeSolutionUri: string;
   private _eventAggregator: EventAggregator;
@@ -346,7 +346,7 @@ export class TaskList {
   public async updateTasks(): Promise<void> {
     try {
       this._userTasks = await this._getTasks();
-      this.successfullyRequested = true;
+      this.requestSuccessful = true;
 
     } catch (error) {
 
