@@ -21,9 +21,7 @@ export class ProcessList {
   @bindable() public activeSolutionEntry: ISolutionEntry;
   public pageSize: number = 10;
   public totalItems: number;
-  public status: Array<string> = [];
   public requestSuccessful: boolean = false;
-  public selectedState: HTMLSelectElement;
 
   private _managementApiService: IManagementApi;
   private _eventAggregator: EventAggregator;
@@ -151,28 +149,4 @@ export class ProcessList {
 
     return this._managementApiService.getActiveCorrelations(identity);
   }
-
-  private async getCorrelationsForProcessModel(processModelId: string): Promise<Array<DataModels.Correlations.Correlation>> {
-    const identity: IIdentity = this.activeSolutionEntry.identity;
-
-    const runningCorrelations: Array<DataModels.Correlations.Correlation> = await this._managementApiService.getActiveCorrelations(identity);
-
-    const correlationsWithId: Array<DataModels.Correlations.Correlation> =
-      runningCorrelations.filter((correlation: DataModels.Correlations.Correlation) => {
-
-        const processModelWithSearchedId: DataModels.Correlations.CorrelationProcessModel =
-          correlation.processModels.find((processModel: DataModels.Correlations.CorrelationProcessModel) => {
-            const isSearchedProcessModel: boolean = processModel.processModelId === processModelId;
-
-            return isSearchedProcessModel;
-          });
-
-        const processModelFound: boolean = processModelWithSearchedId !== undefined;
-
-        return processModelFound;
-      });
-
-    return correlationsWithId;
-  }
-
 }
