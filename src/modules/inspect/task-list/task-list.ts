@@ -259,21 +259,24 @@ export class TaskList {
       await this._managementApiService.getManualTasksForCorrelation(this.activeSolutionEntry.identity, correlationId);
 
     // TODO: This needs to be refactored so that the correct ProcessModel will be used depending on the user task
-    const processModelOfCorrelation: DataModels.ProcessModels.ProcessModel = await
-      this
-        ._managementApiService
-        .getProcessModelById(this.activeSolutionEntry.identity, correlation.processModels[0].processModelId);
+    const correlationProcessModelId: string = correlation.processModels[0].processModelId;
+    const processModelOfCorrelation: DataModels.ProcessModels.ProcessModel =
+      await this._managementApiService.getProcessModelById(this.activeSolutionEntry.identity, correlationProcessModelId);
 
-    const userTasksAndProcessModels: Array<IUserTaskWithProcessModel> = this._addProcessModelToUserTasks(userTaskList, processModelOfCorrelation);
-    const manualTasksAndProcessModels: Array<IManualTaskWithProcessModel> = this._addProcessModelToManualTasks(
-      manualTaskList, processModelOfCorrelation);
+    const userTasksAndProcessModels: Array<IUserTaskWithProcessModel> =
+      this._addProcessModelToUserTasks(userTaskList, processModelOfCorrelation);
+
+    const manualTasksAndProcessModels: Array<IManualTaskWithProcessModel> =
+      this._addProcessModelToManualTasks(manualTaskList, processModelOfCorrelation);
 
     return [].concat(userTasksAndProcessModels, manualTasksAndProcessModels);
   }
 
   private async _getTasksForProcessInstanceId(processInstanceId: string): Promise<Array<IUserTaskWithProcessModel & IManualTaskWithProcessModel>> {
+
     const userTaskList: DataModels.UserTasks.UserTaskList =
       await this._managementApiService.getUserTasksForProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
+
     const manualTaskList: DataModels.ManualTasks.ManualTaskList =
       await this._managementApiService.getManualTasksForProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
 
@@ -325,15 +328,11 @@ export class TaskList {
       this.requestSuccessful = false;
 
       if (isError(error, UnauthorizedError)) {
-
         this._notificationService.showNotification(NotificationType.ERROR, 'You don\'t have permission to view the task list.');
         this._router.navigateToRoute('start-page');
-
       } else {
-
         this._notificationService.showNotification(NotificationType.ERROR, `Error receiving task list: ${error.message}`);
         this._userTasks = undefined;
-
       }
     }
 
