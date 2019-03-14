@@ -98,7 +98,10 @@ Main._initializeApplication = function () {
     }
   });
 
-  initializeAutoUpdater();
+  if (!isDev) {
+    initializeAutoUpdater();
+  }
+
   initializeFileOpenFeature();
   initializeOidc();
 
