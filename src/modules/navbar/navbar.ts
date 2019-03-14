@@ -352,6 +352,9 @@ export class NavBar {
       this.showTools = false;
       this.showInspectTools = false;
       this.showExportOnInspectCorrelation = false;
+    } else {
+      this.showInspectTools = false;
+      this.showExportOnInspectCorrelation = false;
     }
 
   }
