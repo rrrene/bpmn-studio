@@ -205,15 +205,15 @@ export class TaskList {
         return manualTasksAndProcessModels;
       });
 
-    // Concatentate the array of promises with the UserTasks and the array of promises wuth the ManualTasks to one array
+    // Concatenate the Promises for requesting UserTasks and requesting ManualTasks.
     const promisesForAllTasksForAllProcessModels: Array<PromisesForUserAndManualTasks> = []
       .concat(promisesForAllUserTasks, promisesForAllManualTasks);
 
-    // Await all promises
+    // Await all promises.
     const allTasksForAllProcessModels: Array<UserAndManualTasksWithProcessModels> =
       await Promise.all(promisesForAllTasksForAllProcessModels);
 
-    // Move all tasks from arrays in arrays to a single array
+    // Flatten all results.
     const allTasks: UserAndManualTasksWithProcessModels = [].concat(...allTasksForAllProcessModels);
 
     return allTasks;
@@ -333,6 +333,7 @@ export class TaskList {
 
         this._notificationService.showNotification(NotificationType.ERROR, `Error receiving task list: ${error.message}`);
         this._userTasks = undefined;
+
       }
     }
 
