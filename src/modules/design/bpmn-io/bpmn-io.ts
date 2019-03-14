@@ -367,6 +367,7 @@ export class BpmnIo {
       if (modelerIsSet) {
         this.modeler.importXML(this.xml, (err: Error) => {
           this._fitDiagramToViewport();
+          this._linting.update();
           this._diagramHasChanges = false;
           return 0;
         });
