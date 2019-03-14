@@ -31,18 +31,6 @@ export function configure(aurelia: Aurelia): void {
     aurelia.container.registerInstance('InternalProcessEngineBaseRoute', null);
   }
 
-  const processEngineRoute: string = window.localStorage.getItem('InternalProcessEngineRoute');
-
-  const processEngineRouteExists: boolean = processEngineRoute !== null && processEngineRoute !== '';
-  if (processEngineRouteExists) {
-    environment.baseRoute = processEngineRoute;
-    environment.processengine.routes.processes = `${processEngineRoute}/datastore/ProcessDef`;
-    environment.processengine.routes.iam = `${processEngineRoute}/iam`;
-    environment.processengine.routes.startProcess = `${processEngineRoute}/processengine/start`;
-    environment.processengine.routes.userTasks =  `${processEngineRoute}/datastore/UserTask`;
-    environment.processengine.routes.importBPMN = `${processEngineRoute}/processengine/create_bpmn_from_xml`;
-  }
-
   aurelia.use
     .standardConfiguration()
     .globalResources('modules/custom_elements/modal/modal.html')
