@@ -31,7 +31,6 @@ export class ProcessList {
   private _router: Router;
 
   private _getCorrelationsIntervalId: number;
-  private _getCorrelations: () => Promise<Array<DataModels.Correlations.Correlation>>;
   private _subscriptions: Array<Subscription>;
   private _correlations: Array<DataModels.Correlations.Correlation> = [];
 
@@ -47,12 +46,15 @@ export class ProcessList {
     this._router = router;
   }
 
+  public get correlations(): Array<DataModels.Correlations.Correlation> {
+    return this._correlations.slice((this.currentPage - 1) * this.pageSize, this.pageSize * this.currentPage);
+  }
+
   public async currentPageChanged(newValue: number, oldValue: number): Promise<void> {
     const oldValueIsDefined: boolean = oldValue !== undefined && oldValue !== null;
 
     if (oldValueIsDefined) {
-      this._initializeGetProcesses();
-      await this.updateProcesses();
+      await this.updateCorrelationList();
     }
   }
 
@@ -72,34 +74,33 @@ export class ProcessList {
 
     this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(this._activeSolutionUri);
 
-    this._initializeGetProcesses();
-
-    await this.updateProcesses();
+    await this.updateCorrelationList();
 
     this._getCorrelationsIntervalId = window.setInterval(async() => {
-      await this.updateProcesses();
+      await this.updateCorrelationList();
     }, environment.processengine.dashboardPollingIntervalInMs);
 
     this._subscriptions = [
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, () => {
-        this.updateProcesses();
+        this.updateCorrelationList();
       }),
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
-        this.updateProcesses();
+        this.updateCorrelationList();
       }),
     ];
   }
 
   public detached(): void {
     clearInterval(this._getCorrelationsIntervalId);
+
     for (const subscription of this._subscriptions) {
       subscription.dispose();
     }
   }
 
-  public async updateProcesses(): Promise<void> {
+  public async updateCorrelationList(): Promise<void> {
     try {
-      const correlations: Array<DataModels.Correlations.Correlation> = await this._getCorrelations();
+      const correlations: Array<DataModels.Correlations.Correlation> = await this.getAllActiveCorrelations();
       const correlationListWasUpdated: boolean = JSON.stringify(correlations) !== JSON.stringify(this._correlations);
 
       if (correlationListWasUpdated) {
@@ -120,27 +121,15 @@ export class ProcessList {
     this.totalItems = this._correlations.length;
   }
 
-  public get correlations(): Array<DataModels.Correlations.Correlation> {
-    return this._correlations.slice((this.currentPage - 1) * this.pageSize, this.pageSize * this.currentPage);
-  }
-
   public async stopProcessInstance(processInstanceId: string): Promise<void> {
     try {
       await this._managementApiService.terminateProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
 
-      this._correlations = await this._getCorrelations();
+      this._correlations = await this.getAllActiveCorrelations();
 
     } catch (error) {
       this._notificationService
         .showNotification(NotificationType.ERROR, `Error while stopping Process! ${error}`);
-    }
-  }
-
-  private _initializeGetProcesses(): void {
-    const getProcessesIsUndefined: boolean = this._getCorrelations === undefined;
-
-    if (getProcessesIsUndefined) {
-      this._getCorrelations = this.getAllActiveCorrelations;
     }
   }
 
