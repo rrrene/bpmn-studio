@@ -59,21 +59,6 @@ export class SimpleDiagram {
     await this._http.get(requestDestination, requestHeaders);
   }
 
-  public async startProcess(): Promise<void> {
-    const requestDestination: string =
-      `/api/management/v1/process_models/${this.name}/start?start_callback_type=1&start_event_id=StartEvent_1mox3jl`;
-
-    const requestPayload: IRequestPayload = {};
-    const requestHeaders: IRequestHeaders = this._getRequestHeaders();
-
-    await this._http.post(requestDestination, requestPayload, requestHeaders).jsonBody.then((jsonBody: JSON) => {
-      this.correlationId = jsonBody['correlationId'];
-      this.processInstanceId = jsonBody['processInstanceId'];
-    });
-
-    await browser.sleep(this._processEngineActionTimeout);
-  }
-
   private _getRequestHeaders(): IRequestHeaders {
     const requestHeaders: IRequestHeaders = {
       authorization: 'Bearer ZHVtbXlfdG9rZW4=',

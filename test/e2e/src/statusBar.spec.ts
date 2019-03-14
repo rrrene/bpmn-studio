@@ -13,8 +13,6 @@ describe('Status Bar', () => {
   let statusBar: StatusBar;
   let diagram: SimpleDiagram;
   let diagramDetail: DiagramDetail;
-  let xmlView: XmlView;
-  let diffView: DiffView;
 
   const applicationUrl: string = browser.params.aureliaUrl;
 
@@ -23,8 +21,6 @@ describe('Status Bar', () => {
     statusBar = new StatusBar();
     diagram = new SimpleDiagram();
     diagramDetail = new DiagramDetail(applicationUrl, diagram.name);
-    xmlView = new XmlView(applicationUrl, diagram.name);
-    diffView = new DiffView(applicationUrl, diagram.name);
 
     await diagram.deployDiagram();
 
