@@ -180,6 +180,13 @@ export class SolutionExplorerSolution {
   public async updateSolution(): Promise<void> {
     try {
       this._openedSolution = await this.solutionService.loadSolution();
+
+      /**
+       * Because this method gets called multiple times, we can not see when
+       * we need to resort the array again.
+       */
+      this._sortDiagramsOfSolution();
+
       this.fontAwesomeIconClass = this._originalIconClass;
     } catch (error) {
       // In the future we can maybe display a small icon indicating the error.
@@ -465,6 +472,18 @@ export class SolutionExplorerSolution {
     return this.activeDiagram.uri;
   }
 
+  private _sortDiagramsOfSolution(): void {
+
+    const sorter: (firstElement: IDiagram, secondElement: IDiagram) => number
+      = (firstElement: IDiagram, secondElement: IDiagram): number => {
+        return firstElement.name.localeCompare(secondElement.name, undefined, {
+          caseFirst: 'lower',
+        });
+    };
+
+    this._openedSolution.diagrams.sort(sorter);
+  }
+
   private _closeSingleDiagram(diagramToClose: IDiagram): void {
     const singleDiagramService: SingleDiagramsSolutionExplorerService = this.solutionService as SingleDiagramsSolutionExplorerService;
     singleDiagramService.closeSingleDiagram(diagramToClose);
@@ -624,7 +643,6 @@ export class SolutionExplorerSolution {
       return;
     }
 
-    this.updateSolution();
     this._resetDiagramRenaming();
   }
 
@@ -648,7 +666,6 @@ export class SolutionExplorerSolution {
         return;
       }
 
-      this.updateSolution();
       this._resetDiagramRenaming();
 
     } else if (escapeWasPressed) {
