@@ -22,7 +22,7 @@ export class ProcessList {
   public pageSize: number = 10;
   public totalItems: number;
   public status: Array<string> = [];
-  public succesfullRequested: boolean = false;
+  public requestSuccessful: boolean = false;
   public selectedState: HTMLSelectElement;
 
   private _managementApiService: IManagementApi;
@@ -108,10 +108,10 @@ export class ProcessList {
         this._correlations = correlations;
       }
 
-      this.succesfullRequested = true;
+      this.requestSuccessful = true;
     } catch (error) {
       this._notificationService.showNotification(NotificationType.ERROR, `Error receiving process list: ${error.message}`);
-      this.succesfullRequested = false;
+      this.requestSuccessful = false;
     }
 
     const correlationsAreNotSet: boolean = this._correlations === undefined || this._correlations === null;

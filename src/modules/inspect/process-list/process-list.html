@@ -30,10 +30,10 @@
           boundary-links.bind="true">
         </aubs-pagination>
       </div>
-      <template if.bind="succesfullRequested && (!correlations || correlations.length === 0)">
+      <template if.bind="requestSuccessful && (!correlations || correlations.length === 0)">
         <h3>No process instances found</h3>
       </template>
-      <div show.bind="!succesfullRequested" class="container">
+      <div show.bind="!requestSuccessful" class="container">
         <img src="src/resources/images/gears.svg" class="loading-spinner">
       </div>
     </div>
