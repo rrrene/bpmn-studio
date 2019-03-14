@@ -30,6 +30,9 @@ interface IManualTaskWithProcessModel {
   processModel: DataModels.ProcessModels.ProcessModel;
 }
 
+type UserAndManualTasksWithProcessModels = Array<IUserTaskWithProcessModel & IManualTaskWithProcessModel>;
+type PromisesForUserAndManualTasks = Promise<UserAndManualTasksWithProcessModels>;
+
 @inject(EventAggregator, 'ManagementApiClientService', Router, 'NotificationService', 'SolutionService')
 export class TaskList {
 
@@ -201,9 +204,6 @@ export class TaskList {
 
         return manualTasksAndProcessModels;
       });
-
-    type UserAndManualTasksWithProcessModels = Array<IUserTaskWithProcessModel & IManualTaskWithProcessModel>;
-    type PromisesForUserAndManualTasks = Promise<UserAndManualTasksWithProcessModels>;
 
     // Concatentate the array of promises with the UserTasks and the array of promises wuth the ManualTasks to one array
     const promisesForAllTasksForAllProcessModels: Array<PromisesForUserAndManualTasks> = []
