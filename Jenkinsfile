@@ -73,6 +73,9 @@ pipeline {
       }
     }
     stage('end to end tests') {
+      agent {
+        label 'bpmn-studio-e2e'
+      }
       steps {
         script {
           unstash('post_build')
@@ -83,7 +86,7 @@ pipeline {
 
           try {
             def docker_run_cmd = 'docker run'
-            docker_run_cmd += ' --user 112:116' // Use the jenkins system user.
+            docker_run_cmd += ' --user 1001:1001' // Use the jenkins system user.
             docker_run_cmd += " --env HOME=${env.WORKSPACE}" // Override home folder.
             docker_run_cmd += " --workdir \"${env.WORKSPACE}\"" // Use workspace as workdir.
             docker_run_cmd += " --volume=\"${env.WORKSPACE}:${env.WORKSPACE}:Z\"" // Mount workspace into the container. Z flags fixes the permissions.
@@ -126,7 +129,7 @@ pipeline {
       parallel {
         stage('Build on Linux') {
           agent {
-            label "linux"
+            label "linux && snapcraft-2.41"
           }
           steps {
             unstash('post_build')

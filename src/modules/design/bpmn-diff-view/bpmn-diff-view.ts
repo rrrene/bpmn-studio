@@ -558,11 +558,23 @@ export class BpmnDiffView {
           return;
         }
 
+        this._fitDiagramToViewport(viewer);
+
         resolve();
       });
     });
 
     return xmlImportPromise;
+  }
+
+  private _fitDiagramToViewport(viewer: IBpmnModeler): void {
+    const canvas: ICanvas = viewer.get('canvas');
+    const viewbox: IViewbox  = canvas.viewbox();
+    const diagramIsVisible: boolean = viewbox.height > 0 && viewbox.width > 0;
+
+    if (diagramIsVisible) {
+      canvas.zoom('fit-viewport');
+    }
   }
 
   private async _getXmlFromModeler(): Promise<string> {

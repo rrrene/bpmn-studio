@@ -50,6 +50,7 @@ export class BpmnIo {
   public colorPickerLoaded: boolean = false;
   public minCanvasWidth: number = 100;
   public minPropertyPanelWidth: number = 200;
+  public diagramIsInvalid: boolean = false;
 
   private _bpmnLintButton: HTMLElement;
   private _linting: ILinting;
@@ -63,7 +64,6 @@ export class BpmnIo {
   private _subscriptions: Array<Subscription>;
   private _diagramExportService: IDiagramExportService;
   private _diagramPrintService: IDiagramPrintService;
-  private _diagramIsInvalid: boolean = false;
 
   private _tempProcess: IProcessRef;
   private _diagramHasChanges: boolean = false;
@@ -131,6 +131,24 @@ export class BpmnIo {
 
     this.modeler.on(['shape.added', 'shape.removed'], (event: IInternalEvent) => {
       this._validateDiagram();
+
+      const shapeIsParticipant: boolean = event.element.type === 'bpmn:Participant';
+
+      if (shapeIsParticipant) {
+        return this._checkForMultipleParticipants(event);
+      }
+    });
+
+    this.modeler.on('shape.remove', (event: IInternalEvent) => {
+      const shapeIsParticipant: boolean = event.element.type === 'bpmn:Participant';
+      if (shapeIsParticipant) {
+        const rootElements: Array<IProcessRef> = this.modeler._definitions.rootElements;
+        this._tempProcess = rootElements.find((element: IProcessRef) => {
+          return element.$type === 'bpmn:Process';
+        });
+
+        return event;
+      }
     });
 
     this.modeler.on('element.paste', (event: IInternalEvent) => {
@@ -278,11 +296,11 @@ export class BpmnIo {
       }),
 
       this._eventAggregator.subscribe(environment.events.navBar.validationError, () => {
-        this._diagramIsInvalid = true;
+        this.diagramIsInvalid = true;
       }),
 
       this._eventAggregator.subscribe(environment.events.navBar.noValidationError, () => {
-        this._diagramIsInvalid = false;
+        this.diagramIsInvalid = false;
       }),
 
       this._eventAggregator.subscribe(environment.events.bpmnio.togglePropertyPanel, () => {
@@ -349,6 +367,7 @@ export class BpmnIo {
       if (modelerIsSet) {
         this.modeler.importXML(this.xml, (err: Error) => {
           this._fitDiagramToViewport();
+          this._linting.update();
           this._diagramHasChanges = false;
           return 0;
         });
@@ -489,6 +508,33 @@ export class BpmnIo {
     }
 
     return randomId;
+  }
+
+  private _checkForMultipleParticipants(event: IInternalEvent): IInternalEvent {
+    const elementRegistry: IElementRegistry = this.modeler.get('elementRegistry');
+
+    setTimeout(() => {
+      const participants: Array<IShape> = elementRegistry.filter((element: IShape) => {
+        return element.type === 'bpmn:Participant';
+      });
+
+      const multipleParticipants: boolean = participants.length > 1;
+
+      if (this._diagramHasChanges) {
+        participants.forEach((participant: IShape) => {
+          participant.businessObject.processRef.id = this._tempProcess.id;
+          participant.businessObject.processRef.isExecutable = this._tempProcess.isExecutable;
+        });
+      }
+
+      const eventToPublish: string = multipleParticipants
+                                   ? environment.events.navBar.validationError
+                                   : environment.events.navBar.noValidationError;
+
+      this._eventAggregator.publish(eventToPublish);
+    }, elementRegistryTimeoutMilliseconds);
+
+    return event;
   }
 
   private _setNewPropertyPanelWidthFromMousePosition(mousePosition: number): void {
@@ -657,7 +703,7 @@ export class BpmnIo {
       /**
        * We don't want the user to print an invalid diagram.
        */
-      if (this._diagramIsInvalid) {
+      if (this.diagramIsInvalid) {
         this._notificationService.showNotification(NotificationType.WARNING,
           `The Diagram is invalid. Please resolve this issues to print the diagram`);
 

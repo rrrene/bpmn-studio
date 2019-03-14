@@ -35,12 +35,10 @@ describe('Diff view', () => {
     await diagram1.deleteDiagram();
   });
 
-  beforeEach(async() => {
+  it('should contain `Show Diff` button in status bar.', async() => {
     await routerView.show();
     await diagramDetail.show();
-  });
 
-  it('should contain `Show Diff` button in status bar.', async() => {
     const statusBarDiffViewButtonIsDisplayed: boolean = await statusBar.getVisibilityOfEnableDiffViewButton();
 
     expect(statusBarDiffViewButtonIsDisplayed).toBeTruthy();
@@ -59,14 +57,12 @@ describe('Diff view', () => {
   });
 
   it('should contain `diffAgainstOtherDiagramButton` on right toolbar.', async() => {
-    await diffView.show();
     const diffAgainstOtherDiagramButtonIsDisplayed: boolean = await diffView.getVisibilityOfDiffAgainstOtherDiagramButton();
 
     expect(diffAgainstOtherDiagramButtonIsDisplayed).toBeTruthy();
   });
 
   it('should show `Choose diagram` modal.', async() => {
-    await diffView.show();
     diffView.clickOnDiffAgainstOtherDiagramButton();
 
     const chooseDiagramModalIsDisplayed: boolean = await diffView.getVisibilityOfChooseDiagramModal();
@@ -75,36 +71,24 @@ describe('Diff view', () => {
   });
 
   it('should contain `diagramDropdown` within the modal.', async() => {
-    await diffView.show();
-    diffView.clickOnDiffAgainstOtherDiagramButton();
-
     const diagramDropdownIsDisplayed: boolean = await diffView.getVisibilityOfDiagramDropdown();
 
     expect(diagramDropdownIsDisplayed).toBeTruthy();
   });
 
   it('should contain `cancelButton` within the modal.', async() => {
-    await diffView.show();
-    diffView.clickOnDiffAgainstOtherDiagramButton();
-
     const cancelButtonIsDisplayed: boolean = await diffView.getVisibilityOfCancelButton();
 
     expect(cancelButtonIsDisplayed).toBeTruthy();
   });
 
   it('should contain `compareButton` within the modal.', async() => {
-    await diffView.show();
-    diffView.clickOnDiffAgainstOtherDiagramButton();
-
     const compareButtonIsDisplayed: boolean = await diffView.getVisibilityOfCompareButton();
 
     expect(compareButtonIsDisplayed).toBeTruthy();
   });
 
   it('should cancel the modal.', async() => {
-    await diffView.show();
-    diffView.clickOnDiffAgainstOtherDiagramButton();
-
     const cancelButtonIsDisplayed: boolean = await diffView.getVisibilityOfCancelButton();
     expect(cancelButtonIsDisplayed).toBeTruthy();
 
@@ -115,7 +99,9 @@ describe('Diff view', () => {
   });
 
   it('should select a diagram.', async() => {
+    await routerView.show();
     await diffView.show();
+
     diffView.clickOnDiffAgainstOtherDiagramButton();
 
     const arrayOfOptions: Array<ElementFinder> = await diffView.getDropdownOptions();
@@ -132,7 +118,9 @@ describe('Diff view', () => {
   });
 
   it('should compare the current diagram with another.', async() => {
+    await routerView.show();
     await diffView.show();
+
     diffView.clickOnDiffAgainstOtherDiagramButton();
 
     const arrayOfOptions: Array<ElementFinder> = await diffView.getDropdownOptions();

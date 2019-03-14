@@ -32,7 +32,7 @@
                   css.bind="showLinter? 'opacity: 1;' : ''"
                   title.bind="showLinter ? 'Hide Linter' : 'Show Linter'"
                   click.delegate="toggleLinter()">
-            <i class="fas fa-check"></i>
+            <i class.bind="diagramIsInvalid ? 'fas fa-times' : 'fas fa-check'"></i>
           </button>
         </div>
         <div class="properties" ref="propertyPanel" show.bind="showPropertyPanel" css="width: ${propertyPanelWidth}px; max-width: calc(100% - ${minCanvasWidth}px); min-width: ${minPropertyPanelWidth}px;">

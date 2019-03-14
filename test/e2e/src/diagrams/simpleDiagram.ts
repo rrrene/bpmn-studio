@@ -12,6 +12,7 @@ export class SimpleDiagram {
   // Define Instances
   private _processEngineUrl: string = browser.params.processEngineUrl;
   private _http: HttpClient = new HttpClient(this._processEngineUrl);
+  private _processEngineActionTimeout: number = browser.params.processEngineActionTimeout;
 
   public async deployDiagram(): Promise<void> {
     const requestDestination: string = `/api/management/v1/process_models/${this.name}/update`;
@@ -47,6 +48,8 @@ export class SimpleDiagram {
     const requestHeaders: IRequestHeaders = this._getRequestHeaders();
 
     await this._http.post(requestDestination, requestPayload, requestHeaders);
+
+    await browser.sleep(this._processEngineActionTimeout);
   }
 
   public async deleteDiagram(): Promise<void> {
@@ -54,19 +57,6 @@ export class SimpleDiagram {
     const requestHeaders: IRequestHeaders = this._getRequestHeaders();
 
     await this._http.get(requestDestination, requestHeaders);
-  }
-
-  public startProcess(): void {
-    const requestDestination: string =
-      `/api/management/v1/process_models/${this.name}/start?start_callback_type=1&start_event_id=StartEvent_1mox3jl`;
-
-    const requestPayload: IRequestPayload = {};
-    const requestHeaders: IRequestHeaders = this._getRequestHeaders();
-
-    this._http.post(requestDestination, requestPayload, requestHeaders).jsonBody.then((jsonBody: JSON) => {
-      this.correlationId = jsonBody['correlationId'];
-      this.processInstanceId = jsonBody['processInstanceId'];
-    });
   }
 
   private _getRequestHeaders(): IRequestHeaders {

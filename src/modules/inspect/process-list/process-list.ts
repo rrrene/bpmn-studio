@@ -126,6 +126,18 @@ export class ProcessList {
     return this._correlations.slice((this.currentPage - 1) * this.pageSize, this.pageSize * this.currentPage);
   }
 
+  public async stopProcessInstance(processInstanceId: string): Promise<void> {
+    try {
+      await this._managementApiService.terminateProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
+
+      this._correlations = await this._getCorrelations();
+
+    } catch (error) {
+      this._notificationService
+        .showNotification(NotificationType.ERROR, `Error while stopping Process! ${error}`);
+    }
+  }
+
   private _initializeGetProcesses(): void {
     const getProcessesIsUndefined: boolean = this._getCorrelations === undefined;
 

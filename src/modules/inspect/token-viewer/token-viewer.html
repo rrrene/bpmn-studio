@@ -12,8 +12,8 @@
       </label>
       Beautified
     </div>
-    <span if.bind="!showTokenEntries && flowNode === undefined" class="token-viewer__empty-message">There is no token for this element.</span>
-    <span if.bind="flowNode !== undefined && !showTokenEntries" class="token-viewer__empty-message">Select an element to view token.</span>
+    <span if.bind="!showTokenEntries && flowNode !== undefined" class="token-viewer__empty-message">There is no token for this element.</span>
+    <span if.bind="flowNode === undefined && !showTokenEntries" class="token-viewer__empty-message">Select an element to view token.</span>
     <div repeat.for="entry of tokenEntries" if.bind="showBeautifiedToken">
       <div class="token-entry-container">
         <div class="token-entry__event-type">

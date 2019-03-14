@@ -1,7 +1,7 @@
 <template>
   <require from="./navbar.css"></require>
   <div class="bpmn-studio-navbar bpmn-studio-navbar--macos" id="navBarContainer">
-    <div class="menu-bar__menu menu-bar__menu--left" id="navBarLeft">
+    <div class="menu-bar__menu--left" id="navBarLeft">
       <div class="menu__menu-tabbed-link">
         <button id="navbarSolutionExplorerButton" class="button menu-tabbed-link action-button" class.bind="solutionExplorerIsActive ? 'button--active' : ''" click.delegate="toggleSolutionExplorer()" title="Toggle visibility of the Solution Explorer">
           <i class="fas fa-project-diagram"></i>
@@ -11,19 +11,19 @@
         <a id="navbar-${nav.title}" class="menu-tabbed-link" click.delegate="navigate(nav)">${nav.title}</a>
       </div>
     </div>
-    <div class="menu-bar__menu menu-bar__menu--center" id="navBarCenter">
+    <div class="menu-bar__menu--center" id="navBarCenter">
       <div class="menu__element menu__element--title btn-group" if.bind="showProcessName" ref="diagramInfo">
         <span class="fas menu__origin-icon" class.bind="getClassNameForNavbarIcon"></span>
-        <span class="process-details-title">${navbarTitle}</span>
+        <span class="process-details-title" title.bind="navbarTitle">${navbarTitle}</span>
         <span if.bind="diagramContainsUnsavedChanges" class="edited-label">- edited</span>
       </div>
     </div>
-    <div class="menu-bar__menu menu-bar__menu--right" id="navBarRight">
+    <div class="menu-bar__menu--right" id="navBarRight">
       <template if.bind="showTools">
         <button class="button menu-bar__menu-center--action-button menu-bar__menu-center--back-button back-button" click.delegate="navigateBack()" title="Navigate back">
           <i class="fas fa-arrow-circle-left"></i>
         </button>
-        <button class="button menu-bar__menu-center--action-button" class.bind="validationError && savingTargetIsRemoteSolution ? 'button--disabled' : ''" click.delegate="saveDiagram()" disabled.bind="validationError && savingTargetIsRemoteSolution" title="Save Diagram">
+        <button class="button menu-bar__menu-center--action-button" class.bind="validationError && savingTargetIsRemoteSolution ? 'button--disabled' : ''" click.delegate="saveDiagram()" disabled.bind="validationError && savingTargetIsRemoteSolution" title.bind="saveButtonTitle">
           <i class="fas fa-save"></i>
         </button>
       </template>
@@ -49,11 +49,11 @@
         <button class="button menu-bar__menu-center--action-button"  click.delegate="printDiagram()" title="Print Diagram">
           <i class="fas fa-print"></i>
         </button>
-        <button class="button menu-bar__menu-center--action-button" class.bind="validationError || disableDiagramUploadButton ? 'button--disabled' : ''" click.delegate="uploadProcess()" title.bind="disableDiagramUploadButton ? 'This process is already deployed to the remote ProcessEngine' : 'Deploy to ProcessEngine'">
+        <button class="button menu-bar__menu-center--action-button" class.bind="validationError || disableDiagramUploadButton ? 'button--disabled' : ''" click.delegate="uploadProcess()" title.bind="diagramUploadButtonTitle">
           <i class="fas fa-dolly-flatbed"></i>
         </button>
         <div class="btn-group">
-          <button class="button menu-bar__menu-center--action-button" class.bind="validationError || disableStartButton ? 'button--disabled' : ''" click.delegate="startProcess()" disabled.bind="validationError || disableStartButton" title.bind="disableStartButton ? 'Before starting the process please deploy it to the ProcessEngine' : 'Start Process'">
+          <button class="button menu-bar__menu-center--action-button" class.bind="validationError || disableStartButton ? 'button--disabled' : ''" click.delegate="startProcess()" disabled.bind="validationError || disableStartButton" title.bind="startButtonTitle">
             <i class="fas fa-play"></i>
           </button>
           <button type="button" class="button menu-bar__menu-center--action-button dropdown-toggle dropdown-toggle-split dropdown__start-button" class.bind="validationError || disableStartButton ? 'button--disabled' : ''" disabled.bind="validationError || disableStartButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

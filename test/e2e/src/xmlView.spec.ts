@@ -63,7 +63,6 @@ describe('XML view', () => {
   });
 
   it('should show line numbers.', async() => {
-    await xmlView.show();
 
     const visbilityOfLineNumbers: boolean = await xmlView.getVisbilityOfLineNumbers();
 
@@ -71,7 +70,6 @@ describe('XML view', () => {
   });
 
   it('should show code lines.', async() => {
-    await xmlView.show();
 
     const visiblityOfCodeLines: boolean = await xmlView.getVisbilityOfCodeLines();
 

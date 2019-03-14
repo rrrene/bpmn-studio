@@ -19,6 +19,7 @@ export class LETTestDiagram {
     private _processEngineUrl: string = browser.params.processEngineUrl;
     private _http: HttpClient = new HttpClient(this._processEngineUrl);
     private _applicationUrl: string = browser.params.aureliaUrl;
+    private _processEngineActionTimeout: number = browser.params.processEngineActionTimeout;
 
     constructor(callActivityTargetDiagramId: string) {
       this.callActivityTargetDiagramId = callActivityTargetDiagramId;
@@ -243,6 +244,8 @@ export class LETTestDiagram {
       const requestHeaders: IRequestHeaders = this._getRequestHeaders();
 
       await this._http.post(requestDestination, requestPayload, requestHeaders);
+
+      await browser.sleep(this._processEngineActionTimeout);
     }
 
     public async deleteDiagram(): Promise<void> {
@@ -269,6 +272,8 @@ export class LETTestDiagram {
                                   '/diagram/' + this.name +
                                   '/instance/' + this.processInstanceId +
                                   '/task/' + this.userTaskId;
+
+      await browser.sleep(this._processEngineActionTimeout);
     }
 
     private _getRequestHeaders(): IRequestHeaders {

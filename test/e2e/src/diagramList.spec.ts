@@ -22,15 +22,13 @@ describe('Diagram List', () => {
     diagramDetail = new DiagramDetail(applicationUrl, diagram.name);
 
     await diagram.deployDiagram();
+
+    await routerView.show();
+    await diagramList.show();
   });
 
   afterAll(async() => {
     await diagram.deleteDiagram();
-  });
-
-  beforeEach(async() => {
-    await routerView.show();
-    await diagramList.show();
   });
 
   it('should contain the deployed diagram.', async() => {

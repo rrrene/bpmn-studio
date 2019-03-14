@@ -1,8 +1,4 @@
-import {
-  browser,
-  protractor,
-  ProtractorExpectedConditions,
-} from 'protractor';
+import {browser} from 'protractor';
 
 import {SimpleDiagram} from './diagrams/simpleDiagram';
 import {DiagramDetail} from './pages/diagramDetail';
@@ -15,9 +11,6 @@ describe('Diagram Detail', () => {
   let diagram: SimpleDiagram;
 
   const applicationUrl: string = browser.params.aureliaUrl;
-  const defaultTimeoutMS: number = browser.params.defaultTimeoutMS;
-
-  const expectedConditions: ProtractorExpectedConditions = protractor.ExpectedConditions;
 
   beforeAll(async() => {
     diagram = new SimpleDiagram();
@@ -31,12 +24,10 @@ describe('Diagram Detail', () => {
     await diagram.deleteDiagram();
   });
 
-  beforeEach(async() => {
+  it('should contain the bpmn-io container.', async() => {
     await routerView.show();
     await diagramDetail.show();
-  });
 
-  it('should contain the bpmn-io container.', async() => {
     const visibilityOfBpmnIoContainer: boolean = await diagramDetail.getVisibilityOfBpmnIoContainer();
 
     expect(visibilityOfBpmnIoContainer).toBeTruthy();
