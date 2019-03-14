@@ -347,8 +347,9 @@ export class TaskList {
     try {
       this._userTasks = await this._getTasks();
       this.requestSuccessful = true;
-
     } catch (error) {
+
+      this.requestSuccessful = false;
 
       if (isError(error, UnauthorizedError)) {
 
