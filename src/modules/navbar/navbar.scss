@@ -27,6 +27,7 @@ button {
   justify-content: flex-start;
   align-items: stretch;
   text-align: center;
+  min-width: 308px;
 }
 
 .menu-bar__menu--center {
@@ -43,6 +44,7 @@ button {
   align-items: center;
   text-align: right;
   padding-right: 80px;
+  min-width: 308px;
 }
 
 .menu__menu-tabbed-link {
