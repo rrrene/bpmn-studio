@@ -11,6 +11,22 @@
 
           <i class="fa ${solutionEntry.fontAwesomeIconClass} solution-entry__solution-icon" title.bind="solutionEntry.fontAwesomeIconClass === 'fa-bolt' ? 'ProcessEngine Disconnected!' : ''"></i>
 
+          <button class="button solution-entry__logged-in-icon"
+            if.bind="solutionEntry.uri.startsWith('http') && !solutionEntry.isLoggedIn"
+            click.delegate="login(solutionEntry)"
+            title="Login">
+
+            <i class="fa fa-lock-open"></i>
+          </button>
+
+          <button class="button solution-entry__logged-in-icon"
+            if.bind="solutionEntry.isLoggedIn"
+            click.delegate="logout(solutionEntry)"
+            title.bind="`Logout ${solutionEntry.userName}`">
+
+            <i class="fa fa-lock"></i>
+          </button>
+
           <span class="solution-entry__solution-name">${getSolutionName(solutionEntry.uri)}</span>
           <div class="solution-entry__solution-path">
             <span
@@ -21,21 +37,7 @@
           </div>
 
           <div class="solution-entry__actions ">
-            <button class="button"
-              if.bind="solutionEntry.uri.startsWith('http') && !solutionEntry.isLoggedIn"
-              click.delegate="login(solutionEntry)"
-              title="Login">
 
-              <i class="fa fa-lock-open"></i>
-            </button>
-
-            <button class="button"
-              if.bind="solutionEntry.isLoggedIn"
-              click.delegate="logout(solutionEntry)"
-              title.bind="`Logout ${solutionEntry.userName}`">
-
-              <i class="fa fa-lock"></i>
-            </button>
 
             <button class="button"
               if.bind="solutionIsInternalSolution(solutionEntry)"
