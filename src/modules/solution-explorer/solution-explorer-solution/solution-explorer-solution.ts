@@ -473,12 +473,14 @@ export class SolutionExplorerSolution {
   }
 
   private _sortDiagramsOfSolution(): void {
+    type DiagramSorter = (firstElement: IDiagram, secondElement: IDiagram) => number;
 
-    const sorter: (firstElement: IDiagram, secondElement: IDiagram) => number
-      = (firstElement: IDiagram, secondElement: IDiagram): number => {
-        return firstElement.name.localeCompare(secondElement.name, undefined, {
-          caseFirst: 'lower',
-        });
+    const sortOptions: Intl.CollatorOptions = {
+      caseFirst: 'lower',
+    };
+
+    const sorter: DiagramSorter = (firstElement: IDiagram, secondElement: IDiagram): number => {
+        return firstElement.name.localeCompare(secondElement.name, undefined, sortOptions);
     };
 
     this._openedSolution.diagrams.sort(sorter);
