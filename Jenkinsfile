@@ -108,13 +108,18 @@ pipeline {
 
           def total_tests_run = test_result_matcher[0][1] as Integer;
 
-          def tests_failed = test_result_matcher[0][2] != null;
-          if (tests_failed) {
+          def some_tests_failed = test_result_matcher[0][2] != null;
+          def tests_failed = some_tests_failed
+                              ? test_result_matcher[0][3] as Integer
+                              : 0;
+
+          echo "${total_tests_run} Tests run. ${tests_failed} Tests failed."
+
+          if (some_tests_failed) {
             error 'Some tests failed, build failed.';
           }
 
           /*
-          echo "${total_tests_run} Tests run. ${tests_failed} Tests failed."
 
           def some_tests_failed = tests_failed != 0;
           if (some_tests_failed) {
