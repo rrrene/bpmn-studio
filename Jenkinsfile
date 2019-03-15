@@ -119,13 +119,6 @@ pipeline {
           if (some_tests_failed) {
             error 'Some tests failed, build failed.';
           }
-
-          /*
-
-          def some_tests_failed = tests_failed != 0;
-          if (some_tests_failed) {
-            error 'Some tests failed, build failed.';
-          }*/
         }
       }
     }
