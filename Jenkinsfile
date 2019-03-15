@@ -108,7 +108,7 @@ pipeline {
 
           def total_tests_run = test_result_matcher[0][1] as Integer;
 
-          def tests_failed = test_result_matcher[0].length() > 1;
+          def tests_failed = test_result_matcher[0][2] != null;
           if (tests_failed) {
             error 'Some tests failed, build failed.';
           }
