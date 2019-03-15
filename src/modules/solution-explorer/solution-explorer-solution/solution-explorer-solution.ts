@@ -645,6 +645,7 @@ export class SolutionExplorerSolution {
       return;
     }
 
+    this.updateSolution();
     this._resetDiagramRenaming();
   }
 
@@ -668,6 +669,7 @@ export class SolutionExplorerSolution {
         return;
       }
 
+      this.updateSolution();
       this._resetDiagramRenaming();
 
     } else if (escapeWasPressed) {
