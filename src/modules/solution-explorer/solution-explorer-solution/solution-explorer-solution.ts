@@ -480,7 +480,7 @@ export class SolutionExplorerSolution {
     };
 
     const sorter: DiagramSorter = (firstElement: IDiagram, secondElement: IDiagram): number => {
-        return firstElement.name.localeCompare(secondElement.name, undefined, sortOptions);
+      return firstElement.name.localeCompare(secondElement.name, undefined, sortOptions);
     };
 
     this._openedSolution.diagrams.sort(sorter);
