@@ -1,13 +1,30 @@
-import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
-import {IDiagramCreationService} from '../../contracts';
+import {inject} from 'aurelia-framework';
 
+import {IModdleElement, IProcessRef} from '@process-engine/bpmn-elements_contracts';
+import * as bundle from '@process-engine/bpmn-js-custom-bundle';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+
+import {IBpmnModeler, IDiagramCreationService, NotificationType} from '../../contracts/index';
+import {NotificationService} from '../notification-service/notification.service';
+
+@inject('NotificationService')
 export class DiagramCreationService implements IDiagramCreationService {
 
-  public createNewDiagram(solutionBaseUri: string, withName: string): IDiagram {
+  private _notificationService: NotificationService;
+
+  constructor(notificationService: NotificationService) {
+    this._notificationService = notificationService;
+  }
+
+  public async createNewDiagram(solutionBaseUri: string, withName: string, xml?: string): Promise<IDiagram> {
 
     const processName: string = withName.trim();
     const diagramUri: string = `${solutionBaseUri}/${processName}.bpmn`;
-    const processXML: string = this._getInitialProcessXML(processName);
+
+    const xmlGiven: boolean = xml !== undefined;
+    const processXML: string = xmlGiven
+                             ? await this._renameDiagram(xml, withName)
+                             : this._getInitialProcessXML(processName);
 
     const diagram: IDiagram = {
       id: processName,
@@ -17,6 +34,49 @@ export class DiagramCreationService implements IDiagramCreationService {
     };
 
     return diagram;
+  }
+
+  private async _renameDiagram(xml: string, name: string): Promise<string> {
+    const modeler: IBpmnModeler = new bundle.modeler({});
+
+    modeler.importXML(xml, (error: Error) => {
+      this._notificationService.showNotification(NotificationType.ERROR, `Failed to copy diagram. ${error.message}`);
+    });
+
+    const promise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
+      modeler.on('import.done', () => {
+
+        const rootElements: Array<IModdleElement> = modeler._definitions.rootElements;
+        const process: IProcessRef = rootElements.find((element: IModdleElement) => {
+          return element.$type === 'bpmn:Process';
+        }) as IProcessRef;
+
+        process.id = name;
+        process.name = name;
+
+        const collaboration: IModdleElement = rootElements.find((element: IModdleElement) => {
+          return element.$type === 'bpmn:Collaboration';
+        });
+        const participant: IModdleElement = collaboration.participants[0];
+
+        participant.name = name;
+        participant.processRef = process;
+
+        modeler.saveXML({}, (error: Error, result: string) => {
+          const errorOccured: boolean = error !== undefined;
+          if (errorOccured) {
+            this._notificationService.showNotification(NotificationType.ERROR, `Failed to copy the diagram. Cause: ${error.message}`);
+
+            return reject(error);
+          }
+
+          resolve(result);
+        });
+
+      });
+    });
+
+    return promise;
   }
 
   private _getInitialProcessXML(processModelId: string): string {

@@ -121,3 +121,20 @@
   width: calc(100% + 30px);
   margin-left: -30px;
 }
+
+.diagram-contextmenu {
+  position: fixed;
+  background: white;
+  border: 1px solid #dcdbdb;
+  border-radius: 5px;
+}
+
+.diagram-contextmenu__entry {
+  width: 100%;
+  padding: 0 10px;
+  text-align: center;
+}
+
+.diagram-contextmenu__entry:hover {
+  background-color: #dcdbdb;
+}

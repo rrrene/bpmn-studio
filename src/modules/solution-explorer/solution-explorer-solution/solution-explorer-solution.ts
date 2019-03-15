@@ -87,11 +87,14 @@ export class SolutionExplorerSolution {
   @bindable public displayedSolutionEntry: ISolutionEntry;
   @bindable public fontAwesomeIconClass: string;
   public createNewDiagramInput: HTMLInputElement;
+  public diagramContextMenu: HTMLElement;
+  public showContextMenu: boolean = false;
   public deleteDiagramModal: DeleteDiagramModal;
 
   private _renameDiagramInput: HTMLInputElement;
   private _originalIconClass: string;
   private _globalSolutionService: ISolutionService;
+  private _diagramInContextMenu: IDiagram;
 
   constructor(
     router: Router,
@@ -248,6 +251,50 @@ export class SolutionExplorerSolution {
 
   public set renameDiagramInput(input: HTMLInputElement) {
     this._renameDiagramInput = input;
+  }
+
+  public activateContextMenu(event: MouseEvent, diagram: IDiagram): void {
+    this._diagramInContextMenu = diagram;
+
+    this.diagramContextMenu.style.top = `${event.y}px`;
+    this.diagramContextMenu.style.left = `${event.x}px`;
+    this.showContextMenu = true;
+
+    const documentEventListener: EventListenerOrEventListenerObject = (): void => {
+      this.showContextMenu = false;
+      this._diagramInContextMenu = undefined;
+
+      document.removeEventListener('click', documentEventListener);
+    };
+
+    document.addEventListener('click', documentEventListener);
+  }
+
+  public async copyDiagram(): Promise<void> {
+    const noDiagramInContextMenu: boolean = this._diagramInContextMenu === undefined;
+    if (noDiagramInContextMenu) {
+      return;
+    }
+
+    let newNameFound: boolean = false;
+    let newName: string;
+    let diagramNumber: number = 1;
+
+    while (newNameFound === false) {
+      newName = `${this._diagramInContextMenu.name} (${diagramNumber})`;
+
+      newNameFound = this.openedDiagrams.every((diagram: IDiagram) => {
+        return diagram.name !== newName;
+      });
+
+      diagramNumber++;
+    }
+
+    const copiedDiagram: IDiagram =
+      await this._diagramCreationService.createNewDiagram(this.displayedSolutionEntry.uri, newName, this._diagramInContextMenu.xml);
+
+    await this.solutionService.saveDiagram(copiedDiagram, copiedDiagram.uri);
+    this.updateSolution();
   }
 
   /*
@@ -695,7 +742,7 @@ export class SolutionExplorerSolution {
       return;
     }
 
-    const emptyDiagram: IDiagram = this._diagramCreationService
+    const emptyDiagram: IDiagram = await this._diagramCreationService
       .createNewDiagram(this._openedSolution.uri, this._diagramCreationState.currentDiagramInputValue);
 
     try {
