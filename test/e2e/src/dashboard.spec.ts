@@ -4,7 +4,7 @@ import {DiagramWithUserTask} from './diagrams/diagramWithUserTask';
 import {Dashboard} from './pages/dashboard';
 import {RouterView} from './pages/routerView';
 
-describe('Dashboard', () => {
+fdescribe('Dashboard', () => {
 
   let dashboard: Dashboard;
   let diagram: DiagramWithUserTask;
@@ -33,6 +33,8 @@ describe('Dashboard', () => {
     const visibilityOfProcessListContainer: boolean = await dashboard.getVisibilityOfProcessListContainer();
 
     expect(visibilityOfProcessListContainer).toBeTruthy();
+
+    expect(false).toBeTruthy();
   });
 
   it('should contain the task list.', async() => {
