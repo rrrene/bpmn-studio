@@ -101,7 +101,7 @@ pipeline {
             sh("docker rm ${docker_e2e_container_name} || true")
           }
 
-          def parse_test_result_regex = /Executed\ (\d+)\ of\ \d+\ specs(\ \((\d+)\ FAILED\))?/;
+          def parse_test_result_regex = /Executed\ (\d+)\ of\ \d+\ specs(.*?\((\d+)\ FAILED\))?/;
 
           def test_result_log = readFile "e2e_test_results.txt"
           println(test_result_log);
