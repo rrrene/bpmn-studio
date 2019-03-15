@@ -8,7 +8,7 @@ exports.config = {
       browserName: 'chrome',
       chromeOptions: {
         args: [
-          //"--headless",
+          "--headless",
           "--disable-gpu",
           "--no-sandbox",
           "--disable-dev-shm-usage",
