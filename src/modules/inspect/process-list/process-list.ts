@@ -47,7 +47,10 @@ export class ProcessList {
   }
 
   public get correlations(): Array<DataModels.Correlations.Correlation> {
-    return this._correlations.slice((this.currentPage - 1) * this.pageSize, this.pageSize * this.currentPage);
+    const firstCorrelationIndex: number = (this.currentPage - 1) * this.pageSize;
+    const lastCorrelationIndex: number = (this.pageSize * this.currentPage);
+
+    return this._correlations.slice(firstCorrelationIndex, lastCorrelationIndex);
   }
 
   public async currentPageChanged(newValue: number, oldValue: number): Promise<void> {
