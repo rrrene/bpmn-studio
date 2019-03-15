@@ -4,7 +4,7 @@ import {DiagramWithUserTask} from './diagrams/diagramWithUserTask';
 import {Dashboard} from './pages/dashboard';
 import {RouterView} from './pages/routerView';
 
-fdescribe('Dashboard', () => {
+describe('Dashboard', () => {
 
   let dashboard: Dashboard;
   let diagram: DiagramWithUserTask;
