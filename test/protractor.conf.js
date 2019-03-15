@@ -1,3 +1,5 @@
+let specReporter = require('jasmine-spec-reporter').SpecReporter;
+
 exports.config = {
   directConnect: false,
 
@@ -6,7 +8,7 @@ exports.config = {
       browserName: 'chrome',
       chromeOptions: {
         args: [
-          "--headless",
+          //"--headless",
           "--disable-gpu",
           "--no-sandbox",
           "--disable-dev-shm-usage",
@@ -42,9 +44,17 @@ exports.config = {
   jasmineNodeOpts: {
     showColors: true,
     defaultTimeoutInterval: 30000,
+    print: function() {},
   },
 
   onPrepare: function() {
+
+    jasmine.getEnv().addReporter(new specReporter({
+      spec: {
+        displayStacktrace: true,
+      }
+    }));
+
     browser.manage().window().maximize();
 
     afterEach(() => {
