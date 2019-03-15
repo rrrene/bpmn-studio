@@ -31,10 +31,10 @@
         </aubs-pagination>
       </div>
     </div>
-    <template if.bind="successfullyRequested && (!tasks || tasks.length === 0)">
+    <template if.bind="requestSuccessful && (!tasks || tasks.length === 0)">
       <h3>No tasks found</h3>
     </template>
-    <div show.bind="!successfullyRequested" class="container">
+    <div show.bind="!requestSuccessful" class="container">
       <img src="src/resources/images/gears.svg" class="loading-spinner">
     </div>
   </div>

@@ -26,14 +26,13 @@
         </table>
       </template>
       <div class="col-md-12 col-xs-12 pagination" show.bind="correlations && correlations.length > 0">
-        <aubs-pagination page-size.bind="pageSize" total-items.bind="totalItems" current-page.bind="currentPage"
-          boundary-links.bind="true">
+        <aubs-pagination page-size.bind="pageSize" total-items.bind="totalItems" current-page.bind="currentPage" boundary-links.bind="true">
         </aubs-pagination>
       </div>
-      <template if.bind="succesfullRequested && (!correlations || correlations.length === 0)">
+      <template if.bind="requestSuccessful && (!correlations || correlations.length === 0)">
         <h3>No process instances found</h3>
       </template>
-      <div show.bind="!succesfullRequested" class="container">
+      <div show.bind="!requestSuccessful" class="container">
         <img src="src/resources/images/gears.svg" class="loading-spinner">
       </div>
     </div>

@@ -404,8 +404,9 @@ export class NavBar {
       }
 
       this._updateNavbarTitle();
-      this._updateNavbarTools();
     }
+
+    this._updateNavbarTools();
 
     const routeNameIsStartPage: boolean = this.router.currentInstruction.config.name === 'start-page';
     if (routeNameIsStartPage) {
