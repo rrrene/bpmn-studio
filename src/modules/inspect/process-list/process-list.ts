@@ -17,7 +17,7 @@ import {NotificationService} from '../../../services/notification-service/notifi
 @inject('ManagementApiClientService', EventAggregator, 'NotificationService', 'SolutionService', Router)
 export class ProcessList {
 
-  @observable public currentPage: number = 0;
+  @observable public currentPage: number = 1;
   @bindable() public activeSolutionEntry: ISolutionEntry;
   public pageSize: number = 10;
   public totalItems: number;
