@@ -33,8 +33,6 @@ fdescribe('Dashboard', () => {
     const visibilityOfProcessListContainer: boolean = await dashboard.getVisibilityOfProcessListContainer();
 
     expect(visibilityOfProcessListContainer).toBeTruthy();
-
-    expect(false).toBeTruthy();
   });
 
   it('should contain the task list.', async() => {
