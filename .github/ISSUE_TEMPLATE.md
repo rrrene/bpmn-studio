@@ -10,12 +10,12 @@
 
 > Describe how others can reproduce this issue as precisely as possible.
 >
-> Please provide the diagram if the error ocurred on specific actions on a
+> Please provide the diagram if the error occurred on specific actions on a
 > diagram.
 >
 > If you can't reproduce the issue, let us know what you tried!
 >
-> You can remove this section if the issue isn't something reproducable
+> You can remove this section if the issue isn't something reproducible
 > (for example for certain questions or feature requests).
 
 #### Possible solution
@@ -41,6 +41,6 @@
 Please check the boxes in this list after submitting your Issue:
 
 - [ ] I've checked if this issue already exists
-- [ ] I've included all the information that i think is relevant
+- [ ] I've included all the information that I think is relevant
 - [ ] I've added logs and/or screenshots (if applicable)
 - [ ] I've mentioned PRs and issues that relate to this one
