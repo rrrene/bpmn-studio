@@ -96,6 +96,8 @@ export class SolutionExplorerSolution {
   private _globalSolutionService: ISolutionService;
   private _diagramInContextMenu: IDiagram;
 
+  private _sortedDiagramsOfSolutions: Array<IDiagram> = [];
+
   constructor(
     router: Router,
     eventAggregator: EventAggregator,
@@ -163,7 +165,8 @@ export class SolutionExplorerSolution {
     const diagramWasDeleted: boolean = await this.deleteDiagramModal.show(diagram, this.solutionService);
 
     if (diagramWasDeleted) {
-      this.updateSolution();
+      await this.updateSolution();
+      this._sortedDiagramsOfSolutions = this._openedSolution.diagrams;
     }
   }
 
@@ -180,12 +183,13 @@ export class SolutionExplorerSolution {
   public async updateSolution(): Promise<void> {
     try {
       this._openedSolution = await this.solutionService.loadSolution();
+      const updatedDiagramList: Array<IDiagram> = this._openedSolution.diagrams;
 
-      /**
-       * Because this method gets called multiple times, we can not see when
-       * we need to resort the array again.
-       */
-      this._sortDiagramsOfSolution();
+      const updatedListLonger: boolean = this._sortedDiagramsOfSolutions.length < updatedDiagramList.length;
+      if (updatedListLonger) {
+        this._sortedDiagramsOfSolutions = updatedDiagramList;
+        this._sortDiagramsOfSolution();
+      }
 
       this.fontAwesomeIconClass = this._originalIconClass;
     } catch (error) {
@@ -377,11 +381,7 @@ export class SolutionExplorerSolution {
   }
 
   public get openedDiagrams(): Array<IDiagram> {
-    if (this._openedSolution) {
-      return this._openedSolution.diagrams;
-    } else {
-      return [];
-    }
+    return this._sortedDiagramsOfSolutions;
   }
 
   public getDiagramLocation(diagramUri: string): string {
@@ -483,7 +483,7 @@ export class SolutionExplorerSolution {
       return firstElement.name.localeCompare(secondElement.name, undefined, sortOptions);
     };
 
-    this._openedSolution.diagrams.sort(sorter);
+    this._sortedDiagramsOfSolutions.sort(sorter);
   }
 
   private _closeSingleDiagram(diagramToClose: IDiagram): void {
@@ -645,7 +645,11 @@ export class SolutionExplorerSolution {
       return;
     }
 
-    this.updateSolution();
+    this.updateSolution().then(() => {
+      this._sortedDiagramsOfSolutions = this._openedSolution.diagrams;
+      this._sortDiagramsOfSolution();
+    });
+
     this._resetDiagramRenaming();
   }
 
@@ -669,7 +673,10 @@ export class SolutionExplorerSolution {
         return;
       }
 
-      this.updateSolution();
+      this.updateSolution().then(() => {
+        this._sortedDiagramsOfSolutions = this._openedSolution.diagrams;
+        this._sortDiagramsOfSolution();
+      });
       this._resetDiagramRenaming();
 
     } else if (escapeWasPressed) {
