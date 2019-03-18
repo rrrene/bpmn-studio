@@ -96,6 +96,8 @@ export class SolutionExplorerSolution {
   private _globalSolutionService: ISolutionService;
   private _diagramInContextMenu: IDiagram;
 
+  private _sortedDiagramsOfSolutions: Array<IDiagram> = [];
+
   constructor(
     router: Router,
     eventAggregator: EventAggregator,
@@ -163,7 +165,8 @@ export class SolutionExplorerSolution {
     const diagramWasDeleted: boolean = await this.deleteDiagramModal.show(diagram, this.solutionService);
 
     if (diagramWasDeleted) {
-      this.updateSolution();
+      await this.updateSolution();
+      this._refreshDisplayedDiagrams(false);
     }
   }
 
@@ -180,6 +183,13 @@ export class SolutionExplorerSolution {
   public async updateSolution(): Promise<void> {
     try {
       this._openedSolution = await this.solutionService.loadSolution();
+      const updatedDiagramList: Array<IDiagram> = this._openedSolution.diagrams;
+
+      const updatedListLonger: boolean = this._sortedDiagramsOfSolutions.length < updatedDiagramList.length;
+      if (updatedListLonger) {
+        this._refreshDisplayedDiagrams(true);
+      }
+
       this.fontAwesomeIconClass = this._originalIconClass;
     } catch (error) {
       // In the future we can maybe display a small icon indicating the error.
@@ -370,11 +380,7 @@ export class SolutionExplorerSolution {
   }
 
   public get openedDiagrams(): Array<IDiagram> {
-    if (this._openedSolution) {
-      return this._openedSolution.diagrams;
-    } else {
-      return [];
-    }
+    return this._sortedDiagramsOfSolutions;
   }
 
   public getDiagramLocation(diagramUri: string): string {
@@ -463,6 +469,28 @@ export class SolutionExplorerSolution {
     }
 
     return this.activeDiagram.uri;
+  }
+
+  private _sortDiagramsOfSolution(): void {
+    type DiagramSorter = (firstElement: IDiagram, secondElement: IDiagram) => number;
+
+    const sortOptions: Intl.CollatorOptions = {
+      caseFirst: 'lower',
+    };
+
+    const sorter: DiagramSorter = (firstElement: IDiagram, secondElement: IDiagram): number => {
+      return firstElement.name.localeCompare(secondElement.name, undefined, sortOptions);
+    };
+
+    this._sortedDiagramsOfSolutions.sort(sorter);
+  }
+
+  private _refreshDisplayedDiagrams(sortingNeeded: boolean): void {
+    this._sortedDiagramsOfSolutions = this._openedSolution.diagrams;
+
+    if (sortingNeeded) {
+      this._sortDiagramsOfSolution();
+    }
   }
 
   private _closeSingleDiagram(diagramToClose: IDiagram): void {
@@ -624,7 +652,10 @@ export class SolutionExplorerSolution {
       return;
     }
 
-    this.updateSolution();
+    this.updateSolution().then(() => {
+      this._refreshDisplayedDiagrams(true);
+    });
+
     this._resetDiagramRenaming();
   }
 
@@ -648,7 +679,9 @@ export class SolutionExplorerSolution {
         return;
       }
 
-      this.updateSolution();
+      this.updateSolution().then(() => {
+        this._refreshDisplayedDiagrams(true);
+      });
       this._resetDiagramRenaming();
 
     } else if (escapeWasPressed) {
