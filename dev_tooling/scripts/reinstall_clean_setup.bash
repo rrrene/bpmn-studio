@@ -5,7 +5,7 @@ _VERSION="0.0.1"
 # This script reinstalls the current developement setup by:
 #   * Deletes the node_modules directory
 #   * Clears the NPM - Cache
-#   * Reinstalling all required node modules
+#   * Reinstalling all required node modules (the package-lock file is accounted for and must exist)
 #   * Rebuilding
 #
 # Note: Please DO NOT ADD THIS SCRIPT TO THE Jenkinsfile!
