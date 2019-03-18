@@ -224,6 +224,27 @@
   border-radius: 2px;
 }
 
+.btn-default-red {
+  background-color: #f00;
+  border-color: #ccc;
+  color: #333;
+}
+
+.linter-toggle-button-invalid-diagram {
+  position: absolute;
+  bottom: 20px;
+  left: 10px;
+  width: 31px;
+  height: 31px;
+  padding: 0;
+  background-color: rgba(255, 0, 0, 0.95);
+  border: solid 1px #ccc;
+  border-radius: 2px;
+  :hover {
+    background-color: rgba(255, 0, 0, 0.95);
+  }
+}
+
 .bpmn-js-bpmnlint-process-issues {
   //Overwriting the existing style of the plugin
   top: unset;
