@@ -20,22 +20,7 @@
             </span>
           </div>
 
-          <div class="solution-entry__actions ">
-            <button class="button"
-              if.bind="solutionEntry.uri.startsWith('http') && !solutionEntry.isLoggedIn"
-              click.delegate="login(solutionEntry)"
-              title="Login">
-
-              <i class="fa fa-lock-open"></i>
-            </button>
-
-            <button class="button"
-              if.bind="solutionEntry.isLoggedIn"
-              click.delegate="logout(solutionEntry)"
-              title.bind="`Logout ${solutionEntry.userName}`">
-
-              <i class="fa fa-lock"></i>
-            </button>
+          <div class="solution-entry__actions">
 
             <button class="button"
               if.bind="solutionIsInternalSolution(solutionEntry)"
@@ -63,6 +48,22 @@
               <i class="fa fa-times"></i>
             </button>
           </div>
+
+          <button class="button login-logout-button"
+            if.bind="solutionEntry.uri.startsWith('http') && !solutionEntry.isLoggedIn"
+            click.delegate="login(solutionEntry)"
+            title="Login at remote Solution">
+
+            <i class="fa fa-lock-open"></i>
+          </button>
+
+          <button class="button login-logout-button"
+            if.bind="solutionEntry.isLoggedIn"
+            click.delegate="logout(solutionEntry)"
+            title.bind="`Logout ${solutionEntry.userName}`">
+
+            <i class="fa fa-lock"></i>
+          </button>
 
         </div>
 
