@@ -224,12 +224,6 @@
   border-radius: 2px;
 }
 
-.btn-default-red {
-  background-color: rgba(204, 51, 00, 0.95);;
-  border-color: #cc3300;
-  color: white;
-}
-
 .linter-toggle-button-invalid-diagram {
   position: absolute;
   bottom: 20px;
@@ -237,9 +231,15 @@
   width: 31px;
   height: 31px;
   padding: 0;
-  background-color: rgba(255, 0, 0, 0.95);
+  background-color: rgba(204, 51, 0, 0.95);
   border: solid 1px #ccc;
+  color: white;
   border-radius: 2px;
+}
+
+.linter-toggle-button-invalid-diagram:hover {
+  background-color: rgb(230, 77, 26);
+  color: white;
 }
 
 .bpmn-js-bpmnlint-process-issues {
