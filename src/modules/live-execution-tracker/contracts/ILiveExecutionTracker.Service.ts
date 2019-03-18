@@ -37,15 +37,15 @@ export interface ILiveExecutionTrackerService {
   clearDiagramColors(): void;
   getColorizedXml(processInstanceId: string): Promise<string>;
 
-  createProcessEndedEventListener(correlationId: string, callback: Function): Promise<Subscription>;
-  createProcessTerminatedEventListener(correlationId: string, callback: Function): Promise<Subscription>;
+  createProcessEndedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createProcessTerminatedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
 
-  createUserTaskWaitingEventListener(correlationId: string, callback: Function): Promise<Subscription>;
-  createUserTaskFinishedEventListener(correlationId: string, callback: Function): Promise<Subscription>;
-  createManualTaskWaitingEventListener(correlationId: string, callback: Function): Promise<Subscription>;
-  createManualTaskFinishedEventListener(correlationId: string, callback: Function): Promise<Subscription>;
-  createEmptyActivityWaitingEventListener(correlationId: string, callback: Function): Promise<Subscription>;
-  createEmptyActivityFinishedEventListener(correlationId: string, callback: Function): Promise<Subscription>;
+  createUserTaskWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createUserTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createManualTaskWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createManualTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createEmptyActivityWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createEmptyActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
 
   removeSubscription(subscription: Subscription): Promise<void>;
 }

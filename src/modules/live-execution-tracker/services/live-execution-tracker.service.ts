@@ -59,36 +59,36 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return this._liveExecutionTrackerRepository.finishEmptyActivity(processInstanceId, correlationId, emptyActivity);
   }
 
-  public createProcessEndedEventListener(correlationId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createProcessEndedEventListener(correlationId, callback);
+  public createProcessEndedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._liveExecutionTrackerRepository.createProcessEndedEventListener(processInstanceId, callback);
   }
 
-  public createProcessTerminatedEventListener(correlationId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createProcessTerminatedEventListener(correlationId, callback);
+  public createProcessTerminatedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._liveExecutionTrackerRepository.createProcessTerminatedEventListener(processInstanceId, callback);
   }
 
-  public createUserTaskWaitingEventListener(correlationId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createUserTaskWaitingEventListener(correlationId, callback);
+  public createUserTaskWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._liveExecutionTrackerRepository.createUserTaskWaitingEventListener(processInstanceId, callback);
   }
 
-  public createUserTaskFinishedEventListener(correlationId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createUserTaskFinishedEventListener(correlationId, callback);
+  public createUserTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._liveExecutionTrackerRepository.createUserTaskFinishedEventListener(processInstanceId, callback);
   }
 
-  public createManualTaskWaitingEventListener(correlationId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createManualTaskWaitingEventListener(correlationId, callback);
+  public createManualTaskWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._liveExecutionTrackerRepository.createManualTaskWaitingEventListener(processInstanceId, callback);
   }
 
-  public createManualTaskFinishedEventListener(correlationId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createManualTaskFinishedEventListener(correlationId, callback);
+  public createManualTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._liveExecutionTrackerRepository.createManualTaskFinishedEventListener(processInstanceId, callback);
   }
 
-  public createEmptyActivityWaitingEventListener(correlationId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createEmptyActivityWaitingEventListener(correlationId, callback);
+  public createEmptyActivityWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._liveExecutionTrackerRepository.createEmptyActivityWaitingEventListener(processInstanceId, callback);
   }
 
-  public createEmptyActivityFinishedEventListener(correlationId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createEmptyActivityFinishedEventListener(correlationId, callback);
+  public createEmptyActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._liveExecutionTrackerRepository.createEmptyActivityFinishedEventListener(processInstanceId, callback);
   }
 
   public removeSubscription(subscription: Subscription): Promise<void> {
