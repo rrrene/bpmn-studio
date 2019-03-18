@@ -7,7 +7,6 @@ import {DataModels} from '@process-engine/management_api_contracts';
 
 import {Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IShape} from '@process-engine/bpmn-elements_contracts';
-import {CorrelationProcessModel} from '@process-engine/management_api_contracts/dist/data_models/correlation';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
 import {
