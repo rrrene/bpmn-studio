@@ -28,8 +28,8 @@
       <div class="modeler">
         <div class="diagram" id="bpmnIoDiagram">
           <div ref="canvasModel" class="canvasModel"></div>
-          <button class="button btn btn-default linter-toggle-button"
-                  css.bind="showLinter? 'opacity: 1;' : ''"
+          <button class.bind="diagramIsInvalid ? 'button btn btn-default-red linter-toggle-button-invalid-diagram' : 'button btn btn-default linter-toggle-button'"
+                  css.bind="showLinter || diagramIsInvalid? 'opacity: 1;' : ''"
                   title.bind="showLinter ? 'Hide Linter' : 'Show Linter'"
                   click.delegate="toggleLinter()">
             <i class.bind="diagramIsInvalid ? 'fas fa-times' : 'fas fa-check'"></i>
