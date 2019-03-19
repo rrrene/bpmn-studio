@@ -400,11 +400,14 @@ export class DiagramDetail {
   }
 
   private _getInitialTokenValues(token: any): any {
+    console.log(token);
     try {
       // If successful, the token is an object
       return JSON.parse(token);
     } catch (error) {
       // If an error occurs, the token is something else.
+      console.log('ASDADSASDASDASDADS');
+      console.log(error);
       return token;
     }
   }
