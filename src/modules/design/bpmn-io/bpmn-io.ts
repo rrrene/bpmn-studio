@@ -169,12 +169,6 @@ export class BpmnIo {
         this.savedXml = await this.getXML();
       });
 
-      this.modeler.on('import.done', () => {
-        if (this.showLinter) {
-          this._linting.activateLinting();
-        }
-      });
-
       // Wait until the HTML is rendered
       setTimeout(() => {
         this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
@@ -365,9 +359,11 @@ export class BpmnIo {
     setTimeout(() => {
       const modelerIsSet: boolean = this.modeler !== undefined && this.modeler !== null;
       if (modelerIsSet) {
-        this.modeler.importXML(this.xml, (err: Error) => {
+        this.modeler.importXML(this.xml, async(err: Error) => {
           this._fitDiagramToViewport();
-          this._linting.update();
+
+          await this._validateDiagram();
+
           this._diagramHasChanges = false;
           return 0;
         });
@@ -391,6 +387,7 @@ export class BpmnIo {
 
   private async _validateDiagram(): Promise<void> {
     const validationResult: IValidateResult = await this._linting.lint();
+    this._linting.update();
 
     let validationResultContainsErrors: boolean = false;
 
@@ -527,11 +524,6 @@ export class BpmnIo {
         });
       }
 
-      const eventToPublish: string = multipleParticipants
-                                   ? environment.events.navBar.validationError
-                                   : environment.events.navBar.noValidationError;
-
-      this._eventAggregator.publish(eventToPublish);
     }, elementRegistryTimeoutMilliseconds);
 
     return event;
