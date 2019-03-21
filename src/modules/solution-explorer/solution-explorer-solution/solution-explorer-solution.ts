@@ -280,7 +280,7 @@ export class SolutionExplorerSolution {
     document.addEventListener('click', documentEventListener);
   }
 
-  public async copyDiagram(): Promise<void> {
+  public async duplicateDiagram(): Promise<void> {
     const noDiagramInContextMenu: boolean = this._diagramInContextMenu === undefined;
     if (noDiagramInContextMenu) {
       return;
@@ -300,10 +300,10 @@ export class SolutionExplorerSolution {
       diagramNumber++;
     }
 
-    const copiedDiagram: IDiagram =
+    const duplicatedDiagram: IDiagram =
       await this._diagramCreationService.createNewDiagram(this.displayedSolutionEntry.uri, newName, this._diagramInContextMenu.xml);
 
-    await this.solutionService.saveDiagram(copiedDiagram, copiedDiagram.uri);
+    await this.solutionService.saveDiagram(duplicatedDiagram, duplicatedDiagram.uri);
     this.updateSolution();
   }
 
