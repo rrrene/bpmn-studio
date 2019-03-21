@@ -60,18 +60,17 @@ export class SolutionExplorerPanel {
   public async bind(): Promise<void> {
     // Open the solution of the currently configured processengine instance on startup.
     const uriOfProcessEngine: string = window.localStorage.getItem('InternalProcessEngineRoute');
-    if (this.canReadFromFileSystem()) {
 
-      const persistedInternalSolution: ISolutionEntry = this._solutionService.getSolutionEntryForUri(uriOfProcessEngine);
-      const internalSolutionWasPersisted: boolean = persistedInternalSolution !== undefined;
-      if (internalSolutionWasPersisted) {
-        // Only open the internal solution with the persisted identity when it as persisted.
-        await this.solutionExplorerList.openSolution(uriOfProcessEngine, true, persistedInternalSolution.identity);
-      } else {
-        // Otherwise just open it without an identity.
-        await this.solutionExplorerList.openSolution(uriOfProcessEngine);
-      }
+    const persistedInternalSolution: ISolutionEntry = this._solutionService.getSolutionEntryForUri(uriOfProcessEngine);
+    const internalSolutionWasPersisted: boolean = persistedInternalSolution !== undefined;
+    if (internalSolutionWasPersisted) {
+      // Only open the internal solution with the persisted identity when it as persisted.
+      await this.solutionExplorerList.openSolution(uriOfProcessEngine, true, persistedInternalSolution.identity);
+    } else {
+      // Otherwise just open it without an identity.
+      await this.solutionExplorerList.openSolution(uriOfProcessEngine);
     }
+
     // Open the previously opened solutions.
     const previouslyOpenedSolutions: Array<ISolutionEntry> = this._solutionService.getPersistedEntries();
     previouslyOpenedSolutions.forEach(async(entry: ISolutionEntry) => {
