@@ -32,6 +32,7 @@ export class StatusBar {
   public activeDiagram: IDiagram;
 
   public updateProgressData: UpdateProgressData;
+  public updateVersion: string;
   public updateAvailable: boolean = false;
   public updateDropdown: HTMLElement;
   public updateDownloadFinished: boolean = false;
@@ -63,18 +64,9 @@ export class StatusBar {
       this._ipcRenderer.on('update_available', (_: Event, version: string) => {
         this.updateAvailable = true;
 
-        const message: string = `<h5>Version ${version} available.</h5>
-        <h6>
-          <a href="#" onclick="showReleaseNotes(event)">
-            Click here for Releasenotes
-          </a>
-        </h6>
-        <script>
-          function showReleaseNotes(event) {
-            event.stopPropagation();
-            nodeRequire('electron').ipcRenderer.send('show_release_notes');
-          }
-        </script>`;
+        this.updateVersion = version;
+
+        const message: string = `A new update is available.\nPlease click on the BPMN-Studio icon in the statusbar to start the download.`;
 
         this._notificationService.showNonDisappearingNotification(NotificationType.INFO, message);
       });
@@ -183,6 +175,10 @@ export class StatusBar {
     this.showInspectPanel = !this.showInspectPanel;
 
     this._eventAggregator.publish(environment.events.inspectCorrelation.showInspectPanel, this.showInspectPanel);
+  }
+
+  public showReleaseNotes(): void {
+    this._ipcRenderer.send('show_release_notes');
   }
 
   public cancelUpdate(): void {

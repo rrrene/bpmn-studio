@@ -20,8 +20,11 @@
         </template>
         <template if.bind="!isDownloading && !updateDownloadFinished">
           <div class="update-dropdown-title-container">
-              <span class="update-dropdown-title">Update available</span>
+              <span class="update-dropdown-title">Version ${updateVersion} available</span>
           </div>
+          <a click.delegate="showReleaseNotes(event)">
+            Click here for Releasenotes
+          </a>
           <button class="btn btn-default update-dropdown-cancel-button" click.delegate="cancelUpdate()">Cancel</button>
           <button class="btn btn-default update-dropdown-update-button" click.delegate="startUpdate()">Update</button>
         </template>
