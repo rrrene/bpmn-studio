@@ -135,10 +135,10 @@ Main._initializeApplication = function () {
 
         Main._window.setProgressBar(progressInPercent);
 
-        event.sender.send('update_download_progress', progressObj);
-      })
+        appReadEvent.sender.send('update_download_progress', progressObj);
+      });
 
-      autoUpdater.addListener('update-available', (info) => {
+      autoUpdater.addListener('update-available', () => {
         appReadyEvent.sender.send('update_available', updateCheckResult.updateInfo.version);
 
         electron.ipcMain.on('download_update', () => {
@@ -158,12 +158,7 @@ Main._initializeApplication = function () {
         });
       });
 
-      autoUpdater.on('download-progress', (ev, progressObj) => {
-        appReadyEvent.sender.send('update_download_progress', progressObj);
-      });
-
-      autoUpdater.addListener('update-downloaded', (info) => {
-        appReadyEvent.sender.send('update_downloaded');
+      autoUpdater.addListener('update-downloaded', () => {
         appReadyEvent.sender.send('update_downloaded');
 
         electron.ipcMain.on('quit_and_install', () => {
