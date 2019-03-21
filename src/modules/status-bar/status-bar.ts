@@ -30,6 +30,7 @@ export class StatusBar {
   public showInspectPanel: boolean = true;
   public activeSolutionEntry: ISolutionEntry;
   public activeDiagram: IDiagram;
+
   public updateProgressData: UpdateProgressData;
   public updateAvailable: boolean = false;
   public updateDropdown: HTMLElement;
