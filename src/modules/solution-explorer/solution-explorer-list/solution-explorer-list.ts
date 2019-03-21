@@ -386,7 +386,8 @@ export class SolutionExplorerList {
     const solutionIsNotSingleDiagrams: boolean = !this._isSingleDiagramService(service);
 
     const internalProcessEngineRoute: string = window.localStorage.getItem('InternalProcessEngineRoute');
-    const solutionIsNotInternalSolution: boolean = uri !== internalProcessEngineRoute;
+    const canReadFromFileSystem: boolean = (window as any).nodeRequire;
+    const solutionIsNotInternalSolution: boolean = canReadFromFileSystem ? uri !== internalProcessEngineRoute : true;
 
     return solutionIsNotSingleDiagrams && solutionIsNotInternalSolution;
   }
