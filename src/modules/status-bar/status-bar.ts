@@ -33,6 +33,7 @@ export class StatusBar {
   public updateProgressData: UpdateProgressData;
   public updateAvailable: boolean = false;
   public updateDropdown: HTMLElement;
+  public updateDownloadFinished: boolean = false;
 
   public DiffMode: typeof DiffMode = DiffMode;
 
@@ -82,14 +83,7 @@ export class StatusBar {
       });
 
       this._ipcRenderer.on('update_downloaded', () => {
-        // tslint:disable-next-line max-line-length
-        const installButton: string = `<a class="btn btn-default" style="color: #000000;" href="javascript:nodeRequire('electron').ipcRenderer.send('quit_and_install')">Install</a>`;
-        const cancelButton: string = `<a class="btn btn-default" style="color: #000000;" href="#">Cancel</a>`;
-
-        const messageTitle: string = '<h4>Update ready!</h4>';
-        const messageBody: string = `${cancelButton} ${installButton}`;
-
-        this._notificationService.showNonDisappearingNotification(NotificationType.INFO, `${messageTitle}\n${messageBody}`);
+        this.updateDownloadFinished = true;
       });
     }
   }
@@ -196,6 +190,10 @@ export class StatusBar {
 
   public startUpdate(): void {
     this._ipcRenderer.send('download_update');
+  }
+
+  public installUpdate(): void {
+    this._ipcRenderer.send('quit_and_install');
   }
 
   private _refreshRightButtons(): void {
