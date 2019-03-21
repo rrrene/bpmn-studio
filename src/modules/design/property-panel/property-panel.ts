@@ -72,6 +72,7 @@ export class PropertyPanel {
 
   private setFirstElement(): void {
     let firstElement: IModdleElement;
+
     this._moddle.fromXML(this.xml, ((err: Error, definitions: IDefinition): void => {
       const process: IModdleElement = definitions.rootElements.find((element: IModdleElement) => {
         return element.$type === 'bpmn:Process';
