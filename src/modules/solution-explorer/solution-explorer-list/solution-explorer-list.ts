@@ -335,13 +335,6 @@ export class SolutionExplorerList {
 
    const entryToRemove: ISolutionEntry = this._solutionService.getSolutionEntryForUri(uri);
    this._solutionService.removeSolutionEntryByUri(entryToRemove.uri);
-
-   const internalProcessEngineRoute: string = window.localStorage.getItem('InternalProcessEngineRoute');
-   const solutionIsInternalSolution: boolean = entryToRemove.uri === internalProcessEngineRoute;
-
-   if (solutionIsInternalSolution) {
-     window.localStorage.removeItem('InternalProcessEngineRoute');
-   }
   }
   /**
    * Add entry for single file service.
