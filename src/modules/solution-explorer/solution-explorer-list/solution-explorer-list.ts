@@ -230,8 +230,6 @@ export class SolutionExplorerList {
 
     await solutionEntry.service.openSolution(solutionEntry.uri, solutionEntry.identity);
     this._solutionService.persistSolutionsInLocalStorage();
-
-    this._router.navigateToRoute('start-page');
   }
 
   public async logout(solutionEntry: ISolutionEntry): Promise<void> {
