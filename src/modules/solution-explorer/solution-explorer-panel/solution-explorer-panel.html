@@ -50,12 +50,14 @@
          header-text="Open Remote Solution"
          origin.bind="solutionExplorerPanel">
     <template replace-part="modal-body">
-      Location:
-      <input type="text" class="form-control" class.bind="uriIsValid ? '' : 'uri-input--invalid'" value.bind="origin.uriOfRemoteSolution" placeholder="Please provide a URI for the remote ProcessEngine">
+      <form role="form" submit.delegate="openRemoteSolution()">
+        Location:
+       <input type="text" class="form-control" class.bind="uriIsValid ? '' : 'uri-input--invalid'" value.bind="origin.uriOfRemoteSolution" placeholder="Please provide a URI for the remote ProcessEngine" autofocus>
+      </form>
     </template>
     <template replace-part="modal-footer">
       <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelOpenRemoteSolutionButton" click.delegate="closeRemoteSolutionModal()">Cancel</button>
-      <button type="button" class="btn btn-default" data-dismiss="modal" id="openRemoteSolutionButton" disabled.bind="!uriIsValid || uriIsEmpty" click.delegate="openRemoteSolution()">Open Solution</button>
+      <button type="submit" class="btn btn-default" data-dismiss="modal" id="openRemoteSolutionButton" disabled.bind="!uriIsValid || uriIsEmpty" click.delegate="openRemoteSolution()">Open Solution</button>
     </template>
   </modal>
 
