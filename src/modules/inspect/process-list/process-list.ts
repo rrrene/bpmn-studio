@@ -17,13 +17,11 @@ import {NotificationService} from '../../../services/notification-service/notifi
 @inject('ManagementApiClientService', EventAggregator, 'NotificationService', 'SolutionService', Router)
 export class ProcessList {
 
-  @observable public currentPage: number = 0;
+  @observable public currentPage: number = 1;
   @bindable() public activeSolutionEntry: ISolutionEntry;
   public pageSize: number = 10;
   public totalItems: number;
-  public status: Array<string> = [];
-  public succesfullRequested: boolean = false;
-  public selectedState: HTMLSelectElement;
+  public requestSuccessful: boolean = false;
 
   private _managementApiService: IManagementApi;
   private _eventAggregator: EventAggregator;
@@ -33,7 +31,6 @@ export class ProcessList {
   private _router: Router;
 
   private _getCorrelationsIntervalId: number;
-  private _getCorrelations: () => Promise<Array<DataModels.Correlations.Correlation>>;
   private _subscriptions: Array<Subscription>;
   private _correlations: Array<DataModels.Correlations.Correlation> = [];
 
@@ -49,12 +46,18 @@ export class ProcessList {
     this._router = router;
   }
 
+  public get correlations(): Array<DataModels.Correlations.Correlation> {
+    const firstCorrelationIndex: number = (this.currentPage - 1) * this.pageSize;
+    const lastCorrelationIndex: number = (this.pageSize * this.currentPage);
+
+    return this._correlations.slice(firstCorrelationIndex, lastCorrelationIndex);
+  }
+
   public async currentPageChanged(newValue: number, oldValue: number): Promise<void> {
     const oldValueIsDefined: boolean = oldValue !== undefined && oldValue !== null;
 
     if (oldValueIsDefined) {
-      this._initializeGetProcesses();
-      await this.updateProcesses();
+      await this.updateCorrelationList();
     }
   }
 
@@ -74,44 +77,43 @@ export class ProcessList {
 
     this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(this._activeSolutionUri);
 
-    this._initializeGetProcesses();
-
-    await this.updateProcesses();
+    await this.updateCorrelationList();
 
     this._getCorrelationsIntervalId = window.setInterval(async() => {
-      await this.updateProcesses();
+      await this.updateCorrelationList();
     }, environment.processengine.dashboardPollingIntervalInMs);
 
     this._subscriptions = [
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, () => {
-        this.updateProcesses();
+        this.updateCorrelationList();
       }),
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
-        this.updateProcesses();
+        this.updateCorrelationList();
       }),
     ];
   }
 
   public detached(): void {
     clearInterval(this._getCorrelationsIntervalId);
+
     for (const subscription of this._subscriptions) {
       subscription.dispose();
     }
   }
 
-  public async updateProcesses(): Promise<void> {
+  public async updateCorrelationList(): Promise<void> {
     try {
-      const correlations: Array<DataModels.Correlations.Correlation> = await this._getCorrelations();
+      const correlations: Array<DataModels.Correlations.Correlation> = await this.getAllActiveCorrelations();
       const correlationListWasUpdated: boolean = JSON.stringify(correlations) !== JSON.stringify(this._correlations);
 
       if (correlationListWasUpdated) {
         this._correlations = correlations;
       }
 
-      this.succesfullRequested = true;
+      this.requestSuccessful = true;
     } catch (error) {
       this._notificationService.showNotification(NotificationType.ERROR, `Error receiving process list: ${error.message}`);
-      this.succesfullRequested = false;
+      this.requestSuccessful = false;
     }
 
     const correlationsAreNotSet: boolean = this._correlations === undefined || this._correlations === null;
@@ -122,27 +124,15 @@ export class ProcessList {
     this.totalItems = this._correlations.length;
   }
 
-  public get correlations(): Array<DataModels.Correlations.Correlation> {
-    return this._correlations.slice((this.currentPage - 1) * this.pageSize, this.pageSize * this.currentPage);
-  }
-
   public async stopProcessInstance(processInstanceId: string): Promise<void> {
     try {
       await this._managementApiService.terminateProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
 
-      this._correlations = await this._getCorrelations();
+      this._correlations = await this.getAllActiveCorrelations();
 
     } catch (error) {
       this._notificationService
         .showNotification(NotificationType.ERROR, `Error while stopping Process! ${error}`);
-    }
-  }
-
-  private _initializeGetProcesses(): void {
-    const getProcessesIsUndefined: boolean = this._getCorrelations === undefined;
-
-    if (getProcessesIsUndefined) {
-      this._getCorrelations = this.getAllActiveCorrelations;
     }
   }
 
@@ -151,28 +141,4 @@ export class ProcessList {
 
     return this._managementApiService.getActiveCorrelations(identity);
   }
-
-  private async getCorrelationsForProcessModel(processModelId: string): Promise<Array<DataModels.Correlations.Correlation>> {
-    const identity: IIdentity = this.activeSolutionEntry.identity;
-
-    const runningCorrelations: Array<DataModels.Correlations.Correlation> = await this._managementApiService.getActiveCorrelations(identity);
-
-    const correlationsWithId: Array<DataModels.Correlations.Correlation> =
-      runningCorrelations.filter((correlation: DataModels.Correlations.Correlation) => {
-
-        const processModelWithSearchedId: DataModels.Correlations.CorrelationProcessModel =
-          correlation.processModels.find((processModel: DataModels.Correlations.CorrelationProcessModel) => {
-            const isSearchedProcessModel: boolean = processModel.processModelId === processModelId;
-
-            return isSearchedProcessModel;
-          });
-
-        const processModelFound: boolean = processModelWithSearchedId !== undefined;
-
-        return processModelFound;
-      });
-
-    return correlationsWithId;
-  }
-
 }

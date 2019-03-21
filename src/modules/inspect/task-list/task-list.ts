@@ -30,6 +30,9 @@ interface IManualTaskWithProcessModel {
   processModel: DataModels.ProcessModels.ProcessModel;
 }
 
+type UserAndManualTasksWithProcessModels = Array<IUserTaskWithProcessModel & IManualTaskWithProcessModel>;
+type PromisesForUserAndManualTasks = Promise<UserAndManualTasksWithProcessModels>;
+
 @inject(EventAggregator, 'ManagementApiClientService', Router, 'NotificationService', 'SolutionService')
 export class TaskList {
 
@@ -39,7 +42,7 @@ export class TaskList {
   public pageSize: number = 10;
   public totalItems: number;
 
-  public successfullyRequested: boolean = false;
+  public requestSuccessful: boolean = false;
 
   private _activeSolutionUri: string;
   private _eventAggregator: EventAggregator;
@@ -184,55 +187,33 @@ export class TaskList {
     // TODO (ph): This will create 1 + n http reqeusts, where n is the number of process models in the processengine.
     const promisesForAllUserTasks: Array<Promise<Array<IUserTaskWithProcessModel>>> = allProcessModels.processModels
       .map(async(processModel: DataModels.ProcessModels.ProcessModel): Promise<Array<IUserTaskWithProcessModel>> => {
-        try {
-          const userTaskList: DataModels.UserTasks.UserTaskList = await this._managementApiService
-            .getUserTasksForProcessModel(this.activeSolutionEntry.identity, processModel.id);
+        const userTaskList: DataModels.UserTasks.UserTaskList = await this._managementApiService
+          .getUserTasksForProcessModel(this.activeSolutionEntry.identity, processModel.id);
 
-          const userTasksAndProcessModels: Array<IUserTaskWithProcessModel> = this._addProcessModelToUserTasks(userTaskList, processModel);
+        const userTasksAndProcessModels: Array<IUserTaskWithProcessModel> = this._addProcessModelToUserTasks(userTaskList, processModel);
 
-          return userTasksAndProcessModels;
-
-        } catch (error) {
-          if (isError(error, NotFoundError)) {
-            // the management api returns a 404 if there is no instance of a process model running.
-            return Promise.resolve([]);
-          }
-
-          throw error;
-        }
+        return userTasksAndProcessModels;
       });
 
     const promisesForAllManualTasks: Array<Promise<Array<IManualTaskWithProcessModel>>> = allProcessModels.processModels
       .map(async(processModel: DataModels.ProcessModels.ProcessModel): Promise<Array<IManualTaskWithProcessModel>> => {
-        try {
-          const manualTaskList: DataModels.ManualTasks.ManualTaskList =
-            await this._managementApiService.getManualTasksForProcessModel(this.activeSolutionEntry.identity, processModel.id);
+        const manualTaskList: DataModels.ManualTasks.ManualTaskList =
+          await this._managementApiService.getManualTasksForProcessModel(this.activeSolutionEntry.identity, processModel.id);
 
-          const manualTasksAndProcessModels: Array<IManualTaskWithProcessModel> = this._addProcessModelToManualTasks(manualTaskList, processModel);
+        const manualTasksAndProcessModels: Array<IManualTaskWithProcessModel> = this._addProcessModelToManualTasks(manualTaskList, processModel);
 
-          return manualTasksAndProcessModels;
-
-        } catch (error) {
-          if (isError(error, NotFoundError)) {
-            // the management api returns a 404 if there is no instance of a process model running.
-            return [];
-          }
-          throw error;
-        }
+        return manualTasksAndProcessModels;
       });
 
-    type UserAndManualTasksWithProcessModels = Array<IUserTaskWithProcessModel & IManualTaskWithProcessModel>;
-    type PromisesForUserAndManualTasks = Promise<UserAndManualTasksWithProcessModels>;
-
-    // Concatentate the array of promises with the UserTasks and the array of promises wuth the ManualTasks to one array
+    // Concatenate the Promises for requesting UserTasks and requesting ManualTasks.
     const promisesForAllTasksForAllProcessModels: Array<PromisesForUserAndManualTasks> = []
       .concat(promisesForAllUserTasks, promisesForAllManualTasks);
 
-    // Await all promises
+    // Await all promises.
     const allTasksForAllProcessModels: Array<UserAndManualTasksWithProcessModels> =
       await Promise.all(promisesForAllTasksForAllProcessModels);
 
-    // Move all tasks from arrays in arrays to a single array
+    // Flatten all results.
     const allTasks: UserAndManualTasksWithProcessModels = [].concat(...allTasksForAllProcessModels);
 
     return allTasks;
@@ -245,19 +226,11 @@ export class TaskList {
         ._managementApiService
         .getProcessModelById(this.activeSolutionEntry.identity, processModelId);
 
-    let userTaskList: DataModels.UserTasks.UserTaskList;
-    let manualTaskList: DataModels.ManualTasks.ManualTaskList;
-    try {
-      userTaskList = await this._managementApiService.getUserTasksForProcessModel(this.activeSolutionEntry.identity, processModelId);
-      manualTaskList = await this._managementApiService.getManualTasksForProcessModel(this.activeSolutionEntry.identity, processModelId);
+    const userTaskList: DataModels.UserTasks.UserTaskList =
+      await this._managementApiService.getUserTasksForProcessModel(this.activeSolutionEntry.identity, processModelId);
 
-    } catch (error) {
-      if (isError(error, NotFoundError)) {
-        // the management api returns a 404 if there is no instance of a process model running.
-        return Promise.resolve([]);
-      }
-      throw error;
-    }
+    const manualTaskList: DataModels.ManualTasks.ManualTaskList =
+      await this._managementApiService.getManualTasksForProcessModel(this.activeSolutionEntry.identity, processModelId);
 
     const userTasksAndProcessModels: Array<IUserTaskWithProcessModel> = this._addProcessModelToUserTasks(userTaskList, processModel);
     const manualTasksAndProcessModels: Array<IManualTaskWithProcessModel> = this._addProcessModelToManualTasks(manualTaskList, processModel);
@@ -266,12 +239,6 @@ export class TaskList {
   }
 
   private async _getTasksForCorrelation(correlationId: string): Promise<Array<IUserTaskWithProcessModel & IManualTaskWithProcessModel>> {
-
-    const userTaskList: DataModels.UserTasks.UserTaskList =
-      await this._managementApiService.getUserTasksForCorrelation(this.activeSolutionEntry.identity, correlationId);
-
-    const manualTaskList: DataModels.ManualTasks.ManualTaskList =
-      await this._managementApiService.getManualTasksForCorrelation(this.activeSolutionEntry.identity, correlationId);
 
     const runningCorrelations: Array<DataModels.Correlations.Correlation> =
       await this._managementApiService.getActiveCorrelations(this.activeSolutionEntry.identity);
@@ -285,22 +252,31 @@ export class TaskList {
       throw new NotFoundError(`No correlation found with id ${correlationId}.`);
     }
 
-    // TODO: This needs to be refactored so that the correct ProcessModel will be used depending on the user task
-    const processModelOfCorrelation: DataModels.ProcessModels.ProcessModel = await
-      this
-        ._managementApiService
-        .getProcessModelById(this.activeSolutionEntry.identity, correlation.processModels[0].processModelId);
+    const userTaskList: DataModels.UserTasks.UserTaskList =
+      await this._managementApiService.getUserTasksForCorrelation(this.activeSolutionEntry.identity, correlationId);
 
-    const userTasksAndProcessModels: Array<IUserTaskWithProcessModel> = this._addProcessModelToUserTasks(userTaskList, processModelOfCorrelation);
-    const manualTasksAndProcessModels: Array<IManualTaskWithProcessModel> = this._addProcessModelToManualTasks(
-      manualTaskList, processModelOfCorrelation);
+    const manualTaskList: DataModels.ManualTasks.ManualTaskList =
+      await this._managementApiService.getManualTasksForCorrelation(this.activeSolutionEntry.identity, correlationId);
+
+    // TODO: This needs to be refactored so that the correct ProcessModel will be used depending on the user task
+    const correlationProcessModelId: string = correlation.processModels[0].processModelId;
+    const processModelOfCorrelation: DataModels.ProcessModels.ProcessModel =
+      await this._managementApiService.getProcessModelById(this.activeSolutionEntry.identity, correlationProcessModelId);
+
+    const userTasksAndProcessModels: Array<IUserTaskWithProcessModel> =
+      this._addProcessModelToUserTasks(userTaskList, processModelOfCorrelation);
+
+    const manualTasksAndProcessModels: Array<IManualTaskWithProcessModel> =
+      this._addProcessModelToManualTasks(manualTaskList, processModelOfCorrelation);
 
     return [].concat(userTasksAndProcessModels, manualTasksAndProcessModels);
   }
 
   private async _getTasksForProcessInstanceId(processInstanceId: string): Promise<Array<IUserTaskWithProcessModel & IManualTaskWithProcessModel>> {
+
     const userTaskList: DataModels.UserTasks.UserTaskList =
       await this._managementApiService.getUserTasksForProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
+
     const manualTaskList: DataModels.ManualTasks.ManualTaskList =
       await this._managementApiService.getManualTasksForProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
 
@@ -346,17 +322,15 @@ export class TaskList {
   public async updateTasks(): Promise<void> {
     try {
       this._userTasks = await this._getTasks();
-      this.successfullyRequested = true;
-
+      this.requestSuccessful = true;
     } catch (error) {
 
-      if (isError(error, UnauthorizedError)) {
+      this.requestSuccessful = false;
 
+      if (isError(error, UnauthorizedError)) {
         this._notificationService.showNotification(NotificationType.ERROR, 'You don\'t have permission to view the task list.');
         this._router.navigateToRoute('start-page');
-
       } else {
-
         this._notificationService.showNotification(NotificationType.ERROR, `Error receiving task list: ${error.message}`);
         this._userTasks = undefined;
       }

@@ -50,6 +50,12 @@
   display: none;
 }
 
+.login-logout-button {
+  padding: 0;
+  border: none;
+  background: inherit;
+}
+
 @media (any-hover: none) {
   .solution-entry__actions {
     display: flex;

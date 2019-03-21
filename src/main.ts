@@ -1,4 +1,4 @@
-import {Aurelia, RelativeViewStrategy} from 'aurelia-framework';
+import {Aurelia} from 'aurelia-framework';
 
 import {NotificationType} from './contracts/index';
 import environment from './environment';
@@ -29,18 +29,6 @@ export function configure(aurelia: Aurelia): void {
   } else {
     localStorage.setItem('InternalProcessEngineRoute', environment.baseRoute);
     aurelia.container.registerInstance('InternalProcessEngineBaseRoute', null);
-  }
-
-  const processEngineRoute: string = window.localStorage.getItem('InternalProcessEngineRoute');
-
-  const processEngineRouteExists: boolean = processEngineRoute !== null && processEngineRoute !== '';
-  if (processEngineRouteExists) {
-    environment.baseRoute = processEngineRoute;
-    environment.processengine.routes.processes = `${processEngineRoute}/datastore/ProcessDef`;
-    environment.processengine.routes.iam = `${processEngineRoute}/iam`;
-    environment.processengine.routes.startProcess = `${processEngineRoute}/processengine/start`;
-    environment.processengine.routes.userTasks =  `${processEngineRoute}/datastore/UserTask`;
-    environment.processengine.routes.importBPMN = `${processEngineRoute}/processengine/create_bpmn_from_xml`;
   }
 
   aurelia.use
@@ -114,12 +102,23 @@ export function configure(aurelia: Aurelia): void {
         notificationService.showNotification(NotificationType.INFO, 'Update Error!');
       });
 
-      ipcRenderer.on('update_available', () => {
+      ipcRenderer.on('update_available', (event: any, version: string) => {
         // tslint:disable-next-line max-line-length
         const installButton: string = `<a class="btn btn-default" style="color: #000000;" href="javascript:nodeRequire('electron').ipcRenderer.send('download_update')">Download</a>`;
         const cancelButton: string = `<a class="btn btn-default" style="color: #000000;" href="#">Cancel</a>`;
 
-        const messageTitle: string = '<h4>Update available.</h4>';
+        const messageTitle: string = `<h5>Version ${version} available.</h5>
+                                      <h6>
+                                        <a href="#" onclick="showReleaseNotes(event)">
+                                          Click here for Releasenotes
+                                        </a>
+                                      </h6>
+                                      <script>
+                                        function showReleaseNotes(event) {
+                                          event.stopPropagation();
+                                          nodeRequire('electron').ipcRenderer.send('show_release_notes');
+                                        }
+                                      </script>`;
         const messageBody: string = `${cancelButton} ${installButton}`;
 
         notificationService.showNonDisappearingNotification(NotificationType.INFO, `${messageTitle}\n${messageBody}`);

@@ -53,10 +53,10 @@ export class Heatmap {
       this._viewer.destroy();
     }
 
-    this.attached();
+    this.initialize();
   }
 
-  public async attached(): Promise<void> {
+  public async initialize(): Promise<void> {
 
     const noActiveDiagram: boolean = this.activeDiagram === undefined;
     if (noActiveDiagram) {

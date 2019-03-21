@@ -87,11 +87,16 @@ export class SolutionExplorerSolution {
   @bindable public displayedSolutionEntry: ISolutionEntry;
   @bindable public fontAwesomeIconClass: string;
   public createNewDiagramInput: HTMLInputElement;
+  public diagramContextMenu: HTMLElement;
+  public showContextMenu: boolean = false;
   public deleteDiagramModal: DeleteDiagramModal;
 
   private _renameDiagramInput: HTMLInputElement;
   private _originalIconClass: string;
   private _globalSolutionService: ISolutionService;
+  private _diagramInContextMenu: IDiagram;
+
+  private _sortedDiagramsOfSolutions: Array<IDiagram> = [];
 
   constructor(
     router: Router,
@@ -160,7 +165,8 @@ export class SolutionExplorerSolution {
     const diagramWasDeleted: boolean = await this.deleteDiagramModal.show(diagram, this.solutionService);
 
     if (diagramWasDeleted) {
-      this.updateSolution();
+      await this.updateSolution();
+      this._refreshDisplayedDiagrams(true);
     }
   }
 
@@ -177,6 +183,13 @@ export class SolutionExplorerSolution {
   public async updateSolution(): Promise<void> {
     try {
       this._openedSolution = await this.solutionService.loadSolution();
+      const updatedDiagramList: Array<IDiagram> = this._openedSolution.diagrams;
+
+      const updatedListLonger: boolean = this._sortedDiagramsOfSolutions.length < updatedDiagramList.length;
+      if (updatedListLonger) {
+        this._refreshDisplayedDiagrams(true);
+      }
+
       this.fontAwesomeIconClass = this._originalIconClass;
     } catch (error) {
       // In the future we can maybe display a small icon indicating the error.
@@ -248,6 +261,50 @@ export class SolutionExplorerSolution {
 
   public set renameDiagramInput(input: HTMLInputElement) {
     this._renameDiagramInput = input;
+  }
+
+  public activateContextMenu(event: MouseEvent, diagram: IDiagram): void {
+    this._diagramInContextMenu = diagram;
+
+    this.diagramContextMenu.style.top = `${event.y}px`;
+    this.diagramContextMenu.style.left = `${event.x}px`;
+    this.showContextMenu = true;
+
+    const documentEventListener: EventListenerOrEventListenerObject = (): void => {
+      this.showContextMenu = false;
+      this._diagramInContextMenu = undefined;
+
+      document.removeEventListener('click', documentEventListener);
+    };
+
+    document.addEventListener('click', documentEventListener);
+  }
+
+  public async duplicateDiagram(): Promise<void> {
+    const noDiagramInContextMenu: boolean = this._diagramInContextMenu === undefined;
+    if (noDiagramInContextMenu) {
+      return;
+    }
+
+    let newNameFound: boolean = false;
+    let newName: string;
+    let diagramNumber: number = 1;
+
+    while (newNameFound === false) {
+      newName = `${this._diagramInContextMenu.name} (${diagramNumber})`;
+
+      newNameFound = this.openedDiagrams.every((diagram: IDiagram) => {
+        return diagram.name !== newName;
+      });
+
+      diagramNumber++;
+    }
+
+    const duplicatedDiagram: IDiagram =
+      await this._diagramCreationService.createNewDiagram(this.displayedSolutionEntry.uri, newName, this._diagramInContextMenu.xml);
+
+    await this.solutionService.saveDiagram(duplicatedDiagram, duplicatedDiagram.uri);
+    this.updateSolution();
   }
 
   /*
@@ -323,11 +380,7 @@ export class SolutionExplorerSolution {
   }
 
   public get openedDiagrams(): Array<IDiagram> {
-    if (this._openedSolution) {
-      return this._openedSolution.diagrams;
-    } else {
-      return [];
-    }
+    return this._sortedDiagramsOfSolutions;
   }
 
   public getDiagramLocation(diagramUri: string): string {
@@ -416,6 +469,28 @@ export class SolutionExplorerSolution {
     }
 
     return this.activeDiagram.uri;
+  }
+
+  private _sortDiagramsOfSolution(): void {
+    type DiagramSorter = (firstElement: IDiagram, secondElement: IDiagram) => number;
+
+    const sortOptions: Intl.CollatorOptions = {
+      caseFirst: 'lower',
+    };
+
+    const sorter: DiagramSorter = (firstElement: IDiagram, secondElement: IDiagram): number => {
+      return firstElement.name.localeCompare(secondElement.name, undefined, sortOptions);
+    };
+
+    this._sortedDiagramsOfSolutions.sort(sorter);
+  }
+
+  private _refreshDisplayedDiagrams(sortingNeeded: boolean): void {
+    this._sortedDiagramsOfSolutions = this._openedSolution.diagrams;
+
+    if (sortingNeeded) {
+      this._sortDiagramsOfSolution();
+    }
   }
 
   private _closeSingleDiagram(diagramToClose: IDiagram): void {
@@ -577,7 +652,10 @@ export class SolutionExplorerSolution {
       return;
     }
 
-    this.updateSolution();
+    this.updateSolution().then(() => {
+      this._refreshDisplayedDiagrams(true);
+    });
+
     this._resetDiagramRenaming();
   }
 
@@ -601,7 +679,9 @@ export class SolutionExplorerSolution {
         return;
       }
 
-      this.updateSolution();
+      this.updateSolution().then(() => {
+        this._refreshDisplayedDiagrams(true);
+      });
       this._resetDiagramRenaming();
 
     } else if (escapeWasPressed) {
@@ -695,7 +775,7 @@ export class SolutionExplorerSolution {
       return;
     }
 
-    const emptyDiagram: IDiagram = this._diagramCreationService
+    const emptyDiagram: IDiagram = await this._diagramCreationService
       .createNewDiagram(this._openedSolution.uri, this._diagramCreationState.currentDiagramInputValue);
 
     try {
