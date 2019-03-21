@@ -135,7 +135,10 @@ export class PropertyPanel {
       return;
     }
 
-    this.setFirstElement();
+    // This is needed to make sure the xml was already imported into the modeler
+    setTimeout(() => {
+      this.setFirstElement();
+    }, 0);
   }
 
 }
