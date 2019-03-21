@@ -104,7 +104,6 @@ pipeline {
           def parse_test_result_regex = /Executed\ (\d+)\ of\ \d+\ specs(.*?\((\d+)\ FAILED\))?/;
 
           def test_result_log = readFile "e2e_test_results.txt"
-          println(test_result_log);
           def test_result_matcher = test_result_log =~ parse_test_result_regex
 
           def total_tests_run = test_result_matcher[0][1] as Integer;
