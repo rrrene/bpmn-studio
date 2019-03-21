@@ -166,7 +166,7 @@ export class SolutionExplorerSolution {
 
     if (diagramWasDeleted) {
       await this.updateSolution();
-      this._refreshDisplayedDiagrams(false);
+      this._refreshDisplayedDiagrams(true);
     }
   }
 
