@@ -647,7 +647,7 @@ export class LiveExecutionTracker {
 
   private async _getXmlByProcessModelId(processModelId: string): Promise<string> {
     const processModel: DataModels.ProcessModels.ProcessModel =
-      await this._managementApiClient.getProcessModelById(this.activeSolutionEntry.identity, processModelId);
+      await this._managementApiClient.getProcessModelByProcessInstanceId(this.activeSolutionEntry.identity, processModelId);
 
     return processModel.xml;
   }
@@ -1139,7 +1139,7 @@ export class LiveExecutionTracker {
       for (let retries: number = 0; retries < this._maxRetries; retries++) {
         try {
           return await this._managementApiClient
-                           .getActiveTokensForCorrelationAndProcessModel(this.activeSolutionEntry.identity, this.correlationId, this.processModelId);
+                           .getActiveTokensForProcessInstance(this.activeSolutionEntry.identity, this.processInstanceId);
         } catch (error) {
           const errorIsConnectionLost: boolean = error.message === 'Failed to fetch';
 
