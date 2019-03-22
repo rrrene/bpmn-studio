@@ -4,4 +4,5 @@ export interface ICorrelationTableEntry {
   state: string;
   user: string;
   correlationId: string;
+  processInstanceId: string;
 }

@@ -9,11 +9,12 @@ import environment from '../../../../../environment';
 
 @inject(EventAggregator)
 export class InspectPanel {
-  @bindable() public correlations: Array<DataModels.Correlations.Correlation>;
-  @bindable() public selectedCorrelation: DataModels.Correlations.Correlation;
-  @bindable() public fullscreen: boolean = false;
-  @bindable() public activeDiagram: IDiagram;
-  @bindable() public activeSolutionEntry: ISolutionEntry;
+  @bindable public correlations: Array<DataModels.Correlations.Correlation>;
+  @bindable public processInstances: Array<DataModels.Correlations.CorrelationProcessModel>;
+  @bindable public selectedProcessInstance: DataModels.Correlations.CorrelationProcessModel;
+  @bindable public fullscreen: boolean = false;
+  @bindable public activeDiagram: IDiagram;
+  @bindable public activeSolutionEntry: ISolutionEntry;
   public InspectPanelTab: typeof InspectPanelTab = InspectPanelTab;
   public showCorrelationList: boolean = true;
   public showLogViewer: boolean;
@@ -46,7 +47,7 @@ export class InspectPanel {
   }
 
   public activeDiagramChanged(): void {
-    this.selectedCorrelation = undefined;
+    this.selectedProcessInstance = undefined;
 
     this.showLogViewer = false;
     this.showCorrelationList = true;
