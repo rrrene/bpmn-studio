@@ -647,7 +647,7 @@ export class LiveExecutionTracker {
 
   private async _getXmlByProcessModelId(processModelId: string): Promise<string> {
     const processModel: DataModels.ProcessModels.ProcessModel =
-      await this._managementApiClient.getProcessModelById(this.activeSolutionEntry.identity, processModelId);
+      await this._managementApiClient.getProcessModelByProcessInstanceId(this.activeSolutionEntry.identity, processModelId);
 
     return processModel.xml;
   }
@@ -904,7 +904,7 @@ export class LiveExecutionTracker {
 
     const processModelFromCorrelation: DataModels.Correlations.CorrelationProcessModel =
       correlation.processModels.find((processModel: DataModels.Correlations.CorrelationProcessModel) => {
-        const processModelIsSearchedProcessModel: boolean = processModel.processInstanceId === this.processInstanceId;
+        const processModelIsSearchedProcessModel: boolean = processModel.processModelId === this.processModelId;
 
         return processModelIsSearchedProcessModel;
       });
