@@ -24,7 +24,7 @@ import {DiagramExportService} from '../../../../design/bpmn-io/services/index';
 
 @inject('NotificationService', EventAggregator)
 export class DiagramViewer {
-  @bindable() public correlation: DataModels.Correlations.Correlation;
+  @bindable() public processInstance: DataModels.Correlations.CorrelationProcessModel;
   @bindable() public xml: string;
   @bindable() public activeDiagram: IDiagram;
   @bindable() public selectedFlowNode: IShape;
@@ -147,13 +147,13 @@ export class DiagramViewer {
     this._subscriptions.forEach((subscription: Subscription) => subscription.dispose());
   }
 
-  public async correlationChanged(newValue: DataModels.Correlations.Correlation): Promise<void> {
-    const noCorrelation: boolean = newValue === undefined;
-    if (noCorrelation) {
+  public async processInstanceChanged(): Promise<void> {
+    const noProcessInstanceSelected: boolean = this.processInstance === undefined;
+    if (noProcessInstanceSelected) {
       return;
     }
 
-    this.xml = await this._getXmlByCorrelation(this.correlation);
+    this.xml = await this._getXmlByProcessInstance(this.processInstance);
 
     await this._importXml(this._diagramModeler, this.xml);
     this._clearColors();
@@ -207,13 +207,8 @@ export class DiagramViewer {
     canvas.zoom('fit-viewport', 'auto');
   }
 
-  private async _getXmlByCorrelation(correlation: DataModels.Correlations.Correlation): Promise<string> {
-    const processModelForCorrelation: DataModels.Correlations.CorrelationProcessInstance =
-      correlation.processInstances.find((processModel: DataModels.Correlations.CorrelationProcessInstance) => {
-        return processModel.processModelId === this.activeDiagram.id;
-      });
-
-    const xmlForCorrelation: string = processModelForCorrelation.xml;
+  private async _getXmlByProcessInstance(processInstance: DataModels.Correlations.CorrelationProcessModel): Promise<string> {
+    const xmlForCorrelation: string = processInstance.xml;
 
     return xmlForCorrelation;
   }
