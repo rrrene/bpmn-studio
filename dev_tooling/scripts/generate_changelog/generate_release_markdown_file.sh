@@ -21,13 +21,7 @@ Also see the changelog of the previous version, [$RELEASE_BEFORE_THIS_RELEASE](h
 
 ## Major Features
 
-**Some new major feature**:
-
-Short description on that new feature.
-
-**Another major feature**:
-
-We can now write awesome changelogs.
+- All major features belong here.
 
 ## Other Features
 
