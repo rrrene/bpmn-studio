@@ -25,8 +25,10 @@
           <a class="update-dropdown-releasenotes"click.delegate="showReleasenotes(event)">
             Click here for Releasenotes
           </a>
-          <button class="btn btn-default update-dropdown-cancel-button" click.delegate="cancelUpdate()">Cancel</button>
-          <button class="btn btn-default update-dropdown-update-button" click.delegate="startUpdate()">Update</button>
+          <div class="update-dropdown-button-container">
+            <button class="btn btn-default update-dropdown-cancel-button" click.delegate="cancelUpdate()">Cancel</button>
+            <button class="btn btn-default update-dropdown-update-button" click.delegate="startUpdate()">Update</button>
+          </div>
         </template>
         <template if.bind="updateDownloadFinished">
           <div class="update-dropdown-title-container">
