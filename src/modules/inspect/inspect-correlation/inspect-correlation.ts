@@ -11,10 +11,10 @@ import {IInspectCorrelationService} from './contracts';
 
 @inject('InspectCorrelationService', EventAggregator)
 export class InspectCorrelation {
-  @bindable() public activeDiagram: IDiagram;
-  @bindable() public activeSolutionEntry: ISolutionEntry;
-  @bindable() public selectedProcessInstance: DataModels.Correlations.CorrelationProcessModel;
-  @bindable() public inspectPanelFullscreen: boolean = false;
+  @bindable public activeDiagram: IDiagram;
+  @bindable public activeSolutionEntry: ISolutionEntry;
+  @bindable public selectedProcessInstance: DataModels.Correlations.CorrelationProcessModel;
+  @bindable public inspectPanelFullscreen: boolean = false;
   @observable public bottomPanelHeight: number = 250;
   @observable public tokenViewerWidth: number = 250;
 
