@@ -133,12 +133,19 @@
   font-size: 12px;
 }
 
+.update-dropdown-button-container {
+  margin: 20px 30px;
+}
+
 .update-dropdown-cancel-button {
   float: left;
-  margin-left: 30px;
 }
 
 .update-dropdown-update-button {
   float: right;
-  margin-right: 30px;
+}
+
+.update-dropdown-releasenotes {
+  display: block;
+  cursor: pointer;
 }
