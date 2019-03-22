@@ -71,8 +71,9 @@ export function configure(aurelia: Aurelia): void {
       // subscribe to processengine status
       ipcRenderer.send('add_internal_processengine_status_listener');
 
-      // wait for status to be reported
+      ipcRenderer.send('app_ready');
 
+      // wait for status to be reported
       ipcRenderer.on('internal_processengine_status', (event: any, status: string, error: string) => {
         if (status !== 'error') {
           return;
