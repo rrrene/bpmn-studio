@@ -647,7 +647,7 @@ export class LiveExecutionTracker {
 
   private async _getXmlByProcessModelId(processModelId: string): Promise<string> {
     const processModel: DataModels.ProcessModels.ProcessModel =
-      await this._managementApiClient.getProcessModelByProcessInstanceId(this.activeSolutionEntry.identity, processModelId);
+      await this._managementApiClient.getProcessModelById(this.activeSolutionEntry.identity, processModelId);
 
     return processModel.xml;
   }
