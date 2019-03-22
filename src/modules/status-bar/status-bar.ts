@@ -177,7 +177,7 @@ export class StatusBar {
     this._eventAggregator.publish(environment.events.inspectCorrelation.showInspectPanel, this.showInspectPanel);
   }
 
-  public showReleaseNotes(): void {
+  public showReleasenotes(): void {
     this._ipcRenderer.send('show_release_notes');
   }
 
