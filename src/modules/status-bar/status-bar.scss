@@ -126,12 +126,26 @@
 
 .update-dropdown-progressbar {
   height: 16px;
-  margin: 0 10px;
+  margin: 0 25px 0 10px;
 }
 
 .update-dropdown-progressbar-progress {
   background-color: #ccc;
   font-size: 12px;
+}
+
+.update-dropdown-progress-container {
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.update-dropdown-cancel-download-button {
+  float: right;
+  width: 15px;
+  height: 15px;
+  margin-right: 5px;
+  line-height: 16px;
+  cursor: pointer;
 }
 
 .update-dropdown-button-container {

@@ -14,8 +14,11 @@
             <span class="update-dropdown-title">Downloading update</span>
           </div>
           <span class="update-dropdown-text">${(updateProgressData.bytesPerSecond/1000).toFixed(2)} KB/s - ${(updateProgressData.transferred/1000/1000).toFixed(2)} MB of ${(updateProgressData.total/1000/1000).toFixed(2)} MB</span>
-          <div class="progress update-dropdown-progressbar">
-            <div class="progress-bar progress-bar-striped progress-bar-animated update-dropdown-progressbar-progress" role="progressbar" css="width: ${updateProgressData.percent}%;">${updateProgressData.percent.toFixed(1)}%</div>
+          <div class="update-dropdown-progress-container">
+            <div class="update-dropdown-cancel-download-button" title="Cancel download." click.delegate="cancelUpdate()"><i class="fas fa-times"></i></div>
+            <div class="progress update-dropdown-progressbar">
+              <div class="progress-bar progress-bar-striped progress-bar-animated update-dropdown-progressbar-progress" role="progressbar" css="width: ${updateProgressData.percent}%;">${updateProgressData.percent.toFixed(1)}%</div>
+            </div>
           </div>
         </template>
         <template if.bind="!isDownloading && !updateDownloadFinished">
@@ -26,7 +29,7 @@
             Click here for Releasenotes
           </a>
           <div class="update-dropdown-button-container">
-            <button class="btn btn-default update-dropdown-cancel-button" click.delegate="cancelUpdate()">Cancel</button>
+            <button class="btn btn-default update-dropdown-cancel-button" click.delegate="hideDropdown()">Cancel</button>
             <button class="btn btn-default update-dropdown-update-button" click.delegate="startUpdate()">Update</button>
           </div>
         </template>

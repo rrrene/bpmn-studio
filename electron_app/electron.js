@@ -143,6 +143,10 @@ Main._initializeApplication = function () {
 
         electron.ipcMain.on('download_update', () => {
           autoUpdater.downloadUpdate(downloadCancellationToken);
+
+          electron.ipcMain.on('cancel_update', () => {
+            downloadCancellationToken.cancel();
+          });
         });
 
         electron.ipcMain.on('show_release_notes', () => {

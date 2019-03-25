@@ -181,7 +181,7 @@ export class StatusBar {
     this._ipcRenderer.send('show_release_notes');
   }
 
-  public cancelUpdate(): void {
+  public hideDropdown(): void {
     this.updateDropdown.classList.remove('show');
   }
 
@@ -191,6 +191,12 @@ export class StatusBar {
 
   public installUpdate(): void {
     this._ipcRenderer.send('quit_and_install');
+  }
+
+  public cancelUpdate(): void {
+    this._ipcRenderer.send('cancel_update');
+
+    this.updateProgressData = undefined;
   }
 
   private _refreshRightButtons(): void {
