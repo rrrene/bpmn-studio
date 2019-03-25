@@ -28,12 +28,12 @@ export class InspectCorrelationService implements IInspectCorrelationService {
     return this._inspectCorrelationRepository.getLogsForProcessInstance(processModelId, processInstanceId, identity);
   }
 
-  public async getTokenForFlowNodeInstance(processModelId: string,
-                                           correlationId: string,
+  public async getTokenForFlowNodeByProcessInstanceId(
+                                           processInstanceId: string,
                                            flowNodeId: string,
                                            identity: IIdentity): Promise<Array<DataModels.TokenHistory.TokenHistoryEntry> | undefined> {
     try {
-      return await this._inspectCorrelationRepository.getTokenForFlowNodeInstance(processModelId, correlationId, flowNodeId, identity);
+      return await this._inspectCorrelationRepository.getTokenForFlowNodeByProcessInstanceId(processInstanceId, flowNodeId, identity);
     } catch (error) {
       return undefined;
     }
