@@ -33,9 +33,9 @@ export class TokenViewer {
     this._inspectCorrelationService = inspectCorrelationService;
   }
 
-  public correlationChanged(): void {
-    const correlationWasInitiallyOpened: boolean = this.flowNode === undefined;
-    if (correlationWasInitiallyOpened) {
+  public processInstanceIdChanged(): void {
+    const processInstanceWasInitiallyOpened: boolean = this.flowNode === undefined;
+    if (processInstanceWasInitiallyOpened) {
       return;
     }
 
@@ -75,8 +75,8 @@ export class TokenViewer {
     this.firstElementSelected = true;
     this.tokenEntries = [];
 
-    const correlationIsNotSelected: boolean = this.correlation === undefined;
-    if (correlationIsNotSelected) {
+    const processInstanceIsNotSelected: boolean = this.processInstanceId === undefined;
+    if (processInstanceIsNotSelected) {
       this.tokenEntries = undefined;
       this.rawTokenEntries = undefined;
       this.showTokenEntries = false;
