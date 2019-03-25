@@ -135,7 +135,7 @@ Main._initializeApplication = function () {
 
         Main._window.setProgressBar(progressInPercent);
 
-        appReadEvent.sender.send('update_download_progress', progressObj);
+        appReadyEvent.sender.send('update_download_progress', progressObj);
       });
 
       autoUpdater.addListener('update-available', () => {
