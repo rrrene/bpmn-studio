@@ -101,17 +101,20 @@ pipeline {
             sh("docker rm ${docker_e2e_container_name} || true")
           }
 
-          def parse_test_result_regex = /(\d+) specs, (\d+) failures/;
+          def parse_test_result_regex = /Executed\ (\d+)\ of\ \d+\ specs(.*?\((\d+)\ FAILED\))?/;
 
           def test_result_log = readFile "e2e_test_results.txt"
           def test_result_matcher = test_result_log =~ parse_test_result_regex
 
           def total_tests_run = test_result_matcher[0][1] as Integer;
-          def tests_failed = test_result_matcher[0][2] as Integer;
+
+          def some_tests_failed = test_result_matcher[0][2] != null;
+          def tests_failed = some_tests_failed
+                              ? test_result_matcher[0][3] as Integer
+                              : 0;
 
           echo "${total_tests_run} Tests run. ${tests_failed} Tests failed."
 
-          def some_tests_failed = tests_failed != 0;
           if (some_tests_failed) {
             error 'Some tests failed, build failed.';
           }

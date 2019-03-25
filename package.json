@@ -188,6 +188,7 @@
     "gulp-typescript": "^3.2.4",
     "gulp-watch": "^4.3.11",
     "jasmine-core": "^2.4.1",
+    "jasmine-spec-reporter": "4.2.1",
     "jquery": "^3.0.0",
     "minimatch": "^3.0.2",
     "ms": "^2.0.0",
