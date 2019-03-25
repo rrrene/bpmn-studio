@@ -62,7 +62,7 @@ export class InspectCorrelationRepository implements IInspectCorrelationReposito
                                          processInstanceId: string,
                                          identity: IIdentity): Promise<Array<DataModels.Logging.LogEntry>> {
     const logs: Array<DataModels.Logging.LogEntry> = await this._managementApiService
-    .getProcessInstanceLog(identity, processModelId, processInstanceId);
+      .getProcessInstanceLog(identity, processModelId, processInstanceId);
 
     return logs;
   }
