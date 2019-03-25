@@ -49,8 +49,6 @@ export class CorrelationList {
       correlation.processModels.forEach((processInstance: DataModels.Correlations.CorrelationProcessModel) => {
         const isNotSelectedProcessModel: boolean = processInstance.processModelId !== this.activeDiagram.id;
 
-        console.log(processInstance.processModelId + ', ' + this.activeDiagram);
-
         if (isNotSelectedProcessModel) {
           return;
         }

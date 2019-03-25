@@ -64,12 +64,6 @@ export class InspectCorrelationRepository implements IInspectCorrelationReposito
     const logs: Array<DataModels.Logging.LogEntry> = await this._managementApiService
     .getProcessInstanceLog(identity, processModelId, processInstanceId);
 
-    logs.forEach((logEntry: any) => {
-      if (logEntry.processInstanceId !== processInstanceId) {
-        console.log(logEntry);
-      }
-    });
-
     return logs;
   }
 
