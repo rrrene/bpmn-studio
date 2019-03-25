@@ -86,7 +86,8 @@ export class TokenViewer {
     }
 
     const tokenHistoryEntries: Array<DataModels.TokenHistory.TokenHistoryEntry> = await this._inspectCorrelationService
-      .getTokenForFlowNodeInstance(this.activeDiagram.id, this.correlation.id, this.flowNode.id, this.activeSolutionEntry.identity);
+      .getTokenForFlowNodeByProcessInstanceId(this.processInstanceId, this.flowNode.id, this.identity);
+
 
     this.tokenEntries = this._getBeautifiedTokenEntriesForFlowNode(tokenHistoryEntries);
     this.rawTokenEntries = this._getRawTokenEntriesForFlowNode(tokenHistoryEntries);
