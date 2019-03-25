@@ -35,7 +35,9 @@ export class LogViewer {
 
   public async processInstanceChanged(): Promise<void> {
     setTimeout(async() => {
-      // this.log = await this._inspectCorrelationService.getLogsForCorrelation(this.correlation, this.activeSolutionEntry.identity);
+      this.log = await this._inspectCorrelationService.getLogsForProcessInstance(this.processInstance.processModelId,
+                                                                                 this.processInstance.processInstanceId,
+                                                                                 this.activeSolutionEntry.identity);
 
       this.sortList(LogSortProperty.Time);
     }, 0);
