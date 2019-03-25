@@ -153,7 +153,7 @@ export class DiagramViewer {
       return;
     }
 
-    this.xml = await this._getXmlByProcessInstance(this.processInstance);
+    this.xml = this.processInstance.xml;
 
     await this._importXml(this._diagramModeler, this.xml);
     this._clearColors();
