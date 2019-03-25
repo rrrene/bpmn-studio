@@ -207,12 +207,6 @@ export class DiagramViewer {
     canvas.zoom('fit-viewport', 'auto');
   }
 
-  private async _getXmlByProcessInstance(processInstance: DataModels.Correlations.CorrelationProcessModel): Promise<string> {
-    const xmlForCorrelation: string = processInstance.xml;
-
-    return xmlForCorrelation;
-  }
-
   private async _colorizeSelection(selectedElement: IShape): Promise<void> {
     await this._importXml(this._diagramModeler, this._uncoloredXml);
 
