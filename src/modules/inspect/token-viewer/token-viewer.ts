@@ -1,5 +1,6 @@
 import {bindable, inject} from 'aurelia-framework';
 
+import {IIdentity} from '@essential-projects/iam_contracts';
 import {IShape} from '@process-engine/bpmn-elements_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
 
@@ -13,9 +14,13 @@ import {
 
 @inject('InspectCorrelationService')
 export class TokenViewer {
+
+  @bindable() public identity: IIdentity;
   @bindable() public flowNode: IShape;
   @bindable() public token: string;
   @bindable() public showBeautifiedToken: boolean = true;
+  @bindable() public processInstanceId: string;
+
   public tokenEntries: Array<ITokenEntry> = [];
   public showTokenEntries: boolean = false;
   public firstElementSelected: boolean = false;
