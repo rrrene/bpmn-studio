@@ -17,10 +17,9 @@
                     ref="tokenViewer"
                     class="let__token-viewer"
                     css="width: ${tokenViewerWidth}px;"
-                    correlation.bind="correlation"
-                    active-diagram.bind="activeDiagram"
                     flow-node.bind="selectedFlowNode"
-                    active-solution-entry.bind="activeSolutionEntry">
+                    process-instance-id.bind="processInstanceId"
+                    identity.bind="activeSolutionEntry.identity">
       </token-viewer>
     </div>
   </div>
