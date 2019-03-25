@@ -43,6 +43,7 @@ export class LogViewer {
         ascending: false,
         sortProperty: undefined,
       };
+
       this.sortList(LogSortProperty.Time);
     }, 0);
   }
