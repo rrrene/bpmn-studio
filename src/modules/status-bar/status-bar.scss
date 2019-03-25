@@ -103,8 +103,8 @@
 }
 
 .update-dropdown {
-  width: 280px;
-  height: 120px;
+  width: 315px;
+  height: 135px;
   text-align: center;
 }
 
@@ -147,6 +147,15 @@
 
 .update-dropdown-install-button {
   float: right;
+  margin-right: 15px;
+  margin-top: 20px;
+}
+
+.update-dropdown-install-text {
+  display: inherit;
+  width: 212px;
+  text-align: left;
+  margin-left: 10px;
 }
 
 .update-dropdown-releasenotes {
