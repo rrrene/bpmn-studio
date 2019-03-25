@@ -34,8 +34,8 @@ export class TokenViewer {
   }
 
   public processInstanceIdChanged(): void {
-    const noFlowNode: boolean = this.flowNode === undefined;
-    if (noFlowNode) {
+    const processInstanceWasInitiallyOpened: boolean = this.flowNode === undefined;
+    if (processInstanceWasInitiallyOpened) {
       return;
     }
 
