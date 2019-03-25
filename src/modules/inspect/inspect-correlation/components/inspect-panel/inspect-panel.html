@@ -24,7 +24,7 @@
       </div>
     </div>
     <div class="inspect-panel__body">
-      <correlation-list if.bind="showCorrelationList" correlations.to-view="correlations" process-instances.from-view="processInstances" selected-process-instance.from-view="selectedProcessInstance"></correlation-list>
+      <correlation-list if.bind="showCorrelationList" active-diagram.bind="activeDiagram" correlations.to-view="correlations" process-instances.from-view="processInstances" selected-process-instance.from-view="selectedProcessInstance"></correlation-list>
       <log-viewer if.bind="showLogViewer" active-solution-entry.bind="activeSolutionEntry" process-instance.to-view="selectedProcessInstance"></log-viewer>
     </div>
   </div>

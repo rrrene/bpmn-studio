@@ -3,6 +3,7 @@ import {bindable, inject} from 'aurelia-framework';
 
 import {DataModels} from '@process-engine/management_api_contracts';
 
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 import {CorrelationListSortProperty, ICorrelationSortSettings, ICorrelationTableEntry} from '../../../../../../../contracts/index';
 import environment from '../../../../../../../environment';
 import {DateService} from '../../../../../../../services/date-service/date.service';
@@ -14,6 +15,7 @@ export class CorrelationList {
   @bindable public selectedProcessInstance: DataModels.Correlations.CorrelationProcessModel;
   @bindable public correlations: Array<DataModels.Correlations.Correlation>;
   @bindable public processInstances: Array<DataModels.Correlations.CorrelationProcessModel>;
+  @bindable public activeDiagram: IDiagram;
   public sortedTableData: Array<ICorrelationTableEntry>;
   public CorrelationListSortProperty: typeof CorrelationListSortProperty = CorrelationListSortProperty;
   public sortSettings: ICorrelationSortSettings = {
@@ -45,6 +47,14 @@ export class CorrelationList {
 
     this.correlations.forEach((correlation: DataModels.Correlations.Correlation) => {
       correlation.processModels.forEach((processInstance: DataModels.Correlations.CorrelationProcessModel) => {
+        const isNotSelectedProcessModel: boolean = processInstance.processModelId !== this.activeDiagram.id;
+
+        console.log(processInstance.processModelId + ', ' + this.activeDiagram);
+
+        if (isNotSelectedProcessModel) {
+          return;
+        }
+
         const processInstanceWithCorrelation: IProcessInstanceWithCorrelation = {
           processInstance: processInstance,
           correlation: correlation,
