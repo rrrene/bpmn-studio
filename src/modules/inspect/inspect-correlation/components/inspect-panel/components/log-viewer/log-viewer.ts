@@ -39,6 +39,10 @@ export class LogViewer {
                                                                                  this.processInstance.processInstanceId,
                                                                                  this.activeSolutionEntry.identity);
 
+      this.sortSettings = {
+        ascending: false,
+        sortProperty: undefined,
+      };
       this.sortList(LogSortProperty.Time);
     }, 0);
   }
