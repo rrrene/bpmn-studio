@@ -33,7 +33,7 @@ export class LogViewer {
     this._inspectCorrelationService = inspectCorrelationService;
   }
 
-  public async correlationChanged(): Promise<void> {
+  public async processInstanceChanged(): Promise<void> {
     setTimeout(async() => {
       // this.log = await this._inspectCorrelationService.getLogsForCorrelation(this.correlation, this.activeSolutionEntry.identity);
 
