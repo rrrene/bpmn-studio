@@ -9,7 +9,7 @@
         <img class="update-button-icon" src="src/resources/images/icon.png" title.bind="isDownloading ? updateProgressData.percent.toString() + '%' : 'Update available.'">
       </a>
       <div class="dropdown-menu update-dropdown" ref="updateDropdown">
-        <template if.bind="isDownloading">
+        <template if.bind="isDownloading && !updateDownloadFinished">
           <div class="update-dropdown-title-container">
             <span class="update-dropdown-title">Downloading update</span>
           </div>
