@@ -488,6 +488,12 @@ export class BpmnIo {
       return field.$type === 'camunda:FormData';
     });
 
+    const noFieldsSpecified: boolean = formDataObject.fields === undefined
+                                    || formDataObject.fields === null;
+    if (noFieldsSpecified) {
+      return;
+    }
+
     formDataObject.fields.forEach((formField: IModdleElement) => {
       formField.id = `Form_${this._generateRandomId()}`;
     });
