@@ -61,7 +61,7 @@ export class StatusBar {
         notificationService.showNotification(NotificationType.INFO, 'Update Error!');
       });
 
-      this._ipcRenderer.on('update_available', (_: Event, version: string) => {
+      this._ipcRenderer.on('update_available', (event: Event, version: string) => {
         this.updateAvailable = true;
 
         this.updateVersion = version;
