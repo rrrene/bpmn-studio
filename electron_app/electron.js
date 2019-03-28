@@ -122,8 +122,6 @@ Main._initializeApplication = function () {
         return;
       }
 
-      const downloadCancellationToken;
-
       console.log(`CurrentVersion: ${currentVersion}, CurrentVersionIsPrerelease: ${currentVersionIsPrerelease}`);
 
       autoUpdater.addListener('error', () => {
@@ -137,6 +135,8 @@ Main._initializeApplication = function () {
 
         appReadyEvent.sender.send('update_download_progress', progressObj);
       });
+
+      let downloadCancellationToken;
 
       autoUpdater.addListener('update-available', () => {
         appReadyEvent.sender.send('update_available', updateCheckResult.updateInfo.version);
