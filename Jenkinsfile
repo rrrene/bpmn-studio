@@ -34,7 +34,7 @@ pipeline {
           branch = env.BRANCH_NAME;
           branch_is_master = branch == 'master';
           branch_is_develop = branch == 'develop';
-          branch_is_release = branch.startsWith('release/') || true;
+          branch_is_release = branch.startsWith('release/');
 
           if (branch_is_master) {
             full_electron_release_version_string = "${package_version}";
