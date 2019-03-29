@@ -677,7 +677,7 @@ export class LiveExecutionTracker {
       return undefined;
     }
 
-    const callActivityTarget: CorrelationProcessInstance = correlation.processModels
+    const callActivityTarget: CorrelationProcessInstance = correlation.processInstances
       .find((correlationProcessModel: CorrelationProcessInstance): boolean => {
         const targetProcessModelFound: boolean = correlationProcessModel.parentProcessInstanceId === this.processInstanceId
           && correlationProcessModel.processModelId === callActivityTargetId;
@@ -903,7 +903,7 @@ export class LiveExecutionTracker {
     }
 
     const processModelFromCorrelation: DataModels.Correlations.CorrelationProcessInstance =
-      correlation.processModels.find((processModel: DataModels.Correlations.CorrelationProcessInstance) => {
+      correlation.processInstances.find((processModel: DataModels.Correlations.CorrelationProcessInstance) => {
         const processModelIsSearchedProcessModel: boolean = processModel.processInstanceId === this.processInstanceId;
 
         return processModelIsSearchedProcessModel;
@@ -1200,7 +1200,7 @@ export class LiveExecutionTracker {
       return undefined;
     }
 
-    const processModelFromCorrelation: DataModels.Correlations.CorrelationProcessInstance = correlation.processModels
+    const processModelFromCorrelation: DataModels.Correlations.CorrelationProcessInstance = correlation.processInstances
       .find((correlationProcessModel: DataModels.Correlations.CorrelationProcessInstance): boolean => {
         const processModelFound: boolean = correlationProcessModel.processInstanceId === this.processInstanceId;
 
@@ -1238,7 +1238,7 @@ export class LiveExecutionTracker {
     }
 
     const processModel: DataModels.Correlations.CorrelationProcessInstance =
-      correlation.processModels.find((correlationProcessModel: DataModels.Correlations.CorrelationProcessInstance): boolean => {
+      correlation.processInstances.find((correlationProcessModel: DataModels.Correlations.CorrelationProcessInstance): boolean => {
         const processModelFound: boolean = correlationProcessModel.processInstanceId === processInstanceId;
 
         return processModelFound;
