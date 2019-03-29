@@ -259,7 +259,7 @@ export class TaskList {
       await this._managementApiService.getManualTasksForCorrelation(this.activeSolutionEntry.identity, correlationId);
 
     // TODO: This needs to be refactored so that the correct ProcessModel will be used depending on the user task
-    const correlationProcessModelId: string = correlation.processModels[0].processModelId;
+    const correlationProcessModelId: string = correlation.processInstances[0].processModelId;
     const processModelOfCorrelation: DataModels.ProcessModels.ProcessModel =
       await this._managementApiService.getProcessModelById(this.activeSolutionEntry.identity, correlationProcessModelId);
 

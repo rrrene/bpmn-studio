@@ -24,8 +24,8 @@ export class InspectCorrelationRepository implements IInspectCorrelationReposito
     const correlationsForProcessModelId: Array<DataModels.Correlations.Correlation> =
       allCorrelations.filter((correlation: DataModels.Correlations.Correlation) => {
 
-        const processModelWithSameId: DataModels.Correlations.CorrelationProcessModel =
-          correlation.processModels.find((processModel: DataModels.Correlations.CorrelationProcessModel) => {
+        const processModelWithSameId: DataModels.Correlations.CorrelationProcessInstance =
+          correlation.processInstances.find((processModel: DataModels.Correlations.CorrelationProcessInstance) => {
             const isSearchedProcessModel: boolean = processModel.processModelId === processModelId;
 
             return isSearchedProcessModel;
@@ -43,7 +43,7 @@ export class InspectCorrelationRepository implements IInspectCorrelationReposito
                                      identity: IIdentity): Promise<Array<DataModels.Logging.LogEntry>> {
     const logsForAllProcessModelsOfCorrelation: Array<Array<DataModels.Logging.LogEntry>> = [];
 
-    for (const processModel of correlation.processModels) {
+    for (const processModel of correlation.processInstances) {
       const logsForProcessModel: Array<DataModels.Logging.LogEntry> = await this._managementApiService
         .getProcessModelLog(
           identity,
@@ -65,7 +65,7 @@ export class InspectCorrelationRepository implements IInspectCorrelationReposito
     identity: IIdentity,
   ): Promise<Array<DataModels.TokenHistory.TokenHistoryEntry>> {
 
-    return this._managementApiService.getTokensForFlowNodeInstance(identity, correlationId, processModelId, flowNodeId);
+    return this._managementApiService.getTokensForFlowNode(identity, correlationId, processModelId, flowNodeId);
   }
 
 }

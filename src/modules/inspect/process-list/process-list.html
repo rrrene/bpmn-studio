@@ -11,15 +11,15 @@
             <th></th>
           </tr>
           <template repeat.for="correlation of correlations">
-            <tr repeat.for="processModel of correlation.processModels" id="processList-${correlation.id}" class="process-list-item">
+            <tr repeat.for="processInstance of correlation.processInstances" id="processList-${correlation.id}" class="process-list-item">
               <td>${correlation.id}</td>
               <td>
-                <a route-href="route: design; params.bind: { view: 'detail', diagramName: processModel.processModelId, solutionUri: activeSolutionEntry.uri }" class="process-list-item-modelname">${processModel.processModelId}</a>
+                <a route-href="route: design; params.bind: { view: 'detail', diagramName: processInstance.processModelId, solutionUri: activeSolutionEntry.uri }" class="process-list-item-modelname">${processInstance.processModelId}</a>
               </td>
               <td class="process-list__last-table-cell">
-                <a route-href="route: task-list-processinstance; params.bind: { processInstanceId: processModel.processInstanceId, solutionUri: activeSolutionEntry.uri }" class="process-list-item-user-tasks btn btn-default">Tasks</a>
-                <a route-href="route: live-execution-tracker; params.bind: { diagramName: processModel.processModelId, solutionUri: activeSolutionEntry.uri, correlationId: correlation.id, processInstanceId: processModel.processInstanceId }" class="btn btn-default">Live Execution Tracking</a>
-                <button class="btn btn-default" click.delegate="stopProcessInstance(processModel.processInstanceId)">Stop</button>
+                <a route-href="route: task-list-processinstance; params.bind: { processInstanceId: processInstance.processInstanceId, solutionUri: activeSolutionEntry.uri }" class="process-list-item-user-tasks btn btn-default">Tasks</a>
+                <a route-href="route: live-execution-tracker; params.bind: { diagramName: processInstance.processModelId, solutionUri: activeSolutionEntry.uri, correlationId: correlation.id, processInstanceId: processInstance.processInstanceId }" class="btn btn-default">Live Execution Tracking</a>
+                <button class="btn btn-default" click.delegate="stopProcessInstance(processInstance.processInstanceId)">Stop</button>
               </td>
             </tr>
           </template>
