@@ -225,11 +225,6 @@ export class DiagramDetail {
 
       this.activeDiagram = await solutionToDeployTo.service.loadDiagram(processModelId);
 
-      this._router.navigateToRoute('design', {
-        diagramName: this.activeDiagram.name,
-        solutionUri: solutionToDeployTo.uri,
-      });
-
       this._notificationService
           .showNotification(NotificationType.SUCCESS, 'Diagram was successfully uploaded to the connected ProcessEngine.');
 
