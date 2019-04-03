@@ -1,13 +1,22 @@
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import {computedFrom, inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import {DiffMode, ISolutionEntry, ISolutionService} from '../../contracts/index';
+import {DiffMode, ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
 import environment from '../../environment';
+import {NotificationService} from '../../services/notification-service/notification.service';
 
-@inject(EventAggregator, Router, 'SolutionService')
+type UpdateProgressData = {
+  bytesPerSecond: number
+  delta: number
+  percent: number
+  total: number
+  transferred: number,
+};
+
+@inject(EventAggregator, Router, 'SolutionService', 'NotificationService')
 export class StatusBar {
 
   public showDiagramViewButtons: boolean = false;
@@ -22,6 +31,12 @@ export class StatusBar {
   public activeSolutionEntry: ISolutionEntry;
   public activeDiagram: IDiagram;
 
+  public updateProgressData: UpdateProgressData;
+  public updateVersion: string;
+  public updateAvailable: boolean = false;
+  public updateDropdown: HTMLElement;
+  public updateDownloadFinished: boolean = false;
+
   public DiffMode: typeof DiffMode = DiffMode;
 
   private _eventAggregator: EventAggregator;
@@ -29,11 +44,40 @@ export class StatusBar {
   private _solutionService: ISolutionService;
   private _subscriptions: Array<Subscription>;
   private _designView: string;
+  private _ipcRenderer: any;
+  private _notificationService: NotificationService;
 
-  constructor(eventAggregator: EventAggregator, router: Router, solutionService: ISolutionService) {
+  constructor(eventAggregator: EventAggregator, router: Router, solutionService: ISolutionService, notificationService: NotificationService) {
     this._eventAggregator = eventAggregator;
     this._router = router;
     this._solutionService = solutionService;
+    this._notificationService = notificationService;
+
+    const applicationRunsInElectron: boolean = (window as any).nodeRequire !== undefined;
+    if (applicationRunsInElectron) {
+      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+
+      this._ipcRenderer.on('update_error', () => {
+        notificationService.showNotification(NotificationType.INFO, 'Update Error!');
+      });
+
+      this._ipcRenderer.on('update_available', (event: Event, version: string) => {
+        this.updateAvailable = true;
+        this.updateVersion = version;
+
+        const message: string = `A new update is available.\nPlease click on the BPMN-Studio icon in the statusbar to start the download.`;
+
+        this._notificationService.showNonDisappearingNotification(NotificationType.INFO, message);
+      });
+
+      this._ipcRenderer.on('update_download_progress', (event: Event, updateProgressData: UpdateProgressData) => {
+        this.updateProgressData = updateProgressData;
+      });
+
+      this._ipcRenderer.on('update_downloaded', () => {
+        this.updateDownloadFinished = true;
+      });
+    }
   }
 
   public async attached(): Promise<void> {
@@ -64,6 +108,10 @@ export class StatusBar {
       }),
     ];
 
+    $(document).on('click', '.update-dropdown', (event: Event) => {
+      event.stopPropagation();
+    });
+
     await this._updateStatusBar();
 
     this._refreshRightButtons();
@@ -73,6 +121,11 @@ export class StatusBar {
 
   public detached(): void {
     this._disposeAllSubscriptions();
+  }
+
+  @computedFrom('updateProgressData')
+  public get isDownloading(): boolean {
+    return this.updateProgressData !== undefined;
   }
 
   public toggleXMLView(): void {
@@ -121,6 +174,28 @@ export class StatusBar {
     this.showInspectPanel = !this.showInspectPanel;
 
     this._eventAggregator.publish(environment.events.inspectCorrelation.showInspectPanel, this.showInspectPanel);
+  }
+
+  public showReleaseNotes(): void {
+    this._ipcRenderer.send('show_release_notes');
+  }
+
+  public hideDropdown(): void {
+    this.updateDropdown.classList.remove('show');
+  }
+
+  public startUpdate(): void {
+    this._ipcRenderer.send('download_update');
+  }
+
+  public installUpdate(): void {
+    this._ipcRenderer.send('quit_and_install');
+  }
+
+  public cancelUpdate(): void {
+    this._ipcRenderer.send('cancel_update');
+
+    this.updateProgressData = undefined;
   }
 
   private _refreshRightButtons(): void {

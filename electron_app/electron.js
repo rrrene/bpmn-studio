@@ -122,19 +122,32 @@ Main._initializeApplication = function () {
         return;
       }
 
-      const downloadCancellationToken = new CancellationToken();
-
       console.log(`CurrentVersion: ${currentVersion}, CurrentVersionIsPrerelease: ${currentVersionIsPrerelease}`);
 
       autoUpdater.addListener('error', () => {
         appReadyEvent.sender.send('update_error');
       });
 
+      autoUpdater.addListener('download-progress', (progressObj) => {
+        const progressInPercent = progressObj.percent / 100;
+
+        Main._window.setProgressBar(progressInPercent);
+
+        appReadyEvent.sender.send('update_download_progress', progressObj);
+      });
+
+      let downloadCancellationToken;
+
       autoUpdater.addListener('update-available', () => {
         appReadyEvent.sender.send('update_available', updateCheckResult.updateInfo.version);
 
         electron.ipcMain.on('download_update', () => {
+          downloadCancellationToken = new CancellationToken();
           autoUpdater.downloadUpdate(downloadCancellationToken);
+
+          electron.ipcMain.on('cancel_update', () => {
+            downloadCancellationToken.cancel();
+          });
         });
 
         electron.ipcMain.on('show_release_notes', () => {

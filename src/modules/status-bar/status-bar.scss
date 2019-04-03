@@ -91,3 +91,89 @@
 .arrow-icon {
   margin-top: 2px;
 }
+
+.update-button {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  line-height: 15px;
+}
+
+.update-button-icon {
+  height: 15px;
+}
+
+.update-dropdown {
+  width: 315px;
+  height: 135px;
+  text-align: center;
+}
+
+.update-dropdown-text {
+  display: block;
+  padding: 0px 10px 3px 10px;
+}
+
+.update-dropdown-title-container {
+  padding-bottom: 15px;
+}
+
+.update-dropdown-title {
+  display: inline-block;
+  margin: auto;
+  font-weight: bold;
+}
+
+.update-dropdown-progressbar {
+  height: 16px;
+  margin: 0 25px 0 10px;
+}
+
+.update-dropdown-progressbar-progress {
+  background-color: #ccc;
+  font-size: 12px;
+}
+
+.update-dropdown-progress-container {
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.update-dropdown-cancel-download-button {
+  float: right;
+  width: 15px;
+  height: 15px;
+  margin-right: 5px;
+  line-height: 16px;
+  cursor: pointer;
+}
+
+.update-dropdown-button-container {
+  margin: 10px 30px;
+}
+
+.update-dropdown-cancel-button {
+  float: left;
+}
+
+.update-dropdown-update-button {
+  float: right;
+}
+
+.update-dropdown-install-button {
+  float: right;
+  margin-right: 15px;
+  margin-top: 20px;
+}
+
+.update-dropdown-install-text {
+  display: inherit;
+  width: 212px;
+  text-align: left;
+  margin-left: 10px;
+}
+
+.update-dropdown-release-notes {
+  display: block;
+  cursor: pointer;
+}

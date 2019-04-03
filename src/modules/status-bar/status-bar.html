@@ -5,7 +5,42 @@
   -->
   <div class="status-bar status-bar--system-macos" id="statusBarContainer">
     <div class="status-bar__left-bar" id="statusBarLeft">
-
+      <a if.bind="updateAvailable" class="update-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <img class="update-button-icon" src="src/resources/images/icon.png" title.bind="isDownloading ? updateProgressData.percent.toString() + '%' : 'Update available.'">
+      </a>
+      <div class="dropdown-menu update-dropdown" ref="updateDropdown">
+        <template if.bind="!isDownloading && !updateDownloadFinished">
+          <div class="update-dropdown-title-container">
+            <span class="update-dropdown-title">Version ${updateVersion} available</span>
+          </div>
+          <a class="update-dropdown-release-notes"click.delegate="showReleaseNotes()">
+            Click here for release notes
+          </a>
+          <div class="update-dropdown-button-container">
+            <button class="btn btn-default update-dropdown-cancel-button" click.delegate="hideDropdown()">Cancel</button>
+            <button class="btn btn-default update-dropdown-update-button" click.delegate="startUpdate()">Update</button>
+          </div>
+        </template>
+        <template if.bind="isDownloading && !updateDownloadFinished">
+          <div class="update-dropdown-title-container">
+            <span class="update-dropdown-title">Downloading update</span>
+          </div>
+          <span class="update-dropdown-text">${(updateProgressData.bytesPerSecond/1000).toFixed(2)} KB/s - ${(updateProgressData.transferred/1000/1000).toFixed(2)} MB of ${(updateProgressData.total/1000/1000).toFixed(2)} MB</span>
+          <div class="update-dropdown-progress-container">
+            <div class="update-dropdown-cancel-download-button" title="Cancel download." click.delegate="cancelUpdate()"><i class="fas fa-times"></i></div>
+            <div class="progress update-dropdown-progressbar">
+              <div class="progress-bar progress-bar-striped progress-bar-animated update-dropdown-progressbar-progress" role="progressbar" css="width: ${updateProgressData.percent}%;">${updateProgressData.percent.toFixed(1)}%</div>
+            </div>
+          </div>
+        </template>
+        <template if.bind="updateDownloadFinished">
+          <div class="update-dropdown-title-container">
+            <span class="update-dropdown-title">Update ready</span>
+          </div>
+          <button class="btn btn-default update-dropdown-install-button" click.delegate="installUpdate()">Install</button>
+          <span class="update-dropdown-install-text">Would you like to install the update now?<br>Otherwise it will be installed when restarting the BPMN-Studio.</span>
+        </template>
+      </div>
     </div>
     <div class="status-bar__center-bar" id="statusBarCenter">
       <div if.bind="showInspectCorrelationButtons">
