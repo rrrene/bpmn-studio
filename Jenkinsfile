@@ -130,33 +130,6 @@ pipeline {
         }
       }
       parallel {
-        stage('Build on Linux') {
-          agent {
-            label "linux && snapcraft-2.41"
-          }
-          steps {
-            unstash('post_build')
-            unstash('post_build_node_modules')
-
-            sh('node --version')
-
-            // We copy the node_modules folder from the slave running
-            // prepare and install steps. That slave may run another OS
-            // than linux. Some dependencies may not be installed if
-            // they have an os restriction in their package.json.
-            sh('npm install')
-
-            sh('npm run jenkins-electron-install-app-deps')
-            sh('npm run jenkins-electron-rebuild-native')
-            sh('npm run jenkins-electron-build-linux')
-            stash(includes: 'dist/*.*', excludes: 'electron-builder-effective-config.yaml', name: 'linux_results')
-          }
-          post {
-            always {
-              cleanup_workspace()
-            }
-          }
-        }
         stage('Build on MacOS') {
           agent {
             label "macos"
@@ -280,7 +253,6 @@ pipeline {
         }
       }
       steps {
-        unstash('linux_results')
         unstash('macos_results')
         unstash('windows_results')
 
@@ -306,8 +278,6 @@ pipeline {
                   "dist/bpmn-studio-${full_electron_release_version_string}-x86_64.AppImage",
                   "dist/bpmn-studio-${full_electron_release_version_string}.dmg",
                   "dist/bpmn-studio-${full_electron_release_version_string}.dmg.blockmap",
-                  "dist/bpmn-studio_${full_electron_release_version_string}_amd64.snap",
-                  "dist/latest-linux.yml",
                   "dist/latest-mac.yml",
                   "dist/latest.yml",
                 ];

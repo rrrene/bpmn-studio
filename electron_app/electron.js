@@ -290,7 +290,7 @@ Main._createMainWindow = function () {
     title: "BPMN-Studio",
     minWidth: 1300,
     minHeight: 800,
-    icon: path.join(__dirname, '../build/icon.png'), // only for windows and linux
+    icon: path.join(__dirname, '../build/icon.png'), // only for windows
     titleBarStyle: 'hiddenInset'
   });
 

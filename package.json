@@ -25,13 +25,11 @@
     "electron-start-dev": "npm run build && electron electron_app/electron.js",
     "electron-build-windows": "electron-rebuild && npm run build && build --publish never --windows",
     "electron-build-macos": "electron-rebuild && npm run build && build --publish never --macos",
-    "electron-build-linux": "electron-rebuild && npm run build && build --publish never --linux",
     "electron-shipit": "npm run build && build --publish always",
     "jenkins-electron-install-app-deps": "electron-builder install-app-deps",
     "jenkins-electron-rebuild-native": "electron-rebuild --force",
     "jenkins-electron-build-windows": "build --publish never --windows",
     "jenkins-electron-build-macos": "build --publish never --macos",
-    "jenkins-electron-build-linux": "build --publish never --linux",
     "jenkins-run-end-to-end-tests": "au e2eDocker",
     "jenkins-start-process-engine": "process-engine"
   },
@@ -75,18 +73,6 @@
           "name": "BPMN"
         }
       ]
-    },
-    "linux": {
-      "target": "snap",
-      "fileAssociations": [
-        {
-          "ext": [
-            "bpmn"
-          ],
-          "name": "BPMN"
-        }
-      ],
-      "category": "Development"
     }
   },
   "files": [
