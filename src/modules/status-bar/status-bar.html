@@ -11,7 +11,7 @@
       <div class="dropdown-menu update-dropdown" ref="updateDropdown">
         <template if.bind="!isDownloading && !updateDownloadFinished">
           <div class="update-dropdown-title-container">
-              <span class="update-dropdown-title">Version ${updateVersion} available</span>
+            <span class="update-dropdown-title">Version ${updateVersion} available</span>
           </div>
           <a class="update-dropdown-releasenotes"click.delegate="showReleasenotes(event)">
             Click here for Releasenotes
