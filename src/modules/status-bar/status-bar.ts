@@ -63,7 +63,6 @@ export class StatusBar {
 
       this._ipcRenderer.on('update_available', (event: Event, version: string) => {
         this.updateAvailable = true;
-
         this.updateVersion = version;
 
         const message: string = `A new update is available.\nPlease click on the BPMN-Studio icon in the statusbar to start the download.`;
