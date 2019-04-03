@@ -9,20 +9,16 @@
           <div class="quick-start__topic" click.delegate="openSingleDiagram()">Open Diagram</div>
           <div show.bind="isRunningInElectron && isRunningOnMacOS" class="quick-start__shortcut">⌘ + O</div>
           <div show.bind="isRunningInElectron && isRunningOnWindows" class="quick-start__shortcut">Strg + O</div>
-          <div show.bind="isRunningInElectron && isRunningOnLinux" class="quick-start__shortcut">Strg + O</div>
         </div>
         <div class="quick-start__item">
           <div class="quick-start__topic" click.delegate="openLocalSolution()">Open Solution</div>
           <div show.bind="isRunningInElectron && isRunningOnMacOS" class="quick-start__shortcut">⌘ + ⇧ + O</div>
           <div show.bind="isRunningInElectron && isRunningOnWindows" class="quick-start__shortcut">Strg + Shift + O</div>
-          <div show.bind="isRunningInElectron && isRunningOnLinux" class="quick-start__shortcut">Strg + Shift + O</div>
         </div>
         <div class="quick-start__item">
           <div class="quick-start__topic" click.delegate="createNewSingleDiagram()">New Diagram</div>
           <div show.bind="isRunningInElectron && isRunningOnMacOS" class="quick-start__shortcut">⌘ + N</div>
           <div show.bind="isRunningInElectron && isRunningOnWindows" class="quick-start__shortcut">Strg + N</div>
-          <!--See https://github.com/process-engine/bpmn-studio/issues/1292-->
-          <!--<div show.bind="isRunningInElectron && isRunningOnLinux" class="quick-start__shortcut">Strg + N</div>-->
         </div>
       </div>
     </div>
