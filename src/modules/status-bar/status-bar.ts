@@ -70,7 +70,7 @@ export class StatusBar {
         this._notificationService.showNonDisappearingNotification(NotificationType.INFO, message);
       });
 
-      this._ipcRenderer.on('update_download_progress', (event: Event, updateProgressData: any) => {
+      this._ipcRenderer.on('update_download_progress', (event: Event, updateProgressData: UpdateProgressData) => {
         this.updateProgressData = updateProgressData;
       });
 
