@@ -223,8 +223,6 @@ export class DiagramDetail {
 
       await solutionToDeployTo.service.saveDiagram(copyOfDiagram, solutionToDeployTo.uri);
 
-      this.activeDiagram = await solutionToDeployTo.service.loadDiagram(processModelId);
-
       this._notificationService
           .showNotification(NotificationType.SUCCESS, 'Diagram was successfully uploaded to the connected ProcessEngine.');
 
