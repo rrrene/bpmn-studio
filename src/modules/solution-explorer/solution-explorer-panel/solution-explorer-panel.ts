@@ -381,6 +381,7 @@ export class SolutionExplorerPanel {
 
     await this._router.navigateToRoute('design', {
       diagramName: diagram.name,
+      diagramUri: diagram.uri,
       solutionUri: solution.uri,
     });
 

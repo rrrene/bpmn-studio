@@ -5,7 +5,7 @@
 */
 
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {bindable, bindingMode, inject} from 'aurelia-framework';
+import {bindable, bindingMode, inject, observable} from 'aurelia-framework';
 import {activationStrategy, NavigationInstruction, Redirect, Router} from 'aurelia-router';
 
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
@@ -36,7 +36,7 @@ type DiagramWithSolution = {
 @inject(EventAggregator, 'SolutionService', Router, 'NotificationService')
 export class Design {
 
-  @bindable() public activeDiagram: IDiagram;
+  @observable() public activeDiagram: IDiagram;
   @bindable() public activeSolutionEntry: ISolutionEntry;
   @bindable() public xmlForDiff: string;
   @bindable({defaultBindingMode: bindingMode.oneWay}) public xml: string;
@@ -372,13 +372,19 @@ export class Design {
   }
 
   public activeDiagramChanged(newValue: IDiagram, oldValue: IDiagram): void {
+    const noOldValue: boolean = oldValue === undefined;
+    if (noOldValue) {
+      return;
+    }
+
     const activeDiagramDidNotChange: boolean = newValue.id === oldValue.id
                                             && newValue.uri === oldValue.uri;
     if (activeDiagramDidNotChange) {
       return;
     }
 
-    this.xmlForDiff = this.activeDiagram.xml;
+    this.xml = newValue.xml;
+    this.xmlForDiff = newValue.xml;
   }
 
   public get connectedRemoteSolutions(): Array<ISolutionEntry> {
