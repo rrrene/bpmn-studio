@@ -47,7 +47,7 @@ describe('XML view', () => {
 
     const currentBrowserUrl: string = await browser.getCurrentUrl();
 
-    expect(currentBrowserUrl).toContain(xmlView.url);
+    expect(currentBrowserUrl).toContain(xmlView.urlWithoutQueryParams);
 
     const visibilityOfXmlViewContainer: boolean = await xmlView.getVisibilityOfXmlViewContainer();
 

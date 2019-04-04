@@ -5,11 +5,13 @@ import {By} from 'selenium-webdriver';
 export class XmlView {
 
   public url: string;
+  public urlWithoutQueryParams: string;
 
   private _xmlViewContainerId: string = 'diagramXmlContainer';
 
   constructor(applicationUrl: string, diagramName: string) {
-    this.url = `${applicationUrl}/design/xml/diagram/${diagramName}`;
+    this.url = `${applicationUrl}/design/xml/diagram/${diagramName}?solutionUri=http%3A%2F%2Flocalhost%3A8000`;
+    this.urlWithoutQueryParams = `${applicationUrl}/design/xml/diagram/${diagramName}`;
   }
 
   public async show(): Promise<void> {
