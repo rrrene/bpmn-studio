@@ -137,6 +137,7 @@ export class StatusBar {
 
     this._router.navigateToRoute('design', {
       diagramName: this.activeDiagram ? this.activeDiagram.name : undefined,
+      diagramUri: this.activeDiagram ? this.activeDiagram.uri : undefined,
       solutionUri: this.activeSolutionEntry.uri,
       view: this._designView,
     });
@@ -163,6 +164,7 @@ export class StatusBar {
 
     this._router.navigateToRoute('design', {
       diagramName: this.activeDiagram ? this.activeDiagram.name : undefined,
+      diagramUri: this.activeDiagram ? this.activeDiagram.uri : undefined,
       solutionUri: this.activeSolutionEntry.uri,
       view: this._designView,
     });
