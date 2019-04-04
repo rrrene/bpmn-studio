@@ -28,7 +28,7 @@
 #### What's your setup
 
 - BPMN-Studio Version (`4.x.x`):
-- OS (`Windows/OS X/Linux` + `version`):
+- OS (`Windows/OS X` + `version`):
 - Node (`node --version`):
 - NPM (`npm --version`):
 - Docker (`docker version --format '{{.Server.Version}}'`):

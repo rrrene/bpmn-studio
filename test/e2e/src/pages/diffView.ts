@@ -13,9 +13,11 @@ const diffIdentifierId: string = 'js-diff-identifier';
 export class DiffView {
 
   public url: string;
+  public urlWithoutQueryParams: string;
 
   constructor(applicationUrl: string, diagramName: string) {
     this.url = `${applicationUrl}/design/diff/diagram/${diagramName}?solutionUri=http%3A%2F%2Flocalhost%3A8000`;
+    this.urlWithoutQueryParams = `${applicationUrl}/design/diff/diagram/${diagramName}`;
   }
 
   public async show(): Promise<void> {

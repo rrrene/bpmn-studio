@@ -5,7 +5,7 @@
 */
 
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {bindable, bindingMode, inject} from 'aurelia-framework';
+import {bindable, bindingMode, inject, observable} from 'aurelia-framework';
 import {activationStrategy, NavigationInstruction, Redirect, Router} from 'aurelia-router';
 
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
@@ -18,6 +18,7 @@ import {DiagramDetail} from './diagram-detail/diagram-detail';
 export interface IDesignRouteParameters {
   view?: string;
   diagramName?: string;
+  diagramUri?: string;
   solutionUri?: string;
 }
 
@@ -35,7 +36,7 @@ type DiagramWithSolution = {
 @inject(EventAggregator, 'SolutionService', Router, 'NotificationService')
 export class Design {
 
-  @bindable() public activeDiagram: IDiagram;
+  @observable() public activeDiagram: IDiagram;
   @bindable() public activeSolutionEntry: ISolutionEntry;
   @bindable() public xmlForDiff: string;
   @bindable({defaultBindingMode: bindingMode.oneWay}) public xml: string;
@@ -73,6 +74,8 @@ export class Design {
     this._notificationService = notificationService;
   }
 
+  // TODO: Refactor this function
+  // tslint:disable-next-line cyclomatic-complexity
   public async activate(routeParameters: IDesignRouteParameters): Promise<void> {
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
     if (isRunningInElectron) {
@@ -89,6 +92,11 @@ export class Design {
                                               ? routeParameters.diagramName !== this._router.currentInstruction.params.diagramName
                                               : true;
 
+    const diagramUrisAreDifferent: boolean = routerAndInstructionIsNotNull
+                                             ? routeParameters.diagramUri !== this._router.currentInstruction.queryParams.diagramUri
+                                             || routeParameters.diagramUri === undefined
+                                             : false;
+
     const solutionIsDifferent: boolean = routerAndInstructionIsNotNull
                                         ? routeParameters.solutionUri !== this._router.currentInstruction.queryParams.solutionUri
                                         : true;
@@ -97,7 +105,7 @@ export class Design {
                                       ? this._router.currentInstruction.config.name !== 'design'
                                       : true;
 
-    const navigateToAnotherDiagram: boolean = diagramNamesAreDifferent || routeFromOtherView || solutionIsDifferent;
+    const navigateToAnotherDiagram: boolean = diagramNamesAreDifferent || diagramUrisAreDifferent || routeFromOtherView || solutionIsDifferent;
 
     if (solutionIsSet) {
       this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(routeParameters.solutionUri);
@@ -119,7 +127,8 @@ export class Design {
         const persistedDiagrams: Array<IDiagram> = this._solutionService.getSingleDiagrams();
 
         this.activeDiagram = persistedDiagrams.find((diagram: IDiagram) => {
-          return diagram.name === routeParameters.diagramName;
+          return diagram.name === routeParameters.diagramName &&
+                 (diagram.uri === routeParameters.diagramUri || routeParameters.diagramUri === undefined);
         });
 
       } else {
@@ -363,13 +372,19 @@ export class Design {
   }
 
   public activeDiagramChanged(newValue: IDiagram, oldValue: IDiagram): void {
+    const noOldValue: boolean = oldValue === undefined;
+    if (noOldValue) {
+      return;
+    }
+
     const activeDiagramDidNotChange: boolean = newValue.id === oldValue.id
                                             && newValue.uri === oldValue.uri;
     if (activeDiagramDidNotChange) {
       return;
     }
 
-    this.xmlForDiff = this.activeDiagram.xml;
+    this.xml = newValue.xml;
+    this.xmlForDiff = newValue.xml;
   }
 
   public get connectedRemoteSolutions(): Array<ISolutionEntry> {

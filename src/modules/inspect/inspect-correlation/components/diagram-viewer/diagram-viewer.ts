@@ -208,8 +208,8 @@ export class DiagramViewer {
   }
 
   private async _getXmlByCorrelation(correlation: DataModels.Correlations.Correlation): Promise<string> {
-    const processModelForCorrelation: DataModels.Correlations.CorrelationProcessModel =
-      correlation.processModels.find((processModel: DataModels.Correlations.CorrelationProcessModel) => {
+    const processModelForCorrelation: DataModels.Correlations.CorrelationProcessInstance =
+      correlation.processInstances.find((processModel: DataModels.Correlations.CorrelationProcessInstance) => {
         return processModel.processModelId === this.activeDiagram.id;
       });
 

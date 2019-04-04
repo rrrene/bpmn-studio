@@ -7,7 +7,7 @@ import {DataModels, IManagementApi} from '@process-engine/management_api_contrac
 
 import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import {ActiveToken} from '@process-engine/kpi_api_contracts';
-import {CorrelationProcessModel} from '@process-engine/management_api_contracts/dist/data_models/correlation';
+import {CorrelationProcessInstance} from '@process-engine/management_api_contracts/dist/data_models/correlation';
 import {TokenHistoryEntry} from '@process-engine/management_api_contracts/dist/data_models/token_history';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
@@ -294,7 +294,7 @@ export class LiveExecutionTracker {
       return undefined;
     }
 
-    const parentProcessModel: DataModels.Correlations.CorrelationProcessModel =
+    const parentProcessModel: DataModels.Correlations.CorrelationProcessInstance =
       await this._getProcessModelByProcessInstanceId(this._parentProcessInstanceId);
 
     const parentProcessModelNotFound: boolean = parentProcessModel === undefined;
@@ -677,8 +677,8 @@ export class LiveExecutionTracker {
       return undefined;
     }
 
-    const callActivityTarget: CorrelationProcessModel = correlation.processModels
-      .find((correlationProcessModel: CorrelationProcessModel): boolean => {
+    const callActivityTarget: CorrelationProcessInstance = correlation.processInstances
+      .find((correlationProcessModel: CorrelationProcessInstance): boolean => {
         const targetProcessModelFound: boolean = correlationProcessModel.parentProcessInstanceId === this.processInstanceId
           && correlationProcessModel.processModelId === callActivityTargetId;
 
@@ -902,8 +902,8 @@ export class LiveExecutionTracker {
       return;
     }
 
-    const processModelFromCorrelation: DataModels.Correlations.CorrelationProcessModel =
-      correlation.processModels.find((processModel: DataModels.Correlations.CorrelationProcessModel) => {
+    const processModelFromCorrelation: DataModels.Correlations.CorrelationProcessInstance =
+      correlation.processInstances.find((processModel: DataModels.Correlations.CorrelationProcessInstance) => {
         const processModelIsSearchedProcessModel: boolean = processModel.processInstanceId === this.processInstanceId;
 
         return processModelIsSearchedProcessModel;
@@ -1200,8 +1200,8 @@ export class LiveExecutionTracker {
       return undefined;
     }
 
-    const processModelFromCorrelation: DataModels.Correlations.CorrelationProcessModel = correlation.processModels
-      .find((correlationProcessModel: DataModels.Correlations.CorrelationProcessModel): boolean => {
+    const processModelFromCorrelation: DataModels.Correlations.CorrelationProcessInstance = correlation.processInstances
+      .find((correlationProcessModel: DataModels.Correlations.CorrelationProcessInstance): boolean => {
         const processModelFound: boolean = correlationProcessModel.processInstanceId === this.processInstanceId;
 
         return processModelFound;
@@ -1212,7 +1212,7 @@ export class LiveExecutionTracker {
     return parentProcessInstanceId;
   }
 
-  private async _getProcessModelByProcessInstanceId(processInstanceId: string): Promise<DataModels.Correlations.CorrelationProcessModel> {
+  private async _getProcessModelByProcessInstanceId(processInstanceId: string): Promise<DataModels.Correlations.CorrelationProcessInstance> {
 
     // This is necessary because the managementApi sometimes throws an error when the correlation is not yet existing.
     const getCorrelation: () => Promise<DataModels.Correlations.Correlation> = async(): Promise<DataModels.Correlations.Correlation> => {
@@ -1237,8 +1237,8 @@ export class LiveExecutionTracker {
       return undefined;
     }
 
-    const processModel: DataModels.Correlations.CorrelationProcessModel =
-      correlation.processModels.find((correlationProcessModel: DataModels.Correlations.CorrelationProcessModel): boolean => {
+    const processModel: DataModels.Correlations.CorrelationProcessInstance =
+      correlation.processInstances.find((correlationProcessModel: DataModels.Correlations.CorrelationProcessInstance): boolean => {
         const processModelFound: boolean = correlationProcessModel.processInstanceId === processInstanceId;
 
         return processModelFound;

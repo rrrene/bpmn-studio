@@ -428,6 +428,7 @@ export class SolutionExplorerSolution {
     await this._router.navigateToRoute(this._diagramRoute, {
       view: this._inspectView ? this._inspectView : this._designView,
       diagramName: diagram.name,
+      diagramUri: diagram.uri,
       solutionUri: this.displayedSolutionEntry.uri,
     });
 
@@ -846,6 +847,8 @@ export class SolutionExplorerSolution {
     const diagramName: string = this._router.currentInstruction.params.diagramName;
     const diagramNameIsSpecified: boolean = diagramName !== undefined;
 
+    const diagramUri: string = this._router.currentInstruction.queryParams.diagramUri;
+
     const routeName: string = this._router.currentInstruction.config.name;
     const routeNameNeedsUpdate: boolean = routeName === 'design'
                                         || routeName === 'inspect'
@@ -861,7 +864,8 @@ export class SolutionExplorerSolution {
       try {
         const activeSolution: ISolution = await this.solutionService.loadSolution();
         this.activeDiagram = activeSolution.diagrams.find((diagram: IDiagram) => {
-          return diagram.name === diagramName;
+          return diagram.name === diagramName
+              && (diagram.uri === diagramUri || diagramUri === undefined);
         });
 
       } catch {

@@ -10,7 +10,6 @@ export class StartPage {
   public isRunningInElectron: boolean = (window as any).nodeRequire;
   public isRunningOnWindows: boolean = false;
   public isRunningOnMacOS: boolean = false;
-  public isRunningOnLinux: boolean = false;
 
   constructor(eventAggregator: EventAggregator) {
     this._eventAggregator = eventAggregator;
@@ -20,7 +19,6 @@ export class StartPage {
     if (this.isRunningInElectron) {
       this.isRunningOnWindows = process.platform === 'win32';
       this.isRunningOnMacOS = process.platform === 'darwin';
-      this.isRunningOnLinux = process.platform === 'linux';
     }
   }
 

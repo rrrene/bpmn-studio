@@ -71,8 +71,9 @@ export function configure(aurelia: Aurelia): void {
       // subscribe to processengine status
       ipcRenderer.send('add_internal_processengine_status_listener');
 
-      // wait for status to be reported
+      ipcRenderer.send('app_ready');
 
+      // wait for status to be reported
       ipcRenderer.on('internal_processengine_status', (event: any, status: string, error: string) => {
         if (status !== 'error') {
           return;
@@ -91,50 +92,5 @@ export function configure(aurelia: Aurelia): void {
         notificationService.showNonDisappearingNotification(NotificationType.ERROR, errorMessage);
       });
     }
-
-    if (applicationRunsInElectron) {
-      const ipcRenderer: any = (window as any).nodeRequire('electron').ipcRenderer;
-      const notificationService: NotificationService = aurelia.container.get('NotificationService');
-
-      ipcRenderer.send('app_ready');
-
-      ipcRenderer.on('update_error', () => {
-        notificationService.showNotification(NotificationType.INFO, 'Update Error!');
-      });
-
-      ipcRenderer.on('update_available', (event: any, version: string) => {
-        // tslint:disable-next-line max-line-length
-        const installButton: string = `<a class="btn btn-default" style="color: #000000;" href="javascript:nodeRequire('electron').ipcRenderer.send('download_update')">Download</a>`;
-        const cancelButton: string = `<a class="btn btn-default" style="color: #000000;" href="#">Cancel</a>`;
-
-        const messageTitle: string = `<h5>Version ${version} available.</h5>
-                                      <h6>
-                                        <a href="#" onclick="showReleaseNotes(event)">
-                                          Click here for Releasenotes
-                                        </a>
-                                      </h6>
-                                      <script>
-                                        function showReleaseNotes(event) {
-                                          event.stopPropagation();
-                                          nodeRequire('electron').ipcRenderer.send('show_release_notes');
-                                        }
-                                      </script>`;
-        const messageBody: string = `${cancelButton} ${installButton}`;
-
-        notificationService.showNonDisappearingNotification(NotificationType.INFO, `${messageTitle}\n${messageBody}`);
-      });
-
-      ipcRenderer.on('update_downloaded', () => {
-        // tslint:disable-next-line max-line-length
-        const installButton: string = `<a class="btn btn-default" style="color: #000000;" href="javascript:nodeRequire('electron').ipcRenderer.send('quit_and_install')">Install</a>`;
-        const cancelButton: string = `<a class="btn btn-default" style="color: #000000;" href="#">Cancel</a>`;
-
-        const messageTitle: string = '<h4>Update ready!</h4>';
-        const messageBody: string = `${cancelButton} ${installButton}`;
-
-        notificationService.showNonDisappearingNotification(NotificationType.INFO, `${messageTitle}\n${messageBody}`);
-      });
-    }
   });
-
 }

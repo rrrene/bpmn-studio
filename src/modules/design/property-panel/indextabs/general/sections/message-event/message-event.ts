@@ -60,7 +60,6 @@ export class MessageEventSection implements ISection {
   }
 
   public updateMessage(): void {
-
     this.selectedMessage = this.messages.find((message: IMessage) => {
       return message.id === this.selectedId;
     });
@@ -173,7 +172,11 @@ export class MessageEventSection implements ISection {
 
     if (elementReferencesMessage) {
       this.selectedId = messageRefId;
-      this.updateMessage();
+
+      this.selectedMessage = this.messages.find((message: IMessage) => {
+        return message.id === this.selectedId;
+      });
+
     } else {
       this.selectedMessage = undefined;
       this.selectedId = undefined;

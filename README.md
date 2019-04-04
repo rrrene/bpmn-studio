@@ -38,7 +38,6 @@ Engine verbunden werden, um diese Diagramme auszuführen.
 
    Für den Platzhalter `<OS>` können folgende Werte eingesetzt werden:
 
-   - `linux` für Linux
    - `macos` für MacOS
    - `windows` für Windows
 
@@ -334,10 +333,6 @@ Die folgenden Skripte, werden in unserem Tooling verwendet:
 * `electron-build-macos`
 
   Baut die Electron-Anwendung für macOS.
-
-* `electron-build-linux`
-
-  Baut die Electron-Anwendung für Linux.
 
 * `electron-build-windows`
 

@@ -49,7 +49,7 @@ describe('Diff view', () => {
 
     const currentBrowserUrl: string = await browser.getCurrentUrl();
 
-    expect(currentBrowserUrl).toContain(diffView.url);
+    expect(currentBrowserUrl).toContain(diffView.urlWithoutQueryParams);
 
     const visibilityOfDiffViewContainer: boolean = await diffView.getVisibilityOfDiffViewContainer();
 
