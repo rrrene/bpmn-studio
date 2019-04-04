@@ -428,6 +428,7 @@ export class SolutionExplorerSolution {
     await this._router.navigateToRoute(this._diagramRoute, {
       view: this._inspectView ? this._inspectView : this._designView,
       diagramName: diagram.name,
+      diagramUri: diagram.uri,
       solutionUri: this.displayedSolutionEntry.uri,
     });
 

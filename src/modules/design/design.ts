@@ -18,6 +18,7 @@ import {DiagramDetail} from './diagram-detail/diagram-detail';
 export interface IDesignRouteParameters {
   view?: string;
   diagramName?: string;
+  diagramUri?: string;
   solutionUri?: string;
 }
 
@@ -119,7 +120,8 @@ export class Design {
         const persistedDiagrams: Array<IDiagram> = this._solutionService.getSingleDiagrams();
 
         this.activeDiagram = persistedDiagrams.find((diagram: IDiagram) => {
-          return diagram.name === routeParameters.diagramName;
+          return diagram.name === routeParameters.diagramName &&
+                 (diagram.uri === routeParameters.diagramUri || routeParameters.diagramUri === undefined);
         });
 
       } else {
