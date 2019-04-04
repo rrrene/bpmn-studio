@@ -157,7 +157,6 @@ export class DiagramDetail {
 
   public deactivate(): void {
     this._eventAggregator.publish(environment.events.navBar.hideTools);
-    this._eventAggregator.publish(environment.events.navBar.noValidationError);
   }
 
   public detached(): void {
