@@ -5,7 +5,7 @@
 */
 
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {bindable, bindingMode, inject} from 'aurelia-framework';
+import {bindable, bindingMode, inject, observable} from 'aurelia-framework';
 import {activationStrategy, NavigationInstruction, Redirect, Router} from 'aurelia-router';
 
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
@@ -74,6 +74,8 @@ export class Design {
     this._notificationService = notificationService;
   }
 
+  // TODO: Refactor this function
+  // tslint:disable-next-line cyclomatic-complexity
   public async activate(routeParameters: IDesignRouteParameters): Promise<void> {
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
     if (isRunningInElectron) {
@@ -90,6 +92,11 @@ export class Design {
                                               ? routeParameters.diagramName !== this._router.currentInstruction.params.diagramName
                                               : true;
 
+    const diagramUrisAreDifferent: boolean = routerAndInstructionIsNotNull
+                                             ? routeParameters.diagramUri !== this._router.currentInstruction.queryParams.diagramUri
+                                             || routeParameters.diagramUri === undefined
+                                             : false;
+
     const solutionIsDifferent: boolean = routerAndInstructionIsNotNull
                                         ? routeParameters.solutionUri !== this._router.currentInstruction.queryParams.solutionUri
                                         : true;
@@ -98,7 +105,7 @@ export class Design {
                                       ? this._router.currentInstruction.config.name !== 'design'
                                       : true;
 
-    const navigateToAnotherDiagram: boolean = diagramNamesAreDifferent || routeFromOtherView || solutionIsDifferent;
+    const navigateToAnotherDiagram: boolean = diagramNamesAreDifferent || diagramUrisAreDifferent || routeFromOtherView || solutionIsDifferent;
 
     if (solutionIsSet) {
       this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(routeParameters.solutionUri);
