@@ -15,7 +15,7 @@ export class DiffView {
   public url: string;
 
   constructor(applicationUrl: string, diagramName: string) {
-    this.url = `${applicationUrl}/design/diff/diagram/${diagramName}?solutionUri=http%3A%2F%2Flocalhost%3A8000`;
+    this.url = `${applicationUrl}/design/diff/diagram/${diagramName}`;
   }
 
   public async show(): Promise<void> {

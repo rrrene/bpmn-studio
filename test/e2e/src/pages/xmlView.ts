@@ -9,7 +9,7 @@ export class XmlView {
   private _xmlViewContainerId: string = 'diagramXmlContainer';
 
   constructor(applicationUrl: string, diagramName: string) {
-    this.url = `${applicationUrl}/design/xml/diagram/${diagramName}?solutionUri=http%3A%2F%2Flocalhost%3A8000`;
+    this.url = `${applicationUrl}/design/xml/diagram/${diagramName}`;
   }
 
   public async show(): Promise<void> {
