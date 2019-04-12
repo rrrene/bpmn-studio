@@ -477,7 +477,7 @@ export class BpmnIo {
     const diagramIsVisible: boolean = viewbox.height > 0 && viewbox.width > 0;
 
     if (diagramIsVisible) {
-      canvas.zoom('fit-viewport');
+      canvas.zoom('fit-viewport', 'auto');
     }
   }
 

@@ -204,7 +204,7 @@ export class DiagramViewer {
 
   public fitDiagramToViewport(): void {
     const canvas: ICanvas = this._diagramViewer.get('canvas');
-    canvas.zoom('fit-viewport');
+    canvas.zoom('fit-viewport', 'auto');
   }
 
   private async _getXmlByCorrelation(correlation: DataModels.Correlations.Correlation): Promise<string> {

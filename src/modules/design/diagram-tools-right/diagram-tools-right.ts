@@ -144,7 +144,7 @@ export class DiagramToolsRight {
   public fitDiagramToViewport(): void {
     const canvas: ICanvas = this.modeler.get('canvas');
 
-    canvas.zoom('fit-viewport');
+    canvas.zoom('fit-viewport', 'auto');
   }
 
   private _setColor(color: IColorPickerColor): void {
