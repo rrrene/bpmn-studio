@@ -264,7 +264,7 @@ export class LiveExecutionTracker {
       return undefined;
     }
 
-    const parentProcessModel: DataModels.Correlations.CorrelationProcessModel =
+    const parentProcessModel: DataModels.Correlations.CorrelationProcessInstance =
      await this._liveExecutionTrackerService.getProcessModelByProcessInstanceId(this.correlationId, this._parentProcessInstanceId);
 
     const parentProcessModelNotFound: boolean = parentProcessModel === undefined;
@@ -668,14 +668,14 @@ export class LiveExecutionTracker {
       return undefined;
     }
 
-    const processModelFromCorrelation: DataModels.Correlations.CorrelationProcessInstance = correlation.processInstances
-      .find((correlationProcessModel: DataModels.Correlations.CorrelationProcessInstance): boolean => {
-        const processModelFound: boolean = correlationProcessModel.processInstanceId === this.processInstanceId;
+    const processInstanceFromCorrelation: DataModels.Correlations.CorrelationProcessInstance = correlation.processInstances
+      .find((correlationProcessInstance: DataModels.Correlations.CorrelationProcessInstance): boolean => {
+        const processInstanceFound: boolean = correlationProcessInstance.processInstanceId === this.processInstanceId;
 
-        return processModelFound;
+        return processInstanceFound;
       });
 
-    const {parentProcessInstanceId} = processModelFromCorrelation;
+    const {parentProcessInstanceId} = processInstanceFromCorrelation;
 
     return parentProcessInstanceId;
   }

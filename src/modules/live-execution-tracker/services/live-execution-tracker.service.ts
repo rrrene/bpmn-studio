@@ -5,7 +5,7 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 import {DataModels} from '@process-engine/management_api_contracts';
-import {CorrelationProcessModel} from '@process-engine/management_api_contracts/dist/data_models/correlation';
+import {CorrelationProcessInstance} from '@process-engine/management_api_contracts/dist/data_models/correlation';
 import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_models/kpi';
 import {TokenHistoryEntry} from '@process-engine/management_api_contracts/dist/data_models/token_history';
 
@@ -273,7 +273,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   }
 
   public async getProcessModelByProcessInstanceId(correlationId: string,
-                                                  processInstanceId: string): Promise<DataModels.Correlations.CorrelationProcessModel> {
+                                                  processInstanceId: string): Promise<DataModels.Correlations.CorrelationProcessInstance> {
 
     const correlation: DataModels.Correlations.Correlation = await  this.getCorrelationById(correlationId);
 
@@ -282,9 +282,9 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
       return undefined;
     }
 
-    const processModel: DataModels.Correlations.CorrelationProcessModel =
-      correlation.processModels.find((correlationProcessModel: DataModels.Correlations.CorrelationProcessModel): boolean => {
-        const processModelFound: boolean = correlationProcessModel.processInstanceId === processInstanceId;
+    const processModel: DataModels.Correlations.CorrelationProcessInstance =
+      correlation.processInstances.find((correlationProcessInstance: DataModels.Correlations.CorrelationProcessInstance): boolean => {
+        const processModelFound: boolean = correlationProcessInstance.processInstanceId === processInstanceId;
 
         return processModelFound;
       });
@@ -307,10 +307,10 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
       return undefined;
     }
 
-    const {processInstanceId} = correlation.processModels
-      .find((correlationProcessModel: CorrelationProcessModel): boolean => {
-        const targetProcessModelFound: boolean = correlationProcessModel.parentProcessInstanceId === processInstanceIdOfOrigin
-                                              && correlationProcessModel.processModelId === callActivityTargetId;
+    const {processInstanceId} = correlation.processInstances
+      .find((correlationProcessInstance: CorrelationProcessInstance): boolean => {
+        const targetProcessModelFound: boolean = correlationProcessInstance.parentProcessInstanceId === processInstanceIdOfOrigin
+                                              && correlationProcessInstance.processModelId === callActivityTargetId;
 
         return targetProcessModelFound;
       });
