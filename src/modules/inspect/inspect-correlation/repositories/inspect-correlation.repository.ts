@@ -68,7 +68,7 @@ export class InspectCorrelationRepository implements IInspectCorrelationReposito
     processInstanceId: string,
     flowNodeId: string,
     identity: IIdentity,
-  ): Promise<Array<DataModels.TokenHistory.TokenHistoryEntry>> {
+  ): Promise<DataModels.TokenHistory.TokenHistoryGroup> {
 
     return this._managementApiService.getTokensForFlowNodeByProcessInstanceId(identity, processInstanceId, flowNodeId);
   }

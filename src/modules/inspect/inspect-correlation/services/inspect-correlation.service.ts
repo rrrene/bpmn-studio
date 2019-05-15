@@ -31,7 +31,7 @@ export class InspectCorrelationService implements IInspectCorrelationService {
   public async getTokenForFlowNodeByProcessInstanceId(
                                            processInstanceId: string,
                                            flowNodeId: string,
-                                           identity: IIdentity): Promise<Array<DataModels.TokenHistory.TokenHistoryEntry> | undefined> {
+                                           identity: IIdentity): Promise<DataModels.TokenHistory.TokenHistoryGroup | undefined> {
     try {
       return await this._inspectCorrelationRepository.getTokenForFlowNodeByProcessInstanceId(processInstanceId, flowNodeId, identity);
     } catch (error) {

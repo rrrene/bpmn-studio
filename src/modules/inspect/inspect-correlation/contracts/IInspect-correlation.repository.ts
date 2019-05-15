@@ -9,5 +9,5 @@ export interface IInspectCorrelationRepository {
     processInstanceId: string,
     flowNodeId: string,
     identity: IIdentity,
-  ): Promise<Array<DataModels.TokenHistory.TokenHistoryEntry>>;
+  ): Promise<DataModels.TokenHistory.TokenHistoryGroup>;
 }
