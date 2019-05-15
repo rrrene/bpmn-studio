@@ -24,6 +24,8 @@ export interface ILiveExecutionTrackerRepository {
   createManualTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
   createEmptyActivityWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
   createEmptyActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createCallActivityWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createCallActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
 
   removeSubscription(subscription: Subscription): Promise<void>;
 }

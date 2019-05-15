@@ -137,6 +137,28 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     });
   }
 
+  public createCallActivityWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onCallActivityWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
+      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherCorrelation) {
+        return;
+      }
+
+      callback();
+    });
+  }
+
+  public createCallActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onCallActivityFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
+      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherCorrelation) {
+        return;
+      }
+
+      callback();
+    });
+  }
+
   public createUserTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onUserTaskFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
       const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;

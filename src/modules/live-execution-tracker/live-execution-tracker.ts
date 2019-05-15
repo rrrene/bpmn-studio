@@ -710,6 +710,10 @@ export class LiveExecutionTracker {
       this._liveExecutionTrackerService.createEmptyActivityWaitingEventListener(this.processInstanceId, colorizationCallback);
     const emptyActivityFinishedSubscriptionPromise: Promise<Subscription> =
       this._liveExecutionTrackerService.createEmptyActivityFinishedEventListener(this.processInstanceId, colorizationCallback);
+    const callActivityWaitingSubscriptionPromise: Promise<Subscription> =
+        this._liveExecutionTrackerService.createCallActivityWaitingEventListener(this.processInstanceId, colorizationCallback);
+    const callActivityFinishedSubscriptionPromise: Promise<Subscription> =
+        this._liveExecutionTrackerService.createCallActivityFinishedEventListener(this.processInstanceId, colorizationCallback);
 
     const subscriptionPromises: Array<Promise<Subscription>> = [
                                                                 processEndedSubscriptionPromise,
@@ -720,6 +724,8 @@ export class LiveExecutionTracker {
                                                                 manualTaskFinishedSubscriptionPromise,
                                                                 emptyActivityWaitingSubscriptionPromise,
                                                                 emptyActivityFinishedSubscriptionPromise,
+                                                                callActivityWaitingSubscriptionPromise,
+                                                                callActivityFinishedSubscriptionPromise,
                                                               ];
 
     return Promise.all(subscriptionPromises);
