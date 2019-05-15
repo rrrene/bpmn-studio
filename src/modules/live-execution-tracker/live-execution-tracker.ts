@@ -483,6 +483,9 @@ export class LiveExecutionTracker {
 
       const errorGettingTargetProcessInstanceId: boolean = targetProcessInstanceId === undefined;
       if (errorGettingTargetProcessInstanceId) {
+        const errorMessage: string = 'Could not get processInstanceId of the target process. Please try to click on the call activity again.';
+
+        this._notificationService.showNotification(NotificationType.ERROR, errorMessage);
         return;
       }
 
