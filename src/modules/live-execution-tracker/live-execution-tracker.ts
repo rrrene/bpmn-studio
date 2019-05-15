@@ -481,9 +481,6 @@ export class LiveExecutionTracker {
                                                                                          this.processInstanceId,
                                                                                          callActivityTargetProcess);
 
-      const noCorrelationMessage: string = 'Could not get correlation. Please try to click on the call activity again.';
-      this._notificationService.showNotification(NotificationType.ERROR, noCorrelationMessage);
-
       const errorGettingTargetProcessInstanceId: boolean = targetProcessInstanceId === undefined;
       if (errorGettingTargetProcessInstanceId) {
         return;
