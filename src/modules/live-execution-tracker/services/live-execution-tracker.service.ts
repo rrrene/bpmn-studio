@@ -167,9 +167,9 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return allElementsThatCanHaveAToken;
   }
 
-    public getOutgoingElementsOfElement(element: IShape,
-                                        tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup,
-                                        activeTokens: Array<ActiveToken>): Array<IShape> {
+  public getOutgoingElementsOfElement(element: IShape,
+                                      tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup,
+                                      activeTokens: Array<ActiveToken>): Array<IShape> {
 
     const outgoingElementsAsIModdleElement: Array<IModdleElement> = element.businessObject.outgoing;
 
