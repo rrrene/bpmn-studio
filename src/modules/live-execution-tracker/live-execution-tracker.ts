@@ -689,11 +689,7 @@ export class LiveExecutionTracker {
       this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
     };
 
-    const taskReachedCallback: Function = (): void => {
-      this._handleElementColorization();
-    };
-
-    const taskFinishedCallback: Function = (): void => {
+    const colorizationCallback: Function = (): void => {
       this._handleElementColorization();
     };
 
@@ -703,17 +699,17 @@ export class LiveExecutionTracker {
       this._liveExecutionTrackerService.createProcessTerminatedEventListener(this.processInstanceId, processEndedCallback);
 
     const userTaskWaitingSubscriptionPromise: Promise<Subscription> =
-      this._liveExecutionTrackerService.createUserTaskWaitingEventListener(this.processInstanceId, taskReachedCallback);
+      this._liveExecutionTrackerService.createUserTaskWaitingEventListener(this.processInstanceId, colorizationCallback);
     const userTaskFinishedSubscriptionPromise: Promise<Subscription> =
-      this._liveExecutionTrackerService.createUserTaskFinishedEventListener(this.processInstanceId, taskFinishedCallback);
+      this._liveExecutionTrackerService.createUserTaskFinishedEventListener(this.processInstanceId, colorizationCallback);
     const manualTaskWaitingSubscriptionPromise: Promise<Subscription> =
-      this._liveExecutionTrackerService.createManualTaskWaitingEventListener(this.processInstanceId, taskReachedCallback);
+      this._liveExecutionTrackerService.createManualTaskWaitingEventListener(this.processInstanceId, colorizationCallback);
     const manualTaskFinishedSubscriptionPromise: Promise<Subscription> =
-      this._liveExecutionTrackerService.createManualTaskFinishedEventListener(this.processInstanceId, taskFinishedCallback);
+      this._liveExecutionTrackerService.createManualTaskFinishedEventListener(this.processInstanceId, colorizationCallback);
     const emptyActivityWaitingSubscriptionPromise: Promise<Subscription> =
-      this._liveExecutionTrackerService.createEmptyActivityWaitingEventListener(this.processInstanceId, taskReachedCallback);
+      this._liveExecutionTrackerService.createEmptyActivityWaitingEventListener(this.processInstanceId, colorizationCallback);
     const emptyActivityFinishedSubscriptionPromise: Promise<Subscription> =
-      this._liveExecutionTrackerService.createEmptyActivityFinishedEventListener(this.processInstanceId, taskFinishedCallback);
+      this._liveExecutionTrackerService.createEmptyActivityFinishedEventListener(this.processInstanceId, colorizationCallback);
 
     const subscriptionPromises: Array<Promise<Subscription>> = [processEndedSubscriptionPromise,
                                                                 processTerminatedSubscriptionPromise,
