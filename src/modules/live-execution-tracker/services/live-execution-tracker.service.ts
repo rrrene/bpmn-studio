@@ -104,7 +104,6 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
       return null;
     }
 
-    // this._activeTokens = activeTokens;
     const elementsWithActiveToken: Array<IShape> = activeTokens.map((activeToken: ActiveToken): IShape => {
       const elementWithActiveToken: IShape = elements.find((element: IShape) => {
         return element.id === activeToken.flowNodeId;
