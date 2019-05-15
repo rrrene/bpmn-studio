@@ -85,64 +85,73 @@ export class TokenViewer {
       return;
     }
 
-    const tokenHistoryEntries: Array<DataModels.TokenHistory.TokenHistoryEntry> = await this._inspectCorrelationService
+    const tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup = await this._inspectCorrelationService
       .getTokenForFlowNodeByProcessInstanceId(this.processInstanceId, this.flowNode.id, this.identity);
 
-
-    this.tokenEntries = this._getBeautifiedTokenEntriesForFlowNode(tokenHistoryEntries);
-    this.rawTokenEntries = this._getRawTokenEntriesForFlowNode(tokenHistoryEntries);
+    this.tokenEntries = this._getBeautifiedTokenEntriesForFlowNode(tokenHistoryGroup);
+    this.rawTokenEntries = this._getRawTokenEntriesForFlowNode(tokenHistoryGroup);
 
     this.showTokenEntries = this.tokenEntries.length > 0;
     this.shouldShowFlowNodeId = this.tokenEntries.length > 0;
   }
 
-  private _getRawTokenEntriesForFlowNode(tokenHistoryEntries: Array<DataModels.TokenHistory.TokenHistoryEntry>): Array<IRawTokenEntry> {
-    const elementHasNoToken: boolean = tokenHistoryEntries === undefined;
-    if (elementHasNoToken) {
-      return [];
-    }
+  private _getRawTokenEntriesForFlowNode(tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup): Array<IRawTokenEntry> {
+    const tokenEntries: Array<IRawTokenEntry> = [];
 
-    return tokenHistoryEntries.map((historyEntry: DataModels.TokenHistory.TokenHistoryEntry, index: number) => {
-      // tslint:disable-next-line no-magic-numbers
-      const payloadAsString: string = JSON.stringify(historyEntry.payload, null, 2);
-
-      const tokenEntry: IRawTokenEntry = {
-        entryNr: index,
-        eventType: historyEntry.tokenEventType,
-        createdAt: historyEntry.createdAt,
-        payload: payloadAsString,
-      };
-
-      return tokenEntry;
-    });
-  }
-
-  private _getBeautifiedTokenEntriesForFlowNode(tokenHistoryEntries: Array<DataModels.TokenHistory.TokenHistoryEntry>): Array<ITokenEntry> {
-    const tokenEntries: Array<ITokenEntry> = [];
-
-    const elementHasNoToken: boolean = tokenHistoryEntries === undefined;
+    const elementHasNoToken: boolean = tokenHistoryGroup === undefined;
     if (elementHasNoToken) {
       return tokenEntries;
     }
 
-    tokenHistoryEntries.forEach((historyEntry: DataModels.TokenHistory.TokenHistoryEntry, index: number) => {
-      const historyEntryPayload: any = historyEntry.payload;
+    Object.entries(tokenHistoryGroup).forEach(([flowNodeId, tokenHistoryEntries]: [string, Array<DataModels.TokenHistory.TokenHistoryEntry>]) => {
 
-      const historyEntryHasNoPayload: boolean = historyEntryPayload === undefined;
-      if (historyEntryHasNoPayload) {
-        return;
-      }
+      tokenHistoryEntries.forEach((historyEntry: DataModels.TokenHistory.TokenHistoryEntry, index: number) => {
+        // tslint:disable-next-line no-magic-numbers
+        const payloadAsString: string = JSON.stringify(historyEntry.payload, null, 2);
 
-      const tokenEntryPayload: Array<IPayloadEntry> = this._convertHistoryEntryPayloadToTokenEntryPayload(historyEntryPayload);
+        const tokenEntry: IRawTokenEntry = {
+          entryNr: index,
+          eventType: historyEntry.tokenEventType,
+          createdAt: historyEntry.createdAt,
+          payload: payloadAsString,
+        };
 
-      const tokenEntry: ITokenEntry = {
-        entryNr: index,
-        eventType: historyEntry.tokenEventType,
-        createdAt: historyEntry.createdAt,
-        payload: tokenEntryPayload,
-      };
+        tokenEntries.push(tokenEntry);
+      });
+    });
 
-      tokenEntries.push(tokenEntry);
+    return tokenEntries;
+  }
+
+  private _getBeautifiedTokenEntriesForFlowNode(tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup): Array<ITokenEntry> {
+    const tokenEntries: Array<ITokenEntry> = [];
+
+    const elementHasNoToken: boolean = tokenHistoryGroup === undefined;
+    if (elementHasNoToken) {
+      return tokenEntries;
+    }
+
+    Object.entries(tokenHistoryGroup).forEach(([flowNodeId, tokenHistoryEntries]: [string, Array<DataModels.TokenHistory.TokenHistoryEntry>]) => {
+
+      tokenHistoryEntries.forEach((historyEntry: DataModels.TokenHistory.TokenHistoryEntry, index: number) => {
+        const historyEntryPayload: any = historyEntry.payload;
+
+        const historyEntryHasNoPayload: boolean = historyEntryPayload === undefined;
+        if (historyEntryHasNoPayload) {
+          return;
+        }
+
+        const tokenEntryPayload: Array<IPayloadEntry> = this._convertHistoryEntryPayloadToTokenEntryPayload(historyEntryPayload);
+
+        const tokenEntry: ITokenEntry = {
+          entryNr: index,
+          eventType: historyEntry.tokenEventType,
+          createdAt: historyEntry.createdAt,
+          payload: tokenEntryPayload,
+        };
+
+        tokenEntries.push(tokenEntry);
+      });
     });
 
     return tokenEntries;
