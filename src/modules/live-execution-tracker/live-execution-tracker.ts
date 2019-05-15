@@ -711,14 +711,16 @@ export class LiveExecutionTracker {
     const emptyActivityFinishedSubscriptionPromise: Promise<Subscription> =
       this._liveExecutionTrackerService.createEmptyActivityFinishedEventListener(this.processInstanceId, colorizationCallback);
 
-    const subscriptionPromises: Array<Promise<Subscription>> = [processEndedSubscriptionPromise,
+    const subscriptionPromises: Array<Promise<Subscription>> = [
+                                                                processEndedSubscriptionPromise,
                                                                 processTerminatedSubscriptionPromise,
                                                                 userTaskWaitingSubscriptionPromise,
                                                                 userTaskFinishedSubscriptionPromise,
                                                                 manualTaskWaitingSubscriptionPromise,
                                                                 manualTaskFinishedSubscriptionPromise,
                                                                 emptyActivityWaitingSubscriptionPromise,
-                                                                emptyActivityFinishedSubscriptionPromise];
+                                                                emptyActivityFinishedSubscriptionPromise,
+                                                              ];
 
     return Promise.all(subscriptionPromises);
   }
