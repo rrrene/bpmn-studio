@@ -100,7 +100,7 @@ export class TokenViewer {
 
     const elementHasNoToken: boolean = tokenHistoryGroup === undefined;
     if (elementHasNoToken) {
-      return [];
+      return tokenEntries;
     }
 
     Object.entries(tokenHistoryGroup).forEach(([flowNodeId, tokenHistoryEntries]: [string, Array<DataModels.TokenHistory.TokenHistoryEntry>]) => {
