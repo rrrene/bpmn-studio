@@ -367,6 +367,13 @@ export class BpmnIo {
 
     this._tempProcess = undefined;
 
+    if (this.solutionIsRemote) {
+      this._linting.deactivateLinting();
+      if (this._bpmnLintButton) {
+
+        this._bpmnLintButton.style.display = 'none';
+      }
+    }
     // This is needed to make sure the xml was already binded
     setTimeout(() => {
       const modelerIsSet: boolean = this.modeler !== undefined && this.modeler !== null;
