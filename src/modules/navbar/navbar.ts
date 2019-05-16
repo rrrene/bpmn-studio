@@ -1,5 +1,5 @@
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {bindable, computedFrom, inject} from 'aurelia-framework';
+import {computedFrom, inject} from 'aurelia-framework';
 import {NavModel, Router} from 'aurelia-router';
 
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
@@ -34,7 +34,6 @@ export class NavBar {
   public thinkView: string = 'diagram-list';
 
   public navbarTitle: string = '';
-  @bindable() public processOpenedFromProcessEngine: boolean = false;
 
   public router: Router;
 
@@ -113,10 +112,8 @@ export class NavBar {
     this._disposeAllSubscriptions();
   }
 
-  @computedFrom('processOpenedFromProcessEngine')
   public get getClassNameForNavbarIcon(): string {
     const iconClassName: string = ((): string => {
-      if (this.processOpenedFromProcessEngine) {
         return 'fa-database';
       } else {
         return 'fa-folder';
@@ -311,7 +308,6 @@ export class NavBar {
 
     this.navbarTitle = activeSolutionIsRemoteSolution ? this.activeDiagram.id : this.activeDiagram.name;
 
-    this.processOpenedFromProcessEngine = activeSolutionIsRemoteSolution;
   }
 
   private _updateNavbarTools(): void {
