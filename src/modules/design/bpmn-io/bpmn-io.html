@@ -7,7 +7,7 @@
     <!--
       DIAGRAM TOOLS
     -->
-    <div class="bpmn-io-layout__tools-left">
+    <div class="bpmn-io-layout__tools-left" css.bind="solutionIsRemote ? 'pointer-events: none;' : ''">
       <div class="tool-list tool-list--vertical">
         <div class="button tool">
           <i class="fas fa-mouse-pointer"></i>
@@ -28,7 +28,7 @@
       <div class="modeler">
         <div class="diagram" id="bpmnIoDiagram">
           <div ref="canvasModel" class="canvasModel"></div>
-          <button class.bind="diagramIsInvalid ? 'button btn linter-toggle-button-invalid-diagram' : 'button btn btn-default linter-toggle-button'"
+          <button if.bind="!solutionIsRemote" class.bind="diagramIsInvalid ? 'button btn linter-toggle-button-invalid-diagram' : 'button btn btn-default linter-toggle-button'"
                   css.bind="showLinter || diagramIsInvalid? 'opacity: 1;' : ''"
                   title.bind="showLinter ? 'Hide Linter' : 'Show Linter'"
                   click.delegate="toggleLinter()">
@@ -38,7 +38,7 @@
         <div class="properties" ref="propertyPanel" show.bind="showPropertyPanel" css="width: ${propertyPanelWidth}px; max-width: calc(100% - ${minCanvasWidth}px); min-width: ${minPropertyPanelWidth}px;">
           <div class="resize-div" ref="resizeButton"></div>
           <diagram-tools-right modeler.bind="modeler"></diagram-tools-right>
-          <property-panel id="js-properties-panel" modeler.bind="modeler" diagram-uri.bind="diagramUri" xml.bind="xml"></property-panel>
+          <property-panel id="js-properties-panel" modeler.bind="modeler" diagram-uri.bind="diagramUri" xml.bind="xml" css.bind="solutionIsRemote ? 'pointer-events: none;' : ''"></property-panel>
         </div>
       </div>
     </div>
