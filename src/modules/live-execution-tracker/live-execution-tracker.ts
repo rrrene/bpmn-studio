@@ -141,7 +141,7 @@ export class LiveExecutionTracker {
     this._overlays = this._diagramViewer.get('overlays');
 
     this._diagramViewer.attachTo(this.canvasModel);
-    // this._viewerCanvas.zoom('fit-viewport');
+    this._viewerCanvas.zoom('fit-viewport', 'auto');
 
     this._diagramViewer.on('element.click', this._elementClickHandler);
 
