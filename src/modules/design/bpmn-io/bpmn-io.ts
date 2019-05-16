@@ -354,6 +354,8 @@ export class BpmnIo {
   }
 
   public diagramChanged(): void {
+    this.solutionIsRemote = this.diagramUri.startsWith('http');
+
     this._tempProcess = undefined;
 
     // This is needed to make sure the xml was already binded
