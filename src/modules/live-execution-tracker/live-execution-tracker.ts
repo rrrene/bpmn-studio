@@ -718,6 +718,10 @@ export class LiveExecutionTracker {
       this._liveExecutionTrackerService.createBoundaryEventWaitingEventListener(this.processInstanceId, colorizationCallback);
     const boundaryEventFinishedSubscriptionPromise: Promise<Subscription> =
       this._liveExecutionTrackerService.createBoundaryEventFinishedEventListener(this.processInstanceId, colorizationCallback);
+    const intermediateEventWaitingSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createIntermediateEventWaitingEventListener(this.processInstanceId, colorizationCallback);
+    const intermediateEventFinishedSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createIntermediateEventFinishedEventListener(this.processInstanceId, colorizationCallback);
 
     const subscriptionPromises: Array<Promise<Subscription>> = [
                                                                 processEndedSubscriptionPromise,
@@ -732,6 +736,8 @@ export class LiveExecutionTracker {
                                                                 callActivityFinishedSubscriptionPromise,
                                                                 boundaryEventWaitingSubscriptionPromise,
                                                                 boundaryEventFinishedSubscriptionPromise,
+                                                                intermediateEventWaitingSubscriptionPromise,
+                                                                intermediateEventFinishedSubscriptionPromise,
                                                               ];
 
     return Promise.all(subscriptionPromises);
