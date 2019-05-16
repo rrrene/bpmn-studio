@@ -14,6 +14,7 @@ import {
   IDiagramPrintService,
   IEditorActions,
   IElementRegistry,
+  IEvent,
   IEventFunction,
   IInternalEvent,
   IKeyboard,
@@ -34,6 +35,7 @@ const elementRegistryTimeoutMilliseconds: number = 50;
 @inject('NotificationService', EventAggregator)
 export class BpmnIo {
   public modeler: IBpmnModeler;
+  public viewer: IBpmnModeler;
 
   public resizeButton: HTMLButtonElement;
   public canvasModel: HTMLDivElement;
@@ -103,6 +105,15 @@ export class BpmnIo {
       },
     });
 
+    this.viewer = new bundle.viewer({
+      additionalModules:
+      [
+        bundle.ZoomScrollModule,
+        bundle.MoveCanvasModule,
+        bundle.MiniMap,
+      ],
+    });
+
     this._linting = this.modeler.get('linting');
 
     /**
@@ -159,13 +170,16 @@ export class BpmnIo {
       }
     });
 
-    this.modeler.on('selection.changed', () => {
-      if (this.solutionIsRemote) {
-        const contextPad: Element = document.getElementsByClassName('djs-overlay djs-overlay-context-pad')[0];
-        if (contextPad) {
-          contextPad.remove();
-        }
-      }
+    this.viewer.on('selection.changed', (event: IEvent) => {
+      // if (this.solutionIsRemote) {
+      //   const contextPad: Element = document.getElementsByClassName('djs-overlay djs-overlay-context-pad')[0];
+      //   if (contextPad) {
+      //     contextPad.remove();
+      //   }
+      // }
+      console.log(event);
+      const element: IShape = event.newSelection[0];
+      this.modeler.get('selection').select(element);
     });
 
     this._diagramPrintService = new DiagramPrintService();
@@ -179,15 +193,28 @@ export class BpmnIo {
         this.savedXml = await this.getXML();
       });
 
+      this.viewer.importXML(this.xml, async(err: Error) => {
+        this.savedXml = await this.getXML();
+      });
+
       // Wait until the HTML is rendered
       setTimeout(() => {
         this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
 
-        this._bpmnLintButton.style.display = 'none';
+        if (this._bpmnLintButton) {
+
+          this._bpmnLintButton.style.display = 'none';
+        }
       }, 0);
     }
 
-    this.modeler.attachTo(this.canvasModel);
+    if (this.solutionIsRemote) {
+      this.viewer.attachTo(this.canvasModel);
+    } else {
+      this.modeler.attachTo(this.canvasModel);
+
+      this.attachPaletteContainer();
+    }
 
     window.addEventListener('resize', this._resizeEventHandler);
 
@@ -208,10 +235,6 @@ export class BpmnIo {
       document.addEventListener('mousemove', mousemoveFunction);
       document.addEventListener('mouseup', mouseUpFunction);
     });
-
-    const bpmnIoPaletteContainer: Element = document.getElementsByClassName('djs-palette')[0];
-    bpmnIoPaletteContainer.className += ' djs-palette-override';
-    this.paletteContainer.appendChild(bpmnIoPaletteContainer);
 
     document.addEventListener('keydown', this._saveHotkeyEventHandler);
     document.addEventListener('keydown', this._printHotkeyEventHandler);
@@ -357,39 +380,49 @@ export class BpmnIo {
     }
   }
 
+  public attachPaletteContainer(): void {
+    const bpmnIoPaletteContainer: Element = document.getElementsByClassName('djs-palette')[0];
+    bpmnIoPaletteContainer.className += ' djs-palette-override';
+    this.paletteContainer.appendChild(bpmnIoPaletteContainer);
+  }
+
   public async saveCurrentXML(): Promise<void> {
     this.savedXml = await this.getXML();
     this._tempProcess = undefined;
   }
 
-  public diagramChanged(): void {
+  public async diagramChanged(): Promise<void> {
     this.solutionIsRemote = this.diagramUri.startsWith('http');
 
     this._tempProcess = undefined;
+    this.viewer.importXML(this.xml, async(err: Error) => {
+      //
+    });
+    this.modeler.importXML(this.xml, async(err: Error) => {
+      //
+    });
 
     if (this.solutionIsRemote) {
-      this._linting.deactivateLinting();
-      if (this._bpmnLintButton) {
+      setTimeout(() => {
+        this.viewer.attachTo(this.canvasModel);
+      }, 0);
 
-        this._bpmnLintButton.style.display = 'none';
-      }
+      // this._linting.deactivateLinting();
+      // if (this._bpmnLintButton) {
+      //   this._bpmnLintButton.style.display = 'none';
+      // }
+    } else {
+      // This is needed to make sure the xml was already binded
+      setTimeout(async() => {
+        this.modeler.attachTo(this.canvasModel);
+        this.attachPaletteContainer();
+        await this._validateDiagram();
+
+      }, 0);
     }
-    // This is needed to make sure the xml was already binded
-    setTimeout(() => {
-      const modelerIsSet: boolean = this.modeler !== undefined && this.modeler !== null;
-      if (modelerIsSet) {
-        this.modeler.importXML(this.xml, async(err: Error) => {
-          this._fitDiagramToViewport();
 
-          await this._validateDiagram();
-
-          this._diagramHasChanges = false;
-          return 0;
-        });
-
-      }
-
-    }, 0);
+    this._fitDiagramToViewport();
+    this._diagramHasChanges = false;
   }
 
   public nameChanged(newValue: string): void {

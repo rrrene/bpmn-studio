@@ -25,7 +25,7 @@
       MAIN CANVAS
     -->
     <div class="bpmn-io-layout__main js-main">
-      <div class="modeler">
+      <div if.bind="solutionIsRemote" class="viewer modeler">
         <div class="diagram" id="bpmnIoDiagram">
           <div ref="canvasModel" class="canvasModel"></div>
           <button if.bind="!solutionIsRemote" class.bind="diagramIsInvalid ? 'button btn linter-toggle-button-invalid-diagram' : 'button btn btn-default linter-toggle-button'"
@@ -41,6 +41,23 @@
           <property-panel id="js-properties-panel" modeler.bind="modeler" diagram-uri.bind="diagramUri" xml.bind="xml" css.bind="solutionIsRemote ? 'pointer-events: none;' : ''"></property-panel>
         </div>
       </div>
+      <div else class="modeler">
+        <div class="diagram" id="bpmnIoDiagram">
+          <div ref="canvasModel" class="canvasModel"></div>
+          <button if.bind="!solutionIsRemote" class.bind="diagramIsInvalid ? 'button btn linter-toggle-button-invalid-diagram' : 'button btn btn-default linter-toggle-button'"
+                  css.bind="showLinter || diagramIsInvalid? 'opacity: 1;' : ''"
+                  title.bind="showLinter ? 'Hide Linter' : 'Show Linter'"
+                  click.delegate="toggleLinter()">
+            <i class.bind="diagramIsInvalid ? 'fas fa-times' : 'fas fa-check'"></i>
+          </button>
+        </div>
+        <div class="properties" ref="propertyPanel" show.bind="showPropertyPanel" css="width: ${propertyPanelWidth}px; max-width: calc(100% - ${minCanvasWidth}px); min-width: ${minPropertyPanelWidth}px;">
+          <div class="resize-div" ref="resizeButton"></div>
+          <diagram-tools-right modeler.bind="modeler"></diagram-tools-right>
+          <property-panel id="js-properties-panel" modeler.bind="modeler" diagram-uri.bind="diagramUri" xml.bind="xml" css.bind="solutionIsRemote ? 'pointer-events: none;' : ''"></property-panel>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
