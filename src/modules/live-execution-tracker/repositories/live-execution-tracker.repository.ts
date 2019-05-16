@@ -214,6 +214,28 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     });
   }
 
+  public createBoundaryEventWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onBoundaryEventWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
+    const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
+    if (eventIsForAnotherCorrelation) {
+        return;
+      }
+
+    callback();
+    });
+  }
+
+  public createBoundaryEventFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onBoundaryEventFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
+    const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
+    if (eventIsForAnotherCorrelation) {
+        return;
+      }
+
+    callback();
+    });
+  }
+
   public removeSubscription(subscription: Subscription): Promise<void> {
     return this._managementApiClient.removeSubscription(this._identity, subscription);
   }
