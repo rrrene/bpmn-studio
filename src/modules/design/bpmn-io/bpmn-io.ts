@@ -43,7 +43,7 @@ export class BpmnIo {
   @bindable({changeHandler: 'nameChanged'}) public name: string;
   @observable public propertyPanelWidth: number;
   public showLinter: boolean;
-
+  public solutionIsRemote: boolean = false;
   public savedXml: string;
   public showPropertyPanel: boolean = false;
   public colorPickerLoaded: boolean = false;
@@ -123,7 +123,9 @@ export class BpmnIo {
     const handlerPriority: number = 1000;
 
     this.modeler.on('commandStack.changed', async() => {
-      this._eventAggregator.publish(environment.events.diagramChange);
+      if (!this.solutionIsRemote) {
+        this._eventAggregator.publish(environment.events.diagramChange);
+      }
 
       this.xml = await this.getXML();
     }, handlerPriority);
