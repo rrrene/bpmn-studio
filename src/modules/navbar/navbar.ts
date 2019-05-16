@@ -112,8 +112,10 @@ export class NavBar {
     this._disposeAllSubscriptions();
   }
 
+  @computedFrom('savingTargetIsRemoteSolution')
   public get getClassNameForNavbarIcon(): string {
     const iconClassName: string = ((): string => {
+      if (this.savingTargetIsRemoteSolution) {
         return 'fa-database';
       } else {
         return 'fa-folder';
@@ -212,7 +214,7 @@ export class NavBar {
   }
 
   public saveDiagram(): void {
-    if (this.validationError && this.savingTargetIsRemoteSolution) {
+    if (this.validationError || this.savingTargetIsRemoteSolution) {
       return;
     }
 
@@ -281,7 +283,7 @@ export class NavBar {
   }
 
   public get saveButtonTitle(): string {
-    if (this.validationError && this.savingTargetIsRemoteSolution) {
+    if (this.validationError || this.savingTargetIsRemoteSolution) {
       return 'There was a problem with this diagram. Please check the linter for more information.';
     }
 
@@ -308,6 +310,7 @@ export class NavBar {
 
     this.navbarTitle = activeSolutionIsRemoteSolution ? this.activeDiagram.id : this.activeDiagram.name;
 
+    this.savingTargetIsRemoteSolution = activeSolutionIsRemoteSolution;
   }
 
   private _updateNavbarTools(): void {
