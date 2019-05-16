@@ -159,6 +159,15 @@ export class BpmnIo {
       }
     });
 
+    this.modeler.on('selection.changed', () => {
+      if (this.solutionIsRemote) {
+        const contextPad: Element = document.getElementsByClassName('djs-overlay djs-overlay-context-pad')[0];
+        if (contextPad) {
+          contextPad.remove();
+        }
+      }
+    });
+
     this._diagramPrintService = new DiagramPrintService();
     this._diagramExportService = new DiagramExportService();
   }
