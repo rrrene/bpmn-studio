@@ -41,7 +41,6 @@ export class BpmnIo {
   @bindable({changeHandler: 'diagramChanged'}) public diagramUri: string;
   @bindable({defaultBindingMode: bindingMode.twoWay}) public xml: string;
   @bindable({changeHandler: 'nameChanged'}) public name: string;
-  @bindable() public openedFromProcessEngine: boolean = true;
   @observable public propertyPanelWidth: number;
   public showLinter: boolean;
 
