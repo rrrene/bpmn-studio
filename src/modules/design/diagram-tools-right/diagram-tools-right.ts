@@ -25,6 +25,10 @@ export class DiagramToolsRight {
 
   @bindable()
   public modeler: IBpmnModeler;
+  @bindable()
+  public viewer: IBpmnModeler;
+  @bindable()
+  public solutionIsRemote: boolean;
   public colorSelectionDropdownToggle: HTMLElement;
   public colorSelectionDropdown: HTMLElement;
 
