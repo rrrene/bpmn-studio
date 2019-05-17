@@ -515,6 +515,7 @@ export class BpmnIo {
 
   public toggleLinter(): void {
     this.showLinter = !this.showLinter;
+    this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
 
     if (this.showLinter) {
       this._bpmnLintButton.style.display = 'block';
