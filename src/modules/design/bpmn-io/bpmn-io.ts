@@ -154,6 +154,10 @@ export class BpmnIo {
 
     this.modeler.on('import.done', async() => {
       this._fitDiagramToViewport();
+      if (!this.solutionIsRemote) {
+        await this._validateDiagram();
+        this._linting.update();
+      }
     }, 1);
 
     this.modeler.on('shape.remove', (event: IInternalEvent) => {
