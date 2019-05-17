@@ -175,9 +175,11 @@ export class BpmnIo {
     });
 
     this.modeler.on('element.paste', (event: IInternalEvent) => {
-      const elementToPasteIsUserTask: boolean = event.descriptor.type === 'bpmn:UserTask';
-      if (elementToPasteIsUserTask) {
-        return this._renameFormFields(event);
+      if (!this.solutionIsRemote) {
+        const elementToPasteIsUserTask: boolean = event.descriptor.type === 'bpmn:UserTask';
+        if (elementToPasteIsUserTask) {
+          return this._renameFormFields(event);
+        }
       }
     });
 
