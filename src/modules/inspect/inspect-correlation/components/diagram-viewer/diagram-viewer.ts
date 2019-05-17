@@ -24,7 +24,7 @@ import {DiagramExportService} from '../../../../design/bpmn-io/services/index';
 
 @inject('NotificationService', EventAggregator)
 export class DiagramViewer {
-  @bindable public processInstance: DataModels.Correlations.CorrelationProcessModel;
+  @bindable public processInstance: DataModels.Correlations.CorrelationProcessInstance;
   @bindable public xml: string;
   @bindable public activeDiagram: IDiagram;
   @bindable public selectedFlowNode: IShape;

@@ -12,9 +12,9 @@ import {IProcessInstanceWithCorrelation} from '../../../../contracts/index';
 @inject(EventAggregator)
 export class CorrelationList {
 
-  @bindable public selectedProcessInstance: DataModels.Correlations.CorrelationProcessModel;
+  @bindable public selectedProcessInstance: DataModels.Correlations.CorrelationProcessInstance;
   @bindable public correlations: Array<DataModels.Correlations.Correlation>;
-  @bindable public processInstances: Array<DataModels.Correlations.CorrelationProcessModel>;
+  @bindable public processInstances: Array<DataModels.Correlations.CorrelationProcessInstance>;
   @bindable public activeDiagram: IDiagram;
   public sortedTableData: Array<ICorrelationTableEntry>;
   public CorrelationListSortProperty: typeof CorrelationListSortProperty = CorrelationListSortProperty;
@@ -46,7 +46,7 @@ export class CorrelationList {
     this.processInstances = [];
 
     this.correlations.forEach((correlation: DataModels.Correlations.Correlation) => {
-      correlation.processModels.forEach((processInstance: DataModels.Correlations.CorrelationProcessModel) => {
+      correlation.processInstances.forEach((processInstance: DataModels.Correlations.CorrelationProcessInstance) => {
         const isNotSelectedProcessModel: boolean = processInstance.processModelId !== this.activeDiagram.id;
 
         if (isNotSelectedProcessModel) {
@@ -92,7 +92,7 @@ export class CorrelationList {
     this._tableData =
       this.processInstancesWithCorrelation.map((processInstanceWithCorrelation: IProcessInstanceWithCorrelation) => {
         const correlation: DataModels.Correlations.Correlation = processInstanceWithCorrelation.correlation;
-        const processInstance: DataModels.Correlations.CorrelationProcessModel = processInstanceWithCorrelation.processInstance;
+        const processInstance: DataModels.Correlations.CorrelationProcessInstance = processInstanceWithCorrelation.processInstance;
 
         const date: Date = new Date(processInstanceWithCorrelation.correlation.createdAt);
         const formattedStartedDate: string = new DateService(date)
@@ -193,26 +193,26 @@ export class CorrelationList {
     return correlationForTableEntry;
   }
 
-  private _getProcessModelForTableEntry(tableEntry: ICorrelationTableEntry): DataModels.Correlations.CorrelationProcessModel {
+  private _getProcessModelForTableEntry(tableEntry: ICorrelationTableEntry): DataModels.Correlations.CorrelationProcessInstance {
     const correlationForTableEntry: DataModels.Correlations.Correlation =
       this.correlations.find((correlation: DataModels.Correlations.Correlation) => {
         return correlation.id === tableEntry.correlationId;
       });
 
-    const processModelForTableEntry: DataModels.Correlations.CorrelationProcessModel =
-      correlationForTableEntry.processModels.find((processModel: DataModels.Correlations.CorrelationProcessModel) => {
+    const processModelForTableEntry: DataModels.Correlations.CorrelationProcessInstance =
+      correlationForTableEntry.processInstances.find((processModel: DataModels.Correlations.CorrelationProcessInstance) => {
         return processModel.processInstanceId === tableEntry.processInstanceId;
       });
 
     return processModelForTableEntry;
   }
 
-  private _getIndexForProcessInstance(processInstance: DataModels.Correlations.CorrelationProcessModel): number {
+  private _getIndexForProcessInstance(processInstance: DataModels.Correlations.CorrelationProcessInstance): number {
     const processInstanceStartTime: Date = new Date(processInstance.createdAt);
 
     const earlierStartedProcessInstances: Array<IProcessInstanceWithCorrelation> =
       this.processInstancesWithCorrelation.filter((processInstanceWithCorrelation: IProcessInstanceWithCorrelation) => {
-        const processInstanceEntry: DataModels.Correlations.CorrelationProcessModel = processInstanceWithCorrelation.processInstance;
+        const processInstanceEntry: DataModels.Correlations.CorrelationProcessInstance = processInstanceWithCorrelation.processInstance;
         const entryStartedDate: Date = new Date(processInstanceEntry.createdAt);
 
         return entryStartedDate.getTime() < processInstanceStartTime.getTime();

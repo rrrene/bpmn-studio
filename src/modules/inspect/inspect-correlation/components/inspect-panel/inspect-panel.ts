@@ -10,8 +10,8 @@ import environment from '../../../../../environment';
 @inject(EventAggregator)
 export class InspectPanel {
   @bindable public correlations: Array<DataModels.Correlations.Correlation>;
-  @bindable public processInstances: Array<DataModels.Correlations.CorrelationProcessModel>;
-  @bindable public selectedProcessInstance: DataModels.Correlations.CorrelationProcessModel;
+  @bindable public processInstances: Array<DataModels.Correlations.CorrelationProcessInstance>;
+  @bindable public selectedProcessInstance: DataModels.Correlations.CorrelationProcessInstance;
   @bindable public fullscreen: boolean = false;
   @bindable public activeDiagram: IDiagram;
   @bindable public activeSolutionEntry: ISolutionEntry;
