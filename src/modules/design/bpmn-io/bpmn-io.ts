@@ -166,7 +166,6 @@ export class BpmnIo {
         const shapeIsParticipant: boolean = event.element.type === 'bpmn:Participant';
         if (shapeIsParticipant) {
           const rootElements: Array<IProcessRef> = this.modeler._definitions.rootElements;
-          
           this._tempProcess = rootElements.find((element: IProcessRef) => {
             return element.$type === 'bpmn:Process';
           });
