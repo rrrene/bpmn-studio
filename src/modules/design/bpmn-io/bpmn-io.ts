@@ -166,6 +166,7 @@ export class BpmnIo {
         const shapeIsParticipant: boolean = event.element.type === 'bpmn:Participant';
         if (shapeIsParticipant) {
           const rootElements: Array<IProcessRef> = this.modeler._definitions.rootElements;
+          
           this._tempProcess = rootElements.find((element: IProcessRef) => {
             return element.$type === 'bpmn:Process';
           });
@@ -186,6 +187,7 @@ export class BpmnIo {
 
     this.viewer.on('selection.changed', (event: IEvent) => {
       const selectedElement: IShape = event.newSelection[0];
+
       this.modeler.get('selection').select(selectedElement);
     });
 
@@ -207,7 +209,6 @@ export class BpmnIo {
         this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
 
         if (this._bpmnLintButton) {
-
           this._bpmnLintButton.style.display = 'none';
         }
       }, 0);
@@ -387,6 +388,7 @@ export class BpmnIo {
 
   public attachPaletteContainer(): void {
     const bpmnIoPaletteContainer: Element = document.getElementsByClassName('djs-palette')[0];
+
     bpmnIoPaletteContainer.className += ' djs-palette-override';
     this.paletteContainer.appendChild(bpmnIoPaletteContainer);
   }
