@@ -420,8 +420,12 @@ export class BpmnIo {
       setTimeout(() => {
         this.modeler.attachTo(this.canvasModel);
         this.attachPaletteContainer();
-        await this._validateDiagram();
+        this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
 
+        if (this._bpmnLintButton) {
+
+          this._bpmnLintButton.style.display = 'none';
+        }
       }, 0);
     }
 
