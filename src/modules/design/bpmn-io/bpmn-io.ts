@@ -152,15 +152,10 @@ export class BpmnIo {
       }
     });
 
-    this.modeler.on('shape.remove', (event: IInternalEvent) => {
-      const shapeIsParticipant: boolean = event.element.type === 'bpmn:Participant';
-      if (shapeIsParticipant) {
-        const rootElements: Array<IProcessRef> = this.modeler._definitions.rootElements;
-        this._tempProcess = rootElements.find((element: IProcessRef) => {
-          return element.$type === 'bpmn:Process';
-        });
+    this.modeler.on('import.done', async() => {
+      this._fitDiagramToViewport();
+    }, 1);
 
-        return event;
     this.modeler.on('shape.remove', (event: IInternalEvent) => {
       if (!this.solutionIsRemote) {
         const shapeIsParticipant: boolean = event.element.type === 'bpmn:Participant';
