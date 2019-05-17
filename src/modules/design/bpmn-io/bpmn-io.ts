@@ -52,6 +52,7 @@ export class BpmnIo {
   public minCanvasWidth: number = 100;
   public minPropertyPanelWidth: number = 200;
   public diagramIsInvalid: boolean = false;
+  public diagramHasChanged: boolean = false;
 
   private _bpmnLintButton: HTMLElement;
   private _linting: ILinting;
@@ -395,9 +396,19 @@ export class BpmnIo {
     this._tempProcess = undefined;
   }
 
+  public xmlChanged(): void {
+    if (this.diagramHasChanged) {
+      this.viewer.importXML(this.xml);
+      this.modeler.importXML(this.xml);
+    }
+
+    this.diagramHasChanged = false;
+  }
+
   public async diagramChanged(): Promise<void> {
     this.solutionIsRemote = this.diagramUri.startsWith('http');
     this._tempProcess = undefined;
+    this.diagramHasChanged = true;
 
     if (this.solutionIsRemote) {
       setTimeout(() => {
