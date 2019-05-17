@@ -184,15 +184,8 @@ export class BpmnIo {
     });
 
     this.viewer.on('selection.changed', (event: IEvent) => {
-      // if (this.solutionIsRemote) {
-      //   const contextPad: Element = document.getElementsByClassName('djs-overlay djs-overlay-context-pad')[0];
-      //   if (contextPad) {
-      //     contextPad.remove();
-      //   }
-      // }
-      console.log(event);
-      const element: IShape = event.newSelection[0];
-      this.modeler.get('selection').select(element);
+      const selectedElement: IShape = event.newSelection[0];
+      this.modeler.get('selection').select(selectedElement);
     });
 
     this._diagramPrintService = new DiagramPrintService();
