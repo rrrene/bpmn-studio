@@ -199,9 +199,7 @@ export class BpmnIo {
         this.savedXml = await this.getXML();
       });
 
-      this.viewer.importXML(this.xml, async(err: Error) => {
-        this.savedXml = await this.getXML();
-      });
+      this.viewer.importXML(this.xml);
 
       // Wait until the HTML is rendered
       setTimeout(() => {
@@ -399,14 +397,7 @@ export class BpmnIo {
 
   public async diagramChanged(): Promise<void> {
     this.solutionIsRemote = this.diagramUri.startsWith('http');
-
     this._tempProcess = undefined;
-    this.viewer.importXML(this.xml, async(err: Error) => {
-      //
-    });
-    this.modeler.importXML(this.xml, async(err: Error) => {
-      //
-    });
 
     if (this.solutionIsRemote) {
       setTimeout(() => {
