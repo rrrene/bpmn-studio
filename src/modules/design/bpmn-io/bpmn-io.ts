@@ -417,8 +417,7 @@ export class BpmnIo {
       }, 0);
 
     } else {
-      // This is needed to make sure the xml was already binded
-      setTimeout(async() => {
+      setTimeout(() => {
         this.modeler.attachTo(this.canvasModel);
         this.attachPaletteContainer();
         await this._validateDiagram();
