@@ -428,8 +428,6 @@ export class BpmnIo {
         }
       }, 0);
     }
-
-    this._fitDiagramToViewport();
     this._diagramHasChanges = false;
   }
 
