@@ -529,14 +529,23 @@ export class BpmnIo {
   }
 
   private _fitDiagramToViewport(): void {
-    const canvas: ICanvas = this.modeler.get('canvas');
+    const modelerCanvas: ICanvas = this.modeler.get('canvas');
+    const viewerCanvas: ICanvas = this.viewer.get('canvas');
 
-    const viewbox: IViewbox  = canvas.viewbox();
+    const modelerViewbox: IViewbox  = modelerCanvas.viewbox();
+    const viewerViewbox: IViewbox  = viewerCanvas.viewbox();
 
-    const diagramIsVisible: boolean = viewbox.height > 0 && viewbox.width > 0;
+    const modelerDiagramIsVisible: boolean = modelerViewbox.height > 0 && modelerViewbox.width > 0;
+    const viewerDiagramIsVisible: boolean = viewerViewbox.height > 0 && viewerViewbox.width > 0;
 
-    if (diagramIsVisible) {
-      canvas.zoom('fit-viewport', 'auto');
+    if (this.solutionIsRemote) {
+      if (viewerDiagramIsVisible) {
+        viewerCanvas.zoom('fit-viewport');
+      }
+    } else {
+      if (modelerDiagramIsVisible) {
+        modelerCanvas.zoom('fit-viewport');
+      }
     }
   }
 
