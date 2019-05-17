@@ -216,7 +216,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
       const outgoingElementHasNoActiveToken: boolean = !this.elementHasActiveToken(targetOfOutgoingElement.id, activeTokens);
       const targetOfOutgoingElementHasNoTokenHistory: boolean = !this.elementHasTokenHistory(targetOfOutgoingElement.id, tokenHistoryGroups);
 
-      if (outgoingElementHasNoActiveToken && targetOfOutgoingElementHasNoTokenHistory) {
+      if (targetOfOutgoingElementHasNoTokenHistory) {
         continue;
       }
 
