@@ -62,7 +62,7 @@ export class DiagramToolsRight {
       const selectedElements: Array<IShape> = this._getSelectedElements();
       const userSelectedDiagramElement: boolean = selectedElements.length > 0;
 
-      this.colorPickerEnabled = userSelectedDiagramElement;
+      this.colorPickerEnabled = this.solutionIsRemote ? false : userSelectedDiagramElement;
 
       if (userSelectedDiagramElement) {
         this.borderColor = selectedElements[0].businessObject.di.stroke;
@@ -146,9 +146,14 @@ export class DiagramToolsRight {
   }
 
   public fitDiagramToViewport(): void {
-    const canvas: ICanvas = this.modeler.get('canvas');
+    const modelerCanvas: ICanvas = this.modeler.get('canvas');
+    const viewerCanvas: ICanvas = this.viewer.get('canvas');
 
-    canvas.zoom('fit-viewport', 'auto');
+    if (this.solutionIsRemote) {
+      viewerCanvas.zoom('fit-viewport');
+    } else {
+      modelerCanvas.zoom('fit-viewport');
+    }
   }
 
   private _setColor(color: IColorPickerColor): void {

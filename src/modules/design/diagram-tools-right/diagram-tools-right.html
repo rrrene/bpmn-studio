@@ -1,35 +1,37 @@
 <template>
   <require from="./diagram-tools-right.css"></require>
   <div class="diagram-tools-panel">
-    <div class="dropdown" ref="colorSelectionDropdownToggle">
-      <a class="button dropdown-toggle tool" class.bind="colorPickerEnabled ? '' : 'button--disabled tool--disabled'" disabled.bind="!colorPickerEnabled" data-toggle="dropdown" click.delegate="updateCustomColors()" title.bind="colorPickerEnabled ? 'Set a color for all selected elements' : 'Select an element to set a new color'">
-        <i class="fas fa-eye-dropper"></i>
+    <div css.bind="solutionIsRemote ? 'pointer-events: none;' : ''" style="display: inherit;">
+      <div class="dropdown" ref="colorSelectionDropdownToggle">
+        <a class="button dropdown-toggle tool" class.bind="colorPickerEnabled ? '' : 'button--disabled tool--disabled'" disabled.bind="!colorPickerEnabled" data-toggle="dropdown" click.delegate="updateCustomColors()" title.bind="colorPickerEnabled ? 'Set a color for all selected elements' : 'Select an element to set a new color'">
+          <i class="fas fa-eye-dropper"></i>
+        </a>
+        <ul class="dropdown-menu pull-left color-dropdown" ref="colorSelectionDropdown">
+          <li class="dropdown-item" click.delegate="setColorRed()"><a><i class="fas fa-stop red"></i> Red</a></li>
+          <li class="dropdown-item" click.delegate="setColorBlue()"><a><i class="fas fa-stop blue"></i> Blue</a></li>
+          <li class="dropdown-item" click.delegate="setColorGreen()"><a><i class="fas fa-stop green"></i> Green</a></li>
+          <li class="dropdown-item" click.delegate="setColorPurple()"><a><i class="fas fa-stop purple"></i> Purple</a></li>
+          <li class="dropdown-item" click.delegate="setColorOrange()"><a><i class="fas fa-stop orange"></i> Orange</a></li>
+          <li class="dropdown-item fill-colorpicker--border" ref="colorPickerFill">
+            <a show.bind="colorPickerLoaded" click.delegate="setPickedColor()">
+              <i class="fas fa-stop" css="color: ${fillColor ? fillColor : 'white'};"></i> Fill color <i class="fas fa-eyedropper fill-colorpicker__eyedropper"></i>
+            </a>
+          </li>
+          <li class="dropdown-item border-colorpicker--border" ref="colorPickerBorder">
+            <a show.bind="colorPickerLoaded" click.delegate="setPickedColor()">
+              <i class="fas fa-stop" css="color: ${borderColor ? borderColor : 'black'};"></i> Border color <i class="fas fa-eyedropper border-colorpicker__eyedropper"></i>
+            </a>
+          </li>
+          <li class="dropdown-item"><a click.delegate="removeColor()"><i class="fas fa-stop none"></i> None</a></li>
+        </ul>
+      </div>
+      <a class="button tool" class.bind="distributeElementsEnabled ? '' : 'button--disabled tool--disabled'" title.bind="distributeElementsEnabled ? 'Distribute Elements Vertically' : 'Select at least three elements to distribute them vertically'" click.delegate="distributeElementsVertically()" disabled.bind="!distributeElementsEnabled">
+        <i class="fas fa-arrows-alt-v"></i>
       </a>
-      <ul class="dropdown-menu pull-left color-dropdown" ref="colorSelectionDropdown">
-        <li class="dropdown-item" click.delegate="setColorRed()"><a><i class="fas fa-stop red"></i> Red</a></li>
-        <li class="dropdown-item" click.delegate="setColorBlue()"><a><i class="fas fa-stop blue"></i> Blue</a></li>
-        <li class="dropdown-item" click.delegate="setColorGreen()"><a><i class="fas fa-stop green"></i> Green</a></li>
-        <li class="dropdown-item" click.delegate="setColorPurple()"><a><i class="fas fa-stop purple"></i> Purple</a></li>
-        <li class="dropdown-item" click.delegate="setColorOrange()"><a><i class="fas fa-stop orange"></i> Orange</a></li>
-        <li class="dropdown-item fill-colorpicker--border" ref="colorPickerFill">
-          <a show.bind="colorPickerLoaded" click.delegate="setPickedColor()">
-            <i class="fas fa-stop" css="color: ${fillColor ? fillColor : 'white'};"></i> Fill color <i class="fas fa-eyedropper fill-colorpicker__eyedropper"></i>
-          </a>
-        </li>
-        <li class="dropdown-item border-colorpicker--border" ref="colorPickerBorder">
-          <a show.bind="colorPickerLoaded" click.delegate="setPickedColor()">
-            <i class="fas fa-stop" css="color: ${borderColor ? borderColor : 'black'};"></i> Border color <i class="fas fa-eyedropper border-colorpicker__eyedropper"></i>
-          </a>
-        </li>
-        <li class="dropdown-item"><a click.delegate="removeColor()"><i class="fas fa-stop none"></i> None</a></li>
-      </ul>
+      <a class="button tool" class.bind="distributeElementsEnabled ? '' : 'button--disabled tool--disabled'" title.bind="distributeElementsEnabled ? 'Distribute Elements Horizontally' : 'Select at least three elements to distribute them horizontally'" click.delegate="distributeElementsHorizontally()" disabled.bind="!distributeElementsEnabled">
+        <i class="fas fa-arrows-alt-h"></i>
+      </a>
     </div>
-    <a class="button tool" class.bind="distributeElementsEnabled ? '' : 'button--disabled tool--disabled'" title.bind="distributeElementsEnabled ? 'Distribute Elements Vertically' : 'Select at least three elements to distribute them vertically'" click.delegate="distributeElementsVertically()" disabled.bind="!distributeElementsEnabled">
-      <i class="fas fa-arrows-alt-v"></i>
-    </a>
-    <a class="button tool" class.bind="distributeElementsEnabled ? '' : 'button--disabled tool--disabled'" title.bind="distributeElementsEnabled ? 'Distribute Elements Horizontally' : 'Select at least three elements to distribute them horizontally'" click.delegate="distributeElementsHorizontally()" disabled.bind="!distributeElementsEnabled">
-      <i class="fas fa-arrows-alt-h"></i>
-    </a>
     <a class="button tool" title="Fit diagram to window." click.delegate="fitDiagramToViewport()">
       <i class="fas fa-expand"></i>
     </a>
