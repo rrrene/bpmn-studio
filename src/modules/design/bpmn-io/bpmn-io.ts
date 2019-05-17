@@ -413,12 +413,9 @@ export class BpmnIo {
     if (this.solutionIsRemote) {
       setTimeout(() => {
         this.viewer.attachTo(this.canvasModel);
+        this._linting.deactivateLinting();
       }, 0);
 
-      // this._linting.deactivateLinting();
-      // if (this._bpmnLintButton) {
-      //   this._bpmnLintButton.style.display = 'none';
-      // }
     } else {
       // This is needed to make sure the xml was already binded
       setTimeout(async() => {
