@@ -205,7 +205,7 @@ export class LiveExecutionTracker {
     });
   }
 
-  public detached(): void {
+  public async detached(): Promise<void> {
     this._attached = false;
 
     this._stopPolling();
@@ -216,12 +216,15 @@ export class LiveExecutionTracker {
 
     this._diagramPreviewViewer.destroy();
 
-    this._eventListenerSubscriptions.forEach(async(subscription: Subscription, index: number) => {
-      await this._liveExecutionTrackerService.removeSubscription(subscription);
+    const removeSubscriptionPromises: Array<Promise<void>> = [];
+    this._eventListenerSubscriptions.forEach((subscription: Subscription) => {
+      const removingPromise: Promise<void> = this._liveExecutionTrackerService.removeSubscription(subscription);
 
-      this._eventListenerSubscriptions.splice(index, 1);
+      removeSubscriptionPromises.push(removingPromise);
     });
 
+    await Promise.all(removeSubscriptionPromises);
+    this._eventListenerSubscriptions = [];
   }
 
   public determineActivationStrategy(): string {
