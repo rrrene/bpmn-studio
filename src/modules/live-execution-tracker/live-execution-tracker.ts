@@ -128,7 +128,7 @@ export class LiveExecutionTracker {
       const majorVersion: number = parseInt(regexResult[1]);
       const minorVersion: number = parseInt(regexResult[2]);
 
-      // The Version must be newer then 8.1.0
+      // The version must be later than 8.1.0
       const processEngineSupportsEvents: boolean = majorVersion > 8
                                                 || (majorVersion === 8
                                                  && minorVersion > 1);
