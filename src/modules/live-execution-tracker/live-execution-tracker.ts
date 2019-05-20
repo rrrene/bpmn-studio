@@ -681,9 +681,8 @@ export class LiveExecutionTracker {
     const xmlChanged: boolean = previousXml !== colorizedXml;
     if (xmlChanged && colorizingWasSuccessfull) {
       await this._importXmlIntoDiagramViewer(colorizedXml);
+      await this._addOverlays();
     }
-
-    await this._addOverlays();
   }
 
   private async _getParentProcessInstanceId(): Promise<string> {
