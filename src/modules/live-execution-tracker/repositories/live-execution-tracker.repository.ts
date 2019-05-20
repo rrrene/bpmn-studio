@@ -67,8 +67,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
       return requestError;
     }
 
-    const allActiveTokens: Array<ActiveToken> =
-      (activeTokensOrRequestError as Array<ActiveToken>);
+    const allActiveTokens: Array<ActiveToken> = activeTokensOrRequestError as Array<ActiveToken>;
 
     const correlationIsNotActive: boolean = allActiveTokens.length === 0;
 
