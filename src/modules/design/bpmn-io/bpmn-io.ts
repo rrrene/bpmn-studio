@@ -106,15 +106,6 @@ export class BpmnIo {
       },
     });
 
-    this.viewer = new bundle.viewer({
-      additionalModules:
-      [
-        bundle.ZoomScrollModule,
-        bundle.MoveCanvasModule,
-        bundle.MiniMap,
-      ],
-    });
-
     this._linting = this.modeler.get('linting');
 
     /**
@@ -184,12 +175,6 @@ export class BpmnIo {
       }
     });
 
-    this.viewer.on('selection.changed', (event: IEvent) => {
-      const selectedElement: IShape = event.newSelection[0];
-
-      this.modeler.get('selection').select(selectedElement);
-    });
-
     this._diagramPrintService = new DiagramPrintService();
     this._diagramExportService = new DiagramExportService();
   }
@@ -200,8 +185,6 @@ export class BpmnIo {
       this.modeler.importXML(this.xml, async(err: Error) => {
         this.savedXml = await this.getXML();
       });
-
-      this.viewer.importXML(this.xml);
 
       // Wait until the HTML is rendered
       setTimeout(() => {
@@ -214,6 +197,7 @@ export class BpmnIo {
     }
 
     if (this.solutionIsRemote) {
+      this.viewer.importXML(this.xml);
       this.viewer.attachTo(this.canvasModel);
     } else {
       this.modeler.attachTo(this.canvasModel);
@@ -399,7 +383,9 @@ export class BpmnIo {
 
   public xmlChanged(): void {
     if (this.diagramHasChanged) {
-      this.viewer.importXML(this.xml);
+      if (this.solutionIsRemote) {
+        this.viewer.importXML(this.xml);
+      }
       this.modeler.importXML(this.xml);
     }
 
@@ -412,6 +398,24 @@ export class BpmnIo {
     this.diagramHasChanged = true;
 
     if (this.solutionIsRemote) {
+      const viewerNotInitialized: boolean = this.viewer === undefined;
+      if (viewerNotInitialized) {
+        this.viewer = new bundle.viewer({
+          additionalModules:
+          [
+            bundle.ZoomScrollModule,
+            bundle.MoveCanvasModule,
+            bundle.MiniMap,
+          ],
+        });
+
+        this.viewer.on('selection.changed', (event: IEvent) => {
+          const selectedElement: IShape = event.newSelection[0];
+
+          this.modeler.get('selection').select(selectedElement);
+        });
+      }
+
       setTimeout(() => {
         this.viewer.attachTo(this.canvasModel);
         this._linting.deactivateLinting();
@@ -531,15 +535,14 @@ export class BpmnIo {
 
   private _fitDiagramToViewport(): void {
     const modelerCanvas: ICanvas = this.modeler.get('canvas');
-    const viewerCanvas: ICanvas = this.viewer.get('canvas');
-
     const modelerViewbox: IViewbox  = modelerCanvas.viewbox();
-    const viewerViewbox: IViewbox  = viewerCanvas.viewbox();
-
     const modelerDiagramIsVisible: boolean = modelerViewbox.height > 0 && modelerViewbox.width > 0;
-    const viewerDiagramIsVisible: boolean = viewerViewbox.height > 0 && viewerViewbox.width > 0;
 
     if (this.solutionIsRemote) {
+      const viewerCanvas: ICanvas = this.viewer.get('canvas');
+      const viewerViewbox: IViewbox  = viewerCanvas.viewbox();
+      const viewerDiagramIsVisible: boolean = viewerViewbox.height > 0 && viewerViewbox.width > 0;
+
       if (viewerDiagramIsVisible) {
         viewerCanvas.zoom('fit-viewport');
       }
