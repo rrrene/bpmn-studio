@@ -30,7 +30,7 @@ export class ProcessList {
   private _activeSolutionUri: string;
   private _router: Router;
 
-  private _getCorrelationsIntervalId: number;
+  private timeout: NodeJS.Timer;
   private _subscriptions: Array<Subscription>;
   private _correlations: Array<DataModels.Correlations.Correlation> = [];
 
@@ -78,10 +78,7 @@ export class ProcessList {
     this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(this._activeSolutionUri);
 
     await this.updateCorrelationList();
-
-    this._getCorrelationsIntervalId = window.setInterval(async() => {
-      await this.updateCorrelationList();
-    }, environment.processengine.dashboardPollingIntervalInMs);
+    this.startPolling();
 
     this._subscriptions = [
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, () => {
@@ -93,8 +90,15 @@ export class ProcessList {
     ];
   }
 
+  public startPolling(): void {
+    this.timeout = setTimeout(async() => {
+      await this.updateCorrelationList();
+      this.startPolling();
+    }, environment.processengine.dashboardPollingIntervalInMs);
+  }
+
   public detached(): void {
-    clearInterval(this._getCorrelationsIntervalId);
+    clearTimeout(this.timeout);
 
     for (const subscription of this._subscriptions) {
       subscription.dispose();
