@@ -56,6 +56,10 @@
   text-overflow: ellipsis;
 }
 
+.props-input:disabled {
+  opacity: 0.5;
+}
+
 .props-select {
   padding-right: 22px;
   border-radius: 0;
@@ -81,6 +85,10 @@
   resize: vertical;
 }
 
+.props-textarea:disabled {
+  opacity: 0.5;
+}
+
 .props-table--clear-button {
   top: 2px;
   right: 15px;
@@ -93,9 +101,16 @@
   border: none;
 }
 
+.add-context-button:disabled {
+  opacity: 0.2;
+  cursor: default;
+  color: inherit;
+}
+
 .remove-context-button:disabled {
   cursor: default;
   color: inherit;
+  opacity: 0.2;
 }
 
 .remove-context-button {
