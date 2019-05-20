@@ -788,23 +788,29 @@ export class LiveExecutionTracker {
         return;
       }
 
-      const correlationIsActiveResponse: boolean | RequestError =
-        await this._liveExecutionTrackerService.isCorrelationOfProcessInstanceActive(this.processInstanceId);
+      const isCorrelationActive: Function = async(): Promise<boolean> => {
+        try {
+          return await this._liveExecutionTrackerService.isCorrelationOfProcessInstanceActive(this.processInstanceId);
+        } catch (error) {
+          const connectionLost: boolean = error === RequestError.ConnectionLost;
+          // Keep polling if connection is lost
+          if (connectionLost) {
+            this._startPolling();
+          } else {
+            const notificationMessage: string = 'Could not get active correlations. Please try to start the process again.';
 
-      const connectionLost: boolean = correlationIsActiveResponse === RequestError.ConnectionLost;
-      // Keep polling if connection is lost
-      if (connectionLost) {
-        this._startPolling();
+            this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
+          }
 
-        return;
-      }
+          return false;
+        }
+      };
+
+      const correlationIsActive: boolean = isCorrelationActive;
 
       const errorCheckingCorrelationState: boolean = correlationIsActiveResponse === RequestError.OtherError;
       // Stop polling if checking the correlation state was not successfull
       if (errorCheckingCorrelationState) {
-        const notificationMessage: string = 'Could not get active correlations. Please try to start the process again.';
-
-        this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
 
         return;
       }
