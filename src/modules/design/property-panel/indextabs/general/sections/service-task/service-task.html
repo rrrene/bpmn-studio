@@ -10,7 +10,7 @@
         <tr>
           <th>Kind</th>
           <td>
-            <select class="props-input props-select" value.bind="selectedKind" change.delegate="kindChanged()">
+            <select class="props-input props-select" value.bind="selectedKind" change.delegate="kindChanged()" disabled.bind="!isEditable">
               <option value.one-time=ServiceKind.None>-Choose Kind-</option>
               <option value.one-time=ServiceKind.HttpClient>HTTP REST Service</option>
               <option value.one-time=ServiceKind.External>External Task</option>

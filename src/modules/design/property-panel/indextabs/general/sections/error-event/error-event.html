@@ -4,10 +4,10 @@
   <div class="section-panel panel--grow" id="js-general-errorEvent-section">
     <div class="panel__heading">
       Error Event
-      <button class="button remove-context-button" class.bind="selectedId ? '' : 'button--disabled'" disabled.bind="!selectedId" click.delegate="removeSelectedError()">
+      <button class="button remove-context-button" class.bind="selectedId ? '' : 'button--disabled'" disabled.bind="!selectedId || !isEditable" click.delegate="removeSelectedError()">
         <i class="fas fa-trash"></i>
       </button>
-      <button class="button add-context-button" click.delegate="addError()">
+      <button class="button add-context-button" click.delegate="addError()" disabled.bind="!isEditable">
         <i class="fas fa-plus"></i>
       </button>
     </div>
@@ -16,7 +16,7 @@
         <tr>
           <th>Error</th>
           <td>
-            <select class="props-input props-select" value.bind="selectedId" change.delegate="updateError()">
+            <select class="props-input props-select" value.bind="selectedId" change.delegate="updateError()" disabled.bind="!isEditable">
               <option model.bind="null">-Choose Error-</option>
               <option repeat.for="error of errors"
                       model.bind="error.id" value="${error.id}">${error.name} (id: ${error.id})</option>
@@ -28,19 +28,19 @@
         <tr>
           <th>Name</th>
           <td>
-            <input type="text" class="props-input" value.bind="selectedError.name" change.delegate="updateErrorName()">
+            <input type="text" class="props-input" value.bind="selectedError.name" change.delegate="updateErrorName()" disabled.bind="!isEditable">
           </td>
         </tr>
         <tr>
           <th>Code</th>
           <td>
-            <input type="text" class="props-input" value.bind="selectedError.errorCode" change.delegate="updateErrorCode()">
+            <input type="text" class="props-input" value.bind="selectedError.errorCode" change.delegate="updateErrorCode()" disabled.bind="!isEditable">
           </td>
         </tr>
         <tr>
           <th>Message</th>
           <td>
-            <input type="text" class="props-input" value.bind="errorMessageVariable" change.delegate="updateErrorMessage()">
+            <input type="text" class="props-input" value.bind="errorMessageVariable" change.delegate="updateErrorMessage()" disabled.bind="!isEditable">
           </td>
         </tr>
       </table>
