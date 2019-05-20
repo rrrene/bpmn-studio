@@ -238,23 +238,23 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createIntermediateEventWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onIntermediateEventWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
-    const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
-    if (eventIsForAnotherCorrelation) {
+      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherCorrelation) {
         return;
       }
 
-    callback();
+      callback();
     });
   }
 
   public createIntermediateEventFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onIntermediateEventFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
-    const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
-    if (eventIsForAnotherCorrelation) {
+      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherCorrelation) {
         return;
       }
 
-    callback();
+      callback();
     });
   }
 
