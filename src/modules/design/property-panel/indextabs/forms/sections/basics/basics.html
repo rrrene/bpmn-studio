@@ -8,7 +8,7 @@
         <tr>
           <th>Form Key</th>
           <td>
-            <input type="text" class="props-input" value.bind="businessObjInPanel.formKey">
+            <input type="text" class="props-input" value.bind="businessObjInPanel.formKey" disabled.bind="!isEditable">
           </td>
         </tr>
       </table>
@@ -17,15 +17,15 @@
   <div class="section-panel panel--grow">
     <div class="panel__heading">
       Form Fields
-      <button class="button remove-context-button" class.bind="isFormSelected ? '' : 'button--disabled'" disabled.bind="!isFormSelected" click.delegate="removeSelectedForm()">
+      <button class="button remove-context-button" class.bind="isFormSelected ? '' : 'button--disabled'" disabled.bind="!isFormSelected || !isEditable" click.delegate="removeSelectedForm()">
         <i class="fas fa-trash"></i>
       </button>
-      <button class="button add-context-button" click.delegate="addForm()">
+      <button class="button add-context-button" click.delegate="addForm()" disabled.bind="!isEditable">
         <i class="fas fa-plus"></i>
       </button>
     </div>
     <div class="panel__content">
-      <select class="form-control forms-list" value.bind="selectedForm" change.delegate="selectForm()" size="5">
+      <select class="form-control forms-list" value.bind="selectedForm" change.delegate="selectForm()" size="5" disabled.bind="!isEditable">
         <option repeat.for="form of forms" model.bind="form">${form.id}</option>
       </select>
     </div>
@@ -37,7 +37,7 @@
         <tr>
           <th>ID</th>
           <td>
-            <input type="text" class="props-input" id="formId" value.bind="selectedForm.id & validateOnChange" placeholder="ID" change.delegate="updateId()">
+            <input type="text" class="props-input" id="formId" value.bind="selectedForm.id & validateOnChange" placeholder="ID" change.delegate="updateId()" disabled.bind="!isEditable">
           </td>
           <td>
             <div show.bind="isFormSelected">
@@ -50,7 +50,7 @@
         <tr>
           <th>Type</th>
           <td>
-            <select class="props-input props-select" value.bind="selectedType" change.delegate="updateType()">
+            <select class="props-input props-select" value.bind="selectedType" change.delegate="updateType()" disabled.bind="!isEditable">
               <option model.bind="null">-Choose Type-</option>
               <option model.bind="FormfieldTypes.string">Text</option>
               <option model.bind="FormfieldTypes.long">Integer</option>
@@ -65,20 +65,20 @@
         <tr if.bind="selectedType === FormfieldTypes.custom_type">
           <th>Custom Type</th>
           <td>
-            <input type="text" class="props-input" value.bind="customType" placeholder="Custom Type" change.delegate="updateType()">
+            <input type="text" class="props-input" value.bind="customType" placeholder="Custom Type" change.delegate="updateType()" disabled.bind="!isEditable">
           </td>
         </tr>
         <tr>
           <th>Label</th>
           <td>
-            <input type="text" class="props-input" value.bind="selectedForm.label"  placeholder="Label" change.delegate="updateLabel()">
+            <input type="text" class="props-input" value.bind="selectedForm.label"  placeholder="Label" change.delegate="updateLabel()" disabled.bind="!isEditable">
           </td>
         </tr>
         <tr>
           <th>Default Value</th>
           <td>
-            <input if.bind="selectedType === FormfieldTypes.boolean" type="checkbox" class="props-input" checked.bind="booleanDefaultValue" change.delegate="updateDefaultValue()">
-            <input else type="text" class="props-input" value.bind="selectedForm.defaultValue"  placeholder="Default Value" change.delegate="updateDefaultValue()">
+            <input if.bind="selectedType === FormfieldTypes.boolean" type="checkbox" class="props-input" checked.bind="booleanDefaultValue" change.delegate="updateDefaultValue()" disabled.bind="!isEditable">
+            <input else type="text" class="props-input" value.bind="selectedForm.defaultValue"  placeholder="Default Value" change.delegate="updateDefaultValue()" disabled.bind="!isEditable">
           </td>
         </tr>
       </table>
@@ -87,7 +87,7 @@
   <div class="section-panel panel--grow" if.bind="isFormSelected && selectedType === FormfieldTypes.enum">
     <div class="panel__heading">
       <span>Values</span>
-      <button class="button add-context-button" click.delegate="addEnumValue()">
+      <button class="button add-context-button" click.delegate="addEnumValue()" disabled.bind="!isEditable">
         <i class="fas fa-plus"></i>
       </button>
     </div>
@@ -95,13 +95,13 @@
       <table>
         <tr repeat.for="value of enumValues" index.bind="$index">
           <td class="key-value-column-left">
-            <input type="text" class="key-value-input" value.bind="newEnumValueIds[$index]" placeholder="ID" change.delegate="changeEnumValueId($index)">
+            <input type="text" class="key-value-input" value.bind="newEnumValueIds[$index]" placeholder="ID" change.delegate="changeEnumValueId($index)" disabled.bind="!isEditable">
           </td>
           <td class="key-value-column-right">
-            <input type="text" class="key-value-input" value.bind="newEnumValueNames[$index]" placeholder="Name" change.delegate="changeEnumValueName($index)">
+            <input type="text" class="key-value-input" value.bind="newEnumValueNames[$index]" placeholder="Name" change.delegate="changeEnumValueName($index)" disabled.bind="!isEditable">
           </td>
           <td>
-            <button class="button key-value-delete-button" click.delegate="removeEnumValue($index)">
+            <button class="button key-value-delete-button" click.delegate="removeEnumValue($index)" disabled.bind="!isEditable">
               <i class="fas fa-times"></i>
             </button>
           </td>
