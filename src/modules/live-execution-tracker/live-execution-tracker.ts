@@ -131,7 +131,7 @@ export class LiveExecutionTracker {
       // The version must be later than 8.1.0
       const processEngineSupportsEvents: boolean = majorVersion > 8
                                                 || (majorVersion === 8
-                                                 && minorVersion > 1);
+                                                 && minorVersion > 0);
 
       if (processEngineSupportsEvents) {
         // Create Backend EventListeners
