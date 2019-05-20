@@ -30,7 +30,7 @@ export class ProcessList {
   private _activeSolutionUri: string;
   private _router: Router;
 
-  private timeout: NodeJS.Timer | number;
+  private _pollingTimeout: NodeJS.Timer | number;
   private _subscriptions: Array<Subscription>;
   private _correlations: Array<DataModels.Correlations.Correlation> = [];
 
@@ -91,14 +91,14 @@ export class ProcessList {
   }
 
   public startPolling(): void {
-    this.timeout = setTimeout(async() => {
+    this._pollingTimeout = setTimeout(async() => {
       await this.updateCorrelationList();
       this.startPolling();
     }, environment.processengine.dashboardPollingIntervalInMs);
   }
 
   public detached(): void {
-    clearTimeout(this.timeout as NodeJS.Timer);
+    clearTimeout(this._pollingTimeout as NodeJS.Timer);
 
     for (const subscription of this._subscriptions) {
       subscription.dispose();

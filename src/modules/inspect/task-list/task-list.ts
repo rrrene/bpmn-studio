@@ -53,7 +53,7 @@ export class TaskList {
 
   private _subscriptions: Array<Subscription>;
   private _userTasks: Array<IUserTaskWithProcessModel>;
-  private timeout: NodeJS.Timer | number;
+  private _pollingTimeout: NodeJS.Timer | number;
   private _getTasks: () => Promise<Array<IUserTaskWithProcessModel>>;
 
   constructor(eventAggregator: EventAggregator,
@@ -126,14 +126,14 @@ export class TaskList {
   }
 
   public startPolling(): void {
-    this.timeout = setTimeout(async() => {
+    this._pollingTimeout = setTimeout(async() => {
       await this.updateTasks();
       this.startPolling();
     }, environment.processengine.dashboardPollingIntervalInMs);
   }
 
   public detached(): void {
-    clearTimeout(this.timeout as NodeJS.Timer);
+    clearTimeout(this._pollingTimeout as NodeJS.Timer);
 
     for (const subscription of this._subscriptions) {
       subscription.dispose();

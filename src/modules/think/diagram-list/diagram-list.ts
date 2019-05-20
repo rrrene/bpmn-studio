@@ -16,7 +16,7 @@ export class DiagramList {
   private _eventAggregator: EventAggregator;
   private _router: Router;
   private _subscriptions: Array<Subscription>;
-  private timeout: NodeJS.Timer | number;
+  private _pollingTimeout: NodeJS.Timer | number;
 
   constructor(eventAggregator: EventAggregator,
               router: Router) {
@@ -40,14 +40,14 @@ export class DiagramList {
   }
 
   public detached(): void {
-    clearTimeout(this.timeout as NodeJS.Timer);
+    clearTimeout(this._pollingTimeout as NodeJS.Timer);
     for (const subscription of this._subscriptions) {
       subscription.dispose();
     }
   }
 
   public startPolling(): void {
-    this.timeout = setTimeout(async() => {
+    this._pollingTimeout = setTimeout(async() => {
       await this._updateDiagramList();
       this.startPolling();
     }, environment.processengine.processDefListPollingIntervalInMs);
