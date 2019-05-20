@@ -3,6 +3,7 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 import {IShape} from '@process-engine/bpmn-elements_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
 import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_models/kpi';
+import {RequestError} from './index';
 
 export interface ILiveExecutionTrackerService {
   finishEmptyActivity(processInstanceId: string, correlationId: string, emptyActivity: DataModels.EmptyActivities.EmptyActivity): Promise<void>;
@@ -36,6 +37,8 @@ export interface ILiveExecutionTrackerService {
   exportXmlFromDiagramModeler(): Promise<string>;
   clearDiagramColors(): void;
   getColorizedXml(processInstanceId: string): Promise<string>;
+
+  isCorrelationOfProcessInstanceActive(processInstanceId: string): Promise<boolean | RequestError>;
 
   createProcessEndedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
   createProcessTerminatedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;

@@ -21,9 +21,10 @@ import {
   NotificationType,
 } from '../../contracts/index';
 
+import environment from '../../environment';
 import {NotificationService} from '../../services/notification-service/notification.service';
 import {TaskDynamicUi} from '../task-dynamic-ui/task-dynamic-ui';
-import {ILiveExecutionTrackerService} from './contracts/index';
+import {ILiveExecutionTrackerService, RequestError} from './contracts/index';
 
 type RouteParameters = {
   diagramName: string,
@@ -33,6 +34,9 @@ type RouteParameters = {
   taskId?: string,
 };
 
+const versionRegex: RegExp = /(\d*)\.(\d*).(\d*)/;
+
+// tslint:disable: no-magic-numbers
 @inject(Router, 'NotificationService', 'SolutionService', 'LiveExecutionTrackerService')
 export class LiveExecutionTracker {
   public canvasModel: HTMLElement;
@@ -74,6 +78,7 @@ export class LiveExecutionTracker {
   private _parentProcessInstanceId: string;
   private _parentProcessModelId: string;
   private _activeCallActivities: Array<IShape> = [];
+  private _pollingTimer: NodeJS.Timer;
 
   private _eventListenerSubscriptions: Array<Subscription> = [];
 
@@ -115,8 +120,28 @@ export class LiveExecutionTracker {
   public async attached(): Promise<void> {
     this._attached = true;
 
-    // Create Backend EventListeners
-    this._eventListenerSubscriptions = await this._createBackendEventListeners();
+    const processEngineVersion: string = this.activeSolutionEntry.processEngineVersion;
+
+    const processEngineVersionIsSet: boolean = processEngineVersion !== undefined;
+    if (processEngineVersionIsSet) {
+      const regexResult: RegExpExecArray = versionRegex.exec(processEngineVersion);
+      const majorVersion: number = parseInt(regexResult[1]);
+      const minorVersion: number = parseInt(regexResult[2]);
+
+      // The Version must be newer then 8.1.0
+      const processEngineSupportsEvents: boolean = majorVersion > 8
+                                                || (majorVersion === 8
+                                                 && minorVersion > 1);
+
+      if (processEngineSupportsEvents) {
+        // Create Backend EventListeners
+        this._eventListenerSubscriptions = await this._createBackendEventListeners();
+      } else {
+        this._startPolling();
+      }
+    } else {
+      this._startPolling();
+    }
 
     // Create Viewer
     this._diagramViewer = new bundle.viewer({
@@ -195,6 +220,8 @@ export class LiveExecutionTracker {
 
   public detached(): void {
     this._attached = false;
+
+    this._stopPolling();
 
     this._diagramViewer.clear();
     this._diagramViewer.detach();
@@ -741,6 +768,54 @@ export class LiveExecutionTracker {
                                                               ];
 
     return Promise.all(subscriptionPromises);
+  }
+
+  private _startPolling(): void {
+    this._pollingTimer = setTimeout(async() => {
+      // Stop polling if not attached
+      const notAttached: boolean = !this._attached;
+      if (notAttached) {
+        return;
+      }
+
+      const correlationIsActiveResponse: boolean | RequestError =
+        await this._liveExecutionTrackerService.isCorrelationOfProcessInstanceActive(this.processInstanceId);
+
+      const connectionLost: boolean = correlationIsActiveResponse === RequestError.ConnectionLost;
+      // Keep polling if connection is lost
+      if (connectionLost) {
+        this._startPolling();
+
+        return;
+      }
+
+      const errorCheckingCorrelationState: boolean = correlationIsActiveResponse === RequestError.OtherError;
+      // Stop polling if checking the correlation state was not successfull
+      if (errorCheckingCorrelationState) {
+        const notificationMessage: string = 'Could not get active correlations. Please try to start the process again.';
+
+        this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
+
+        return;
+      }
+
+      await this._handleElementColorization();
+
+      const correlationIsNotActive: boolean = correlationIsActiveResponse === false;
+      if (correlationIsNotActive) {
+        this._processStopped = true;
+
+        this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
+
+        return;
+      }
+
+      this._startPolling();
+    }, environment.processengine.liveExecutionTrackerPollingIntervalInMs);
+  }
+
+  private _stopPolling(): void {
+    clearTimeout(this._pollingTimer);
   }
 
   private _resizeTokenViewer(mouseEvent: MouseEvent): void {

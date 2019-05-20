@@ -2,6 +2,7 @@ import {Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
 import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_models/kpi';
+import {RequestError} from './index';
 
 export interface ILiveExecutionTrackerRepository {
   finishEmptyActivity(processInstanceId: string, correlationId: string, emptyActivity: DataModels.EmptyActivities.EmptyActivity): Promise<void>;
@@ -14,6 +15,8 @@ export interface ILiveExecutionTrackerRepository {
   getTokenHistoryGroupForProcessInstance(processInstanceId: string): Promise<DataModels.TokenHistory.TokenHistoryGroup | null>;
 
   setIdentity(identity: IIdentity): void;
+
+  isCorrelationOfProcessInstanceActive(processInstanceId: string): Promise<boolean | RequestError>;
 
   createProcessEndedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
   createProcessTerminatedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;

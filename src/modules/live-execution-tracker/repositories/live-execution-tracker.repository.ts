@@ -6,7 +6,7 @@ import {DataModels, IManagementApi} from '@process-engine/management_api_contrac
 import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_models/kpi/index';
 import {EndEventReachedMessage, TerminateEndEventReachedMessage} from '@process-engine/management_api_contracts/dist/messages/bpmn_events/index';
 
-import {ILiveExecutionTrackerRepository} from '../contracts/index';
+import {ILiveExecutionTrackerRepository, RequestError} from '../contracts/index';
 
 @inject('ManagementApiClientService')
 export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepository {
@@ -36,6 +36,41 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     }
 
     return undefined;
+  }
+
+  public async isCorrelationOfProcessInstanceActive(processInstanceId: string): Promise<boolean | RequestError> {
+
+    const getActiveTokens: Function = async(): Promise<Array<ActiveToken> | RequestError> => {
+      for (let retries: number = 0; retries < this._maxRetries; retries++) {
+        try {
+          return await this._managementApiClient
+                           .getActiveTokensForProcessInstance(this._identity, processInstanceId);
+        } catch (error) {
+          const errorIsConnectionLost: boolean = error.message === 'Failed to fetch';
+
+          if (errorIsConnectionLost) {
+            return RequestError.ConnectionLost;
+          }
+        }
+      }
+    };
+
+    const activeTokensOrRequestError: Array<ActiveToken> | RequestError = await getActiveTokens();
+
+    const couldNotGetActiveTokens: boolean = activeTokensOrRequestError === RequestError.ConnectionLost
+      || activeTokensOrRequestError === RequestError.OtherError;
+    if (couldNotGetActiveTokens) {
+      const requestError: RequestError = (activeTokensOrRequestError as RequestError);
+
+      return requestError;
+    }
+
+    const allActiveTokens: Array<ActiveToken> =
+      (activeTokensOrRequestError as Array<ActiveToken>);
+
+    const correlationIsNotActive: boolean = allActiveTokens.length === 0;
+
+    return !correlationIsNotActive;
   }
 
   public async getTokenHistoryGroupForProcessInstance(processInstanceId: string): Promise<DataModels.TokenHistory.TokenHistoryGroup | null> {

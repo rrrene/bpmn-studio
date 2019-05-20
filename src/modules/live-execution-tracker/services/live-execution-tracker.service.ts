@@ -10,7 +10,7 @@ import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_mo
 import {TokenHistoryEntry} from '@process-engine/management_api_contracts/dist/data_models/token_history';
 
 import {defaultBpmnColors, IBpmnModeler, IBpmnXmlSaveOptions, IColorPickerColor, IElementRegistry, IModeling} from '../../../contracts/index';
-import {ILiveExecutionTrackerRepository, ILiveExecutionTrackerService} from '../contracts/index';
+import {ILiveExecutionTrackerRepository, ILiveExecutionTrackerService, RequestError} from '../contracts/index';
 
 @inject('LiveExecutionTrackerRepository')
 export class LiveExecutionTrackerService implements ILiveExecutionTrackerService {
@@ -30,6 +30,10 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
   public setIdentity(identity: IIdentity): void {
     this._liveExecutionTrackerRepository.setIdentity(identity);
+  }
+
+  public isCorrelationOfProcessInstanceActive(processInstanceId: string): Promise<boolean | RequestError> {
+    return this._liveExecutionTrackerRepository.isCorrelationOfProcessInstanceActive(processInstanceId);
   }
 
   public getCorrelationById(correlationId: string): Promise<DataModels.Correlations.Correlation> {
