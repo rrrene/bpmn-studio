@@ -69,9 +69,9 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
     const allActiveTokens: Array<ActiveToken> = activeTokensOrRequestError as Array<ActiveToken>;
 
-    const correlationIsNotActive: boolean = allActiveTokens.length === 0;
+    const correlationIsActive: boolean = allActiveTokens.length > 0;
 
-    return !correlationIsNotActive;
+    return correlationIsActive;
   }
 
   public async getTokenHistoryGroupForProcessInstance(processInstanceId: string): Promise<DataModels.TokenHistory.TokenHistoryGroup | null> {
