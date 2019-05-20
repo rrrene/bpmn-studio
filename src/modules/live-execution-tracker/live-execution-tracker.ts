@@ -120,25 +120,12 @@ export class LiveExecutionTracker {
   public async attached(): Promise<void> {
     this._attached = true;
 
-    const processEngineVersion: string = this.activeSolutionEntry.processEngineVersion;
+    // The version must be later than 8.1.0
+    const processEngineSupportsEvents: boolean = this._checkIfProcessEngineSupportsEvents();
 
-    const processEngineVersionIsSet: boolean = processEngineVersion !== undefined;
-    if (processEngineVersionIsSet) {
-      const regexResult: RegExpExecArray = versionRegex.exec(processEngineVersion);
-      const majorVersion: number = parseInt(regexResult[1]);
-      const minorVersion: number = parseInt(regexResult[2]);
-
-      // The version must be later than 8.1.0
-      const processEngineSupportsEvents: boolean = majorVersion > 8
-                                                || (majorVersion === 8
-                                                 && minorVersion > 0);
-
-      if (processEngineSupportsEvents) {
-        // Create Backend EventListeners
-        this._eventListenerSubscriptions = await this._createBackendEventListeners();
-      } else {
-        this._startPolling();
-      }
+    if (processEngineSupportsEvents) {
+      // Create Backend EventListeners
+      this._eventListenerSubscriptions = await this._createBackendEventListeners();
     } else {
       this._startPolling();
     }
@@ -283,6 +270,27 @@ export class LiveExecutionTracker {
 
   public async stopProcessInstance(): Promise<void> {
     this._liveExecutionTrackerService.terminateProcess(this.processInstanceId);
+  }
+
+  private _checkIfProcessEngineSupportsEvents(): boolean {
+
+    const processEngineVersion: string = this.activeSolutionEntry.processEngineVersion;
+
+    const noProcessEngineVersionSet: boolean = processEngineVersion === undefined;
+    if (noProcessEngineVersionSet) {
+      return false;
+    }
+
+    const regexResult: RegExpExecArray = versionRegex.exec(processEngineVersion);
+    const majorVersion: number = parseInt(regexResult[1]);
+    const minorVersion: number = parseInt(regexResult[2]);
+
+    // The version must be 8.1.0 or later
+    const processEngineSupportsEvents: boolean = majorVersion > 8
+                                              || (majorVersion === 8
+                                               && minorVersion >= 1);
+
+    return processEngineSupportsEvents;
   }
 
   private async _getParentProcessModelId(): Promise<string> {
