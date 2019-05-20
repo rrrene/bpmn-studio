@@ -122,13 +122,13 @@ export class TaskList {
     ];
 
     await this.updateTasks();
-    this.startPolling();
+    this._startPolling();
   }
 
-  public startPolling(): void {
+  private _startPolling(): void {
     this._pollingTimeout = setTimeout(async() => {
       await this.updateTasks();
-      this.startPolling();
+      this._startPolling();
     }, environment.processengine.dashboardPollingIntervalInMs);
   }
 

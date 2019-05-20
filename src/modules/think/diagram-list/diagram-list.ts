@@ -27,7 +27,7 @@ export class DiagramList {
   public async attached(): Promise<void> {
 
     await this._updateDiagramList();
-    this.startPolling();
+    this._startPolling();
 
     this._subscriptions = [
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, () => {
@@ -46,10 +46,10 @@ export class DiagramList {
     }
   }
 
-  public startPolling(): void {
+  private _startPolling(): void {
     this._pollingTimeout = setTimeout(async() => {
       await this._updateDiagramList();
-      this.startPolling();
+      this._startPolling();
     }, environment.processengine.processDefListPollingIntervalInMs);
   }
 

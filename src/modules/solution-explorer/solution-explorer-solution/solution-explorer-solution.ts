@@ -126,7 +126,7 @@ export class SolutionExplorerSolution {
     ];
 
     await this.updateSolution();
-    this.startPolling();
+    this._startPolling();
   }
 
   public detached(): void {
@@ -142,10 +142,10 @@ export class SolutionExplorerSolution {
     }
   }
 
-  public startPolling(): void {
+  private _startPolling(): void {
     this._refreshTimeoutTask = setTimeout(async() =>  {
       await this.updateSolution();
-      this.startPolling();
+      this._startPolling();
     }, environment.processengine.solutionExplorerPollingIntervalInMs);
   }
 

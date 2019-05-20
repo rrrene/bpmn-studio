@@ -78,7 +78,7 @@ export class ProcessList {
     this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(this._activeSolutionUri);
 
     await this.updateCorrelationList();
-    this.startPolling();
+    this._startPolling();
 
     this._subscriptions = [
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, () => {
@@ -90,10 +90,9 @@ export class ProcessList {
     ];
   }
 
-  public startPolling(): void {
     this._pollingTimeout = setTimeout(async() => {
       await this.updateCorrelationList();
-      this.startPolling();
+      this._startPolling();
     }, environment.processengine.dashboardPollingIntervalInMs);
   }
 
