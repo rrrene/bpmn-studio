@@ -142,8 +142,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createProcessEndedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onProcessEnded(this._identity, (message: EndEventReachedMessage): void => {
-      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
-      if (eventIsForAnotherCorrelation) {
+      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherProcessInstance) {
         return;
       }
 
@@ -153,8 +153,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createProcessTerminatedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onProcessTerminated(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
-      if (eventIsForAnotherCorrelation) {
+      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherProcessInstance) {
         return;
       }
 
@@ -164,8 +164,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createUserTaskWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onUserTaskWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
-      if (eventIsForAnotherCorrelation) {
+      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherProcessInstance) {
         return;
       }
 
@@ -175,8 +175,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createCallActivityWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onCallActivityWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
-      if (eventIsForAnotherCorrelation) {
+      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherProcessInstance) {
         return;
       }
 
@@ -186,8 +186,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createCallActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onCallActivityFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
-      if (eventIsForAnotherCorrelation) {
+      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherProcessInstance) {
         return;
       }
 
@@ -197,8 +197,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createUserTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onUserTaskFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
-      if (eventIsForAnotherCorrelation) {
+      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherProcessInstance) {
         return;
       }
 
@@ -208,8 +208,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createManualTaskWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onManualTaskWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
-      if (eventIsForAnotherCorrelation) {
+      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherProcessInstance) {
         return;
       }
 
@@ -219,8 +219,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createManualTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onManualTaskFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
-      if (eventIsForAnotherCorrelation) {
+      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherProcessInstance) {
         return;
       }
 
@@ -230,8 +230,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createEmptyActivityWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onEmptyActivityWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
-      if (eventIsForAnotherCorrelation) {
+      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherProcessInstance) {
         return;
       }
 
@@ -241,8 +241,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createEmptyActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onEmptyActivityFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
-      if (eventIsForAnotherCorrelation) {
+      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherProcessInstance) {
         return;
       }
 
@@ -252,8 +252,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createBoundaryEventWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onBoundaryEventWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
-      if (eventIsForAnotherCorrelation) {
+      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherProcessInstance) {
         return;
       }
 
@@ -263,8 +263,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createBoundaryEventFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onBoundaryEventFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
-      if (eventIsForAnotherCorrelation) {
+      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherProcessInstance) {
         return;
       }
 
@@ -274,8 +274,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createIntermediateEventWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onIntermediateEventWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
-      if (eventIsForAnotherCorrelation) {
+      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherProcessInstance) {
         return;
       }
 
@@ -285,8 +285,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
 
   public createIntermediateEventFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this._managementApiClient.onIntermediateEventFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsForAnotherCorrelation: boolean = message.processInstanceId !== processInstanceId;
-      if (eventIsForAnotherCorrelation) {
+      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherProcessInstance) {
         return;
       }
 
