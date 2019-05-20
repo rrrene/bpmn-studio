@@ -187,8 +187,6 @@ export class TaskList {
     const allProcessModels: DataModels.ProcessModels.ProcessModelList = await this._managementApiService
       .getProcessModels(this.activeSolutionEntry.identity);
 
-    console.log(allProcessModels);
-
     // TODO (ph): This will create 1 + n http reqeusts, where n is the number of process models in the processengine.
     const promisesForAllUserTasks: Array<Promise<Array<IUserTaskWithProcessModel>>> = allProcessModels.processModels
       .map(async(processModel: DataModels.ProcessModels.ProcessModel): Promise<Array<IUserTaskWithProcessModel>> => {
