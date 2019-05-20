@@ -53,6 +53,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
           }
         }
       }
+
+      return RequestError.OtherError;
     };
 
     const activeTokensOrRequestError: Array<ActiveToken> | RequestError = await getActiveTokens();
