@@ -146,13 +146,14 @@ export class DiagramToolsRight {
   }
 
   public fitDiagramToViewport(): void {
-    const modelerCanvas: ICanvas = this.modeler.get('canvas');
-    const viewerCanvas: ICanvas = this.viewer.get('canvas');
-
     if (this.solutionIsRemote) {
-      viewerCanvas.zoom('fit-viewport');
+      const viewerCanvas: ICanvas = this.viewer.get('canvas');
+
+      viewerCanvas.zoom('fit-viewport', 'auto');
     } else {
-      modelerCanvas.zoom('fit-viewport');
+      const modelerCanvas: ICanvas = this.modeler.get('canvas');
+
+      modelerCanvas.zoom('fit-viewport', 'auto');
     }
   }
 

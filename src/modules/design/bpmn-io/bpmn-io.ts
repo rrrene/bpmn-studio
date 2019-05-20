@@ -544,11 +544,11 @@ export class BpmnIo {
       const viewerDiagramIsVisible: boolean = viewerViewbox.height > 0 && viewerViewbox.width > 0;
 
       if (viewerDiagramIsVisible) {
-        viewerCanvas.zoom('fit-viewport');
+        viewerCanvas.zoom('fit-viewport', 'auto');
       }
     } else {
       if (modelerDiagramIsVisible) {
-        modelerCanvas.zoom('fit-viewport');
+        modelerCanvas.zoom('fit-viewport', 'auto');
       }
     }
   }
