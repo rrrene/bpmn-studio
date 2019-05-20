@@ -53,7 +53,7 @@ export class TaskList {
 
   private _subscriptions: Array<Subscription>;
   private _userTasks: Array<IUserTaskWithProcessModel>;
-  private timeout: NodeJS.Timer;
+  private timeout: NodeJS.Timer | number;
   private _getTasks: () => Promise<Array<IUserTaskWithProcessModel>>;
 
   constructor(eventAggregator: EventAggregator,
@@ -133,7 +133,7 @@ export class TaskList {
   }
 
   public detached(): void {
-    clearTimeout(this.timeout);
+    clearTimeout(this.timeout as NodeJS.Timer);
 
     for (const subscription of this._subscriptions) {
       subscription.dispose();

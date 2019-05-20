@@ -71,7 +71,7 @@ export class SolutionExplorerSolution {
   private _diagramRenamingState: IDiagramNameInputState = {
     currentDiagramInputValue: undefined,
   };
-  private _refreshTimeoutTask: NodeJS.Timer;
+  private _refreshTimeoutTask: NodeJS.Timer | number;
 
   private _diagramValidationRegExpList: Array<RegExp> =  [
     /^[a-z0-9]/i,
@@ -130,7 +130,7 @@ export class SolutionExplorerSolution {
   }
 
   public detached(): void {
-    clearTimeout(this._refreshTimeoutTask);
+    clearTimeout(this._refreshTimeoutTask as NodeJS.Timer);
     this._disposeSubscriptions();
 
     if (this.isCreateDiagramInputShown()) {

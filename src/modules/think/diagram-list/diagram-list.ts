@@ -16,7 +16,7 @@ export class DiagramList {
   private _eventAggregator: EventAggregator;
   private _router: Router;
   private _subscriptions: Array<Subscription>;
-  private timeout: NodeJS.Timer;
+  private timeout: NodeJS.Timer | number;
 
   constructor(eventAggregator: EventAggregator,
               router: Router) {
@@ -40,7 +40,7 @@ export class DiagramList {
   }
 
   public detached(): void {
-    clearTimeout(this.timeout);
+    clearTimeout(this.timeout as NodeJS.Timer);
     for (const subscription of this._subscriptions) {
       subscription.dispose();
     }
