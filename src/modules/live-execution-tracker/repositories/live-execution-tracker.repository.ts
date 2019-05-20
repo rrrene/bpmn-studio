@@ -15,7 +15,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   private _identity: IIdentity;
 
   private _maxRetries: number = 5;
-  private _timeout: number = 500;
+  private _retryDelayInMs: number = 500;
 
   constructor(managementApiClientService: IManagementApi) {
     this._managementApiClient = managementApiClientService;
@@ -30,7 +30,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         await new Promise((resolve: Function): void => {
           setTimeout(() => {
             resolve();
-          }, this._timeout);
+          }, this._retryDelayInMs);
         });
       }
     }
@@ -46,7 +46,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         await new Promise((resolve: Function): void => {
           setTimeout(() => {
             resolve();
-          }, this._timeout);
+          }, this._retryDelayInMs);
         });
       }
     }
@@ -62,7 +62,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         await new Promise((resolve: Function): void => {
           setTimeout(() => {
             resolve();
-          }, this._timeout);
+          }, this._retryDelayInMs);
         });
       }
     }
@@ -78,7 +78,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         await new Promise((resolve: Function): void => {
           setTimeout(() => {
             resolve();
-          }, this._timeout);
+          }, this._retryDelayInMs);
         });
       }
     }
