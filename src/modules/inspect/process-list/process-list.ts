@@ -90,6 +90,7 @@ export class ProcessList {
     ];
   }
 
+  private _startPolling(): void {
     this._pollingTimeout = setTimeout(async() => {
       await this.updateCorrelationList();
       this._startPolling();
