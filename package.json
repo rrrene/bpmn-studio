@@ -90,7 +90,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@essential-projects/errors_ts": "^1.4.5",
+    "@essential-projects/errors_ts": "^1.5.0",
     "@fortawesome/fontawesome-free": "^5.1.0",
     "@process-engine/bpmn-js-custom-bundle": "2.6.3",
     "@process-engine/bpmn-lint_rules": "1.6.2",
@@ -125,8 +125,8 @@
   },
   "peerDependencies": {},
   "devDependencies": {
-    "@essential-projects/http_contracts": "~2.3.8",
-    "@essential-projects/iam_contracts": "~3.4.2",
+    "@essential-projects/http_contracts": "~2.4.0",
+    "@essential-projects/iam_contracts": "~3.5.0",
     "@process-engine/bpmn-elements_contracts": "2.0.0",
     "@process-engine/consumer_api_contracts": "5.1.1",
     "@process-engine/kpi_api_contracts": "1.2.4",
