@@ -267,7 +267,7 @@ pipeline {
           } else {
 
             withCredentials([
-              string(credentialsId: 'process-engine-ci_token', variable: 'RELEASE_GH_TOKEN')
+              usernamePassword(credentialsId: 'process-engine-ci_github-token', passwordVariable: 'RELEASE_GH_TOKEN', usernameVariable: 'RELEASE_GH_USER')
             ]) {
               script {
 
