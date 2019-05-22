@@ -817,13 +817,23 @@ export class BpmnIo {
 
   private async getSVG(): Promise<string> {
     const returnPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
-      this.modeler.saveSVG({}, (error: Error, result: string) => {
-        if (error) {
-          reject(error);
-        }
+      if (this.solutionIsRemote) {
+        this.viewer.saveSVG({}, (error: Error, result: string) => {
+          if (error) {
+            reject(error);
+          }
 
-        resolve(result);
-      });
+          resolve(result);
+        });
+      } else {
+        this.modeler.saveSVG({}, (error: Error, result: string) => {
+          if (error) {
+            reject(error);
+          }
+
+          resolve(result);
+        });
+      }
     });
 
     return returnPromise;
