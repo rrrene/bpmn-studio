@@ -146,6 +146,7 @@ export class BpmnIo {
 
     this.modeler.on('import.done', async() => {
       this._fitDiagramToViewport();
+
       if (!this.solutionIsRemote) {
         await this._validateDiagram();
         this._linting.update();
@@ -386,6 +387,7 @@ export class BpmnIo {
       if (this.solutionIsRemote) {
         this.viewer.importXML(this.xml);
       }
+
       this.modeler.importXML(this.xml);
     }
 
