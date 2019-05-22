@@ -71,7 +71,7 @@ export class SolutionExplorerSolution {
   private _diagramRenamingState: IDiagramNameInputState = {
     currentDiagramInputValue: undefined,
   };
-  private _refreshIntervalTask: any;
+  private _refreshTimeoutTask: NodeJS.Timer | number;
 
   private _diagramValidationRegExpList: Array<RegExp> =  [
     /^[a-z0-9]/i,
@@ -114,7 +114,7 @@ export class SolutionExplorerSolution {
     this._globalSolutionService = solutionService;
   }
 
-  public attached(): void {
+  public async attached(): Promise<void> {
     this._originalIconClass = this.fontAwesomeIconClass;
     this._updateSolutionExplorer();
     this._setValidationRules();
@@ -125,14 +125,12 @@ export class SolutionExplorerSolution {
       }),
     ];
 
-    this._refreshIntervalTask = setInterval(async() =>  {
-      this.updateSolution();
-    }, environment.processengine.solutionExplorerPollingIntervalInMs);
-
+    await this.updateSolution();
+    this._startPolling();
   }
 
   public detached(): void {
-    clearInterval(this._refreshIntervalTask);
+    clearTimeout(this._refreshTimeoutTask as NodeJS.Timer);
     this._disposeSubscriptions();
 
     if (this.isCreateDiagramInputShown()) {
@@ -142,6 +140,13 @@ export class SolutionExplorerSolution {
     if (this._isCurrentlyRenamingDiagram) {
       this._resetDiagramRenaming();
     }
+  }
+
+  private _startPolling(): void {
+    this._refreshTimeoutTask = setTimeout(async() =>  {
+      await this.updateSolution();
+      this._startPolling();
+    }, environment.processengine.solutionExplorerPollingIntervalInMs);
   }
 
   public async showDeleteDiagramModal(diagram: IDiagram, event: Event): Promise<void> {
@@ -304,7 +309,7 @@ export class SolutionExplorerSolution {
       await this._diagramCreationService.createNewDiagram(this.displayedSolutionEntry.uri, newName, this._diagramInContextMenu.xml);
 
     await this.solutionService.saveDiagram(duplicatedDiagram, duplicatedDiagram.uri);
-    this.updateSolution();
+    await this.updateSolution();
   }
 
   /*
@@ -601,7 +606,7 @@ export class SolutionExplorerSolution {
       return;
     }
 
-    this.updateSolution();
+    await this.updateSolution();
     this._resetDiagramCreation();
     this.navigateToDetailView(emptyDiagram);
   }
@@ -623,7 +628,7 @@ export class SolutionExplorerSolution {
         return;
       }
 
-      this.updateSolution();
+      await this.updateSolution();
       this._resetDiagramCreation();
       this.navigateToDetailView(emptyDiagram);
 

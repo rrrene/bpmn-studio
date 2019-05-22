@@ -53,7 +53,7 @@ export class TaskList {
 
   private _subscriptions: Array<Subscription>;
   private _userTasks: Array<IUserTaskWithProcessModel>;
-  private _getTasksIntervalId: number;
+  private _pollingTimeout: NodeJS.Timer | number;
   private _getTasks: () => Promise<Array<IUserTaskWithProcessModel>>;
 
   constructor(eventAggregator: EventAggregator,
@@ -95,7 +95,7 @@ export class TaskList {
     }
   }
 
-  public attached(): void {
+  public async attached(): Promise<void> {
     const getTasksIsUndefined: boolean = this._getTasks === undefined;
 
     this._activeSolutionUri = this._router.currentInstruction.queryParams.solutionUri;
@@ -110,27 +110,30 @@ export class TaskList {
 
     if (getTasksIsUndefined) {
       this._getTasks = this._getAllTasks;
-      this.updateTasks();
     }
 
-    this._getTasksIntervalId = window.setInterval(() => {
-      this.updateTasks();
-    }, environment.processengine.dashboardPollingIntervalInMs);
-
     this._subscriptions = [
-      this._eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, () => {
-        this.updateTasks();
+      this._eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, async() => {
+        await this.updateTasks();
       }),
-      this._eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
-        this.updateTasks();
+      this._eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, async() => {
+        await this.updateTasks();
       }),
     ];
 
-    this.updateTasks();
+    await this.updateTasks();
+    this._startPolling();
+  }
+
+  private _startPolling(): void {
+    this._pollingTimeout = setTimeout(async() => {
+      await this.updateTasks();
+      this._startPolling();
+    }, environment.processengine.dashboardPollingIntervalInMs);
   }
 
   public detached(): void {
-    clearInterval(this._getTasksIntervalId);
+    clearTimeout(this._pollingTimeout as NodeJS.Timer);
 
     for (const subscription of this._subscriptions) {
       subscription.dispose();

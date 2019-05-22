@@ -16,7 +16,7 @@ export class DiagramList {
   private _eventAggregator: EventAggregator;
   private _router: Router;
   private _subscriptions: Array<Subscription>;
-  private _getProcessesIntervalId: number;
+  private _pollingTimeout: NodeJS.Timer | number;
 
   constructor(eventAggregator: EventAggregator,
               router: Router) {
@@ -24,14 +24,10 @@ export class DiagramList {
     this._router = router;
   }
 
-  public attached(): void {
+  public async attached(): Promise<void> {
 
-    this._updateDiagramList();
-
-    this._getProcessesIntervalId = window.setInterval(() => {
-      this._updateDiagramList();
-      // tslint:disable-next-line
-    }, environment.processengine.processDefListPollingIntervalInMs);
+    await this._updateDiagramList();
+    this._startPolling();
 
     this._subscriptions = [
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, () => {
@@ -44,10 +40,17 @@ export class DiagramList {
   }
 
   public detached(): void {
-    clearInterval(this._getProcessesIntervalId);
+    clearTimeout(this._pollingTimeout as NodeJS.Timer);
     for (const subscription of this._subscriptions) {
       subscription.dispose();
     }
+  }
+
+  private _startPolling(): void {
+    this._pollingTimeout = setTimeout(async() => {
+      await this._updateDiagramList();
+      this._startPolling();
+    }, environment.processengine.processDefListPollingIntervalInMs);
   }
 
   public showDetails(diagramName: string): void {
