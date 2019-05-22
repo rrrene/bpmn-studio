@@ -413,8 +413,10 @@ export class BpmnIo {
 
         this.viewer.on('selection.changed', (event: IEvent) => {
           const selectedElement: IShape = event.newSelection[0];
+          const elementRegistry: IElementRegistry = this.modeler.get('elementRegistry');
+          const modelerShape: IShape = elementRegistry.get(selectedElement.id);
 
-          this.modeler.get('selection').select(selectedElement);
+          this.modeler.get('selection').select(modelerShape);
         });
       }
 

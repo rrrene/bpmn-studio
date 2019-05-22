@@ -25,7 +25,7 @@
       </button>
     </div>
     <div class="panel__content">
-      <select class="form-control forms-list" value.bind="selectedForm" change.delegate="selectForm()" size="5" disabled.bind="!isEditable">
+      <select class="form-control forms-list" value.bind="selectedForm" change.delegate="selectForm()" size="5">
         <option repeat.for="form of forms" model.bind="form">${form.id}</option>
       </select>
     </div>
