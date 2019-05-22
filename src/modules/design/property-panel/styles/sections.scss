@@ -102,15 +102,15 @@
 }
 
 .add-context-button:disabled {
-  opacity: 0.2;
   cursor: default;
+  opacity: 0.2;
   color: inherit;
 }
 
 .remove-context-button:disabled {
   cursor: default;
-  color: inherit;
   opacity: 0.2;
+  color: inherit;
 }
 
 .remove-context-button {
