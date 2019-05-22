@@ -206,7 +206,7 @@ export class LiveExecutionTracker {
 
     this._diagramViewer.on('element.click', this._elementClickHandler);
 
-    this._viewerCanvas.zoom('fit-viewport');
+    this._viewerCanvas.zoom('fit-viewport', 'auto');
 
     this.tokenViewerResizeDiv.addEventListener('mousedown', (mouseDownEvent: Event) => {
       const windowEvent: Event = mouseDownEvent || window.event;
