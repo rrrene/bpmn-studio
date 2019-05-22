@@ -806,18 +806,10 @@ export class LiveExecutionTracker {
         }
       };
 
-      const correlationIsActive: boolean = isCorrelationActive;
-
-      const errorCheckingCorrelationState: boolean = correlationIsActiveResponse === RequestError.OtherError;
-      // Stop polling if checking the correlation state was not successfull
-      if (errorCheckingCorrelationState) {
-
-        return;
-      }
-
       await this._handleElementColorization();
 
-      const correlationIsNotActive: boolean = correlationIsActiveResponse === false;
+      const correlationIsActive: boolean = await isCorrelationActive();
+      const correlationIsNotActive: boolean = correlationIsActive === false;
       if (correlationIsNotActive) {
         this._processStopped = true;
 
