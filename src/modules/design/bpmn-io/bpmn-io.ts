@@ -427,6 +427,12 @@ export class BpmnIo {
 
       setTimeout(() => {
         this.viewer.attachTo(this.canvasModel);
+
+        const xmlIsNotEmpty: boolean = this.xml !== undefined && this.xml !== null;
+        if (xmlIsNotEmpty) {
+          this.viewer.importXML(this.xml);
+        }
+
         this._linting.deactivateLinting();
       }, 0);
 
