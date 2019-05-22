@@ -117,13 +117,17 @@ describe('Property Panel', () => {
     expect(visibilityOfMessageTaskSection).toBeTruthy();
   });
 
-  it('should show Process section after click on Collaboration.', async() => {
-    await diagramDetail.clickOnElement(diagram.collaborationId);
+  /**
+   * The Collaboration tests are commented out, because the "Viewer" which is used
+   * now on remote solutions, can not select Collaborations.
+   */
+  // it('should show Process section after click on Collaboration.', async() => {
+  //   console.log(diagram.collaborationId);
+  //   await diagramDetail.clickOnElement(diagram.collaborationId);
+  //   const visbilityOfProcessSection: boolean = await propertyPanel.getVisibilityOfGeneralProcessSection();
 
-    const visbilityOfProcessSection: boolean = await propertyPanel.getVisibilityOfGeneralProcessSection();
-
-    expect(visbilityOfProcessSection).toBeTruthy();
-  });
+  //   expect(visbilityOfProcessSection).toBeTruthy();
+  // });
 
   it('should show ScriptTask section after click on ScriptTask.', async() => {
     await diagramDetail.clickOnElement(diagram.scriptTaskId);
@@ -264,19 +268,19 @@ describe('Property Panel', () => {
     expect(visibilityOfExstensionsSection).toBeTruthy();
   });
 
-  it('should not show basic extensions section after click on Collaboration.', async() => {
-    await diagramDetail.clickOnElement(diagram.collaborationId);
+  // it('should not show basic extensions section after click on Collaboration.', async() => {
+  //   await diagramDetail.clickOnElement(diagram.collaborationId);
 
-    const visibilityOfExstensionsSection: boolean = await propertyPanel.getPresenceOfExtensionsBasicSection();
+  //   const visibilityOfExstensionsSection: boolean = await propertyPanel.getPresenceOfExtensionsBasicSection();
 
-    expect(visibilityOfExstensionsSection).toBeFalsy();
-  });
+  //   expect(visibilityOfExstensionsSection).toBeFalsy();
+  // });
 
-  it('should show process extensions section after click on Collaboration.', async() => {
-    await diagramDetail.clickOnElement(diagram.collaborationId);
+  // it('should show process extensions section after click on Collaboration.', async() => {
+  //   await diagramDetail.clickOnElement(diagram.collaborationId);
 
-    const visbilityOfProcessExtensionsSection: boolean = await propertyPanel.getVisbilityOfExtensionsProcessSection();
+  //   const visbilityOfProcessExtensionsSection: boolean = await propertyPanel.getVisbilityOfExtensionsProcessSection();
 
-    expect(visbilityOfProcessExtensionsSection).toBeTruthy();
-  });
+  //   expect(visbilityOfProcessExtensionsSection).toBeTruthy();
+  // });
 });
