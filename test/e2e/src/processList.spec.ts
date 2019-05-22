@@ -41,18 +41,18 @@ describe('Process List', () => {
     expect(visibilityOfListEntry).toBeTruthy();
   });
 
-  it('should navigate to the `detail view`, after clicking on the corresponding link in the table.', async() => {
-    await routerView.show();
-    await processList.show();
+  // it('should navigate to the `detail view`, after clicking on the corresponding link in the table.', async() => {
+  //   await routerView.show();
+  //   await processList.show();
 
-    await processList.clickOnDiagramDesignLink(diagram.correlationId);
+  //   await processList.clickOnDiagramDesignLink(diagram.correlationId);
 
-    const currentBrowserUrl: string = await browser.getCurrentUrl();
-    expect(currentBrowserUrl).toContain(diagramDetail.url);
+  //   const currentBrowserUrl: string = await browser.getCurrentUrl();
+  //   expect(currentBrowserUrl).toContain(diagramDetail.url);
 
-    const visibilityOfDiagramDetail: boolean = await diagramDetail.getVisibilityOfDiagramDetailContainer();
-    expect(visibilityOfDiagramDetail).toBeTruthy();
-  });
+  //   const visibilityOfDiagramDetail: boolean = await diagramDetail.getVisibilityOfDiagramDetailContainer();
+  //   expect(visibilityOfDiagramDetail).toBeTruthy();
+  // });
 
   it('should navigate to the `task list`, after clicking on the corresponding link in the table.', async() => {
     await routerView.show();
