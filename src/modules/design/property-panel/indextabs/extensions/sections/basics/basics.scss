@@ -11,6 +11,10 @@
   margin: 2px 0;
 }
 
+.key-value-input:disabled {
+  opacity: 0.5;
+}
+
 .key-value-delete-button {
   padding-top: 2px;
   background: transparent;

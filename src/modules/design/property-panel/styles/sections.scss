@@ -58,6 +58,7 @@
 
 .props-input:disabled {
   opacity: 0.5;
+  pointer-events: none;
 }
 
 .props-select {
@@ -105,12 +106,14 @@
   cursor: default;
   opacity: 0.2;
   color: inherit;
+  pointer-events: none;
 }
 
 .remove-context-button:disabled {
   cursor: default;
   opacity: 0.2;
   color: inherit;
+  pointer-events: none;
 }
 
 .remove-context-button {
@@ -129,9 +132,11 @@
 
 .key-value-delete-button:disabled {
   opacity: 0.2;
+  pointer-events: none;
 }
 
 .key-value-delete-button:hover:disabled {
   opacity: 0.2;
   color: darkgrey;
+  pointer-events: none;  
 }
