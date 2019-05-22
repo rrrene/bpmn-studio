@@ -14,6 +14,7 @@ import {
   IDiagramPrintService,
   IEditorActions,
   IElementRegistry,
+  IEvent,
   IEventFunction,
   IInternalEvent,
   IKeyboard,
@@ -34,6 +35,7 @@ const elementRegistryTimeoutMilliseconds: number = 50;
 @inject('NotificationService', EventAggregator)
 export class BpmnIo {
   public modeler: IBpmnModeler;
+  public viewer: IBpmnModeler;
 
   public resizeButton: HTMLButtonElement;
   public canvasModel: HTMLDivElement;
@@ -41,16 +43,16 @@ export class BpmnIo {
   @bindable({changeHandler: 'diagramChanged'}) public diagramUri: string;
   @bindable({defaultBindingMode: bindingMode.twoWay}) public xml: string;
   @bindable({changeHandler: 'nameChanged'}) public name: string;
-  @bindable() public openedFromProcessEngine: boolean = true;
   @observable public propertyPanelWidth: number;
   public showLinter: boolean;
-
+  public solutionIsRemote: boolean = false;
   public savedXml: string;
   public showPropertyPanel: boolean = false;
   public colorPickerLoaded: boolean = false;
   public minCanvasWidth: number = 100;
   public minPropertyPanelWidth: number = 200;
   public diagramIsInvalid: boolean = false;
+  public diagramHasChanged: boolean = false;
 
   private _bpmnLintButton: HTMLElement;
   private _linting: ILinting;
@@ -124,37 +126,53 @@ export class BpmnIo {
     const handlerPriority: number = 1000;
 
     this.modeler.on('commandStack.changed', async() => {
-      this._eventAggregator.publish(environment.events.diagramChange);
+      if (!this.solutionIsRemote) {
+        this._eventAggregator.publish(environment.events.diagramChange);
+      }
 
       this.xml = await this.getXML();
     }, handlerPriority);
 
     this.modeler.on(['shape.added', 'shape.removed'], (event: IInternalEvent) => {
-      this._validateDiagram();
+      if (!this.solutionIsRemote) {
 
-      const shapeIsParticipant: boolean = event.element.type === 'bpmn:Participant';
+        const shapeIsParticipant: boolean = event.element.type === 'bpmn:Participant';
 
-      if (shapeIsParticipant) {
-        return this._checkForMultipleParticipants(event);
+        if (shapeIsParticipant) {
+          return this._checkForMultipleParticipants(event);
+        }
       }
     });
 
-    this.modeler.on('shape.remove', (event: IInternalEvent) => {
-      const shapeIsParticipant: boolean = event.element.type === 'bpmn:Participant';
-      if (shapeIsParticipant) {
-        const rootElements: Array<IProcessRef> = this.modeler._definitions.rootElements;
-        this._tempProcess = rootElements.find((element: IProcessRef) => {
-          return element.$type === 'bpmn:Process';
-        });
+    this.modeler.on('import.done', async() => {
+      this._fitDiagramToViewport();
 
-        return event;
+      if (!this.solutionIsRemote) {
+        await this._validateDiagram();
+        this._linting.update();
+      }
+    }, 1);
+
+    this.modeler.on('shape.remove', (event: IInternalEvent) => {
+      if (!this.solutionIsRemote) {
+        const shapeIsParticipant: boolean = event.element.type === 'bpmn:Participant';
+        if (shapeIsParticipant) {
+          const rootElements: Array<IProcessRef> = this.modeler._definitions.rootElements;
+          this._tempProcess = rootElements.find((element: IProcessRef) => {
+            return element.$type === 'bpmn:Process';
+          });
+
+          return event;
+        }
       }
     });
 
     this.modeler.on('element.paste', (event: IInternalEvent) => {
-      const elementToPasteIsUserTask: boolean = event.descriptor.type === 'bpmn:UserTask';
-      if (elementToPasteIsUserTask) {
-        return this._renameFormFields(event);
+      if (!this.solutionIsRemote) {
+        const elementToPasteIsUserTask: boolean = event.descriptor.type === 'bpmn:UserTask';
+        if (elementToPasteIsUserTask) {
+          return this._renameFormFields(event);
+        }
       }
     });
 
@@ -173,11 +191,20 @@ export class BpmnIo {
       setTimeout(() => {
         this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
 
-        this._bpmnLintButton.style.display = 'none';
+        if (this._bpmnLintButton) {
+          this._bpmnLintButton.style.display = 'none';
+        }
       }, 0);
     }
 
-    this.modeler.attachTo(this.canvasModel);
+    if (this.solutionIsRemote) {
+      this.viewer.importXML(this.xml);
+      this.viewer.attachTo(this.canvasModel);
+    } else {
+      this.modeler.attachTo(this.canvasModel);
+
+      this.attachPaletteContainer();
+    }
 
     window.addEventListener('resize', this._resizeEventHandler);
 
@@ -198,10 +225,6 @@ export class BpmnIo {
       document.addEventListener('mousemove', mousemoveFunction);
       document.addEventListener('mouseup', mouseUpFunction);
     });
-
-    const bpmnIoPaletteContainer: Element = document.getElementsByClassName('djs-palette')[0];
-    bpmnIoPaletteContainer.className += ' djs-palette-override';
-    this.paletteContainer.appendChild(bpmnIoPaletteContainer);
 
     document.addEventListener('keydown', this._saveHotkeyEventHandler);
     document.addEventListener('keydown', this._printHotkeyEventHandler);
@@ -347,30 +370,79 @@ export class BpmnIo {
     }
   }
 
+  public attachPaletteContainer(): void {
+    const bpmnIoPaletteContainer: Element = document.getElementsByClassName('djs-palette')[0];
+
+    bpmnIoPaletteContainer.className += ' djs-palette-override';
+    this.paletteContainer.appendChild(bpmnIoPaletteContainer);
+  }
+
   public async saveCurrentXML(): Promise<void> {
     this.savedXml = await this.getXML();
     this._tempProcess = undefined;
   }
 
-  public diagramChanged(): void {
-    this._tempProcess = undefined;
-
-    // This is needed to make sure the xml was already binded
-    setTimeout(() => {
-      const modelerIsSet: boolean = this.modeler !== undefined && this.modeler !== null;
-      if (modelerIsSet) {
-        this.modeler.importXML(this.xml, async(err: Error) => {
-          this._fitDiagramToViewport();
-
-          await this._validateDiagram();
-
-          this._diagramHasChanges = false;
-          return 0;
-        });
-
+  public xmlChanged(): void {
+    if (this.diagramHasChanged) {
+      if (this.solutionIsRemote) {
+        this.viewer.importXML(this.xml);
       }
 
-    }, 0);
+      this.modeler.importXML(this.xml);
+    }
+
+    this.diagramHasChanged = false;
+  }
+
+  public async diagramChanged(): Promise<void> {
+    this.solutionIsRemote = this.diagramUri.startsWith('http');
+    this._tempProcess = undefined;
+    this.diagramHasChanged = true;
+
+    if (this.solutionIsRemote) {
+      const viewerNotInitialized: boolean = this.viewer === undefined;
+      if (viewerNotInitialized) {
+        this.viewer = new bundle.viewer({
+          additionalModules:
+          [
+            bundle.ZoomScrollModule,
+            bundle.MoveCanvasModule,
+            bundle.MiniMap,
+          ],
+        });
+
+        this.viewer.on('selection.changed', (event: IEvent) => {
+          const nothingIsSelected: boolean = event.newSelection.length === 0;
+          if (nothingIsSelected) {
+            return;
+          }
+
+          const selectedElement: IShape = event.newSelection[0];
+          const elementRegistry: IElementRegistry = this.modeler.get('elementRegistry');
+          const modelerShape: IShape = elementRegistry.get(selectedElement.id);
+
+          this.modeler.get('selection').select(modelerShape);
+        });
+      }
+
+      setTimeout(() => {
+        this.viewer.attachTo(this.canvasModel);
+        this._linting.deactivateLinting();
+      }, 0);
+
+    } else {
+      setTimeout(() => {
+        this.modeler.attachTo(this.canvasModel);
+        this.attachPaletteContainer();
+        this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
+
+        if (this._bpmnLintButton) {
+
+          this._bpmnLintButton.style.display = 'none';
+        }
+      }, 0);
+    }
+    this._diagramHasChanges = false;
   }
 
   public nameChanged(newValue: string): void {
@@ -457,6 +529,7 @@ export class BpmnIo {
 
   public toggleLinter(): void {
     this.showLinter = !this.showLinter;
+    this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
 
     if (this.showLinter) {
       this._bpmnLintButton.style.display = 'block';
@@ -470,14 +543,22 @@ export class BpmnIo {
   }
 
   private _fitDiagramToViewport(): void {
-    const canvas: ICanvas = this.modeler.get('canvas');
+    const modelerCanvas: ICanvas = this.modeler.get('canvas');
+    const modelerViewbox: IViewbox  = modelerCanvas.viewbox();
+    const modelerDiagramIsVisible: boolean = modelerViewbox.height > 0 && modelerViewbox.width > 0;
 
-    const viewbox: IViewbox  = canvas.viewbox();
+    if (this.solutionIsRemote) {
+      const viewerCanvas: ICanvas = this.viewer.get('canvas');
+      const viewerViewbox: IViewbox  = viewerCanvas.viewbox();
+      const viewerDiagramIsVisible: boolean = viewerViewbox.height > 0 && viewerViewbox.width > 0;
 
-    const diagramIsVisible: boolean = viewbox.height > 0 && viewbox.width > 0;
-
-    if (diagramIsVisible) {
-      canvas.zoom('fit-viewport', 'auto');
+      if (viewerDiagramIsVisible) {
+        viewerCanvas.zoom('fit-viewport', 'auto');
+      }
+    } else {
+      if (modelerDiagramIsVisible) {
+        modelerCanvas.zoom('fit-viewport', 'auto');
+      }
     }
   }
 

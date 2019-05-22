@@ -25,6 +25,10 @@ export class DiagramToolsRight {
 
   @bindable()
   public modeler: IBpmnModeler;
+  @bindable()
+  public viewer: IBpmnModeler;
+  @bindable()
+  public solutionIsRemote: boolean;
   public colorSelectionDropdownToggle: HTMLElement;
   public colorSelectionDropdown: HTMLElement;
 
@@ -58,7 +62,7 @@ export class DiagramToolsRight {
       const selectedElements: Array<IShape> = this._getSelectedElements();
       const userSelectedDiagramElement: boolean = selectedElements.length > 0;
 
-      this.colorPickerEnabled = userSelectedDiagramElement;
+      this.colorPickerEnabled = this.solutionIsRemote ? false : userSelectedDiagramElement;
 
       if (userSelectedDiagramElement) {
         this.borderColor = selectedElements[0].businessObject.di.stroke;
@@ -142,9 +146,15 @@ export class DiagramToolsRight {
   }
 
   public fitDiagramToViewport(): void {
-    const canvas: ICanvas = this.modeler.get('canvas');
+    if (this.solutionIsRemote) {
+      const viewerCanvas: ICanvas = this.viewer.get('canvas');
 
-    canvas.zoom('fit-viewport', 'auto');
+      viewerCanvas.zoom('fit-viewport', 'auto');
+    } else {
+      const modelerCanvas: ICanvas = this.modeler.get('canvas');
+
+      modelerCanvas.zoom('fit-viewport', 'auto');
+    }
   }
 
   private _setColor(color: IColorPickerColor): void {

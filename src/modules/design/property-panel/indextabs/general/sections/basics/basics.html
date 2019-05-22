@@ -8,7 +8,7 @@
         <tr>
           <th>ID</th>
           <td>
-            <input type="text" class="props-input" id="elementId" value.bind="businessObjInPanel.id & validateOnChange" change.delegate="updateId()">
+            <input type="text" class="props-input" id="elementId" value.bind="businessObjInPanel.id & validateOnChange" change.delegate="updateId()" disabled.bind="!isEditable">
           </td>
           <td>
             <template if.bind="validationError">
@@ -19,13 +19,13 @@
         <tr>
           <th>Name</th>
           <td>
-            <input type="text" class="props-input" value.bind="businessObjInPanel.name" change.delegate="updateName()">
+            <input type="text" class="props-input" value.bind="businessObjInPanel.name" change.delegate="updateName()" disabled.bind="!isEditable">
           </td>
         </tr>
         <tr>
           <th>Docs</th>
           <td>
-            <input type="text" class="props-input" value.bind="elementDocumentation" change.delegate="updateDocumentation()">
+            <input type="text" class="props-input" value.bind="elementDocumentation" change.delegate="updateDocumentation()" disabled.bind="!isEditable">
           </td>
         </tr>
       </table>

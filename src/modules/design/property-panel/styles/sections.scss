@@ -56,6 +56,11 @@
   text-overflow: ellipsis;
 }
 
+.props-input:disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
 .props-select {
   padding-right: 22px;
   border-radius: 0;
@@ -81,6 +86,10 @@
   resize: vertical;
 }
 
+.props-textarea:disabled {
+  opacity: 0.5;
+}
+
 .props-table--clear-button {
   top: 2px;
   right: 15px;
@@ -93,8 +102,17 @@
   border: none;
 }
 
-.remove-context-button:disabled {
+.add-context-button:disabled {
+  pointer-events: none;
   cursor: default;
+  opacity: 0.2;
+  color: inherit;
+}
+
+.remove-context-button:disabled {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.2;
   color: inherit;
 }
 
@@ -112,3 +130,13 @@
   border: none;
 }
 
+.key-value-delete-button:disabled {
+  pointer-events: none;
+  opacity: 0.2;
+}
+
+.key-value-delete-button:hover:disabled {
+  pointer-events: none;  
+  opacity: 0.2;
+  color: darkgrey;
+}
