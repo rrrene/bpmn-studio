@@ -192,7 +192,7 @@
     "uglify-js": "^2.6.3",
     "velocity-animate": "^1.5.0",
     "vinyl-fs": "^2.4.3",
-    "webdriver-manager": "12.0.6",
+    "webdriver-manager": "12.1.4",
     "whatwg-fetch": "^2.0.3"
   }
 }
