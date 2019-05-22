@@ -25,3 +25,12 @@
 .key-value-delete-button:focus {
   color: black;
 }
+
+.key-value-delete-button:disabled {
+  opacity: 0.2;
+}
+
+.key-value-delete-button:hover:disabled {
+  opacity: 0.2;
+  color: darkgrey;
+}
