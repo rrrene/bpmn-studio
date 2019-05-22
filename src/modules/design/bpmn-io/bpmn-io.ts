@@ -181,8 +181,8 @@ export class BpmnIo {
   }
 
   public async attached(): Promise<void> {
-    const xmlIsEmpty: boolean = this.xml !== undefined && this.xml !== null;
-    if (xmlIsEmpty) {
+    const xmlIsNotEmpty: boolean = this.xml !== undefined && this.xml !== null;
+    if (xmlIsNotEmpty) {
       this.modeler.importXML(this.xml, async(err: Error) => {
         this.savedXml = await this.getXML();
       });
