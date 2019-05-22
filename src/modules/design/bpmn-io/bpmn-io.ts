@@ -412,6 +412,11 @@ export class BpmnIo {
         });
 
         this.viewer.on('selection.changed', (event: IEvent) => {
+          const nothingIsSelected: boolean = event.newSelection.length === 0;
+          if (nothingIsSelected) {
+            return;
+          }
+
           const selectedElement: IShape = event.newSelection[0];
           const elementRegistry: IElementRegistry = this.modeler.get('elementRegistry');
           const modelerShape: IShape = elementRegistry.get(selectedElement.id);
