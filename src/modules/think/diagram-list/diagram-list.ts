@@ -17,7 +17,7 @@ export class DiagramList {
   private _router: Router;
   private _subscriptions: Array<Subscription>;
   private _pollingTimeout: NodeJS.Timer | number;
-  private _isAttached = false;
+  private _isAttached: boolean = false;
 
   constructor(eventAggregator: EventAggregator,
               router: Router) {
@@ -55,7 +55,7 @@ export class DiagramList {
     this._pollingTimeout = setTimeout(async() => {
       await this._updateDiagramList();
 
-      if(this._isAttached) {
+      if (this._isAttached) {
         this._startPolling();
       }
     }, environment.processengine.processDefListPollingIntervalInMs);
