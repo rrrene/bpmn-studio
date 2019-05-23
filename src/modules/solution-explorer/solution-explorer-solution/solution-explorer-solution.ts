@@ -22,7 +22,6 @@ import {
         IDiagramCreationService,
         ISolutionEntry,
         ISolutionService,
-        IUserInputValidationRule,
         NotificationType,
 } from '../../../contracts/index';
 import environment from '../../../environment';
@@ -32,6 +31,8 @@ import {DeleteDiagramModal} from './delete-diagram-modal/delete-diagram-modal';
 
 const ENTER_KEY: string = 'Enter';
 const ESCAPE_KEY: string = 'Escape';
+
+type DiagramSorter = (firstElement: IDiagram, secondElement: IDiagram) => number;
 
 interface IDiagramNameInputState {
   currentDiagramInputValue: string;
@@ -80,6 +81,7 @@ export class SolutionExplorerSolution {
   ];
 
   private _currentlyRenamingDiagram: IDiagram | null = null;
+  private _isAttached: boolean = false;
 
   // Fields below are bound from the html view.
   @bindable public solutionService: ISolutionExplorerService;
@@ -115,6 +117,8 @@ export class SolutionExplorerSolution {
   }
 
   public async attached(): Promise<void> {
+    this._isAttached = true;
+
     this._originalIconClass = this.fontAwesomeIconClass;
     this._updateSolutionExplorer();
     this._setValidationRules();
@@ -130,7 +134,10 @@ export class SolutionExplorerSolution {
   }
 
   public detached(): void {
+    this._isAttached = false;
+
     clearTimeout(this._refreshTimeoutTask as NodeJS.Timer);
+
     this._disposeSubscriptions();
 
     if (this.isCreateDiagramInputShown()) {
@@ -145,7 +152,10 @@ export class SolutionExplorerSolution {
   private _startPolling(): void {
     this._refreshTimeoutTask = setTimeout(async() =>  {
       await this.updateSolution();
-      this._startPolling();
+
+      if (this._isAttached) {
+        this._startPolling();
+      }
     }, environment.processengine.solutionExplorerPollingIntervalInMs);
   }
 
@@ -171,7 +181,7 @@ export class SolutionExplorerSolution {
 
     if (diagramWasDeleted) {
       await this.updateSolution();
-      this._refreshDisplayedDiagrams(true);
+      this._refreshDisplayedDiagrams();
     }
   }
 
@@ -188,11 +198,11 @@ export class SolutionExplorerSolution {
   public async updateSolution(): Promise<void> {
     try {
       this._openedSolution = await this.solutionService.loadSolution();
-      const updatedDiagramList: Array<IDiagram> = this._openedSolution.diagrams;
+      const updatedDiagramList: Array<IDiagram> = this._openedSolution.diagrams.sort(this._diagramSorter);
 
-      const updatedListLonger: boolean = this._sortedDiagramsOfSolutions.length < updatedDiagramList.length;
-      if (updatedListLonger) {
-        this._refreshDisplayedDiagrams(true);
+      const diagramsOfSolutionChanged: boolean = this._sortedDiagramsOfSolutions.toString() !== updatedDiagramList.toString();
+      if (diagramsOfSolutionChanged) {
+        this._refreshDisplayedDiagrams();
       }
 
       this.fontAwesomeIconClass = this._originalIconClass;
@@ -477,9 +487,7 @@ export class SolutionExplorerSolution {
     return this.activeDiagram.uri;
   }
 
-  private _sortDiagramsOfSolution(): void {
-    type DiagramSorter = (firstElement: IDiagram, secondElement: IDiagram) => number;
-
+  private get _diagramSorter(): DiagramSorter {
     const sortOptions: Intl.CollatorOptions = {
       caseFirst: 'lower',
     };
@@ -488,15 +496,11 @@ export class SolutionExplorerSolution {
       return firstElement.name.localeCompare(secondElement.name, undefined, sortOptions);
     };
 
-    this._sortedDiagramsOfSolutions.sort(sorter);
+    return sorter;
   }
 
-  private _refreshDisplayedDiagrams(sortingNeeded: boolean): void {
-    this._sortedDiagramsOfSolutions = this._openedSolution.diagrams;
-
-    if (sortingNeeded) {
-      this._sortDiagramsOfSolution();
-    }
+  private _refreshDisplayedDiagrams(): void {
+    this._sortedDiagramsOfSolutions = this._openedSolution.diagrams.sort(this._diagramSorter);
   }
 
   private _closeSingleDiagram(diagramToClose: IDiagram): void {
@@ -659,7 +663,7 @@ export class SolutionExplorerSolution {
     }
 
     this.updateSolution().then(() => {
-      this._refreshDisplayedDiagrams(true);
+      this._refreshDisplayedDiagrams();
     });
 
     this._resetDiagramRenaming();
@@ -686,7 +690,7 @@ export class SolutionExplorerSolution {
       }
 
       this.updateSolution().then(() => {
-        this._refreshDisplayedDiagrams(true);
+        this._refreshDisplayedDiagrams();
       });
       this._resetDiagramRenaming();
 

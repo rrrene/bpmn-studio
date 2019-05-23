@@ -33,6 +33,7 @@ export class ProcessList {
   private _pollingTimeout: NodeJS.Timer | number;
   private _subscriptions: Array<Subscription>;
   private _correlations: Array<DataModels.Correlations.Correlation> = [];
+  private _isAttached: boolean = false;
 
   constructor(managementApiService: IManagementApi,
               eventAggregator: EventAggregator,
@@ -62,6 +63,7 @@ export class ProcessList {
   }
 
   public async attached(): Promise<void> {
+    this._isAttached = false;
     this._activeSolutionUri = this._router.currentInstruction.queryParams.solutionUri;
 
     const activeSolutionUriIsNotSet: boolean = this._activeSolutionUri === undefined;
@@ -93,11 +95,15 @@ export class ProcessList {
   private _startPolling(): void {
     this._pollingTimeout = setTimeout(async() => {
       await this.updateCorrelationList();
-      this._startPolling();
+
+      if (this._isAttached) {
+        this._startPolling();
+      }
     }, environment.processengine.dashboardPollingIntervalInMs);
   }
 
   public detached(): void {
+    this._isAttached = false;
     clearTimeout(this._pollingTimeout as NodeJS.Timer);
 
     for (const subscription of this._subscriptions) {
