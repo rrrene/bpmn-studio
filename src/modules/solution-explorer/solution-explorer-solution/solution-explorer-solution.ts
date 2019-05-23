@@ -22,7 +22,6 @@ import {
         IDiagramCreationService,
         ISolutionEntry,
         ISolutionService,
-        IUserInputValidationRule,
         NotificationType,
 } from '../../../contracts/index';
 import environment from '../../../environment';
