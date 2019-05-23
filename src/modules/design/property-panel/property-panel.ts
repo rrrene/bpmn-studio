@@ -20,6 +20,7 @@ export class PropertyPanel {
   @bindable() public modeler: IBpmnModeler;
   @bindable() public xml: string;
   @bindable() public diagramUri: string;
+  @bindable() public isEditable: boolean;
   public elementInPanel: IShape;
   public generalIndextab: IIndextab = new General();
   public formsIndextab: IIndextab = new Forms();

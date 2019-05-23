@@ -10,19 +10,19 @@
         <tr>
           <th>Condition</th>
           <td>
-            <input type="text" class="props-input" value.bind="conditionBody" change.delegate="updateCondition()">
+            <input type="text" class="props-input" value.bind="conditionBody" change.delegate="updateCondition()" disabled.bind="!isEditable">
           </td>
         </tr>
         <tr>
           <th>Variable Name</th>
           <td>
-            <input type="text" class="props-input" value.bind="variableName" change.delegate="updateVariableName()">
+            <input type="text" class="props-input" value.bind="variableName" change.delegate="updateVariableName()" disabled.bind="!isEditable">
           </td>
         </tr>
         <tr>
           <th>Variable Event</th>
           <td>
-            <input type="text" class="props-input" value.bind="variableEvent" change.delegate="updateVariableEvent()">
+            <input type="text" class="props-input" value.bind="variableEvent" change.delegate="updateVariableEvent()" disabled.bind="!isEditable">
           </td>
         </tr>
       </table>

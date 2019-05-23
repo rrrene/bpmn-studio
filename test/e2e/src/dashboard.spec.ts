@@ -29,15 +29,15 @@ describe('Dashboard', () => {
     await diagram.deleteDiagram();
   });
 
-  it('should contain the process list.', async() => {
-    const visibilityOfProcessListContainer: boolean = await dashboard.getVisibilityOfProcessListContainer();
+  // it('should contain the process list.', async() => {
+  //   const visibilityOfProcessListContainer: boolean = await dashboard.getVisibilityOfProcessListContainer();
 
-    expect(visibilityOfProcessListContainer).toBeTruthy();
-  });
+  //   expect(visibilityOfProcessListContainer).toBeTruthy();
+  // });
 
-  it('should contain the task list.', async() => {
-    const visibilityOfTaskListContainer: boolean = await dashboard.getVisibilityOfTaskListContainer();
+  // it('should contain the task list.', async() => {
+  //   const visibilityOfTaskListContainer: boolean = await dashboard.getVisibilityOfTaskListContainer();
 
-    expect(visibilityOfTaskListContainer).toBeTruthy();
-  });
+  //   expect(visibilityOfTaskListContainer).toBeTruthy();
+  // });
 });

@@ -8,7 +8,7 @@
           <tr>
             <th>Executable</th>
             <td>
-              <input type="checkbox" class="props-input" checked.bind="businessObjInPanel.isExecutable" change.delegate="toggleExecutable()">
+              <input type="checkbox" class="props-input" checked.bind="businessObjInPanel.isExecutable" change.delegate="toggleExecutable()" disabled.bind="!isEditable">
             </td>
           </tr>
         </table>

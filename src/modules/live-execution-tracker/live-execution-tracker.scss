@@ -44,9 +44,9 @@
   position: absolute;
   top: 9px;
   left: 14px;
+  pointer-events: none;
   cursor: pointer;
   opacity: 0.4;
-  pointer-events: none;
 }
 
 .let__overlay-button:hover .let__overlay-button-icon {

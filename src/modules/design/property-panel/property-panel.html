@@ -4,7 +4,7 @@
     <template repeat.for="indextab of indextabs">
       <compose view-model=".${indextab.path}"
         view=".${indextab.path}.html"
-        model.bind="{modeler: modeler, elementInPanel: elementInPanel}"
+        model.bind="{modeler: modeler, elementInPanel: elementInPanel, isEditable: isEditable}"
         if.bind="indextab.canHandleElement"
         containerless></compose>
     </template>

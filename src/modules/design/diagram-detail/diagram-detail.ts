@@ -222,6 +222,13 @@ export class DiagramDetail {
 
       await solutionToDeployTo.service.saveDiagram(copyOfDiagram, solutionToDeployTo.uri);
 
+      this.activeDiagram = await solutionToDeployTo.service.loadDiagram(processModelId);
+
+      this._router.navigateToRoute('design', {
+        diagramName: this.activeDiagram.name,
+        solutionUri: solutionToDeployTo.uri,
+      });
+
       this._notificationService
           .showNotification(NotificationType.SUCCESS, 'Diagram was successfully uploaded to the connected ProcessEngine.');
 
@@ -317,10 +324,7 @@ export class DiagramDetail {
 
     const savingTargetIsRemoteSolution: boolean = this.activeSolutionEntry.uri.startsWith('http');
 
-    if (this.diagramIsInvalid && savingTargetIsRemoteSolution) {
-      // TODO: Try to get some more information out of this: Why was it invalid? This message is not very helpful to the user.
-      this._notificationService.showNotification(NotificationType.WARNING, `The diagram could not be saved because it is invalid!`);
-
+    if (this.diagramIsInvalid || savingTargetIsRemoteSolution) {
       return;
     }
 

@@ -37,15 +37,15 @@ describe('Diagram List', () => {
     expect(visibilityOfDiagramListEntry).toBeTruthy();
   });
 
-  it('should navigate to `detail view` after clicking on the link in the table.', async() => {
-    diagramList.clickOnDiagramListEntry(diagram.name);
+  // it('should navigate to `detail view` after clicking on the link in the table.', async() => {
+  //   diagramList.clickOnDiagramListEntry(diagram.name);
 
-    const currentBrowserUrl: string = await browser.getCurrentUrl();
+  //   const currentBrowserUrl: string = await browser.getCurrentUrl();
 
-    expect(currentBrowserUrl).toContain(diagramDetail.url);
+  //   expect(currentBrowserUrl).toContain(diagramDetail.url);
 
-    const visibilityOfDiagramDetailContainer: boolean = await diagramDetail.getVisibilityOfDiagramDetailContainer();
+  //   const visibilityOfDiagramDetailContainer: boolean = await diagramDetail.getVisibilityOfDiagramDetailContainer();
 
-    expect(visibilityOfDiagramDetailContainer).toBeTruthy();
-  });
+  //   expect(visibilityOfDiagramDetailContainer).toBeTruthy();
+  // });
 });

@@ -1,7 +1,7 @@
 {
   "name": "bpmn-studio",
   "description": "An Aurelia application for designing BPMN diagrams, which can also be connected to a process engine to execute these diagrams.",
-  "version": "5.2.0",
+  "version": "5.3.0",
   "author": {
     "name": "process-engine",
     "email": "hello@process-engine.io",
@@ -90,12 +90,12 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@essential-projects/errors_ts": "^1.4.5",
+    "@essential-projects/errors_ts": "^1.5.0",
     "@fortawesome/fontawesome-free": "^5.1.0",
     "@process-engine/bpmn-js-custom-bundle": "2.6.3",
     "@process-engine/bpmn-lint_rules": "1.6.2",
     "@process-engine/management_api_client": "5.0.0",
-    "@process-engine/process_engine_runtime": "8.0.0",
+    "@process-engine/process_engine_runtime": "8.1.0",
     "@process-engine/dynamic_ui_core": "1.4.0",
     "@process-engine/solutionexplorer.repository.filesystem": "4.1.0",
     "@process-engine/solutionexplorer.repository.management_api": "3.0.0",
@@ -125,8 +125,8 @@
   },
   "peerDependencies": {},
   "devDependencies": {
-    "@essential-projects/http_contracts": "~2.3.8",
-    "@essential-projects/iam_contracts": "~3.4.2",
+    "@essential-projects/http_contracts": "~2.4.0",
+    "@essential-projects/iam_contracts": "~3.5.0",
     "@process-engine/bpmn-elements_contracts": "2.0.0",
     "@process-engine/consumer_api_contracts": "5.1.1",
     "@process-engine/kpi_api_contracts": "1.2.4",
@@ -192,7 +192,7 @@
     "uglify-js": "^2.6.3",
     "velocity-animate": "^1.5.0",
     "vinyl-fs": "^2.4.3",
-    "webdriver-manager": "^12.0.6",
+    "webdriver-manager": "12.1.4",
     "whatwg-fetch": "^2.0.3"
   }
 }

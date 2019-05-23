@@ -30,9 +30,10 @@ export class ProcessList {
   private _activeSolutionUri: string;
   private _router: Router;
 
-  private _getCorrelationsIntervalId: number;
+  private _pollingTimeout: NodeJS.Timer | number;
   private _subscriptions: Array<Subscription>;
   private _correlations: Array<DataModels.Correlations.Correlation> = [];
+  private _isAttached: boolean = false;
 
   constructor(managementApiService: IManagementApi,
               eventAggregator: EventAggregator,
@@ -62,6 +63,7 @@ export class ProcessList {
   }
 
   public async attached(): Promise<void> {
+    this._isAttached = false;
     this._activeSolutionUri = this._router.currentInstruction.queryParams.solutionUri;
 
     const activeSolutionUriIsNotSet: boolean = this._activeSolutionUri === undefined;
@@ -78,10 +80,7 @@ export class ProcessList {
     this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(this._activeSolutionUri);
 
     await this.updateCorrelationList();
-
-    this._getCorrelationsIntervalId = window.setInterval(async() => {
-      await this.updateCorrelationList();
-    }, environment.processengine.dashboardPollingIntervalInMs);
+    this._startPolling();
 
     this._subscriptions = [
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, () => {
@@ -93,8 +92,19 @@ export class ProcessList {
     ];
   }
 
+  private _startPolling(): void {
+    this._pollingTimeout = setTimeout(async() => {
+      await this.updateCorrelationList();
+
+      if (this._isAttached) {
+        this._startPolling();
+      }
+    }, environment.processengine.dashboardPollingIntervalInMs);
+  }
+
   public detached(): void {
-    clearInterval(this._getCorrelationsIntervalId);
+    this._isAttached = false;
+    clearTimeout(this._pollingTimeout as NodeJS.Timer);
 
     for (const subscription of this._subscriptions) {
       subscription.dispose();

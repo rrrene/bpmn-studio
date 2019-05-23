@@ -4,10 +4,10 @@
   <div class="section-panel panel--grow" id="js-general-escalationEvent-section">
     <div class="panel__heading">
       Escalation Event
-      <button class="button remove-context-button" class.bind="selectedId ? '' : 'button--disabled'" disabled.bind="!selectedId" click.delegate="removeSelectedEscalation()">
+      <button class="button remove-context-button" class.bind="selectedId ? '' : 'button--disabled'" disabled.bind="!selectedId || !isEditable" click.delegate="removeSelectedEscalation()">
         <i class="fas fa-trash"></i>
       </button>
-      <button class="button add-context-button" click.delegate="addEscalation()">
+      <button class="button add-context-button" click.delegate="addEscalation()" disabled.bind="!isEditable">
         <i class="fas fa-plus"></i>
       </button>
     </div>
@@ -16,7 +16,7 @@
         <tr>
           <th>Escalation</th>
           <td>
-            <select class="props-input props-select" value.bind="selectedId" change.delegate="updateEscalation()">
+            <select class="props-input props-select" value.bind="selectedId" change.delegate="updateEscalation()" disabled.bind="!isEditable">
               <option model.bind="null">-Choose Escalation-</option>
               <option repeat.for="escalation of escalations"
                       model.bind="escalation.id" value="${escalation.id}">${escalation.name} (id: ${escalation.id})</option>
@@ -28,19 +28,19 @@
         <tr>
           <th>Name</th>
           <td>
-            <input type="text" class="props-input" value.bind="selectedEscalation.name" change.delegate="updateEscalationName()">
+            <input type="text" class="props-input" value.bind="selectedEscalation.name" change.delegate="updateEscalationName()" disabled.bind="!isEditable">
           </td>
         </tr>
         <tr>
           <th>Code</th>
           <td>
-            <input type="text" class="props-input" value.bind="selectedEscalation.escalationCode" change.delegate="updateEscalationCode()">
+            <input type="text" class="props-input" value.bind="selectedEscalation.escalationCode" change.delegate="updateEscalationCode()" disabled.bind="!isEditable">
           </td>
         </tr>
         <tr>
           <th>Variable</th>
           <td>
-            <input type="text" class="props-input" value.bind="escalationCodeVariable" change.delegate="updateEscalationCodeVariable()">
+            <input type="text" class="props-input" value.bind="escalationCodeVariable" change.delegate="updateEscalationCodeVariable()" disabled.bind="!isEditable">
           </td>
         </tr>
       </table>

@@ -4,10 +4,10 @@
   <div class="section-panel panel--grow" id="js-general-signalEvent-section">
     <div class="panel__heading">
       Signal Event
-      <button class="button remove-context-button" class.bind="selectedId ? '' : 'button--disabled'" disabled.bind="!selectedId" click.delegate="removeSelectedSignal()">
+      <button class="button remove-context-button" class.bind="selectedId ? '' : 'button--disabled'" disabled.bind="!selectedId || !isEditable" click.delegate="removeSelectedSignal()">
         <i class="fas fa-trash"></i>
       </button>
-      <button class="button add-context-button" click.delegate="addSignal()">
+      <button class="button add-context-button" click.delegate="addSignal()" disabled.bind="!isEditable">
         <i class="fas fa-plus"></i>
       </button>
     </div>
@@ -16,7 +16,7 @@
         <tr>
           <th>Signal</th>
           <td>
-            <select class="props-input props-select" value.bind="selectedId" change.delegate="updateSignal()">
+            <select class="props-input props-select" value.bind="selectedId" change.delegate="updateSignal()" disabled.bind="!isEditable">
               <option model.bind="null">-Choose Signal-</option>
               <option repeat.for="signal of signals"
                       model.bind="signal.id" value="${signal.id}">${signal.name} (id: ${signal.id})</option>
@@ -28,7 +28,7 @@
         <tr>
           <th class="name-property">Name</th>
           <td>
-            <input type="text" class="props-input name-input" value.bind="selectedSignal.name" change.delegate="updateName()">
+            <input type="text" class="props-input name-input" value.bind="selectedSignal.name" change.delegate="updateName()" disabled.bind="!isEditable">
           </td>
         </tr>
       </table>

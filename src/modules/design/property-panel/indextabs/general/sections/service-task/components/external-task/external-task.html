@@ -7,13 +7,13 @@
         <tr>
           <th>Topic</th>
           <td>
-            <input type="text" class="props-input name-input" value.bind="selectedTopic" change.delegate="topicChanged()">
+            <input type="text" class="props-input name-input" value.bind="selectedTopic" change.delegate="topicChanged()" disabled.bind="!model.isEditable">
           </td>
         </tr>
         <tr>
           <th>Payload</th>
           <td>
-            <textarea class="props-textarea name-input" value.bind="selectedPayload" change.delegate="payloadChanged()"></textarea>
+            <textarea class="props-textarea name-input" value.bind="selectedPayload" change.delegate="payloadChanged()" disabled.bind="!model.isEditable"></textarea>
           </td>
         </tr>
       </table>
