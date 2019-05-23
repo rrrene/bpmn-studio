@@ -80,6 +80,7 @@ export class SolutionExplorerSolution {
   ];
 
   private _currentlyRenamingDiagram: IDiagram | null = null;
+  private _isAttached: boolean = false;
 
   // Fields below are bound from the html view.
   @bindable public solutionService: ISolutionExplorerService;
@@ -115,6 +116,8 @@ export class SolutionExplorerSolution {
   }
 
   public async attached(): Promise<void> {
+    this._isAttached = true;
+
     this._originalIconClass = this.fontAwesomeIconClass;
     this._updateSolutionExplorer();
     this._setValidationRules();
@@ -130,7 +133,10 @@ export class SolutionExplorerSolution {
   }
 
   public detached(): void {
+    this._isAttached = false;
+
     clearTimeout(this._refreshTimeoutTask as NodeJS.Timer);
+
     this._disposeSubscriptions();
 
     if (this.isCreateDiagramInputShown()) {
@@ -145,7 +151,10 @@ export class SolutionExplorerSolution {
   private _startPolling(): void {
     this._refreshTimeoutTask = setTimeout(async() =>  {
       await this.updateSolution();
-      this._startPolling();
+
+      if (this._isAttached) {
+        this._startPolling();
+      }
     }, environment.processengine.solutionExplorerPollingIntervalInMs);
   }
 

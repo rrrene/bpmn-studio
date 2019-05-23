@@ -55,6 +55,7 @@ export class TaskList {
   private _userTasks: Array<IUserTaskWithProcessModel>;
   private _pollingTimeout: NodeJS.Timer | number;
   private _getTasks: () => Promise<Array<IUserTaskWithProcessModel>>;
+  private _isAttached: boolean = false;
 
   constructor(eventAggregator: EventAggregator,
               managementApiService: IManagementApi,
@@ -96,6 +97,8 @@ export class TaskList {
   }
 
   public async attached(): Promise<void> {
+    this._isAttached = true;
+
     const getTasksIsUndefined: boolean = this._getTasks === undefined;
 
     this._activeSolutionUri = this._router.currentInstruction.queryParams.solutionUri;
@@ -128,11 +131,15 @@ export class TaskList {
   private _startPolling(): void {
     this._pollingTimeout = setTimeout(async() => {
       await this.updateTasks();
-      this._startPolling();
+
+      if (this ._isAttached) {
+        this._startPolling();
+      }
     }, environment.processengine.dashboardPollingIntervalInMs);
   }
 
   public detached(): void {
+    this._isAttached = false;
     clearTimeout(this._pollingTimeout as NodeJS.Timer);
 
     for (const subscription of this._subscriptions) {
