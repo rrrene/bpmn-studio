@@ -45,6 +45,7 @@ export class DiagramList {
     this._isAttached = false;
 
     clearTimeout(this._pollingTimeout as NodeJS.Timer);
+
     for (const subscription of this._subscriptions) {
       subscription.dispose();
     }
