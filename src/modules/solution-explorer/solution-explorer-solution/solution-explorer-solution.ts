@@ -179,7 +179,7 @@ export class SolutionExplorerSolution {
 
     if (diagramWasDeleted) {
       await this.updateSolution();
-      this._refreshDisplayedDiagrams(true);
+      this._refreshDisplayedDiagrams();
     }
   }
 
@@ -200,7 +200,7 @@ export class SolutionExplorerSolution {
 
       const updatedListLonger: boolean = this._sortedDiagramsOfSolutions.length < updatedDiagramList.length;
       if (updatedListLonger) {
-        this._refreshDisplayedDiagrams(true);
+        this._refreshDisplayedDiagrams();
       }
 
       this.fontAwesomeIconClass = this._originalIconClass;
@@ -499,12 +499,10 @@ export class SolutionExplorerSolution {
     this._sortedDiagramsOfSolutions.sort(sorter);
   }
 
-  private _refreshDisplayedDiagrams(sortingNeeded: boolean): void {
+  private _refreshDisplayedDiagrams(): void {
     this._sortedDiagramsOfSolutions = this._openedSolution.diagrams;
 
-    if (sortingNeeded) {
-      this._sortDiagramsOfSolution();
-    }
+    this._sortDiagramsOfSolution();
   }
 
   private _closeSingleDiagram(diagramToClose: IDiagram): void {
@@ -667,7 +665,7 @@ export class SolutionExplorerSolution {
     }
 
     this.updateSolution().then(() => {
-      this._refreshDisplayedDiagrams(true);
+      this._refreshDisplayedDiagrams();
     });
 
     this._resetDiagramRenaming();
@@ -694,7 +692,7 @@ export class SolutionExplorerSolution {
       }
 
       this.updateSolution().then(() => {
-        this._refreshDisplayedDiagrams(true);
+        this._refreshDisplayedDiagrams();
       });
       this._resetDiagramRenaming();
 
