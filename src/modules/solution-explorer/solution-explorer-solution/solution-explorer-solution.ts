@@ -32,6 +32,8 @@ import {DeleteDiagramModal} from './delete-diagram-modal/delete-diagram-modal';
 const ENTER_KEY: string = 'Enter';
 const ESCAPE_KEY: string = 'Escape';
 
+type DiagramSorter = (firstElement: IDiagram, secondElement: IDiagram) => number;
+
 interface IDiagramNameInputState {
   currentDiagramInputValue: string;
 }
@@ -485,9 +487,7 @@ export class SolutionExplorerSolution {
     return this.activeDiagram.uri;
   }
 
-  private _sortDiagramsOfSolution(): void {
-    type DiagramSorter = (firstElement: IDiagram, secondElement: IDiagram) => number;
-
+  private get _diagramSorter(): DiagramSorter {
     const sortOptions: Intl.CollatorOptions = {
       caseFirst: 'lower',
     };
@@ -496,13 +496,11 @@ export class SolutionExplorerSolution {
       return firstElement.name.localeCompare(secondElement.name, undefined, sortOptions);
     };
 
-    this._sortedDiagramsOfSolutions.sort(sorter);
+    return sorter;
   }
 
   private _refreshDisplayedDiagrams(): void {
-    this._sortedDiagramsOfSolutions = this._openedSolution.diagrams;
-
-    this._sortDiagramsOfSolution();
+    this._sortedDiagramsOfSolutions = this._openedSolution.diagrams.sort(this._diagramSorter);
   }
 
   private _closeSingleDiagram(diagramToClose: IDiagram): void {
