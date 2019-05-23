@@ -198,10 +198,10 @@ export class SolutionExplorerSolution {
   public async updateSolution(): Promise<void> {
     try {
       this._openedSolution = await this.solutionService.loadSolution();
-      const updatedDiagramList: Array<IDiagram> = this._openedSolution.diagrams;
+      const updatedDiagramList: Array<IDiagram> = this._openedSolution.diagrams.sort(this._diagramSorter);
 
-      const updatedListLonger: boolean = this._sortedDiagramsOfSolutions.length < updatedDiagramList.length;
-      if (updatedListLonger) {
+      const diagramsOfSolutionChanged: boolean = this._sortedDiagramsOfSolutions.toString() !== updatedDiagramList.toString();
+      if (diagramsOfSolutionChanged) {
         this._refreshDisplayedDiagrams();
       }
 
