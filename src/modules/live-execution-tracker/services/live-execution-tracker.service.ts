@@ -417,7 +417,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   }
 
   private _colorizeElements(elements: Array<IShape>, color: IColorPickerColor): void {
-    const noElementsToColorize: boolean = elements.length === 0;
+    const noElementsToColorize: boolean = elements === undefined || elements.length === 0;
     if (noElementsToColorize) {
       return;
     }
