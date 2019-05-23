@@ -143,7 +143,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return elementsWithActiveToken;
   }
 
-  public async getElementsWithTokenHistory(processInstanceId: string): Promise<Array<IShape> | null> {
+  public async getElementsWithTokenHistory(processInstanceId: string): Promise<Array<IShape>> {
 
     const elements: Array<IShape> = this.getAllElementsThatCanHaveAToken();
 
@@ -153,7 +153,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
     const couldNotGetTokenHistory: boolean = tokenHistoryGroups === null;
     if (couldNotGetTokenHistory) {
-      return null;
+      return undefined;
     }
 
     const elementsWithTokenHistory: Array<IShape> = [];
