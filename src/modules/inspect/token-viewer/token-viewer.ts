@@ -83,8 +83,8 @@ export class TokenViewer {
     this.firstElementSelected = true;
     this.tokenEntries = [];
 
-    const processInstanceIsNotSelected: boolean = this.processInstanceId === undefined;
-    if (processInstanceIsNotSelected) {
+    const correlationIsUndefined: boolean = this.correlation === undefined;
+    if (correlationIsUndefined) {
       this.tokenEntries = undefined;
       this.rawTokenEntries = undefined;
       this.showTokenEntries = false;
