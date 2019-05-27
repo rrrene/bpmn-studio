@@ -15,7 +15,7 @@ export class PoolSection implements ISection {
   public validationController: ValidationController;
   public validationError: boolean = false;
   public businessObjInPanel: IPoolElement;
-  @bindable public checked: boolean = false;
+  @bindable public processIdCheckboxChecked: boolean = false;
   public showModal: boolean = false;
   public dontShowModalAgain: boolean = false;
 
@@ -60,7 +60,7 @@ export class PoolSection implements ISection {
     }
   }
 
-  public checkedChanged(newValue: boolean): void {
+  public processIdCheckboxCheckedChanged(newValue: boolean): void {
     if (!newValue || this.dontShowModalAgain) {
       return;
     }
