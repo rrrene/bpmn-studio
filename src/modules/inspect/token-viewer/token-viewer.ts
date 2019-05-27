@@ -1,9 +1,10 @@
 import {bindable, inject} from 'aurelia-framework';
 
-import {IIdentity} from '@essential-projects/iam_contracts';
 import {IShape} from '@process-engine/bpmn-elements_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
 
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+import {ISolutionEntry} from '../../../contracts';
 import {IInspectCorrelationService} from '../inspect-correlation/contracts/index';
 import {
   IPayloadEntry,
@@ -15,11 +16,13 @@ import {
 @inject('InspectCorrelationService')
 export class TokenViewer {
 
-  @bindable() public identity: IIdentity;
+  @bindable({changeHandler: 'processInstanceIdOrCorrelationChanged' }) public correlation: DataModels.Correlations.Correlation;
+  @bindable() public activeDiagram: IDiagram;
+  @bindable() public activeSolutionEntry: ISolutionEntry;
   @bindable() public flowNode: IShape;
   @bindable() public token: string;
   @bindable() public showBeautifiedToken: boolean = true;
-  @bindable() public processInstanceId: string;
+  @bindable({changeHandler: 'processInstanceIdOrCorrelationChanged' }) public processInstanceId: string;
 
   public tokenEntries: Array<ITokenEntry> = [];
   public showTokenEntries: boolean = false;
