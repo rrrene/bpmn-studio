@@ -64,6 +64,7 @@ export class PoolSection implements ISection {
     if (!newValue || this.showProcessIdWarningModal) {
       return;
     }
+
     this.showModal = true;
   }
 
