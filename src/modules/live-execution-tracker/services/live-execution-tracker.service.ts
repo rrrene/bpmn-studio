@@ -209,6 +209,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
       const targetOfOutgoingElement: IShape = outgoingElementAsShape.target;
 
       const outgoingElementHasNoTarget: boolean = targetOfOutgoingElement === undefined;
+
       if (outgoingElementHasNoTarget) {
         continue;
       }
