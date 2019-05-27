@@ -751,14 +751,12 @@ export class LiveExecutionTracker {
       this._liveExecutionTrackerService.createCallActivityWaitingEventListener(this.processInstanceId, colorizationCallback);
     const callActivityFinishedSubscriptionPromise: Promise<Subscription> =
       this._liveExecutionTrackerService.createCallActivityFinishedEventListener(this.processInstanceId, colorizationCallback);
-    const boundaryEventWaitingSubscriptionPromise: Promise<Subscription> =
-      this._liveExecutionTrackerService.createBoundaryEventWaitingEventListener(this.processInstanceId, colorizationCallback);
-    const boundaryEventFinishedSubscriptionPromise: Promise<Subscription> =
-      this._liveExecutionTrackerService.createBoundaryEventFinishedEventListener(this.processInstanceId, colorizationCallback);
+    const boundaryEventTriggeredSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createBoundaryEventTriggeredEventListener(this.processInstanceId, colorizationCallback);
     const intermediateEventWaitingSubscriptionPromise: Promise<Subscription> =
-      this._liveExecutionTrackerService.createIntermediateEventWaitingEventListener(this.processInstanceId, colorizationCallback);
-    const intermediateEventFinishedSubscriptionPromise: Promise<Subscription> =
-      this._liveExecutionTrackerService.createIntermediateEventFinishedEventListener(this.processInstanceId, colorizationCallback);
+      this._liveExecutionTrackerService.createIntermediateEventTriggeredEventListener(this.processInstanceId, colorizationCallback);
+    const intermediateCatchEventFinishedSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createIntermediateCatchEventFinishedEventListener(this.processInstanceId, colorizationCallback);
 
     const subscriptionPromises: Array<Promise<Subscription>> = [
                                                                 processEndedSubscriptionPromise,
@@ -771,10 +769,9 @@ export class LiveExecutionTracker {
                                                                 emptyActivityFinishedSubscriptionPromise,
                                                                 callActivityWaitingSubscriptionPromise,
                                                                 callActivityFinishedSubscriptionPromise,
-                                                                boundaryEventWaitingSubscriptionPromise,
-                                                                boundaryEventFinishedSubscriptionPromise,
+                                                                boundaryEventTriggeredSubscriptionPromise,
                                                                 intermediateEventWaitingSubscriptionPromise,
-                                                                intermediateEventFinishedSubscriptionPromise,
+                                                                intermediateCatchEventFinishedSubscriptionPromise,
                                                               ];
 
     return Promise.all(subscriptionPromises);

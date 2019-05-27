@@ -250,8 +250,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     });
   }
 
-  public createBoundaryEventWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._managementApiClient.onBoundaryEventWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
+  public createBoundaryEventTriggeredEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onBoundaryEventTriggered(this._identity, (message: TerminateEndEventReachedMessage): void => {
       const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
       if (eventIsForAnotherProcessInstance) {
         return;
@@ -261,8 +261,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     });
   }
 
-  public createBoundaryEventFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._managementApiClient.onBoundaryEventFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
+  public createIntermediateEventTriggeredEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onIntermediateEventTriggered(this._identity, (message: TerminateEndEventReachedMessage): void => {
       const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
       if (eventIsForAnotherProcessInstance) {
         return;
@@ -272,19 +272,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     });
   }
 
-  public createIntermediateEventWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._managementApiClient.onIntermediateEventWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
-      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
-      if (eventIsForAnotherProcessInstance) {
-        return;
-      }
-
-      callback();
-    });
-  }
-
-  public createIntermediateEventFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._managementApiClient.onIntermediateEventFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
+  public createIntermediateCatchEventFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onIntermediateCatchEventFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
       const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
       if (eventIsForAnotherProcessInstance) {
         return;

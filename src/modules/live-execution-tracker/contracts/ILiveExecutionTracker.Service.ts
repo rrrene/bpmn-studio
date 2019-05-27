@@ -51,10 +51,9 @@ export interface ILiveExecutionTrackerService {
   createEmptyActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
   createCallActivityWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
   createCallActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
-  createBoundaryEventWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
-  createBoundaryEventFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
-  createIntermediateEventWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
-  createIntermediateEventFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createBoundaryEventTriggeredEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createIntermediateEventTriggeredEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createIntermediateCatchEventFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
 
   removeSubscription(subscription: Subscription): Promise<void>;
 }

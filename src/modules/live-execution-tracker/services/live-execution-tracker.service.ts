@@ -103,20 +103,16 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return this._liveExecutionTrackerRepository.createCallActivityFinishedEventListener(processInstanceId, callback);
   }
 
-  public createBoundaryEventWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createBoundaryEventWaitingEventListener(processInstanceId, callback);
+  public createBoundaryEventTriggeredEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._liveExecutionTrackerRepository.createBoundaryEventTriggeredEventListener(processInstanceId, callback);
   }
 
-  public createBoundaryEventFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createBoundaryEventFinishedEventListener(processInstanceId, callback);
+  public createIntermediateEventTriggeredEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._liveExecutionTrackerRepository.createIntermediateEventTriggeredEventListener(processInstanceId, callback);
   }
 
-  public createIntermediateEventWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createIntermediateEventWaitingEventListener(processInstanceId, callback);
-  }
-
-  public createIntermediateEventFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createIntermediateEventFinishedEventListener(processInstanceId, callback);
+  public createIntermediateCatchEventFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._liveExecutionTrackerRepository.createIntermediateCatchEventFinishedEventListener(processInstanceId, callback);
   }
 
   public removeSubscription(subscription: Subscription): Promise<void> {
