@@ -42,8 +42,8 @@ export class TokenViewer {
   }
 
   public processInstanceIdOrCorrelationChanged(): void {
-    const noFlowNode: boolean = this.flowNode === undefined;
-    if (noFlowNode) {
+    const noFlowNodeSelected: boolean = this.flowNode === undefined;
+    if (noFlowNodeSelected) {
       return;
     }
 
