@@ -34,7 +34,7 @@ type RouteParameters = {
   taskId?: string,
 };
 
-const versionRegex: RegExp = /(\d*)\.(\d*).(\d*)/;
+const versionRegex: RegExp = /(\d+)\.(\d+).(\d+)/;
 
 // tslint:disable: no-magic-numbers
 @inject(Router, 'NotificationService', 'SolutionService', 'LiveExecutionTrackerService')
