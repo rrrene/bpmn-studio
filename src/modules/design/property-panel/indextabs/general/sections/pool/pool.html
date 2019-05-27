@@ -12,9 +12,11 @@
           </td>
         </tr>
         <tr>
-          <th>ID</th>
+          <th>ID
+            <input type="checkbox" checked.bind="checked" style="margin-left: 10px;" disabled.bind="!isEditable">
+          </th>
           <td>
-            <input type="text" title="In the current version this feature ist not available." id="processId" class="props-input" value.bind="businessObjInPanel.processRef.id & validateOnChange" change.delegate="validate()" disabled>
+            <input type="text" id="processId" class="props-input" value.bind="businessObjInPanel.processRef.id & validateOnChange" change.delegate="validate()" disabled.bind="!isEditable || !checked">
           </td>
           <td>
             <template if.bind="validationError">
