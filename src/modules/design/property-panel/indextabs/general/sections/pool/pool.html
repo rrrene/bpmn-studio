@@ -37,10 +37,10 @@
   <modal show.bind="showModal"
          header-text="Warning: Editing Process ID">
     <template replace-part="modal-body">
-      Changing the process ID could break the ProcessEngine where the diagram is going to deploy!<br>
+      Changing a process ID can potentially break your deployments! Only perform this action if you know what you are doing!
     </template>
     <template replace-part="modal-footer">
-      <label><input type="checkbox" checked.bind="showProcessIdWarningModal"> Don't show again</label>
+      <label><input type="checkbox" checked.bind="showProcessIdWarningModal">Don't show again</label>
       <button type="button" class="btn btn-default" data-dismiss="modal" click.delegate="closeModal()">Okay</button>
     </template>
   </modal>
