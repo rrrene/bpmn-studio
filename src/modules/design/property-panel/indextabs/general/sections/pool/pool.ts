@@ -78,14 +78,11 @@ export class PoolSection implements ISection {
 
   public validate(): void {
     this.validationController.validate();
+    this.publishDiagramChange();
   }
 
-  public updateVersion(): void {
-    this._publishDiagramChange();
-  }
-
-  public updateName(): void {
-    this._publishDiagramChange();
+  public publishDiagramChange(): void {
+    this._eventAggregator.publish(environment.events.diagramChange);
   }
 
   private _elementIsParticipant(element: IShape): boolean {

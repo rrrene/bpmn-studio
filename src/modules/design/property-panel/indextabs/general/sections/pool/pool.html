@@ -8,7 +8,7 @@
         <tr>
           <th>Version</th>
           <td>
-            <input type="text" class="props-input" value.bind="businessObjInPanel.processRef.versionTag" change.delegate="updateVersion()" disabled.bind="!isEditable">
+            <input type="text" class="props-input" value.bind="businessObjInPanel.processRef.versionTag" change.delegate="publishDiagramChange()" disabled.bind="!isEditable">
           </td>
         </tr>
         <tr>
@@ -27,7 +27,7 @@
         <tr>
           <th>Name</th>
           <td>
-            <input type="text" class="props-input" value.bind="businessObjInPanel.processRef.name" change.delegate="updateName()" disabled.bind="!isEditable">
+            <input type="text" class="props-input" value.bind="businessObjInPanel.processRef.name" change.delegate="publishDiagramChange()" disabled.bind="!isEditable">
           </td>
         </tr>
       </table>
