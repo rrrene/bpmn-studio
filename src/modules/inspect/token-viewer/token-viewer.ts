@@ -5,19 +5,19 @@ import {DataModels} from '@process-engine/management_api_contracts';
 
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionEntry} from '../../../contracts';
-import {IInspectCorrelationService} from '../inspect-correlation/contracts/index';
 import {
   IPayloadEntry,
   IPayloadEntryValue,
   IRawTokenEntry,
   ITokenEntry,
+  ITokenViewerService,
 } from './contracts/index';
 
 // tslint:disable: no-magic-numbers
 
 const versionRegex: RegExp = /(\d*)\.(\d*).(\d*)/;
 
-@inject('InspectCorrelationService')
+@inject('TokenViewerService')
 export class TokenViewer {
 
   @bindable({changeHandler: 'processInstanceIdOrCorrelationChanged' }) public correlation: DataModels.Correlations.Correlation;
@@ -34,11 +34,11 @@ export class TokenViewer {
   public shouldShowFlowNodeId: boolean = false;
   public rawTokenEntries: Array<IRawTokenEntry>;
 
-  private _inspectCorrelationService: IInspectCorrelationService;
+  private _tokenViewerService: ITokenViewerService;
   private _getTokenHistoryGroup: Promise<DataModels.TokenHistory.TokenHistoryGroup>;
 
-  constructor(inspectCorrelationService: IInspectCorrelationService) {
-    this._inspectCorrelationService = inspectCorrelationService;
+  constructor(tokenViewerService: ITokenViewerService) {
+    this._tokenViewerService = tokenViewerService;
   }
 
   public processInstanceIdOrCorrelationChanged(): void {
@@ -94,10 +94,10 @@ export class TokenViewer {
     }
 
     if (this.processEngineSupportsFetchingTokensByProcessInstanceId()) {
-      this._getTokenHistoryGroup = this._inspectCorrelationService
+      this._getTokenHistoryGroup = this._tokenViewerService
         .getTokenForFlowNodeByProcessInstanceId(this.processInstanceId, this.flowNode.id, this.activeSolutionEntry.identity);
     } else {
-      this._getTokenHistoryGroup = this._inspectCorrelationService
+      this._getTokenHistoryGroup = this._tokenViewerService
         .getTokenForFlowNodeInstance(this.activeDiagram.id, this.correlation.id, this.flowNode.id, this.activeSolutionEntry.identity);
     }
 
