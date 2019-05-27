@@ -13,7 +13,7 @@
         </tr>
         <tr>
           <th>ID
-            <input type="checkbox" checked.bind="checked" style="margin-left: 10px;" disabled.bind="!isEditable">
+            <input class="process-id-checkbox" type="checkbox" checked.bind="processIdCheckboxChecked" disabled.bind="!isEditable">
           </th>
           <td>
             <input type="text" id="processId" class="props-input" value.bind="businessObjInPanel.processRef.id & validateOnChange" change.delegate="validate()" disabled.bind="!isEditable || !checked">
