@@ -13,6 +13,10 @@ import {
   ITokenEntry,
 } from './contracts/index';
 
+// tslint:disable: no-magic-numbers
+
+const versionRegex: RegExp = /(\d*)\.(\d*).(\d*)/;
+
 @inject('InspectCorrelationService')
 export class TokenViewer {
 
@@ -31,12 +35,13 @@ export class TokenViewer {
   public rawTokenEntries: Array<IRawTokenEntry>;
 
   private _inspectCorrelationService: IInspectCorrelationService;
+  private _getTokenHistoryGroup: Promise<DataModels.TokenHistory.TokenHistoryGroup>;
 
   constructor(inspectCorrelationService: IInspectCorrelationService) {
     this._inspectCorrelationService = inspectCorrelationService;
   }
 
-  public processInstanceIdChanged(): void {
+  public processInstanceIdOrCorrelationChanged(): void {
     const noFlowNode: boolean = this.flowNode === undefined;
     if (noFlowNode) {
       return;
@@ -88,14 +93,41 @@ export class TokenViewer {
       return;
     }
 
-    const tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup = await this._inspectCorrelationService
-      .getTokenForFlowNodeByProcessInstanceId(this.processInstanceId, this.flowNode.id, this.identity);
+    if (this.processEngineSupportsFetchingTokensByProcessInstanceId()) {
+      this._getTokenHistoryGroup = this._inspectCorrelationService
+        .getTokenForFlowNodeByProcessInstanceId(this.processInstanceId, this.flowNode.id, this.activeSolutionEntry.identity);
+    } else {
+      this._getTokenHistoryGroup = this._inspectCorrelationService
+        .getTokenForFlowNodeInstance(this.activeDiagram.id, this.correlation.id, this.flowNode.id, this.activeSolutionEntry.identity);
+    }
+
+    const tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup = await this._getTokenHistoryGroup;
 
     this.tokenEntries = this._getBeautifiedTokenEntriesForFlowNode(tokenHistoryGroup);
     this.rawTokenEntries = this._getRawTokenEntriesForFlowNode(tokenHistoryGroup);
 
     this.showTokenEntries = this.tokenEntries.length > 0;
     this.shouldShowFlowNodeId = this.tokenEntries.length > 0;
+  }
+
+  private processEngineSupportsFetchingTokensByProcessInstanceId(): boolean {
+    const processEngineVersion: string = this.activeSolutionEntry.processEngineVersion;
+
+    const noProcessEngineVersionSet: boolean = processEngineVersion === undefined;
+    if (noProcessEngineVersionSet) {
+      return false;
+    }
+
+    const regexResult: RegExpExecArray = versionRegex.exec(processEngineVersion);
+    const majorVersion: number = parseInt(regexResult[1]);
+    const minorVersion: number = parseInt(regexResult[2]);
+
+    // The version must be 8.1.0 or later
+    const processEngineSupportsEvents: boolean = majorVersion > 8
+                                            || (majorVersion === 8
+                                              && minorVersion >= 1);
+
+    return processEngineSupportsEvents;
   }
 
   private _getRawTokenEntriesForFlowNode(tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup): Array<IRawTokenEntry> {
