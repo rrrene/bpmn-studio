@@ -64,6 +64,16 @@ export class InspectCorrelationRepository implements IInspectCorrelationReposito
     return logs;
   }
 
+  public async getTokenForFlowNodeInstance(
+    processModelId: string,
+    correlationId: string,
+    flowNodeId: string,
+    identity: IIdentity,
+  ): Promise<Array<DataModels.TokenHistory.TokenHistoryEntry>> {
+
+    return this._managementApiService.getTokensForFlowNode(identity, correlationId, processModelId, flowNodeId);
+  }
+
   public async getTokenForFlowNodeByProcessInstanceId(
     processInstanceId: string,
     flowNodeId: string,
