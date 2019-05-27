@@ -17,7 +17,7 @@ export class PoolSection implements ISection {
   public businessObjInPanel: IPoolElement;
   @bindable public processIdCheckboxChecked: boolean = false;
   public showModal: boolean = false;
-  public dontShowModalAgain: boolean = false;
+  public showProcessIdWarningModal: boolean = false;
 
   private _modeler: IBpmnModeler;
   private _previousProcessRefId: string;
@@ -50,7 +50,7 @@ export class PoolSection implements ISection {
 
     this._setValidationRules();
 
-    this.dontShowModalAgain = Boolean(window.localStorage.getItem('showProcessIdWarningModal'));
+    this.showProcessIdWarningModal = Boolean(window.localStorage.getItem('showProcessIdWarningModal'));
   }
 
   public detached(): void {
@@ -61,7 +61,7 @@ export class PoolSection implements ISection {
   }
 
   public processIdCheckboxCheckedChanged(newValue: boolean): void {
-    if (!newValue || this.dontShowModalAgain) {
+    if (!newValue || this.showProcessIdWarningModal) {
       return;
     }
     this.showModal = true;
@@ -142,6 +142,6 @@ export class PoolSection implements ISection {
   }
 
   private _persistModalOptionToLocalStorage(): void {
-    window.localStorage.setItem('showProcessIdWarningModal', this.dontShowModalAgain.toString());
+    window.localStorage.setItem('showProcessIdWarningModal', this.showProcessIdWarningModal.toString());
   }
 }
