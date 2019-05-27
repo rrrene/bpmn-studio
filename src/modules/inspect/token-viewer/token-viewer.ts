@@ -15,7 +15,7 @@ import {
 
 // tslint:disable: no-magic-numbers
 
-const versionRegex: RegExp = /(\d*)\.(\d*).(\d*)/;
+const versionRegex: RegExp = /(\d+)\.(\d+).(\d+)/;
 
 @inject('TokenViewerService')
 export class TokenViewer {
