@@ -140,10 +140,11 @@ export class ProcessList {
 
       setTimeout(async() => {
 
-        const stoppedCorrelation: DataModels.Correlations.Correlation = 
+        const stoppedCorrelation: DataModels.Correlations.Correlation =
           await this._managementApiService.getCorrelationByProcessInstanceId(this.activeSolutionEntry.identity, processInstanceId);
 
         this._stoppedCorrelations.push(stoppedCorrelation);
+        // tslint:disable-next-line: no-magic-numbers
       }, 100);
       await this.updateCorrelationList();
 
