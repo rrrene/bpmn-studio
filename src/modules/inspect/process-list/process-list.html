@@ -6,18 +6,18 @@
         <h3>Processes running</h3>
         <table class="table table-striped table-bordered">
           <tr>
+            <th>Started At</th>
             <th>Correlation ID</th>
             <th>Process Model ID</th>
-            <th>Created At</th>
             <th></th>
           </tr>
           <template repeat.for="correlation of correlations">
             <tr repeat.for="processInstance of correlation.processInstances" id="processList-${correlation.id}" class="process-list-item">
+              <td>${correlation.createdAt}</td>
               <td>${correlation.id}</td>
               <td>
                 <a route-href="route: design; params.bind: { view: 'detail', diagramName: processInstance.processModelId, solutionUri: activeSolutionEntry.uri }" class="process-list-item-modelname">${processInstance.processModelId}</a>
               </td>
-              <td>${correlation.createdAt}</td>
               <td class="process-list__last-table-cell">
                 <a route-href="route: task-list-processinstance; params.bind: { processInstanceId: processInstance.processInstanceId, solutionUri: activeSolutionEntry.uri }" class="process-list-item-user-tasks btn btn-default">Tasks</a>
                 <a route-href="route: live-execution-tracker; params.bind: { diagramName: processInstance.processModelId, solutionUri: activeSolutionEntry.uri, correlationId: correlation.id, processInstanceId: processInstance.processInstanceId }" class="btn btn-default">Live Execution Tracking</a>
