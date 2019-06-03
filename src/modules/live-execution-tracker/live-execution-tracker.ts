@@ -79,6 +79,7 @@ export class LiveExecutionTracker {
   private _parentProcessModelId: string;
   private _activeCallActivities: Array<IShape> = [];
   private _pollingTimer: NodeJS.Timer;
+  private _isColorizing: boolean = false;
 
   private _eventListenerSubscriptions: Array<Subscription> = [];
 
@@ -673,6 +674,13 @@ export class LiveExecutionTracker {
   }
 
   private async _handleElementColorization(): Promise<void> {
+    // This prevents the LET from Coloring several times at once
+    if (this._isColorizing) {
+      return;
+    }
+
+    this._isColorizing = true;
+
     const previousXml: string = await this._exportXmlFromDiagramViewer();
 
     const colorizedXml: string | undefined = await (async(): Promise<string | undefined> => {
@@ -694,6 +702,8 @@ export class LiveExecutionTracker {
       await this._importXmlIntoDiagramViewer(colorizedXml);
       await this._addOverlays();
     }
+
+    this._isColorizing = false;
   }
 
   private async _getParentProcessInstanceId(): Promise<string> {
