@@ -48,13 +48,6 @@ export class ProcessList {
     this._router = router;
   }
 
-  public get correlations(): Array<DataModels.Correlations.Correlation> {
-    const firstCorrelationIndex: number = (this.currentPage - 1) * this.pageSize;
-    const lastCorrelationIndex: number = (this.pageSize * this.currentPage);
-
-    return this._correlations.slice(firstCorrelationIndex, lastCorrelationIndex);
-  }
-
   public async currentPageChanged(newValue: number, oldValue: number): Promise<void> {
     const oldValueIsDefined: boolean = oldValue !== undefined && oldValue !== null;
 
