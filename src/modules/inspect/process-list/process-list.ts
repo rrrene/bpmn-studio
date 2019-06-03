@@ -22,6 +22,7 @@ export class ProcessList {
   public pageSize: number = 10;
   public totalItems: number;
   public requestSuccessful: boolean = false;
+  public correlations: Array<DataModels.Correlations.Correlation> = [];
 
   private _managementApiService: IManagementApi;
   private _eventAggregator: EventAggregator;
@@ -114,10 +115,10 @@ export class ProcessList {
   public async updateCorrelationList(): Promise<void> {
     try {
       const correlations: Array<DataModels.Correlations.Correlation> = await this.getAllActiveCorrelations();
-      const correlationListWasUpdated: boolean = JSON.stringify(correlations) !== JSON.stringify(this._correlations);
-
+      const correlationListWasUpdated: boolean = JSON.stringify(correlations.sort(this.sortCorrelations)) !== JSON.stringify(this._correlations);
       if (correlationListWasUpdated) {
         this._correlations = correlations;
+        this._correlations.sort(this.sortCorrelations);
       }
 
       this.requestSuccessful = true;
@@ -150,5 +151,9 @@ export class ProcessList {
     const identity: IIdentity = this.activeSolutionEntry.identity;
 
     return this._managementApiService.getActiveCorrelations(identity);
+  }
+
+  private sortCorrelations(correlation1: DataModels.Correlations.Correlation, correlation2: DataModels.Correlations.Correlation): number {
+    return Date.parse(correlation2.createdAt.toString()) - Date.parse(correlation1.createdAt.toString());
   }
 }
