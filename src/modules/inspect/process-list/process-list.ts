@@ -52,7 +52,10 @@ export class ProcessList {
     const oldValueIsDefined: boolean = oldValue !== undefined && oldValue !== null;
 
     if (oldValueIsDefined) {
-      await this.updateCorrelationList();
+      const firstCorrelationIndex: number = (this.currentPage - 1) * this.pageSize;
+      const lastCorrelationIndex: number = (this.pageSize * this.currentPage);
+
+      this.correlations = this._correlations.slice(firstCorrelationIndex, lastCorrelationIndex);
     }
   }
 
@@ -112,6 +115,11 @@ export class ProcessList {
       if (correlationListWasUpdated) {
         this._correlations = correlations;
         this._correlations.sort(this.sortCorrelations);
+
+        const firstCorrelationIndex: number = (this.currentPage - 1) * this.pageSize;
+        const lastCorrelationIndex: number = (this.pageSize * this.currentPage);
+
+        this.correlations = this._correlations.slice(firstCorrelationIndex, lastCorrelationIndex);
       }
 
       this.requestSuccessful = true;
