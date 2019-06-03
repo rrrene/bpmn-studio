@@ -23,9 +23,7 @@ export interface ILiveExecutionTrackerService {
   getCallActivities(): Array<IShape>;
   getActiveCallActivities(processInstanceId: string): Promise<Array<IShape>>;
   getInactiveCallActivities(processInstanceId: string): Promise<Array<IShape>>;
-  getOutgoingElementsOfElement(element: IShape,
-                               tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup,
-                               activeTokens: Array<ActiveToken>): Array<IShape>;
+  getOutgoingElementsOfElement(element: IShape, tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup): Array<IShape>;
 
   elementHasActiveToken(elementId: string, activeTokens: Array<ActiveToken>): boolean;
   elementHasTokenHistory(elementId: string, tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup): boolean;
