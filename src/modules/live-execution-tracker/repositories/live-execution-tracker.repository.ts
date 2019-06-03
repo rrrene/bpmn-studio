@@ -261,8 +261,19 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     });
   }
 
-  public createIntermediateEventTriggeredEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._managementApiClient.onIntermediateEventTriggered(this._identity, (message: TerminateEndEventReachedMessage): void => {
+  public createIntermediateThrowEventTriggeredEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onIntermediateThrowEventTriggered(this._identity, (message: TerminateEndEventReachedMessage): void => {
+      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
+      if (eventIsForAnotherProcessInstance) {
+        return;
+      }
+
+      callback();
+    });
+  }
+
+  public createIntermediateCatchEventReachedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onIntermediateCatchEventReached(this._identity, (message: TerminateEndEventReachedMessage): void => {
       const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
       if (eventIsForAnotherProcessInstance) {
         return;

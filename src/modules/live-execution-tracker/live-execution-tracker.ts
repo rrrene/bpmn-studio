@@ -753,8 +753,10 @@ export class LiveExecutionTracker {
       this._liveExecutionTrackerService.createCallActivityFinishedEventListener(this.processInstanceId, colorizationCallback);
     const boundaryEventTriggeredSubscriptionPromise: Promise<Subscription> =
       this._liveExecutionTrackerService.createBoundaryEventTriggeredEventListener(this.processInstanceId, colorizationCallback);
-    const intermediateEventWaitingSubscriptionPromise: Promise<Subscription> =
-      this._liveExecutionTrackerService.createIntermediateEventTriggeredEventListener(this.processInstanceId, colorizationCallback);
+    const intermediateThrowEventTriggeredSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createIntermediateThrowEventTriggeredEventListener(this.processInstanceId, colorizationCallback);
+    const intermediateCatchEventReachedSubscriptionPromise: Promise<Subscription> =
+        this._liveExecutionTrackerService.createIntermediateCatchEventReachedEventListener(this.processInstanceId, colorizationCallback);
     const intermediateCatchEventFinishedSubscriptionPromise: Promise<Subscription> =
       this._liveExecutionTrackerService.createIntermediateCatchEventFinishedEventListener(this.processInstanceId, colorizationCallback);
 
@@ -770,7 +772,8 @@ export class LiveExecutionTracker {
                                                                 callActivityWaitingSubscriptionPromise,
                                                                 callActivityFinishedSubscriptionPromise,
                                                                 boundaryEventTriggeredSubscriptionPromise,
-                                                                intermediateEventWaitingSubscriptionPromise,
+                                                                intermediateThrowEventTriggeredSubscriptionPromise,
+                                                                intermediateCatchEventReachedSubscriptionPromise,
                                                                 intermediateCatchEventFinishedSubscriptionPromise,
                                                               ];
 
