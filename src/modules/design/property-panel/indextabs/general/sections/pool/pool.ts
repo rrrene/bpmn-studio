@@ -1,5 +1,5 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import {bindable, inject} from 'aurelia-framework';
 import {ValidateEvent, ValidationController, ValidationRules} from 'aurelia-validation';
 
 import {IModdleElement, IPoolElement, IShape} from '@process-engine/bpmn-elements_contracts';
@@ -15,6 +15,9 @@ export class PoolSection implements ISection {
   public validationController: ValidationController;
   public validationError: boolean = false;
   public businessObjInPanel: IPoolElement;
+  @bindable public processIdCheckboxChecked: boolean = false;
+  public showModal: boolean = false;
+  public showProcessIdWarningModal: boolean = false;
 
   private _modeler: IBpmnModeler;
   private _previousProcessRefId: string;
@@ -26,7 +29,6 @@ export class PoolSection implements ISection {
   }
 
   public activate(model: IPageModel): void {
-
     const noProcessReferencePresent: boolean = model.elementInPanel.businessObject.processRef === undefined;
     if (noProcessReferencePresent) {
       return;
@@ -47,6 +49,8 @@ export class PoolSection implements ISection {
     });
 
     this._setValidationRules();
+
+    this.showProcessIdWarningModal = Boolean(window.localStorage.getItem('showProcessIdWarningModal'));
   }
 
   public detached(): void {
@@ -56,20 +60,30 @@ export class PoolSection implements ISection {
     }
   }
 
+  public processIdCheckboxCheckedChanged(newValue: boolean): void {
+    if (!newValue || this.showProcessIdWarningModal) {
+      return;
+    }
+
+    this.showModal = true;
+  }
+
+  public closeModal(): void {
+    this.showModal = false;
+    this._persistModalOptionToLocalStorage();
+  }
+
   public isSuitableForElement(element: IShape): boolean {
     return this._elementIsParticipant(element);
   }
 
   public validate(): void {
     this.validationController.validate();
+    this.publishDiagramChange();
   }
 
-  public updateVersion(): void {
-    this._publishDiagramChange();
-  }
-
-  public updateName(): void {
-    this._publishDiagramChange();
+  public publishDiagramChange(): void {
+    this._eventAggregator.publish(environment.events.diagramChange);
   }
 
   private _elementIsParticipant(element: IShape): boolean {
@@ -128,7 +142,7 @@ export class PoolSection implements ISection {
     .on(this.businessObjInPanel.processRef);
   }
 
-  private _publishDiagramChange(): void {
-    this._eventAggregator.publish(environment.events.diagramChange);
+  private _persistModalOptionToLocalStorage(): void {
+    window.localStorage.setItem('showProcessIdWarningModal', this.showProcessIdWarningModal.toString());
   }
 }

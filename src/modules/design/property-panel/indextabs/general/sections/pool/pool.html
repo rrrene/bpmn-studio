@@ -8,13 +8,15 @@
         <tr>
           <th>Version</th>
           <td>
-            <input type="text" class="props-input" value.bind="businessObjInPanel.processRef.versionTag" change.delegate="updateVersion()" disabled.bind="!isEditable">
+            <input type="text" class="props-input" value.bind="businessObjInPanel.processRef.versionTag" change.delegate="publishDiagramChange()" disabled.bind="!isEditable">
           </td>
         </tr>
         <tr>
-          <th>ID</th>
+          <th>ID
+            <input class="process-id-checkbox" type="checkbox" checked.bind="processIdCheckboxChecked" disabled.bind="!isEditable" title="Allow editing process ID">
+          </th>
           <td>
-            <input type="text" title="In the current version this feature ist not available." id="processId" class="props-input" value.bind="businessObjInPanel.processRef.id & validateOnChange" change.delegate="validate()" disabled>
+            <input type="text" id="processId" class="props-input" value.bind="businessObjInPanel.processRef.id & validateOnChange" change.delegate="validate()" disabled.bind="!isEditable || !processIdCheckboxChecked">
           </td>
           <td>
             <template if.bind="validationError">
@@ -25,10 +27,21 @@
         <tr>
           <th>Name</th>
           <td>
-            <input type="text" class="props-input" value.bind="businessObjInPanel.processRef.name" change.delegate="updateName()" disabled.bind="!isEditable">
+            <input type="text" class="props-input" value.bind="businessObjInPanel.processRef.name" change.delegate="publishDiagramChange()" disabled.bind="!isEditable">
           </td>
         </tr>
       </table>
     </div>
   </div>
+
+  <modal show.bind="showModal"
+         header-text="Warning: Editing Process ID">
+    <template replace-part="modal-body">
+      Changing a process ID can potentially break your deployments! Only perform this action if you know what you are doing!
+    </template>
+    <template replace-part="modal-footer">
+      <label><input type="checkbox" checked.bind="showProcessIdWarningModal"> Don't show again</label>
+      <button type="button" class="btn btn-default" data-dismiss="modal" click.delegate="closeModal()">Okay</button>
+    </template>
+  </modal>
 </template>
