@@ -184,8 +184,6 @@ export class LiveExecutionTracker {
 
     await this._handleElementColorization();
 
-    await this._addOverlays();
-
     // Add EventListener for Resizing
     this.tokenViewerResizeDiv.addEventListener('mousedown', (mouseDownEvent: Event) => {
       const windowEvent: Event = mouseDownEvent || window.event;
