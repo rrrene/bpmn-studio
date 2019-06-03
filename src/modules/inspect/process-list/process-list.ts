@@ -34,6 +34,7 @@ export class ProcessList {
   private _pollingTimeout: NodeJS.Timer | number;
   private _subscriptions: Array<Subscription>;
   private _correlations: Array<DataModels.Correlations.Correlation> = [];
+  private _stoppedCorrelations: Array<DataModels.Correlations.Correlation> = [];
   private _isAttached: boolean = false;
 
   constructor(managementApiService: IManagementApi,
@@ -55,7 +56,10 @@ export class ProcessList {
       const firstCorrelationIndex: number = (this.currentPage - 1) * this.pageSize;
       const lastCorrelationIndex: number = (this.pageSize * this.currentPage);
 
-      this.correlations = this._correlations.slice(firstCorrelationIndex, lastCorrelationIndex);
+      this.correlations = this._correlations;
+      this.correlations.push(...this._stoppedCorrelations);
+      this.correlations.sort(this._sortCorrelations);
+      this.correlations = this.correlations.slice(firstCorrelationIndex, lastCorrelationIndex);
     }
   }
 
@@ -110,7 +114,10 @@ export class ProcessList {
         const firstCorrelationIndex: number = (this.currentPage - 1) * this.pageSize;
         const lastCorrelationIndex: number = (this.pageSize * this.currentPage);
 
-        this.correlations = this._correlations.slice(firstCorrelationIndex, lastCorrelationIndex);
+        this.correlations = this._correlations;
+        this.correlations.push(...this._stoppedCorrelations);
+        this.correlations.sort(this._sortCorrelations);
+        this.correlations = this.correlations.slice(firstCorrelationIndex, lastCorrelationIndex);
       }
 
       this.requestSuccessful = true;
@@ -127,10 +134,17 @@ export class ProcessList {
     this.totalItems = this._correlations.length;
   }
 
-  public async stopProcessInstance(processInstanceId: string): Promise<void> {
+  public async stopProcessInstance(processInstanceId: string, correlation: DataModels.Correlations.Correlation): Promise<void> {
     try {
       await this._managementApiService.terminateProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
 
+      setTimeout(async() => {
+
+        const stoppedCorrelation: DataModels.Correlations.Correlation = 
+          await this._managementApiService.getCorrelationByProcessInstanceId(this.activeSolutionEntry.identity, processInstanceId);
+
+        this._stoppedCorrelations.push(stoppedCorrelation);
+      }, 100);
       await this.updateCorrelationList();
 
     } catch (error) {
