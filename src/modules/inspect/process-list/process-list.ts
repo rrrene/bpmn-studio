@@ -63,7 +63,7 @@ export class ProcessList {
   }
 
   public async attached(): Promise<void> {
-    this._isAttached = false;
+    this._isAttached = true;
     this._activeSolutionUri = this._router.currentInstruction.queryParams.solutionUri;
 
     const activeSolutionUriIsNotSet: boolean = this._activeSolutionUri === undefined;
