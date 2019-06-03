@@ -89,16 +89,6 @@ export class ProcessList {
     ];
   }
 
-  private _startPolling(): void {
-    this._pollingTimeout = setTimeout(async() => {
-      await this.updateCorrelationList();
-
-      if (this._isAttached) {
-        this._startPolling();
-      }
-    }, environment.processengine.dashboardPollingIntervalInMs);
-  }
-
   public detached(): void {
     this._isAttached = false;
     clearTimeout(this._pollingTimeout as NodeJS.Timer);
@@ -111,10 +101,11 @@ export class ProcessList {
   public async updateCorrelationList(): Promise<void> {
     try {
       const correlations: Array<DataModels.Correlations.Correlation> = await this.getAllActiveCorrelations();
-      const correlationListWasUpdated: boolean = JSON.stringify(correlations.sort(this.sortCorrelations)) !== JSON.stringify(this._correlations);
+      const correlationListWasUpdated: boolean = JSON.stringify(correlations.sort(this._sortCorrelations)) !== JSON.stringify(this._correlations);
+
       if (correlationListWasUpdated) {
         this._correlations = correlations;
-        this._correlations.sort(this.sortCorrelations);
+        this._correlations.sort(this._sortCorrelations);
 
         const firstCorrelationIndex: number = (this.currentPage - 1) * this.pageSize;
         const lastCorrelationIndex: number = (this.pageSize * this.currentPage);
@@ -154,7 +145,17 @@ export class ProcessList {
     return this._managementApiService.getActiveCorrelations(identity);
   }
 
-  private sortCorrelations(correlation1: DataModels.Correlations.Correlation, correlation2: DataModels.Correlations.Correlation): number {
+  private _startPolling(): void {
+    this._pollingTimeout = setTimeout(async() => {
+      await this.updateCorrelationList();
+
+      if (this._isAttached) {
+        this._startPolling();
+      }
+    }, environment.processengine.dashboardPollingIntervalInMs);
+  }
+
+  private _sortCorrelations(correlation1: DataModels.Correlations.Correlation, correlation2: DataModels.Correlations.Correlation): number {
     return Date.parse(correlation2.createdAt.toString()) - Date.parse(correlation1.createdAt.toString());
   }
 }
