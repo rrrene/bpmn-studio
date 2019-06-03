@@ -132,7 +132,7 @@ export class ProcessList {
     try {
       await this._managementApiService.terminateProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
 
-      this._correlations = await this.getAllActiveCorrelations();
+      await this.updateCorrelationList();
 
     } catch (error) {
       this._notificationService
