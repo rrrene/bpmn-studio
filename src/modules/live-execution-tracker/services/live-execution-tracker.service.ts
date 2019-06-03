@@ -396,7 +396,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     });
   }
 
-  public async getColorizedXml(processInstanceId: string): Promise<string> {
+  public async getColorizedDiagram(processInstanceId: string): Promise<string> {
     const elementsWithActiveToken: Array<IShape> = await this.getElementsWithActiveToken(processInstanceId);
     const elementsWithTokenHistory: Array<IShape> = await this.getElementsWithTokenHistory(processInstanceId);
 

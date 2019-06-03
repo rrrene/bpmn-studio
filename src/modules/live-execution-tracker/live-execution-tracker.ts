@@ -677,7 +677,7 @@ export class LiveExecutionTracker {
 
     const colorizedXml: string | undefined = await (async(): Promise<string | undefined> => {
       try {
-        return await this._liveExecutionTrackerService.getColorizedXml(this.processInstanceId);
+        return await this._liveExecutionTrackerService.getColorizedDiagram(this.processInstanceId);
       } catch (error) {
         const message: string = `Could not colorize XML: ${error}`;
 
