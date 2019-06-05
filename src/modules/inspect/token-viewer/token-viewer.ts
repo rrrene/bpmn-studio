@@ -83,20 +83,24 @@ export class TokenViewer {
     this.firstElementSelected = true;
     this.tokenEntries = [];
 
-    const correlationIsUndefined: boolean = this.correlation === undefined;
-    if (correlationIsUndefined) {
-      this.tokenEntries = undefined;
-      this.rawTokenEntries = undefined;
-      this.showTokenEntries = false;
-      this.shouldShowFlowNodeId = false;
-
-      return;
-    }
-
     if (this.processEngineSupportsFetchingTokensByProcessInstanceId()) {
+      const processInstanceIdIsUndefined: boolean = this.processInstanceId === undefined;
+      if (processInstanceIdIsUndefined) {
+        this._clearTokenViewer();
+
+        return;
+      }
+
       this._getTokenHistoryGroup = this._tokenViewerService
         .getTokenForFlowNodeByProcessInstanceId(this.processInstanceId, this.flowNode.id, this.activeSolutionEntry.identity);
     } else {
+      const correlationIsUndefined: boolean = this.correlation === undefined;
+      if (correlationIsUndefined) {
+        this._clearTokenViewer();
+
+        return;
+      }
+
       this._getTokenHistoryGroup = this._tokenViewerService
         .getTokenForFlowNodeInstance(this.activeDiagram.id, this.correlation.id, this.flowNode.id, this.activeSolutionEntry.identity);
     }
@@ -108,6 +112,13 @@ export class TokenViewer {
 
     this.showTokenEntries = this.tokenEntries.length > 0;
     this.shouldShowFlowNodeId = this.tokenEntries.length > 0;
+  }
+
+  private _clearTokenViewer(): void {
+    this.tokenEntries = undefined;
+    this.rawTokenEntries = undefined;
+    this.showTokenEntries = false;
+    this.shouldShowFlowNodeId = false;
   }
 
   private processEngineSupportsFetchingTokensByProcessInstanceId(): boolean {
