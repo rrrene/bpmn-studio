@@ -59,8 +59,8 @@ describe('Live Execution Tracker', () => {
   //   expect(visibilityOfInactiveCallActivityOverlay).toBeTruthy();
   // });
 
-  // it('should display a suspended EmptyTask with an overlay.', async() => {
-  //   const visibilityOfInactiveCallActivityOverlay: boolean = await liveExecutionTracker.getVisbilityOfEmptyTaskOverlay();
+  // it('should display a suspended EmptyActivity with an overlay.', async() => {
+  //   const visibilityOfInactiveCallActivityOverlay: boolean = await liveExecutionTracker.getVisbilityOfEmptyActivityOverlay();
 
   //   expect(visibilityOfInactiveCallActivityOverlay).toBeTruthy();
   // });

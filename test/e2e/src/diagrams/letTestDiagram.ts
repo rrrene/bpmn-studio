@@ -8,7 +8,7 @@ export class LETTestDiagram {
     public userTaskId: string = 'Task_1yftx0l';
     public manualTaskId: string = 'Task_0u4cnp4';
     public callActivityId: string = 'Task_0f8akhm';
-    public emptyTaskId: string = 'Task_064hsv6';
+    public emptyActivityId: string = 'Task_064hsv6';
     public correlationId: string;
     public processInstanceId: string;
     public userTaskDynamicUiUrl: string;
