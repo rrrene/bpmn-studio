@@ -177,6 +177,10 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return elementsWithTokenHistory;
   }
 
+  public getElementsWhereProcessWasStopped(processInstanceId: string): Promise<Array<IShape>> {
+    return Promise.resolve([]);
+  }
+
   public getAllElementsThatCanHaveAToken(): Array<IShape> {
     const allElementsThatCanHaveAToken: Array<IShape> = this._elementRegistry.filter((element: IShape): boolean => {
       const elementCanHaveAToken: boolean = element.type !== 'bpmn:SequenceFlow'
@@ -397,9 +401,11 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   public async getColorizedDiagram(processInstanceId: string): Promise<string> {
     const elementsWithActiveToken: Array<IShape> = await this.getElementsWithActiveToken(processInstanceId);
     const elementsWithTokenHistory: Array<IShape> = await this.getElementsWithTokenHistory(processInstanceId);
+    const elementsWhereProcessWasStopped: Array<IShape> = await this.getElementsWhereProcessWasStopped(processInstanceId);
 
     this._colorizeElements(elementsWithTokenHistory, defaultBpmnColors.green);
     this._colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
+    this._colorizeElements(elementsWhereProcessWasStopped, defaultBpmnColors.red);
 
     const colorizedXml: string = await this.exportXmlFromDiagramModeler();
 
