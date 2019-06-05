@@ -12,6 +12,7 @@ export class InspectPanel {
   @bindable public correlations: Array<DataModels.Correlations.Correlation>;
   @bindable public processInstances: Array<DataModels.Correlations.CorrelationProcessInstance>;
   @bindable public selectedProcessInstance: DataModels.Correlations.CorrelationProcessInstance;
+  @bindable public selectedCorrelation: DataModels.Correlations.Correlation;
   @bindable public fullscreen: boolean = false;
   @bindable public activeDiagram: IDiagram;
   @bindable public activeSolutionEntry: ISolutionEntry;

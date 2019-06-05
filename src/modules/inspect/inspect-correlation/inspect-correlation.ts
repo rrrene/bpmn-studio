@@ -14,6 +14,7 @@ export class InspectCorrelation {
   @bindable public activeDiagram: IDiagram;
   @bindable public activeSolutionEntry: ISolutionEntry;
   @bindable public selectedProcessInstance: DataModels.Correlations.CorrelationProcessInstance;
+  @bindable public selectedCorrelation: DataModels.Correlations.Correlation;
   @bindable public inspectPanelFullscreen: boolean = false;
   @observable public bottomPanelHeight: number = 250;
   @observable public tokenViewerWidth: number = 250;

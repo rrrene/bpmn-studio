@@ -15,7 +15,7 @@
       <div class="inspect-correlation__bottom-panel" css="height: ${bottomPanelHeight}px;"
             class.bind="inspectPanelFullscreen ? 'inspect-correlation__bottom-panel--fullscreen' : ''"
             show.bind="showInspectPanel">
-        <inspect-panel active-solution-entry.bind="activeSolutionEntry" active-diagram.bind="activeDiagram" correlations.bind="correlations" selected-process-instance.from-view="selectedProcessInstance" fullscreen.two-way="inspectPanelFullscreen" log.bind="log"></inspect-panel>
+        <inspect-panel active-solution-entry.bind="activeSolutionEntry" active-diagram.bind="activeDiagram" correlations.bind="correlations" selected-correlation.from-view="selectedCorrelation" selected-process-instance.from-view="selectedProcessInstance" fullscreen.two-way="inspectPanelFullscreen" log.bind="log"></inspect-panel>
       </div>
     </div>
 </template>
