@@ -4,6 +4,7 @@ import {Router} from 'aurelia-router';
 
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
+import * as moment from 'moment';
 
 import {
   AuthenticationStateEvent,
@@ -152,6 +153,10 @@ export class ProcessList {
       this._notificationService
         .showNotification(NotificationType.ERROR, `Error while stopping Process! ${error}`);
     }
+  }
+
+  public formatDate(date: string): string {
+    return moment(date).format('YYYY-MM-DD HH:mm:ss');
   }
 
   private async getAllActiveCorrelations(): Promise<Array<DataModels.Correlations.Correlation>> {

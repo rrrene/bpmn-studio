@@ -13,7 +13,7 @@
           </tr>
           <template repeat.for="correlation of correlations">
             <tr repeat.for="processInstance of correlation.processInstances" id="processList-${correlation.id}" class.bind="processInstance.state === 'error' ? 'process-list-item-stopped' : 'process-list-item'">
-              <td>${processInstance.createdAt}</td>
+              <td>${formatDate(processInstance.createdAt)}</td>
               <td>${correlation.id}</td>
               <td>
                 <a route-href="route: design; params.bind: { view: 'detail', diagramName: processInstance.processModelId, solutionUri: activeSolutionEntry.uri }" class="process-list-item-modelname">${processInstance.processModelId}</a>
