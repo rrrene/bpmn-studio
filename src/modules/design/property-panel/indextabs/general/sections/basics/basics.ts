@@ -61,7 +61,7 @@ export class BasicsSection implements ISection {
     this._setValidationRules();
   }
 
-  public attached() {
+  public attached(): void {
     this.docInput.addEventListener('dblclick', (event: MouseEvent) => {
       this.showModal = true;
     });
