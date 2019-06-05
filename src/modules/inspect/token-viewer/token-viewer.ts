@@ -83,7 +83,7 @@ export class TokenViewer {
     this.firstElementSelected = true;
     this.tokenEntries = [];
 
-    if (this.processEngineSupportsFetchingTokensByProcessInstanceId()) {
+    if (this._processEngineSupportsFetchingTokensByProcessInstanceId()) {
       const processInstanceIdIsUndefined: boolean = this.processInstanceId === undefined;
       if (processInstanceIdIsUndefined) {
         this._clearTokenViewer();
@@ -121,7 +121,7 @@ export class TokenViewer {
     this.shouldShowFlowNodeId = false;
   }
 
-  private processEngineSupportsFetchingTokensByProcessInstanceId(): boolean {
+  private _processEngineSupportsFetchingTokensByProcessInstanceId(): boolean {
     const processEngineVersion: string = this.activeSolutionEntry.processEngineVersion;
 
     const noProcessEngineVersionSet: boolean = processEngineVersion === undefined;
