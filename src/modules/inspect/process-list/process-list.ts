@@ -137,16 +137,26 @@ export class ProcessList {
 
   public async stopProcessInstance(processInstanceId: string, correlation: DataModels.Correlations.Correlation): Promise<void> {
     try {
+
       await this._managementApiService.terminateProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
 
-      setTimeout(async() => {
+      const getStoppedCorrelation: Function = ((): void => {
+        setTimeout(async() => {
 
-        const stoppedCorrelation: DataModels.Correlations.Correlation =
-          await this._managementApiService.getCorrelationByProcessInstanceId(this.activeSolutionEntry.identity, processInstanceId);
+          const stoppedCorrelation: DataModels.Correlations.Correlation =
+            await this._managementApiService.getCorrelationByProcessInstanceId(this.activeSolutionEntry.identity, processInstanceId);
 
-        this._stoppedCorrelations.push(stoppedCorrelation);
-        // tslint:disable-next-line: no-magic-numbers
-      }, 100);
+          const stoppedCorrelationIsNotStopped: boolean = stoppedCorrelation.state === 'running';
+          if (stoppedCorrelationIsNotStopped) {
+            return getStoppedCorrelation();
+          }
+
+          this._stoppedCorrelations.push(stoppedCorrelation);
+          // tslint:disable-next-line: no-magic-numbers
+        }, 100);
+      });
+
+      getStoppedCorrelation();
       await this.updateCorrelationList();
 
     } catch (error) {
