@@ -22,6 +22,7 @@ export class BasicsSection implements ISection {
   public businessObjInPanel: IModdleElement;
   public elementDocumentation: string;
   public validationError: boolean = false;
+  public showModal: boolean = false;
 
   private _modeling: IModeling;
   private _modeler: IBpmnModeler;
