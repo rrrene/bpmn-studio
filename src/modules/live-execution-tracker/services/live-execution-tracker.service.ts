@@ -149,8 +149,6 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
     const tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup = await this.getTokenHistoryGroupForProcessInstance(processInstanceId);
 
-    const activeTokens: Array<ActiveToken> = await this.getActiveTokensForProcessInstance(processInstanceId);
-
     const couldNotGetTokenHistory: boolean = tokenHistoryGroups === null;
     if (couldNotGetTokenHistory) {
       return undefined;

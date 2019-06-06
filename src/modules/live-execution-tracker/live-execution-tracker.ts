@@ -80,6 +80,7 @@ export class LiveExecutionTracker {
   private _activeCallActivities: Array<IShape> = [];
   private _pollingTimer: NodeJS.Timer;
   private _isColorizing: boolean = false;
+  private _colorizeAgain: boolean = false;
 
   private _eventListenerSubscriptions: Array<Subscription> = [];
 
@@ -272,6 +273,8 @@ export class LiveExecutionTracker {
 
   public async stopProcessInstance(): Promise<void> {
     this._liveExecutionTrackerService.terminateProcess(this.processInstanceId);
+
+    this._startPolling();
   }
 
   private _checkIfProcessEngineSupportsEvents(): boolean {
@@ -674,6 +677,8 @@ export class LiveExecutionTracker {
   private async _handleElementColorization(): Promise<void> {
     // This prevents the LET from Coloring several times at once
     if (this._isColorizing) {
+      this._colorizeAgain = true;
+
       return;
     }
 
@@ -702,6 +707,13 @@ export class LiveExecutionTracker {
     }
 
     this._isColorizing = false;
+
+    // If the colorization was triggered while colorizing, the colorization needs to be repeated as soon as it is finished
+    if (this._colorizeAgain) {
+      this._colorizeAgain = false;
+
+      this._handleElementColorization();
+    }
   }
 
   private async _getParentProcessInstanceId(): Promise<string> {
@@ -729,9 +741,7 @@ export class LiveExecutionTracker {
     const processEndedCallback: Function = (): void => {
       this._handleElementColorization();
 
-      this._processStopped = true;
-
-      this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
+      this._sendProcessStoppedNotification();
     };
 
     const colorizationCallback: Function = (): void => {
@@ -819,9 +829,7 @@ export class LiveExecutionTracker {
       const correlationIsActive: boolean = await isCorrelationActive();
       const correlationIsNotActive: boolean = correlationIsActive === false;
       if (correlationIsNotActive) {
-        this._processStopped = true;
-
-        this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
+        this._sendProcessStoppedNotification();
 
         return;
       }
@@ -832,6 +840,12 @@ export class LiveExecutionTracker {
 
   private _stopPolling(): void {
     clearTimeout(this._pollingTimer);
+  }
+
+  private _sendProcessStoppedNotification(): void {
+    this._processStopped = true;
+
+    this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
   }
 
   private _resizeTokenViewer(mouseEvent: MouseEvent): void {
