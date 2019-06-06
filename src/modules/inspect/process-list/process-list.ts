@@ -50,6 +50,10 @@ export class ProcessList {
     this._router = router;
   }
 
+  public activeSolutionEntryChanged(): void {
+    this._stoppedCorrelations = [];
+  }
+
   public async currentPageChanged(newValue: number, oldValue: number): Promise<void> {
     const oldValueIsDefined: boolean = oldValue !== undefined && oldValue !== null;
 
