@@ -54,13 +54,7 @@ export class ProcessList {
     const oldValueIsDefined: boolean = oldValue !== undefined && oldValue !== null;
 
     if (oldValueIsDefined) {
-      const firstCorrelationIndex: number = (this.currentPage - 1) * this.pageSize;
-      const lastCorrelationIndex: number = (this.pageSize * this.currentPage);
-
-      this.correlations = this._correlations;
-      this.correlations.push(...this._stoppedCorrelations);
-      this.correlations.sort(this._sortCorrelations);
-      this.correlations = this.correlations.slice(firstCorrelationIndex, lastCorrelationIndex);
+      this._updateCorrelationsToDisplay();
     }
   }
 
@@ -112,13 +106,7 @@ export class ProcessList {
         this._correlations = correlations;
         this._correlations.sort(this._sortCorrelations);
 
-        const firstCorrelationIndex: number = (this.currentPage - 1) * this.pageSize;
-        const lastCorrelationIndex: number = (this.pageSize * this.currentPage);
-
-        this.correlations = this._correlations;
-        this.correlations.push(...this._stoppedCorrelations);
-        this.correlations.sort(this._sortCorrelations);
-        this.correlations = this.correlations.slice(firstCorrelationIndex, lastCorrelationIndex);
+        this._updateCorrelationsToDisplay();
       }
 
       this.requestSuccessful = true;
@@ -187,5 +175,15 @@ export class ProcessList {
 
   private _sortCorrelations(correlation1: DataModels.Correlations.Correlation, correlation2: DataModels.Correlations.Correlation): number {
     return Date.parse(correlation2.createdAt.toString()) - Date.parse(correlation1.createdAt.toString());
+  }
+
+  private _updateCorrelationsToDisplay(): void {
+    const firstCorrelationIndex: number = (this.currentPage - 1) * this.pageSize;
+    const lastCorrelationIndex: number = (this.pageSize * this.currentPage);
+
+    this.correlations = this._correlations;
+    this.correlations.push(...this._stoppedCorrelations);
+    this.correlations.sort(this._sortCorrelations);
+    this.correlations = this.correlations.slice(firstCorrelationIndex, lastCorrelationIndex);
   }
 }
