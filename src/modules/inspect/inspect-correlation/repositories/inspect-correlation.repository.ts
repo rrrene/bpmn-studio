@@ -58,6 +58,15 @@ export class InspectCorrelationRepository implements IInspectCorrelationReposito
     return logsForCorrelation;
   }
 
+  public async getLogsForProcessInstance(processModelId: string,
+                                         processInstanceId: string,
+                                         identity: IIdentity): Promise<Array<DataModels.Logging.LogEntry>> {
+    const logs: Array<DataModels.Logging.LogEntry> = await this._managementApiService
+      .getProcessInstanceLog(identity, processModelId, processInstanceId);
+
+    return logs;
+  }
+
   public async getTokenForFlowNodeInstance(
     processModelId: string,
     correlationId: string,

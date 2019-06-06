@@ -24,10 +24,10 @@ import {DiagramExportService} from '../../../../design/bpmn-io/services/index';
 
 @inject('NotificationService', EventAggregator)
 export class DiagramViewer {
-  @bindable() public correlation: DataModels.Correlations.Correlation;
-  @bindable() public xml: string;
-  @bindable() public activeDiagram: IDiagram;
-  @bindable() public selectedFlowNode: IShape;
+  @bindable public processInstance: DataModels.Correlations.CorrelationProcessInstance;
+  @bindable public xml: string;
+  @bindable public activeDiagram: IDiagram;
+  @bindable public selectedFlowNode: IShape;
   public xmlIsNotSelected: boolean = true;
   public canvasModel: HTMLElement;
 
@@ -147,13 +147,13 @@ export class DiagramViewer {
     this._subscriptions.forEach((subscription: Subscription) => subscription.dispose());
   }
 
-  public async correlationChanged(newValue: DataModels.Correlations.Correlation): Promise<void> {
-    const noCorrelation: boolean = newValue === undefined;
-    if (noCorrelation) {
+  public async processInstanceChanged(): Promise<void> {
+    const noProcessInstanceSelected: boolean = this.processInstance === undefined;
+    if (noProcessInstanceSelected) {
       return;
     }
 
-    this.xml = await this._getXmlByCorrelation(this.correlation);
+    this.xml = this.processInstance.xml;
 
     await this._importXml(this._diagramModeler, this.xml);
     this._clearColors();
@@ -205,17 +205,6 @@ export class DiagramViewer {
   public fitDiagramToViewport(): void {
     const canvas: ICanvas = this._diagramViewer.get('canvas');
     canvas.zoom('fit-viewport', 'auto');
-  }
-
-  private async _getXmlByCorrelation(correlation: DataModels.Correlations.Correlation): Promise<string> {
-    const processModelForCorrelation: DataModels.Correlations.CorrelationProcessInstance =
-      correlation.processInstances.find((processModel: DataModels.Correlations.CorrelationProcessInstance) => {
-        return processModel.processModelId === this.activeDiagram.id;
-      });
-
-    const xmlForCorrelation: string = processModelForCorrelation.xml;
-
-    return xmlForCorrelation;
   }
 
   private async _colorizeSelection(selectedElement: IShape): Promise<void> {

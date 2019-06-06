@@ -21,6 +21,13 @@ export class InspectCorrelationService implements IInspectCorrelationService {
     return this._inspectCorrelationRepository.getLogsForCorrelation(correlation, identity);
   }
 
+  public getLogsForProcessInstance(processModelId: string,
+                                   processInstanceId: string,
+                                   identity: IIdentity): Promise<Array<DataModels.Logging.LogEntry>> {
+
+    return this._inspectCorrelationRepository.getLogsForProcessInstance(processModelId, processInstanceId, identity);
+  }
+
   public async getTokenForFlowNodeInstance(processModelId: string,
                                            correlationId: string,
                                            flowNodeId: string,

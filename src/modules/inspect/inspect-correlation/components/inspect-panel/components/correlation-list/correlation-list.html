@@ -17,17 +17,21 @@
           <th class="correlation-table__headline" if.bind="false" click.delegate="sortList(CorrelationListSortProperty.User)">
             User <i if.bind="sortSettings.sortProperty === CorrelationListSortProperty.User" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
           </th>
+          <th class="correlation-table__headline" click.delegate="sortList(CorrelationListSortProperty.ProcessInstanceId)">
+            Process Instance ID <i if.bind="sortSettings.sortProperty === CorrelationListSortProperty.ProcessInstanceId" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
+          </th>
           <th class="correlation-table__headline" click.delegate="sortList(CorrelationListSortProperty.CorrelationId)">
             Correlation ID <i if.bind="sortSettings.sortProperty === CorrelationListSortProperty.CorrelationId" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
           </th>
         </tr>
       </thead>
       <tbody class="correlation-table__body">
-        <tr dblclick.delegate="showLogViewer()" class="correlation-table__table-row" repeat.for="tableEntry of sortedTableData" class.bind="tableEntry.correlationId === selectedCorrelation.id ? 'correlation-table__selected-entry': ''" click.delegate="selectCorrelation(tableEntry)">
+        <tr dblclick.delegate="showLogViewer()" class="correlation-table__table-row" repeat.for="tableEntry of sortedTableData" class.bind="tableEntry.processInstanceId === selectedTableEntry.processInstanceId ? 'correlation-table__selected-entry': ''" click.delegate="selectCorrelation(tableEntry)">
           <td class="correlation-table__table-entry--number">${tableEntry.index}</td>
           <td class="correlation-table__table-entry">${tableEntry.startedAt}</td>
           <td class="correlation-table__table-entry">${tableEntry.state}</td>
           <td if.bind="false" class="correlation-table__table-entry">${tableEntry.user}</td>
+          <td class="correlation-table__table-entry">${tableEntry.processInstanceId}</td>
           <td class="correlation-table__table-entry">${tableEntry.correlationId}</td>
         </tr>
       </tbody>
