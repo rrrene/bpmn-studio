@@ -2,40 +2,48 @@ import {bindable, inject} from 'aurelia-framework';
 
 import {IShape} from '@process-engine/bpmn-elements_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
-import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionEntry} from '../../../contracts';
-import {IInspectCorrelationService} from '../inspect-correlation/contracts/index';
 import {
   IPayloadEntry,
   IPayloadEntryValue,
   IRawTokenEntry,
   ITokenEntry,
+  ITokenViewerService,
 } from './contracts/index';
 
-@inject('InspectCorrelationService')
+// tslint:disable: no-magic-numbers
+
+const versionRegex: RegExp = /(\d+)\.(\d+).(\d+)/;
+
+@inject('TokenViewerService')
 export class TokenViewer {
-  @bindable() public correlation: DataModels.Correlations.Correlation;
+
+  @bindable({changeHandler: 'processInstanceIdOrCorrelationChanged' }) public correlation: DataModels.Correlations.Correlation;
   @bindable() public activeDiagram: IDiagram;
   @bindable() public activeSolutionEntry: ISolutionEntry;
   @bindable() public flowNode: IShape;
   @bindable() public token: string;
   @bindable() public showBeautifiedToken: boolean = true;
+  @bindable({changeHandler: 'processInstanceIdOrCorrelationChanged' }) public processInstanceId: string;
+
   public tokenEntries: Array<ITokenEntry> = [];
   public showTokenEntries: boolean = false;
   public firstElementSelected: boolean = false;
   public shouldShowFlowNodeId: boolean = false;
   public rawTokenEntries: Array<IRawTokenEntry>;
 
-  private _inspectCorrelationService: IInspectCorrelationService;
+  private _tokenViewerService: ITokenViewerService;
+  private _getTokenHistoryGroup: Promise<DataModels.TokenHistory.TokenHistoryGroup>;
 
-  constructor(inspectCorrelationService: IInspectCorrelationService) {
-    this._inspectCorrelationService = inspectCorrelationService;
+  constructor(tokenViewerService: ITokenViewerService) {
+    this._tokenViewerService = tokenViewerService;
   }
 
-  public correlationChanged(): void {
-    const correlationWasInitiallyOpened: boolean = this.flowNode === undefined;
-    if (correlationWasInitiallyOpened) {
+  public processInstanceIdOrCorrelationChanged(): void {
+    const noFlowNodeSelected: boolean = this.flowNode === undefined;
+    if (noFlowNodeSelected) {
       return;
     }
 
@@ -75,73 +83,121 @@ export class TokenViewer {
     this.firstElementSelected = true;
     this.tokenEntries = [];
 
-    const correlationIsNotSelected: boolean = this.correlation === undefined;
-    if (correlationIsNotSelected) {
-      this.tokenEntries = undefined;
-      this.rawTokenEntries = undefined;
-      this.showTokenEntries = false;
-      this.shouldShowFlowNodeId = false;
+    if (this._processEngineSupportsFetchingTokensByProcessInstanceId()) {
+      const processInstanceIdIsUndefined: boolean = this.processInstanceId === undefined;
+      if (processInstanceIdIsUndefined) {
+        this._clearTokenViewer();
 
-      return;
+        return;
+      }
+
+      this._getTokenHistoryGroup = this._tokenViewerService
+        .getTokenForFlowNodeByProcessInstanceId(this.processInstanceId, this.flowNode.id, this.activeSolutionEntry.identity);
+    } else {
+      const correlationIsUndefined: boolean = this.correlation === undefined;
+      if (correlationIsUndefined) {
+        this._clearTokenViewer();
+
+        return;
+      }
+
+      this._getTokenHistoryGroup = this._tokenViewerService
+        .getTokenForFlowNodeInstance(this.activeDiagram.id, this.correlation.id, this.flowNode.id, this.activeSolutionEntry.identity);
     }
 
-    const tokenHistoryEntries: Array<DataModels.TokenHistory.TokenHistoryEntry> = await this._inspectCorrelationService
-      .getTokenForFlowNodeInstance(this.activeDiagram.id, this.correlation.id, this.flowNode.id, this.activeSolutionEntry.identity);
+    const tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup = await this._getTokenHistoryGroup;
 
-    this.tokenEntries = this._getBeautifiedTokenEntriesForFlowNode(tokenHistoryEntries);
-    this.rawTokenEntries = this._getRawTokenEntriesForFlowNode(tokenHistoryEntries);
+    this.tokenEntries = this._getBeautifiedTokenEntriesForFlowNode(tokenHistoryGroup);
+    this.rawTokenEntries = this._getRawTokenEntriesForFlowNode(tokenHistoryGroup);
 
     this.showTokenEntries = this.tokenEntries.length > 0;
     this.shouldShowFlowNodeId = this.tokenEntries.length > 0;
   }
 
-  private _getRawTokenEntriesForFlowNode(tokenHistoryEntries: Array<DataModels.TokenHistory.TokenHistoryEntry>): Array<IRawTokenEntry> {
-    const elementHasNoToken: boolean = tokenHistoryEntries === undefined;
+  private _clearTokenViewer(): void {
+    this.tokenEntries = undefined;
+    this.rawTokenEntries = undefined;
+    this.showTokenEntries = false;
+    this.shouldShowFlowNodeId = false;
+  }
+
+  private _processEngineSupportsFetchingTokensByProcessInstanceId(): boolean {
+    const processEngineVersion: string = this.activeSolutionEntry.processEngineVersion;
+
+    const noProcessEngineVersionSet: boolean = processEngineVersion === undefined;
+    if (noProcessEngineVersionSet) {
+      return false;
+    }
+
+    const regexResult: RegExpExecArray = versionRegex.exec(processEngineVersion);
+    const majorVersion: number = parseInt(regexResult[1]);
+    const minorVersion: number = parseInt(regexResult[2]);
+
+    // The version must be 8.1.0 or later
+    const processEngineSupportsEvents: boolean = majorVersion > 8
+                                            || (majorVersion === 8
+                                              && minorVersion >= 1);
+
+    return processEngineSupportsEvents;
+  }
+
+  private _getRawTokenEntriesForFlowNode(tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup): Array<IRawTokenEntry> {
+    const tokenEntries: Array<IRawTokenEntry> = [];
+
+    const elementHasNoToken: boolean = tokenHistoryGroup === undefined;
     if (elementHasNoToken) {
       return [];
     }
 
-    return tokenHistoryEntries.map((historyEntry: DataModels.TokenHistory.TokenHistoryEntry, index: number) => {
-      // tslint:disable-next-line no-magic-numbers
-      const payloadAsString: string = JSON.stringify(historyEntry.payload, null, 2);
+    Object.entries(tokenHistoryGroup).forEach(([flowNodeId, tokenHistoryEntries]: [string, Array<DataModels.TokenHistory.TokenHistoryEntry>]) => {
 
-      const tokenEntry: IRawTokenEntry = {
-        entryNr: index,
-        eventType: historyEntry.tokenEventType,
-        createdAt: historyEntry.createdAt,
-        payload: payloadAsString,
-      };
+      tokenHistoryEntries.forEach((historyEntry: DataModels.TokenHistory.TokenHistoryEntry, index: number) => {
+        // tslint:disable-next-line no-magic-numbers
+        const payloadAsString: string = JSON.stringify(historyEntry.payload, null, 2);
 
-      return tokenEntry;
+        const tokenEntry: IRawTokenEntry = {
+          entryNr: index,
+          eventType: historyEntry.tokenEventType,
+          createdAt: historyEntry.createdAt,
+          payload: payloadAsString,
+        };
+
+        tokenEntries.push(tokenEntry);
+      });
     });
+
+    return tokenEntries;
   }
 
-  private _getBeautifiedTokenEntriesForFlowNode(tokenHistoryEntries: Array<DataModels.TokenHistory.TokenHistoryEntry>): Array<ITokenEntry> {
+  private _getBeautifiedTokenEntriesForFlowNode(tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup): Array<ITokenEntry> {
     const tokenEntries: Array<ITokenEntry> = [];
 
-    const elementHasNoToken: boolean = tokenHistoryEntries === undefined;
+    const elementHasNoToken: boolean = tokenHistoryGroup === undefined;
     if (elementHasNoToken) {
-      return tokenEntries;
+      return [];
     }
 
-    tokenHistoryEntries.forEach((historyEntry: DataModels.TokenHistory.TokenHistoryEntry, index: number) => {
-      const historyEntryPayload: any = historyEntry.payload;
+    Object.entries(tokenHistoryGroup).forEach(([flowNodeId, tokenHistoryEntries]: [string, Array<DataModels.TokenHistory.TokenHistoryEntry>]) => {
 
-      const historyEntryHasNoPayload: boolean = historyEntryPayload === undefined;
-      if (historyEntryHasNoPayload) {
-        return;
-      }
+      tokenHistoryEntries.forEach((historyEntry: DataModels.TokenHistory.TokenHistoryEntry, index: number) => {
+        const historyEntryPayload: any = historyEntry.payload;
 
-      const tokenEntryPayload: Array<IPayloadEntry> = this._convertHistoryEntryPayloadToTokenEntryPayload(historyEntryPayload);
+        const historyEntryHasNoPayload: boolean = historyEntryPayload === undefined;
+        if (historyEntryHasNoPayload) {
+          return;
+        }
 
-      const tokenEntry: ITokenEntry = {
-        entryNr: index,
-        eventType: historyEntry.tokenEventType,
-        createdAt: historyEntry.createdAt,
-        payload: tokenEntryPayload,
-      };
+        const tokenEntryPayload: Array<IPayloadEntry> = this._convertHistoryEntryPayloadToTokenEntryPayload(historyEntryPayload);
 
-      tokenEntries.push(tokenEntry);
+        const tokenEntry: ITokenEntry = {
+          entryNr: index,
+          eventType: historyEntry.tokenEventType,
+          createdAt: historyEntry.createdAt,
+          payload: tokenEntryPayload,
+        };
+
+        tokenEntries.push(tokenEntry);
+      });
     });
 
     return tokenEntries;
