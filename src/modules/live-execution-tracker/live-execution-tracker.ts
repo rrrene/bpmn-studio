@@ -729,7 +729,15 @@ export class LiveExecutionTracker {
 
   private _createBackendEventListeners(): Promise<Array<Subscription>> {
     const processEndedCallback: Function = (): void => {
-      this._handleElementColorization();
+      // This is needed to make sure that the Diagrams gets colorized after the process has ended
+      const colorInterval: NodeJS.Timer = setInterval(() => {
+        if (this._isColorizing) {
+          return;
+        }
+
+        this._handleElementColorization();
+        clearInterval(colorInterval);
+      }, 100);
 
       this._sendProcessStoppedNotification();
     };
