@@ -122,16 +122,6 @@ export class LiveExecutionTracker {
   public async attached(): Promise<void> {
     this._attached = true;
 
-    // The version must be later than 8.1.0
-    const processEngineSupportsEvents: boolean = this._checkIfProcessEngineSupportsEvents();
-
-    if (processEngineSupportsEvents) {
-      // Create Backend EventListeners
-      this._eventListenerSubscriptions = await this._createBackendEventListeners();
-    } else {
-      this._startPolling();
-    }
-
     // Create Viewer
     this._diagramViewer = new bundle.viewer({
       additionalModules:
@@ -184,6 +174,16 @@ export class LiveExecutionTracker {
     await this._importXmlIntoDiagramViewer(xmlFromModeler);
 
     await this._handleElementColorization();
+
+    // The version must be later than 8.1.0
+    const processEngineSupportsEvents: boolean = this._checkIfProcessEngineSupportsEvents();
+
+    if (processEngineSupportsEvents) {
+      // Create Backend EventListeners
+      this._eventListenerSubscriptions = await this._createBackendEventListeners();
+    } else {
+      this._startPolling();
+    }
 
     // Add EventListener for Resizing
     this.tokenViewerResizeDiv.addEventListener('mousedown', (mouseDownEvent: Event) => {
