@@ -25,8 +25,8 @@
       <tbody class="log-table__body">
         <tr class="log-table__table-row" repeat.for="logEntry of sortedLog" click.delegate="copyToClipboard(logEntry.message)">
           <td class="log-table__table-entry log-table__time-column">${getDateStringFromTimestamp(logEntry.timeStamp)}</td>
-          <td class="log-table__table-entry log-table__flow-node-id-column">${logEntry.flowNodeId}</td>
-          <td class="log-table__table-entry log-table__flow-node-instance-id-column">${logEntry.flowNodeInstanceId}</td>
+          <td class="log-table__table-entry log-table__flow-node-id-column">${logEntry.flowNodeId || '-'}</td>
+          <td class="log-table__table-entry log-table__flow-node-instance-id-column">${logEntry.flowNodeInstanceId || '-'}</td>
           <td class="log-table__table-entry log-table__log-level-column">${logEntry.logLevel.toUpperCase()}</td>
           <td class="log-table__table-entry log-table__message-column">${logEntry.message}</td>
         </tr>
