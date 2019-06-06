@@ -60,7 +60,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     const activeTokensOrRequestError: Array<ActiveToken> | RequestError = await getActiveTokens();
 
     const couldNotGetActiveTokens: boolean = activeTokensOrRequestError === RequestError.ConnectionLost
-      || activeTokensOrRequestError === RequestError.OtherError;
+                                          || activeTokensOrRequestError === RequestError.OtherError;
     if (couldNotGetActiveTokens) {
       const requestError: RequestError = (activeTokensOrRequestError as RequestError);
 
