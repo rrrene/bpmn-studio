@@ -38,7 +38,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     return undefined;
   }
 
-  public async isCorrelationOfProcessInstanceActive(processInstanceId: string): Promise<boolean> {
+  public async isProcessInstanceActive(processInstanceId: string): Promise<boolean> {
 
     const getActiveTokens: Function = async(): Promise<Array<ActiveToken> | RequestError> => {
       for (let retries: number = 0; retries < this._maxRetries; retries++) {

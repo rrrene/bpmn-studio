@@ -15,7 +15,7 @@ export interface ILiveExecutionTrackerRepository {
 
   setIdentity(identity: IIdentity): void;
 
-  isCorrelationOfProcessInstanceActive(processInstanceId: string): Promise<boolean>;
+  isProcessInstanceActive(processInstanceId: string): Promise<boolean>;
 
   createProcessEndedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
   createProcessTerminatedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;

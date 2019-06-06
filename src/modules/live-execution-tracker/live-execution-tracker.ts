@@ -806,9 +806,9 @@ export class LiveExecutionTracker {
         return;
       }
 
-      const isCorrelationActive: Function = async(): Promise<boolean> => {
+      const isProcessInstanceActive: Function = async(): Promise<boolean> => {
         try {
-          return await this._liveExecutionTrackerService.isCorrelationOfProcessInstanceActive(this.processInstanceId);
+          return await this._liveExecutionTrackerService.isProcessInstanceActive(this.processInstanceId);
         } catch (error) {
           const connectionLost: boolean = error === RequestError.ConnectionLost;
           // Keep polling if connection is lost
@@ -826,7 +826,7 @@ export class LiveExecutionTracker {
 
       await this._handleElementColorization();
 
-      const correlationIsActive: boolean = await isCorrelationActive();
+      const correlationIsActive: boolean = await isProcessInstanceActive();
       const correlationIsNotActive: boolean = correlationIsActive === false;
       if (correlationIsNotActive) {
         this._sendProcessStoppedNotification();

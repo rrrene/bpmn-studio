@@ -32,8 +32,8 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     this._liveExecutionTrackerRepository.setIdentity(identity);
   }
 
-  public isCorrelationOfProcessInstanceActive(processInstanceId: string): Promise<boolean> {
-    return this._liveExecutionTrackerRepository.isCorrelationOfProcessInstanceActive(processInstanceId);
+  public isProcessInstanceActive(processInstanceId: string): Promise<boolean> {
+    return this._liveExecutionTrackerRepository.isProcessInstanceActive(processInstanceId);
   }
 
   public getCorrelationById(correlationId: string): Promise<DataModels.Correlations.Correlation> {
