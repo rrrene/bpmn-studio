@@ -622,6 +622,7 @@ export class LiveExecutionTracker {
 
           return;
         }
+
         resolve();
       });
     });
