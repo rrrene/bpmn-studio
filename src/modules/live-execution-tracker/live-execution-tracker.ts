@@ -827,10 +827,10 @@ export class LiveExecutionTracker {
 
       await this._handleElementColorization();
 
-      const correlationIsActive: boolean = await isProcessInstanceActive();
+      const processInstanceIsActive: boolean = await isProcessInstanceActive();
 
-      const correlationIsNotActive: boolean = correlationIsActive === false;
-      if (correlationIsNotActive) {
+      const processInstanceIsNotActive: boolean = processInstanceIsActive === false;
+      if (processInstanceIsNotActive) {
         this._sendProcessStoppedNotification();
 
         return;
