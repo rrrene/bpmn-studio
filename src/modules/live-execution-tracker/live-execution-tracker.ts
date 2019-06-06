@@ -80,6 +80,7 @@ export class LiveExecutionTracker {
   private _activeCallActivities: Array<IShape> = [];
   private _pollingTimer: NodeJS.Timer;
   private _isColorizing: boolean = false;
+  private _colorizeAgain: boolean = false;
 
   private _eventListenerSubscriptions: Array<Subscription> = [];
 
@@ -676,6 +677,8 @@ export class LiveExecutionTracker {
   private async _handleElementColorization(): Promise<void> {
     // This prevents the LET from Coloring several times at once
     if (this._isColorizing) {
+      this._colorizeAgain = true;
+
       return;
     }
 
@@ -704,6 +707,13 @@ export class LiveExecutionTracker {
     }
 
     this._isColorizing = false;
+
+    // If the colorization was triggered while colorizing, the colorization should be repeated as soon as it is finished
+    if (this._colorizeAgain) {
+      this._colorizeAgain = false;
+
+      this._handleElementColorization();
+    }
   }
 
   private async _getParentProcessInstanceId(): Promise<string> {
@@ -729,15 +739,7 @@ export class LiveExecutionTracker {
 
   private _createBackendEventListeners(): Promise<Array<Subscription>> {
     const processEndedCallback: Function = (): void => {
-      // This is needed to make sure that the Diagrams gets colorized after the process has ended
-      const colorInterval: NodeJS.Timer = setInterval(() => {
-        if (this._isColorizing) {
-          return;
-        }
-
-        this._handleElementColorization();
-        clearInterval(colorInterval);
-      }, 100);
+      this._handleElementColorization();
 
       this._sendProcessStoppedNotification();
     };
