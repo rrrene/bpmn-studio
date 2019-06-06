@@ -272,6 +272,8 @@ export class LiveExecutionTracker {
 
   public async stopProcessInstance(): Promise<void> {
     this._liveExecutionTrackerService.terminateProcess(this.processInstanceId);
+
+    this._startPolling();
   }
 
   private _checkIfProcessEngineSupportsEvents(): boolean {
