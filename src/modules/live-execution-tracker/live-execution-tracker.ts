@@ -729,9 +729,7 @@ export class LiveExecutionTracker {
     const processEndedCallback: Function = (): void => {
       this._handleElementColorization();
 
-      this._processStopped = true;
-
-      this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
+      this._sendProcessStoppedNotification();
     };
 
     const colorizationCallback: Function = (): void => {
@@ -819,9 +817,7 @@ export class LiveExecutionTracker {
       const correlationIsActive: boolean = await isCorrelationActive();
       const correlationIsNotActive: boolean = correlationIsActive === false;
       if (correlationIsNotActive) {
-        this._processStopped = true;
-
-        this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
+        this._sendProcessStoppedNotification();
 
         return;
       }
@@ -832,6 +828,12 @@ export class LiveExecutionTracker {
 
   private _stopPolling(): void {
     clearTimeout(this._pollingTimer);
+  }
+
+  private _sendProcessStoppedNotification(): void {
+    this._processStopped = true;
+
+    this._notificationService.showNotification(NotificationType.INFO, 'Process stopped.');
   }
 
   private _resizeTokenViewer(mouseEvent: MouseEvent): void {
