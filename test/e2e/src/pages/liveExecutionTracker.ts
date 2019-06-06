@@ -31,10 +31,10 @@ export class LiveExecutionTracker {
     return this._callActivityOverlays.isDisplayed();
   }
 
-  public async getVisbilityOfEmptyTaskOverlay(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._emptyTaskOverlays);
+  public async getVisbilityOfEmptyActivityOverlay(): Promise<boolean> {
+    await this._waitForVisbilityOfElement(this._emptyActivityOverlays);
 
-    return this._emptyTaskOverlays.isDisplayed();
+    return this._emptyActivityOverlays.isDisplayed();
   }
 
   private async _waitForVisbilityOfElement(finder: ElementFinder): Promise<void> {
@@ -59,11 +59,11 @@ export class LiveExecutionTracker {
     return element(_callActivityOverlaysByCss);
   }
 
-  private get _emptyTaskOverlays(): ElementFinder {
-    const _emptyTaskOverlaysByCss: By = by.className('fas fa-play let__overlay-button-icon overlay__empty-task');
+  private get _emptyActivityOverlays(): ElementFinder {
+    const _emptyActivityOverlaysByCss: By = by.className('fas fa-play let__overlay-button-icon overlay__empty-task');
 
-    const allEmptyTaskOverlays: ElementArrayFinder = element.all(_emptyTaskOverlaysByCss);
+    const allEmptyActivityOverlays: ElementArrayFinder = element.all(_emptyActivityOverlaysByCss);
 
-    return allEmptyTaskOverlays.first();
+    return allEmptyActivityOverlays.first();
   }
 }

@@ -4,6 +4,7 @@ import {Router} from 'aurelia-router';
 
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
+import * as moment from 'moment';
 
 import {
   AuthenticationStateEvent,
@@ -22,6 +23,7 @@ export class ProcessList {
   public pageSize: number = 10;
   public totalItems: number;
   public requestSuccessful: boolean = false;
+  public correlations: Array<DataModels.Correlations.Correlation> = [];
 
   private _managementApiService: IManagementApi;
   private _eventAggregator: EventAggregator;
@@ -33,6 +35,7 @@ export class ProcessList {
   private _pollingTimeout: NodeJS.Timer | number;
   private _subscriptions: Array<Subscription>;
   private _correlations: Array<DataModels.Correlations.Correlation> = [];
+  private _stoppedCorrelations: Array<DataModels.Correlations.Correlation> = [];
   private _isAttached: boolean = false;
 
   constructor(managementApiService: IManagementApi,
@@ -47,23 +50,20 @@ export class ProcessList {
     this._router = router;
   }
 
-  public get correlations(): Array<DataModels.Correlations.Correlation> {
-    const firstCorrelationIndex: number = (this.currentPage - 1) * this.pageSize;
-    const lastCorrelationIndex: number = (this.pageSize * this.currentPage);
-
-    return this._correlations.slice(firstCorrelationIndex, lastCorrelationIndex);
+  public activeSolutionEntryChanged(): void {
+    this._stoppedCorrelations = [];
   }
 
   public async currentPageChanged(newValue: number, oldValue: number): Promise<void> {
     const oldValueIsDefined: boolean = oldValue !== undefined && oldValue !== null;
 
     if (oldValueIsDefined) {
-      await this.updateCorrelationList();
+      this._updateCorrelationsToDisplay();
     }
   }
 
   public async attached(): Promise<void> {
-    this._isAttached = false;
+    this._isAttached = true;
     this._activeSolutionUri = this._router.currentInstruction.queryParams.solutionUri;
 
     const activeSolutionUriIsNotSet: boolean = this._activeSolutionUri === undefined;
@@ -92,16 +92,6 @@ export class ProcessList {
     ];
   }
 
-  private _startPolling(): void {
-    this._pollingTimeout = setTimeout(async() => {
-      await this.updateCorrelationList();
-
-      if (this._isAttached) {
-        this._startPolling();
-      }
-    }, environment.processengine.dashboardPollingIntervalInMs);
-  }
-
   public detached(): void {
     this._isAttached = false;
     clearTimeout(this._pollingTimeout as NodeJS.Timer);
@@ -114,10 +104,13 @@ export class ProcessList {
   public async updateCorrelationList(): Promise<void> {
     try {
       const correlations: Array<DataModels.Correlations.Correlation> = await this.getAllActiveCorrelations();
-      const correlationListWasUpdated: boolean = JSON.stringify(correlations) !== JSON.stringify(this._correlations);
+      const correlationListWasUpdated: boolean = JSON.stringify(correlations.sort(this._sortCorrelations)) !== JSON.stringify(this._correlations);
 
       if (correlationListWasUpdated) {
         this._correlations = correlations;
+        this._correlations.sort(this._sortCorrelations);
+
+        this._updateCorrelationsToDisplay();
       }
 
       this.requestSuccessful = true;
@@ -134,11 +127,29 @@ export class ProcessList {
     this.totalItems = this._correlations.length;
   }
 
-  public async stopProcessInstance(processInstanceId: string): Promise<void> {
+  public async stopProcessInstance(processInstanceId: string, correlation: DataModels.Correlations.Correlation): Promise<void> {
     try {
+
       await this._managementApiService.terminateProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
 
-      this._correlations = await this.getAllActiveCorrelations();
+      const getStoppedCorrelation: Function = ((): void => {
+        setTimeout(async() => {
+
+          const stoppedCorrelation: DataModels.Correlations.Correlation =
+            await this._managementApiService.getCorrelationByProcessInstanceId(this.activeSolutionEntry.identity, processInstanceId);
+
+          const stoppedCorrelationIsNotStopped: boolean = stoppedCorrelation.state === 'running';
+          if (stoppedCorrelationIsNotStopped) {
+            return getStoppedCorrelation();
+          }
+
+          this._stoppedCorrelations.push(stoppedCorrelation);
+          // tslint:disable-next-line: no-magic-numbers
+        }, 100);
+      });
+
+      getStoppedCorrelation();
+      await this.updateCorrelationList();
 
     } catch (error) {
       this._notificationService
@@ -146,9 +157,37 @@ export class ProcessList {
     }
   }
 
+  public formatDate(date: string): string {
+    return moment(date).format('YYYY-MM-DD HH:mm:ss');
+  }
+
   private async getAllActiveCorrelations(): Promise<Array<DataModels.Correlations.Correlation>> {
     const identity: IIdentity = this.activeSolutionEntry.identity;
 
     return this._managementApiService.getActiveCorrelations(identity);
+  }
+
+  private _startPolling(): void {
+    this._pollingTimeout = setTimeout(async() => {
+      await this.updateCorrelationList();
+
+      if (this._isAttached) {
+        this._startPolling();
+      }
+    }, environment.processengine.dashboardPollingIntervalInMs);
+  }
+
+  private _sortCorrelations(correlation1: DataModels.Correlations.Correlation, correlation2: DataModels.Correlations.Correlation): number {
+    return Date.parse(correlation2.createdAt.toString()) - Date.parse(correlation1.createdAt.toString());
+  }
+
+  private _updateCorrelationsToDisplay(): void {
+    const firstCorrelationIndex: number = (this.currentPage - 1) * this.pageSize;
+    const lastCorrelationIndex: number = (this.pageSize * this.currentPage);
+
+    this.correlations = this._correlations;
+    this.correlations.push(...this._stoppedCorrelations);
+    this.correlations.sort(this._sortCorrelations);
+    this.correlations = this.correlations.slice(firstCorrelationIndex, lastCorrelationIndex);
   }
 }

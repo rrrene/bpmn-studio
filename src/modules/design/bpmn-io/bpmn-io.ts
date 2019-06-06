@@ -479,11 +479,7 @@ export class BpmnIo {
       }
     });
 
-    const eventToPublish: string = validationResultContainsErrors
-                                 ? environment.events.navBar.validationError
-                                 : environment.events.navBar.noValidationError;
-
-    this._eventAggregator.publish(eventToPublish);
+    this.diagramIsInvalid = validationResultContainsErrors;
   }
 
   public _togglePanel(): void {
@@ -785,15 +781,6 @@ export class BpmnIo {
     if (userWantsToPrint) {
       // Prevent the browser from handling the default action for CMD/CTRL + p.
       event.preventDefault();
-      /**
-       * We don't want the user to print an invalid diagram.
-       */
-      if (this.diagramIsInvalid) {
-        this._notificationService.showNotification(NotificationType.WARNING,
-          `The Diagram is invalid. Please resolve this issues to print the diagram`);
-
-        return;
-      }
 
       // TODO: Handle the promise properly
       this.getSVG().then((svg: string): void => {

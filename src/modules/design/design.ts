@@ -187,6 +187,8 @@ export class Design {
 
       this._showDiff();
     }
+
+    this._eventAggregator.publish(environment.events.navBar.noValidationError);
   }
 
   public async attached(): Promise<void> {
