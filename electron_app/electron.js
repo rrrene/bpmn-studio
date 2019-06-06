@@ -432,6 +432,16 @@ Main._createMainWindow = function () {
             click: () => {
               Main._window.webContents.send('menubar__start_create_diagram');
             }
+          },
+          {
+            type: "separator",
+          },
+          {
+            label: "Save As...",
+            accelerator: "CmdOrCtrl+Shift+S",
+            click: () => {
+              Main._window.webContents.send('menubar__start_save_diagram_as');
+            }
           }
         ],
       };
