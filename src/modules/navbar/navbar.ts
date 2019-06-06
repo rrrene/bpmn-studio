@@ -263,10 +263,6 @@ export class NavBar {
       return 'This process is already deployed to the remote ProcessEngine.';
     }
 
-    if (this.validationError) {
-      return 'There was a problem with this diagram. Please check the linter for more information.';
-    }
-
     return 'Deploy to ProcessEngine';
   }
 
@@ -275,19 +271,7 @@ export class NavBar {
       return 'Please deploy the process to a ProcessEngine before starting it.';
     }
 
-    if (this.validationError) {
-      return 'There was a problem with this diagram. Please check the linter for more information.';
-    }
-
     return 'Start Process';
-  }
-
-  public get saveButtonTitle(): string {
-    if (this.validationError || this.savingTargetIsRemoteSolution) {
-      return 'There was a problem with this diagram. Please check the linter for more information.';
-    }
-
-    return 'Save Diagram';
   }
 
   /**
