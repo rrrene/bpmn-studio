@@ -10,7 +10,7 @@
         <diagram-viewer class="inspect-correlation__diagram-viewer" selected-flow-node.two-way="selectedFlowNode" active-diagram.bind="activeDiagram" process-instance.to-view="selectedProcessInstance"></diagram-viewer>
         <div class="inspect-correlation__right-resize-div" ref="rightPanelResizeDiv" show.bind="showTokenViewer"></div>
         <token-viewer class="inspect-correlation__token-viewer" css="width: ${tokenViewerWidth}px;"
-          correlation.bind="correlation"
+          correlation.bind="selectedCorrelation"
           active-diagram.bind="activeDiagram"
           flow-node.bind="selectedFlowNode"
           active-solution-entry.bind="activeSolutionEntry"
