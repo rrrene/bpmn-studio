@@ -6,15 +6,74 @@ export class DateService {
   private _year: string;
   private _hour: string;
   private _minute: string;
+  private _second: string;
 
   constructor(date: Date) {
     this._date = date;
   }
 
   public asFormattedDate(): string {
-    const formattedDate: string = `${this._day}.${this._month}.${this._year} ${this._hour}:${this._minute}`;
+    return `${this._getDate()} ${this._getTime()}`;
+  }
 
-    return formattedDate;
+  public _getDate(): string {
+    const dayIsSet: boolean = this._day !== undefined;
+    const monthIsSet: boolean = this._month !== undefined;
+    const yearIsSet: boolean = this._year !== undefined;
+
+    let date: string = '';
+
+    if (dayIsSet) {
+      date += this._day;
+
+      if (monthIsSet || yearIsSet) {
+        date += '.';
+      }
+    }
+
+    if (monthIsSet) {
+      date += this._month;
+
+      if (yearIsSet) {
+        date += '.';
+      }
+    }
+
+    if (yearIsSet) {
+      date += this._year;
+    }
+
+    return date;
+  }
+
+  private _getTime(): string {
+    const hourIsSet: boolean = this._hour !== undefined;
+    const minuteIsSet: boolean = this._minute !== undefined;
+    const secondIsSet: boolean = this._second !== undefined;
+
+    let time: string = '';
+
+    if (hourIsSet) {
+      time += this._hour;
+
+      if (minuteIsSet || secondIsSet) {
+        time += ':';
+      }
+    }
+
+    if (minuteIsSet) {
+      time += this._minute;
+
+      if (secondIsSet) {
+        time += ':';
+      }
+    }
+
+    if (secondIsSet) {
+      time += this._second;
+    }
+
+    return time;
   }
 
   public day(): DateService {
@@ -65,6 +124,17 @@ export class DateService {
 
     this._minute = minuteIsOneChar ? `0${minute}`
                                    : minute;
+
+    return this;
+  }
+
+  public seconds(): DateService {
+    const second: string = `${this._date.getSeconds()}`;
+
+    const secondIsOneChar: boolean = second.length === 1;
+
+    this._second = secondIsOneChar ? `0${second}`
+                                   : second;
 
     return this;
   }

@@ -103,6 +103,7 @@ export class CorrelationList {
                                               .day()
                                               .hours()
                                               .minutes()
+                                              .seconds()
                                               .asFormattedDate();
 
         const index: number = this._getIndexForProcessInstance(processInstance);

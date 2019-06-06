@@ -63,6 +63,7 @@ export class LogViewer {
                                 .day()
                                 .hours()
                                 .minutes()
+                                .seconds()
                                 .asFormattedDate();
 
     return dateString;
