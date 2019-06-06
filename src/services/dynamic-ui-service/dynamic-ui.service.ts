@@ -32,8 +32,8 @@ export class DynamicUiService implements IDynamicUiService {
                            processInstanceId: string,
                            userTaskId: string): Promise<DataModels.UserTasks.UserTask> {
 
-    const userTaskList: DataModels.UserTasks.UserTaskList = await this._managementApiClient.getUserTasksForProcessInstance(identity,
-                                                                                                                processInstanceId);
+    const userTaskList: DataModels.UserTasks.UserTaskList =
+      await this._managementApiClient.getUserTasksForProcessInstance(identity, processInstanceId);
 
     return  userTaskList.userTasks.find((userTask: DataModels.UserTasks.UserTask) => {
       return userTask.id === userTaskId;
@@ -55,8 +55,8 @@ export class DynamicUiService implements IDynamicUiService {
                              processInstanceId: string,
                              manualTaskId: string): Promise<DataModels.ManualTasks.ManualTask> {
 
-    const manualTaskList: DataModels.ManualTasks.ManualTaskList = await this._managementApiClient.getManualTasksForProcessInstance(identity,
-                                                                                                                                   processInstanceId);
+    const manualTaskList: DataModels.ManualTasks.ManualTaskList =
+      await this._managementApiClient.getManualTasksForProcessInstance(identity, processInstanceId);
 
     return  manualTaskList.manualTasks.find((manualTask: DataModels.ManualTasks.ManualTask) => {
       return manualTask.id === manualTaskId;
