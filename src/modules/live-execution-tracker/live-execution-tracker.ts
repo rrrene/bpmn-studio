@@ -708,7 +708,7 @@ export class LiveExecutionTracker {
 
     this._isColorizing = false;
 
-    // If the colorization was triggered while colorizing, the colorization should be repeated as soon as it is finished
+    // If the colorization was triggered while colorizing, the colorization needs to be repeated as soon as it is finished
     if (this._colorizeAgain) {
       this._colorizeAgain = false;
 
