@@ -254,6 +254,7 @@ export class BpmnIo {
     });
 
     document.addEventListener('keydown', this._saveHotkeyEventHandler);
+    document.addEventListener('keydown', this._saveAsHotkeyEventHandler);
     document.addEventListener('keydown', this._printHotkeyEventHandler);
 
     this._hideOrShowPpForSpaceReasons();
@@ -385,6 +386,7 @@ export class BpmnIo {
     this.modeler.destroy();
     window.removeEventListener('resize', this._resizeEventHandler);
     document.removeEventListener('keydown', this._saveHotkeyEventHandler);
+    document.removeEventListener('keydown', this._saveAsHotkeyEventHandler);
     document.removeEventListener('keydown', this._printHotkeyEventHandler);
 
     for (const subscription of this._subscriptions) {
@@ -833,6 +835,23 @@ export class BpmnIo {
     event.preventDefault();
 
     this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
+  }
+
+  private _saveAsHotkeyEventHandler = (event: KeyboardEvent): void  => {
+    const currentPlatformIsMac: boolean = this._checkIfCurrentPlatformIsMac();
+    const metaKeyIsPressed: boolean = currentPlatformIsMac ? event.metaKey : event.ctrlKey;
+    const shiftKeyIsPressed: boolean = event.shiftKey;
+    const sKeyIsPressed: boolean = event.key === 's';
+
+    const userDoesNotWantToSaveAs: boolean = !(metaKeyIsPressed && shiftKeyIsPressed && sKeyIsPressed);
+
+    if (userDoesNotWantToSaveAs) {
+      return;
+    }
+
+    event.preventDefault();
+
+    this._eventAggregator.publish(`${environment.events.diagramDetail.exportDiagramAs}:BPMN`);
   }
 
   /**
