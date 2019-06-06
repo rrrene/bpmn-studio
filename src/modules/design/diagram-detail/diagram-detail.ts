@@ -97,6 +97,7 @@ export class DiagramDetail {
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
     if (isRunningInElectron) {
       this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+      this._ipcRenderer.on('menubar__start_save_diagram_as', this._electronOnSaveDiagramAs);
     }
 
     this._eventAggregator.publish(environment.events.navBar.showTools);
@@ -128,6 +129,7 @@ export class DiagramDetail {
         await this.showSelectStartEventDialog();
       }),
     ];
+
   }
 
   public correlationChanged(newValue: string): void {
@@ -160,6 +162,11 @@ export class DiagramDetail {
   }
 
   public detached(): void {
+    const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
+    if (isRunningInElectron) {
+      this._ipcRenderer.removeListener('menubar__start_save_diagram_as', this._electronOnSaveDiagramAs);
+    }
+
     for (const subscription of this._subscriptions) {
       subscription.dispose();
     }
@@ -502,6 +509,10 @@ export class DiagramDetail {
     this.diagramHasChanged
       ? this.showSaveForStartModal = true
       : await this.showSelectStartEventDialog();
+  }
+
+  private _electronOnSaveDiagramAs = async(_: Event): Promise<void> => {
+    this._eventAggregator.publish(`${environment.events.diagramDetail.exportDiagramAs}:BPMN`);
   }
 
   private _handleFormValidateEvents(event: ValidateEvent): void {
