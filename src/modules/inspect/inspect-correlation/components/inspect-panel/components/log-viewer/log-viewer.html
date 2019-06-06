@@ -8,6 +8,12 @@
           <th class="log-table__headline log-table__time-column" click.delegate="sortList(LogSortProperty.Time)">
             Time <i if.bind="sortSettings.sortProperty === LogSortProperty.Time" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
           </th>
+          <th class="log-table__headline log-table__flow-node-id-column" click.delegate="sortList(LogSortProperty.FlowNodeId)">
+            FlowNodeId <i if.bind="sortSettings.sortProperty === LogSortProperty.FlowNodeId" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
+          </th>
+          <th class="log-table__headline log-table__flow-node-instance-id-column" click.delegate="sortList(LogSortProperty.FlowNodeInstanceId)">
+            FlowNodeInstanceId <i if.bind="sortSettings.sortProperty === LogSortProperty.FlowNodeInstanceId" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
+          </th>
           <th class="log-table__headline log-table__log-level-column" click.delegate="sortList(LogSortProperty.LogLevel)">
             Level <i if.bind="sortSettings.sortProperty === LogSortProperty.LogLevel" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
           </th>
@@ -19,6 +25,8 @@
       <tbody class="log-table__body">
         <tr class="log-table__table-row" repeat.for="logEntry of sortedLog" click.delegate="copyToClipboard(logEntry.message)">
           <td class="log-table__table-entry log-table__time-column">${getDateStringFromTimestamp(logEntry.timeStamp)}</td>
+          <td class="log-table__table-entry log-table__flow-node-id-column">${logEntry.flowNodeId}</td>
+          <td class="log-table__table-entry log-table__flow-node-instance-id-column">${logEntry.flowNodeInstanceId}</td>
           <td class="log-table__table-entry log-table__log-level-column">${logEntry.logLevel.toUpperCase()}</td>
           <td class="log-table__table-entry log-table__message-column">${logEntry.message}</td>
         </tr>
