@@ -85,6 +85,20 @@ export class LogViewer {
   private _getSortedLogByProperty(property: LogSortProperty): Array<DataModels.Logging.LogEntry> {
     const sortedLog: Array<DataModels.Logging.LogEntry> =
       this.log.sort((firstEntry: DataModels.Logging.LogEntry, secondEntry: DataModels.Logging.LogEntry) => {
+
+        // FlowNodeId and FlowNodeInstanceId can be 'undefined', if the LogEntry is for a ProcessInstance.
+        // Using 'greaterThan' in conjunction with 'undefined' will always be "false", which will mess up the sorting.
+        // So these cases must be handled separately.
+        const firstFieldIsUndefined: boolean = !firstEntry[property];
+        if (firstFieldIsUndefined) {
+          return -1;
+        }
+
+        const secondFieldIsUndefined: boolean = !secondEntry[property];
+        if (secondFieldIsUndefined) {
+          return 1;
+        }
+
         const firstEntryIsBigger: boolean = firstEntry[property] > secondEntry[property];
         if (firstEntryIsBigger) {
           return 1;

@@ -55,13 +55,20 @@
 .log-table__time-column {
   width: 150px;
 }
-
-.log-table__message-column {
-  width: calc(100% - 250px);
-}
-
 .log-table__log-level-column {
   width: 100px;
+}
+
+.log-table__flow-node-id-column {
+  width: 150px;
+}
+
+.log-table__flow-node-instance-id-column {
+  width: 200px;
+}
+
+.log-table__message-column {
+  width: calc(100% - 600px);
 }
 
 .log-table__empty-message {
