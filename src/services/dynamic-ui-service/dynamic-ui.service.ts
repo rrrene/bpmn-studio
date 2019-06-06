@@ -29,13 +29,11 @@ export class DynamicUiService implements IDynamicUiService {
   }
 
   public async getUserTask(identity: IIdentity,
-                           correlationId: string,
-                           processModelId: string,
+                           processInstanceId: string,
                            userTaskId: string): Promise<DataModels.UserTasks.UserTask> {
 
-    const userTaskList: DataModels.UserTasks.UserTaskList = await this._managementApiClient.getUserTasksForProcessModelInCorrelation(identity,
-                                                                                                                processModelId,
-                                                                                                                correlationId);
+    const userTaskList: DataModels.UserTasks.UserTaskList = await this._managementApiClient.getUserTasksForProcessInstance(identity,
+                                                                                                                processInstanceId);
 
     return  userTaskList.userTasks.find((userTask: DataModels.UserTasks.UserTask) => {
       return userTask.id === userTaskId;
@@ -54,13 +52,11 @@ export class DynamicUiService implements IDynamicUiService {
   }
 
   public async getManualTask(identity: IIdentity,
-                             correlationId: string,
-                             processModelId: string,
+                             processInstanceId: string,
                              manualTaskId: string): Promise<DataModels.ManualTasks.ManualTask> {
 
-    const manualTaskList: DataModels.ManualTasks.ManualTaskList = await this._managementApiClient.getManualTasksForProcessModelInCorrelation(identity,
-                                                                                                                      processModelId,
-                                                                                                                      correlationId);
+    const manualTaskList: DataModels.ManualTasks.ManualTaskList = await this._managementApiClient.getManualTasksForProcessInstance(identity,
+                                                                                                                                   processInstanceId);
 
     return  manualTaskList.manualTasks.find((manualTask: DataModels.ManualTasks.ManualTask) => {
       return manualTask.id === manualTaskId;

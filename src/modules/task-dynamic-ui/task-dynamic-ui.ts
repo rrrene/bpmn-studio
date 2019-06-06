@@ -178,18 +178,14 @@ export class TaskDynamicUi {
   private async getTask(): Promise<void> {
 
     try {
-      const correlationNotGiven: boolean = this.correlationId === undefined;
-      const processModelIdNotGiven: boolean = this.processModelId === undefined;
+      const processInstanceIdNotGiven: boolean = this.processInstanceId === undefined;
 
-      if (correlationNotGiven) {
-        throw Error(`Invalid Correlation ID: ${this.correlationId}`);
-      }
-      if (processModelIdNotGiven) {
-        throw Error(`Invalid ProcessModel ID: ${this.processModelId}`);
+      if (processInstanceIdNotGiven) {
+        throw Error(`Invalid ProcessInstance ID: ${this.processInstanceId}`);
       }
 
       this.userTask = await this._dynamicUiService
-                                  .getUserTask(this._identity, this.correlationId, this.processModelId, this.taskId);
+                                  .getUserTask(this._identity, this.processInstanceId, this.taskId);
 
       const userTaskFound: boolean = this._userTask !== undefined;
       if (userTaskFound) {
@@ -197,7 +193,7 @@ export class TaskDynamicUi {
       }
 
       this.manualTask = await this._dynamicUiService
-                                    .getManualTask(this._identity, this.correlationId, this.processModelId, this.taskId);
+                                    .getManualTask(this._identity, this.processInstanceId, this.taskId);
 
       const manualTaskFound: boolean = this._manualTask !== undefined;
       if (manualTaskFound) {

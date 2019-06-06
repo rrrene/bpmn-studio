@@ -9,8 +9,7 @@ export interface IDynamicUiService {
                  userTaskResult: DataModels.UserTasks.UserTaskResult): void;
 
   getUserTask(identity: IIdentity,
-              correlationId: string,
-              processModelId: string,
+              processInstanceId: string,
               userTaskId: string): Promise<DataModels.UserTasks.UserTask>;
 
   finishManualTask(identity: IIdentity,
@@ -19,7 +18,6 @@ export interface IDynamicUiService {
                    manualTaskInstanceId: string): void;
 
   getManualTask(identity: IIdentity,
-                correlationId: string,
-                processModelId: string,
+                processInstanceId: string,
                 manualTaskId: string): Promise<DataModels.ManualTasks.ManualTask>;
 }
