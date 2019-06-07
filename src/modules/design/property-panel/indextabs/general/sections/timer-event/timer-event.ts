@@ -119,12 +119,10 @@ export class TimerEventSection implements ISection {
   private _init(): void {
     const {timeDate, timeDuration, timeCycle} = this._businessObjInPanel.eventDefinitions[0];
 
-    // Note: Temporarily disabled, until Cyclic timer support is implemented in the runtime.
-    //
-    // if (timeCycle !== undefined) {
-    //   this.timerType = TimerType.Cycle;
-    //   return;
-    // }
+    if (timeCycle !== undefined) {
+      this.timerType = TimerType.Cycle;
+      return;
+    }
 
     if (timeDuration !== undefined) {
       this.timerType = TimerType.Duration;
@@ -147,11 +145,9 @@ export class TimerEventSection implements ISection {
       return timeDate;
     }
 
-    // Note: Temporarily disabled, until Cyclic timer support is implemented in the runtime.
-    //
-    // if (timeCycle !== undefined) {
-    //   return timeCycle;
-    // }
+    if (timeCycle !== undefined) {
+      return timeCycle;
+    }
 
     const timerEventDefinition: IModdleElement = this._moddle.create('bpmn:FormalExpression', {body: ''});
     return timerEventDefinition;
