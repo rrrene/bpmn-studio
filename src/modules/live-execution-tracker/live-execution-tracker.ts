@@ -294,7 +294,7 @@ export class LiveExecutionTracker {
     const majorVersion: number = parseInt(regexResult[1]);
     const minorVersion: number = parseInt(regexResult[2]);
 
-    // The version must be later than 8.3.0
+    // The version must be 8.4.0 or later
     const processEngineSupportsEvents: boolean = majorVersion > 8
                                               || (majorVersion === 8
                                                && minorVersion >= 4);
@@ -702,11 +702,12 @@ export class LiveExecutionTracker {
 
   private async _handleElementColorization(): Promise<void> {
     // This prevents the LET from Coloring several times at once
-    if (this._isColorizing) {
-      this._colorizeAgain = true;
+    // Disabled, because this will break colorizing in parallel running branches, when notifications are used.
+    // if (this._isColorizing) {
+    //   this._colorizeAgain = true;
 
-      return;
-    }
+    //   return;
+    // }
 
     this._isColorizing = true;
 
@@ -792,10 +793,10 @@ export class LiveExecutionTracker {
       this._liveExecutionTrackerService.createEmptyActivityWaitingEventListener(this.processInstanceId, colorizationCallback);
     const emptyActivityFinishedSubscriptionPromise: Promise<Subscription> =
       this._liveExecutionTrackerService.createEmptyActivityFinishedEventListener(this.processInstanceId, colorizationCallback);
-    const callActivityWaitingSubscriptionPromise: Promise<Subscription> =
-      this._liveExecutionTrackerService.createCallActivityWaitingEventListener(this.processInstanceId, colorizationCallback);
-    const callActivityFinishedSubscriptionPromise: Promise<Subscription> =
-      this._liveExecutionTrackerService.createCallActivityFinishedEventListener(this.processInstanceId, colorizationCallback);
+    const activityReachedSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createActivityReachedEventListener(this.processInstanceId, colorizationCallback);
+    const activityFinishedSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createActivityFinishedEventListener(this.processInstanceId, colorizationCallback);
     const boundaryEventTriggeredSubscriptionPromise: Promise<Subscription> =
       this._liveExecutionTrackerService.createBoundaryEventTriggeredEventListener(this.processInstanceId, colorizationCallback);
     const intermediateThrowEventTriggeredSubscriptionPromise: Promise<Subscription> =
@@ -814,8 +815,8 @@ export class LiveExecutionTracker {
                                                                 manualTaskFinishedSubscriptionPromise,
                                                                 emptyActivityWaitingSubscriptionPromise,
                                                                 emptyActivityFinishedSubscriptionPromise,
-                                                                callActivityWaitingSubscriptionPromise,
-                                                                callActivityFinishedSubscriptionPromise,
+                                                                activityReachedSubscriptionPromise,
+                                                                activityFinishedSubscriptionPromise,
                                                                 boundaryEventTriggeredSubscriptionPromise,
                                                                 intermediateThrowEventTriggeredSubscriptionPromise,
                                                                 intermediateCatchEventReachedSubscriptionPromise,
