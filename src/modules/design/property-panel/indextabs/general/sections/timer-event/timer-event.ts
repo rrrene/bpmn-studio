@@ -25,6 +25,7 @@ export class TimerEventSection implements ISection {
   public timerElement: IModdleElement;
   public TimerType: typeof TimerType = TimerType;
   public timerType: TimerType;
+  public isTimerStartEvent: boolean = false;
 
   private _businessObjInPanel: ITimerEventElement;
   private _moddle: IBpmnModdle;
@@ -42,6 +43,8 @@ export class TimerEventSection implements ISection {
     this._linter = model.modeler.get('linting');
 
     this.timerElement = this._getTimerElement();
+
+    this.isTimerStartEvent = this._businessObjInPanel.$type === 'bpmn:StartEvent';
 
     this._init();
   }
