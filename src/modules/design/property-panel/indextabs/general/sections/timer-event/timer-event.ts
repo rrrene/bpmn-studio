@@ -86,9 +86,9 @@ export class TimerEventSection implements ISection {
         break;
       }
       case TimerType.Cycle: {
-        timerTypeObject = {
-          timeCycle: moddleElement,
-        };
+        timerTypeObject = this.isTimerStartEvent
+          ? {timeCycle: moddleElement}
+          : {};
         break;
       }
       default: {
@@ -119,7 +119,7 @@ export class TimerEventSection implements ISection {
   private _init(): void {
     const {timeDate, timeDuration, timeCycle} = this._businessObjInPanel.eventDefinitions[0];
 
-    if (timeCycle !== undefined) {
+    if (timeCycle !== undefined &&  this.isTimerStartEvent) {
       this.timerType = TimerType.Cycle;
       return;
     }
@@ -145,7 +145,7 @@ export class TimerEventSection implements ISection {
       return timeDate;
     }
 
-    if (timeCycle !== undefined) {
+    if (timeCycle !== undefined && this.isTimerStartEvent) {
       return timeCycle;
     }
 
