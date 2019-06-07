@@ -109,10 +109,7 @@ export class TimerEventSection implements ISection {
   }
 
   public updateTimerDefinition(): void {
-    const timeElement: IModdleElement = this._getTimerElement();
-    timeElement.body = this.timerElement.body;
     this._publishDiagramChange();
-
     this._updateLinterWhenActive();
   }
 
