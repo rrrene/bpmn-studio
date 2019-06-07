@@ -40,14 +40,14 @@ export interface ILiveExecutionTrackerService {
   createProcessEndedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
   createProcessTerminatedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
 
-  createUserTaskWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
-  createUserTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
-  createManualTaskWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
-  createManualTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createActivityReachedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
   createEmptyActivityWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
   createEmptyActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
-  createCallActivityWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
-  createCallActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createManualTaskWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createManualTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createUserTaskWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createUserTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
   createBoundaryEventTriggeredEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
   createIntermediateThrowEventTriggeredEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
   createIntermediateCatchEventReachedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
