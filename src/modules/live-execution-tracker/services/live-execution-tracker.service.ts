@@ -177,8 +177,17 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return elementsWithTokenHistory;
   }
 
-  public getElementsWhereProcessWasStopped(processInstanceId: string): Promise<Array<IShape>> {
-    return Promise.resolve([]);
+  private async getElementsWhereProcessWasStopped(processInstanceId: string): Promise<Array<IShape>> {
+    const flowNodeInstances: Array<DataModels.FlowNodes.FlowNodeInstance> =
+      await this._liveExecutionTrackerRepository.getFlowNodeInstancesForProcessInstance(processInstanceId);
+
+    return flowNodeInstances
+      .filter((flowNodeInstance: DataModels.FlowNodes.FlowNodeInstance) => {
+        return flowNodeInstance.state === 'error';
+      })
+      .map((flowNodeInstance: DataModels.FlowNodes.FlowNodeInstance) => {
+      return this._elementRegistry.get(flowNodeInstance.flowNodeId);
+    });
   }
 
   public getAllElementsThatCanHaveAToken(): Array<IShape> {

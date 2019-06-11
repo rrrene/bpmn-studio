@@ -21,6 +21,10 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     this._managementApiClient = managementApiClientService;
   }
 
+  public async getFlowNodeInstancesForProcessInstance(processInstanceId: string): Promise<Array<DataModels.FlowNodes.FlowNodeInstance>> {
+    return this._managementApiClient.getFlowNodeInstancesForProcessInstance(this._identity, processInstanceId);
+  }
+
   public async getCorrelationById(correlationId: string): Promise<DataModels.Correlations.Correlation> {
     // This is necessary because the managementApi sometimes throws an error when the correlation is not yet existing.
     for (let retries: number = 0; retries < this._maxRetries; retries++) {
