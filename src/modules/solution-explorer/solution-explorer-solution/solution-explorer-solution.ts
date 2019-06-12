@@ -85,6 +85,7 @@ export class SolutionExplorerSolution {
 
   // Fields below are bound from the html view.
   @bindable public solutionService: ISolutionExplorerService;
+  @bindable public singleDiagramService: SingleDiagramsSolutionExplorerService;
   @bindable public solutionIsSingleDiagrams: boolean;
   @bindable public displayedSolutionEntry: ISolutionEntry;
   @bindable public fontAwesomeIconClass: string;
