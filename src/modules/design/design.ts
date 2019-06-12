@@ -154,6 +154,10 @@ export class Design {
       this.showPropertyPanelButton = true;
       this.showDiffDestinationButton = false;
 
+      if (this.diagramDetail) {
+        this.diagramDetail.diagramSavedAs = false;
+      }
+
       this._eventAggregator.publish(environment.events.bpmnio.bindKeyboard);
 
     } else if (routeViewIsXML) {
