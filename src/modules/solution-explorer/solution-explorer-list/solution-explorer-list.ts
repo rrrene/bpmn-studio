@@ -25,6 +25,11 @@ interface IUriToViewModelMap {
 @inject(Router, EventAggregator, 'SolutionExplorerServiceFactory', 'AuthenticationService', 'DiagramValidationService', 'SolutionService')
 export class SolutionExplorerList {
   public internalSolutionUri: string;
+  /**
+   * Reference on the service used to open single diagrams.
+   * This service is also put inside the map.
+   */
+  public singleDiagramService: SingleDiagramsSolutionExplorerService;
 
   private _router: Router;
   private _eventAggregator: EventAggregator;
@@ -36,11 +41,6 @@ export class SolutionExplorerList {
    * Contains all opened solutions.
    */
   private _openedSolutions: Array<ISolutionEntry> = [];
-  /**
-   * Reference on the service used to open single diagrams.
-   * This service is also put inside the map.
-   */
-  private _singleDiagramService: SingleDiagramsSolutionExplorerService;
   /*
    * Keep a seperate map of all viewmodels for the solutions entries.
    * The uri maps to the viewmodel. The contents of this map get set by aurelia
@@ -103,7 +103,7 @@ export class SolutionExplorerList {
   public async openSingleDiagram(uri: string): Promise<IDiagram> {
     const identity: IIdentity = this._createIdentityForSolutionExplorer();
 
-    const diagram: IDiagram = await this._singleDiagramService.openSingleDiagram(uri, identity);
+    const diagram: IDiagram = await this.singleDiagramService.openSingleDiagram(uri, identity);
 
     return diagram;
   }
@@ -113,7 +113,7 @@ export class SolutionExplorerList {
    * before.
    */
   public getOpenedSingleDiagramByURI(uri: string): IDiagram | null {
-    return this._singleDiagramService.getOpenedDiagramByURI(uri);
+    return this.singleDiagramService.getOpenedDiagramByURI(uri);
   }
 
   public getSingleDiagramSolutionEntry(): ISolutionEntry {
@@ -297,10 +297,10 @@ export class SolutionExplorerList {
   /*
    * Give aurelia a hint on what objects to observe.
    * If we dont do this, it falls back to active pooling which is slow.
-   * `_singleDiagramService._openedDiagrams.length` observed because
+   * `singleDiagramService._openedDiagrams.length` observed because
    * aurelia cannot see the business rules happening in this._shouldDisplaySolution().
    */
-  @computedFrom('_openedSolutions.length', '_singleDiagramService._openedDiagrams.length')
+  @computedFrom('_openedSolutions.length', 'singleDiagramService._openedDiagrams.length')
   public get openedSolutions(): Array<ISolutionEntry> {
     const filteredEntries: Array<ISolutionEntry> = this._openedSolutions
       .filter(this._shouldDisplaySolution);
@@ -346,7 +346,7 @@ export class SolutionExplorerList {
     const uriOfSingleDiagramService: string = 'Single Diagrams';
     const nameOfSingleDiagramService: string = 'Single Diagrams';
 
-    this._singleDiagramService = new SingleDiagramsSolutionExplorerService(
+    this.singleDiagramService = new SingleDiagramsSolutionExplorerService(
         this._diagramValidationService,
         fileSystemSolutionExplorer,
         uriOfSingleDiagramService,
@@ -356,7 +356,7 @@ export class SolutionExplorerList {
 
     const identity: IIdentity = this._createIdentityForSolutionExplorer();
 
-    this._addSolutionEntry(uriOfSingleDiagramService, this._singleDiagramService, identity, true);
+    this._addSolutionEntry(uriOfSingleDiagramService, this.singleDiagramService, identity, true);
   }
 
   private _getFontAwesomeIconForSolution(service: ISolutionExplorerService, uri: string): string {
@@ -365,7 +365,7 @@ export class SolutionExplorerList {
       return 'fa-database';
     }
 
-    const solutionIsSingleDiagrams: boolean = service === this._singleDiagramService;
+    const solutionIsSingleDiagrams: boolean = service === this.singleDiagramService;
     if (solutionIsSingleDiagrams) {
       return 'fa-copy';
     }
@@ -375,7 +375,7 @@ export class SolutionExplorerList {
 
   private _canCreateNewDiagramsInSolution(service: ISolutionExplorerService, uri: string): boolean {
     const solutionIsNotOpenedFromRemote: boolean = !uri.startsWith('http');
-    const solutionIsNotSingleDiagrams: boolean = service !== this._singleDiagramService;
+    const solutionIsNotSingleDiagrams: boolean = service !== this.singleDiagramService;
 
     return solutionIsNotOpenedFromRemote && solutionIsNotSingleDiagrams;
   }
@@ -390,7 +390,7 @@ export class SolutionExplorerList {
   }
 
   private _isSingleDiagramService(service: ISolutionExplorerService): boolean {
-    return service === this._singleDiagramService;
+    return service === this.singleDiagramService;
   }
 
   /**
