@@ -24,6 +24,7 @@ import {
 
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
+import {SingleDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/SingleDiagramsSolutionExplorerService';
 import {BpmnIo} from '../bpmn-io/bpmn-io';
 
 @inject('ManagementApiClientService',
@@ -31,7 +32,8 @@ import {BpmnIo} from '../bpmn-io/bpmn-io';
         'SolutionService',
         EventAggregator,
         Router,
-        ValidationController)
+        ValidationController,
+        'SingleDiagramService')
 export class DiagramDetail {
 
   @bindable() public activeDiagram: IDiagram;
@@ -53,6 +55,7 @@ export class DiagramDetail {
   public showRemoteSolutionOnDeployModal: boolean = false;
   public remoteSolutions: Array<ISolutionEntry> = [];
   public selectedRemoteSolution: ISolutionEntry;
+  public diagramSavedAs: boolean = false;
 
   private _notificationService: NotificationService;
   private _eventAggregator: EventAggregator;
@@ -68,19 +71,22 @@ export class DiagramDetail {
     german: /^[äöüß]/i,
   };
   private _clickedOnCustomStart: boolean = false;
+  private _singleDiagramService: SingleDiagramsSolutionExplorerService;
 
   constructor(managementApiClient: IManagementApi,
               notificationService: NotificationService,
               solutionService: ISolutionService,
               eventAggregator: EventAggregator,
               router: Router,
-              validationController: ValidationController) {
+              validationController: ValidationController,
+              singleDiagramService: SingleDiagramsSolutionExplorerService) {
     this._notificationService = notificationService;
     this._solutionService = solutionService;
     this._eventAggregator = eventAggregator;
     this._router = router;
     this._validationController = validationController;
     this._managementApiClient = managementApiClient;
+    this._singleDiagramService = singleDiagramService;
   }
 
   public determineActivationStrategy(): string {
@@ -127,6 +133,9 @@ export class DiagramDetail {
       this._eventAggregator.subscribe(environment.events.diagramDetail.startProcessWithOptions, async() => {
         this._clickedOnCustomStart = true;
         await this.showSelectStartEventDialog();
+      }),
+      this._eventAggregator.subscribe('saveDiagramAs', () => {
+        this._electronOnSaveDiagramAs();
       }),
     ];
 
@@ -318,8 +327,7 @@ export class DiagramDetail {
   /**
    * Saves the current diagram.
    */
-  public async saveDiagram(): Promise<void> {
-
+  public async saveDiagram(newPath?: string): Promise<void> {
     const savingTargetIsRemoteSolution: boolean = this.activeSolutionEntry.uri.startsWith('http');
 
     if (this.diagramIsInvalid || savingTargetIsRemoteSolution) {
@@ -330,7 +338,38 @@ export class DiagramDetail {
       const xml: string = await this.bpmnio.getXML();
       this.activeDiagram.xml = xml;
 
-      await this.activeSolutionEntry.service.saveDiagram(this.activeDiagram);
+      if (newPath) {
+        await this.activeSolutionEntry.service.saveDiagram(this.activeDiagram, newPath);
+        try {
+          this.activeDiagram = await this._singleDiagramService.openSingleDiagram(newPath, this.activeSolutionEntry.identity);
+
+        } catch (error) {
+          const alreadyOpenedDiagram: IDiagram = await this._singleDiagramService.getOpenedDiagramByURI(newPath);
+          await this._singleDiagramService.closeSingleDiagram(alreadyOpenedDiagram);
+          this.activeDiagram = await this._singleDiagramService.openSingleDiagram(newPath, this.activeSolutionEntry.identity);
+        }
+        this._solutionService.addSingleDiagram(this.activeDiagram);
+        this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri('Single Diagrams');
+
+        this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
+
+        this.bpmnio.saveCurrentXML();
+
+        this.diagramHasChanged = false;
+
+        await this._router.navigateToRoute('design', {
+          diagramName: this.activeDiagram.name,
+          diagramUri: this.activeDiagram.uri,
+          solutionUri: this.activeSolutionEntry.uri,
+        });
+
+        this.diagramSavedAs = true;
+        return;
+      } else {
+        await this.activeSolutionEntry.service.saveDiagram(this.activeDiagram);
+        this.diagramSavedAs = false;
+      }
+
       this.bpmnio.saveCurrentXML();
 
       this.diagramHasChanged = false;
@@ -511,8 +550,17 @@ export class DiagramDetail {
       : await this.showSelectStartEventDialog();
   }
 
-  private _electronOnSaveDiagramAs = async(_: Event): Promise<void> => {
-    this._eventAggregator.publish(`${environment.events.diagramDetail.exportDiagramAs}:BPMN`);
+  private _electronOnSaveDiagramAs = async(_?: Event): Promise<void> => {
+    this._ipcRenderer.send('open_save-diagram-as_dialog');
+
+    this._ipcRenderer.once('save_diagram_as', async(event: Event, savePath: string) => {
+      const noFileSelected: boolean = savePath === null;
+      if (noFileSelected) {
+        return;
+      }
+
+      await this.saveDiagram(savePath);
+    });
   }
 
   private _handleFormValidateEvents(event: ValidateEvent): void {
