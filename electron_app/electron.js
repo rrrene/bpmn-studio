@@ -9,6 +9,7 @@ const isDev = require('electron-is-dev');
 const getPort = require('get-port');
 const fs = require('fs');
 const openAboutWindow = require('about-window').default;
+const fetch = require('node-fetch');
 
 const electronOidc = require('./electron-oidc');
 const oidcConfig = require('./oidc-config');
@@ -30,7 +31,7 @@ let fileOpenMainEvent;
 Main._window = null;
 
 
-Main.execute = function () {
+Main.execute = async function () {
   /**
    * Makes this application a Single Instance Application.
    */
@@ -44,7 +45,7 @@ Main.execute = function () {
   const hasSingleInstanceLock = app.hasSingleInstanceLock();
 
   if (hasSingleInstanceLock) {
-    Main._startInternalProcessEngine();
+    await Main._startInternalProcessEngine();
 
     Main._initializeApplication();
 
@@ -85,6 +86,8 @@ Main.execute = function () {
 
 
 Main._initializeApplication = function () {
+
+  Main._createMainWindow();
 
   app.on('ready', () => {
     Main._createMainWindow();
@@ -679,12 +682,7 @@ Main._startInternalProcessEngine = async function () {
       // See issue https://github.com/process-engine/bpmn-studio/issues/312
       try {
 
-        // Create path for sqlite database in BPMN-Studio context.
-        const userDataFolderPath = getUserConfigFolder();
-        const sqlitePath = `${userDataFolderPath}/bpmn-studio/process_engine_databases`;
-
-        const pe = require('@process-engine/process_engine_runtime');
-        pe.startRuntime(sqlitePath);
+        await startRuntime(port);
 
         console.log('Internal ProcessEngine started successfully.');
         internalProcessEngineStatus = 'success';
@@ -700,6 +698,29 @@ Main._startInternalProcessEngine = async function () {
 
     });
 
+}
+
+async function startRuntime(port) {
+  return new Promise (async(resolve, reject) => {
+    // Create path for sqlite database in BPMN-Studio context.
+    const userDataFolderPath = getUserConfigFolder();
+    const sqlitePath = `${userDataFolderPath}/bpmn-studio/process_engine_databases`;
+    const pe = require('@process-engine/process_engine_runtime');
+    pe.startRuntime(sqlitePath);
+
+    const makeRequest = (() => {
+      setTimeout(async() => {
+        try {
+          const response = await fetch(`http://0.0.0.0:${port}`);
+          resolve(response);
+        } catch (error) {
+          makeRequest();
+        }
+      }, 10);
+    });
+
+    makeRequest();
+  });
 }
 
 function getUserConfigFolder() {
