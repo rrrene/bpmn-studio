@@ -121,10 +121,10 @@ export class Design {
         this._eventAggregator.publish(environment.events.configPanel.processEngineRouteChanged, this.activeSolutionEntry.uri);
       }
 
-      const isSingleDiagram: boolean = this.activeSolutionEntry.uri === 'Single Diagrams';
+      const isOpenDiagram: boolean = this.activeSolutionEntry.uri === 'Open Diagrams';
 
-      if (isSingleDiagram) {
-        const persistedDiagrams: Array<IDiagram> = this._solutionService.getSingleDiagrams();
+      if (isOpenDiagram) {
+        const persistedDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();
 
         this.activeDiagram = persistedDiagrams.find((diagram: IDiagram) => {
           return diagram.name === routeParameters.diagramName &&

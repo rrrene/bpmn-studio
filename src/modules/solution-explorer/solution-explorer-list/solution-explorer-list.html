@@ -70,8 +70,8 @@
         <solution-explorer-solution
           displayed-solution-entry.bind="solutionEntry"
           solution-service.bind="solutionEntry.service"
-          single-diagram-service.bind="singleDiagramService"
-          solution-is-single-diagrams.bind="solutionEntry.isSingleDiagramService"
+          open-diagram-service.bind="openDiagramService"
+          solution-is-open-diagrams.bind="solutionEntry.isOpenDiagramService"
           view-model.ref="solutionEntryViewModels[solutionEntry.uri]"
           font-awesome-icon-class.two-way="solutionEntry.fontAwesomeIconClass">
         </solution-explorer-solution>

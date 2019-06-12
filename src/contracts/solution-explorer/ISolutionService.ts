@@ -37,21 +37,21 @@ export interface ISolutionService {
   removeSolutionEntryByUri(uri: string): void;
 
   /**
-   * Adds a single diagram to the service.
+   * Adds a diagram to the service.
    * @param diagram The diagram to add.
    */
-  addSingleDiagram(diagram: IDiagram): void;
+  addOpenDiagram(diagram: IDiagram): void;
 
   /**
-   * Removes a single diagram from the service identified by its URI.
+   * Removes an open diagram from the service identified by its URI.
    * @param diagramUri The uri of the diagram to remove.
    */
-  removeSingleDiagramByUri(diagramUri: string): void;
+  removeOpenDiagramByUri(diagramUri: string): void;
 
   /**
-   * Returns a list of all single diagrams in the service.
+   * Returns a list of all open diagrams in the service.
    */
-  getSingleDiagrams(): Array<IDiagram>;
+  getOpenDiagrams(): Array<IDiagram>;
 
   /**
    * Persists the currently opened Solutions in the LocalStorage.

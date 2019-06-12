@@ -322,7 +322,7 @@ Main._createMainWindow = function () {
     Main._window = null;
   });
 
-  setOpenSingleDiagram();
+  setOpenDiagram();
   setOpenSolutions();
 
   const platformIsWindows = process.platform === 'win32';
@@ -361,8 +361,8 @@ Main._createMainWindow = function () {
     });
   }
 
-  function setOpenSingleDiagram() {
-    electron.ipcMain.on('open_single_diagram', (event) => {
+  function setOpenDiagram() {
+    electron.ipcMain.on('open_diagram', (event) => {
       const openedFile = dialog.showOpenDialog({
         filters: [
           {
@@ -376,7 +376,7 @@ Main._createMainWindow = function () {
         ]
       });
 
-      event.sender.send('import_opened_single_diagram', openedFile);
+      event.sender.send('import_opened_diagram', openedFile);
     });
   }
 

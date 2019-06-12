@@ -27,7 +27,7 @@ import {
 } from '../../../contracts/index';
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
-import {SingleDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/SingleDiagramsSolutionExplorerService';
+import {OpenDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
 import {DeleteDiagramModal} from './delete-diagram-modal/delete-diagram-modal';
 
 const ENTER_KEY: string = 'Enter';
@@ -86,8 +86,8 @@ export class SolutionExplorerSolution {
 
   // Fields below are bound from the html view.
   @bindable public solutionService: ISolutionExplorerService;
-  @bindable public singleDiagramService: SingleDiagramsSolutionExplorerService;
-  @bindable public solutionIsSingleDiagrams: boolean;
+  @bindable public openDiagramService: OpenDiagramsSolutionExplorerService;
+  @bindable public solutionIsOpenDiagrams: boolean;
   @bindable public displayedSolutionEntry: ISolutionEntry;
   @bindable public fontAwesomeIconClass: string;
   public createNewDiagramInput: HTMLInputElement;
@@ -230,13 +230,13 @@ export class SolutionExplorerSolution {
     const closedDiagramWasActiveDiagram: boolean = this.activeDiagramUri === diagram.uri;
     if (closedDiagramWasActiveDiagram) {
       const subscription: Subscription = this._eventAggregator.subscribe('router:navigation:success', () => {
-        this._closeSingleDiagram(diagram);
+        this._closeDiagram(diagram);
         subscription.dispose();
       });
 
       this._router.navigateToRoute('start-page');
     } else {
-      this._closeSingleDiagram(diagram);
+      this._closeDiagram(diagram);
     }
   }
 
@@ -383,13 +383,13 @@ export class SolutionExplorerSolution {
   }
 
   public canRenameDiagram(): boolean {
-    return !this.solutionIsSingleDiagrams
+    return !this.solutionIsOpenDiagrams
             && this._openedSolution
             && !this._openedSolution.uri.startsWith('http');
   }
 
   public canDeleteDiagram(): boolean {
-    return !this.solutionIsSingleDiagrams && this._openedSolution !== undefined;
+    return !this.solutionIsOpenDiagrams && this._openedSolution !== undefined;
   }
 
   public get solutionIsNotLoaded(): boolean {
@@ -466,20 +466,20 @@ export class SolutionExplorerSolution {
     }
 
     /**
-     * We have to check if THIS solution is the "Single Diagrams"-Solution
+     * We have to check if THIS solution is the "Open Diagrams"-Solution
      * because it is our special case here and if the ACTIVE solution is the
-     * "Single Diagrams"-Solution we need to return the uri anyway.
+     * "Open Diagrams"-Solution we need to return the uri anyway.
      */
-    const singleDiagramSolutionIsActive: boolean = solutionUri === 'Single Diagrams';
-    if (this.solutionIsSingleDiagrams && singleDiagramSolutionIsActive) {
+    const openDiagramSolutionIsActive: boolean = solutionUri === 'Open Diagrams';
+    if (this.solutionIsOpenDiagrams && openDiagramSolutionIsActive) {
       return this.activeDiagram.uri;
     }
 
     /**
      * Then we check if the THIS solution is active by extra checking the uri
      * of the diaragm with the uri of the active solution. That wouldn't work
-     * for the "Single Diagram"-Solution right now, since the uri of that solution
-     * is "Single Diagrams" and therefore would never be active with this check.
+     * for the "Open Diagram"-Solution right now, since the uri of that solution
+     * is "Open Diagrams" and therefore would never be active with this check.
      */
     const solutionIsNotActive: boolean = !this.activeDiagram.uri.includes(solutionUri);
     if (solutionIsNotActive) {
@@ -491,15 +491,15 @@ export class SolutionExplorerSolution {
 
   public async openDiagram(diagram: IDiagram): Promise<void> {
 
-    const diagramIsNotYetOpened: boolean = !this.singleDiagramService.getOpenedDiagrams().some((openedDiagram: IDiagram): boolean => {
+    const diagramIsNotYetOpened: boolean = !this.openDiagramService.getOpenedDiagrams().some((openedDiagram: IDiagram): boolean => {
       return openedDiagram.uri === diagram.uri;
     });
 
     const diagramIsFromLocalSolution: boolean = !diagram.uri.startsWith('http');
 
     if (diagramIsNotYetOpened && diagramIsFromLocalSolution) {
-      await this.singleDiagramService.openSingleDiagram(diagram.uri, this._createIdentityForSolutionExplorer());
-      await this.singleDiagramService.saveDiagram(openedDiagram);
+      const openedDiagram: IDiagram = await this.openDiagramService.openDiagram(diagram.uri, this._createIdentityForSolutionExplorer());
+      await this.openDiagramService.saveDiagram(openedDiagram);
     }
 
     this.navigateToDetailView(diagram);
@@ -540,11 +540,11 @@ export class SolutionExplorerSolution {
     this._sortedDiagramsOfSolutions = this._openedSolution.diagrams.sort(this._diagramSorter);
   }
 
-  private _closeSingleDiagram(diagramToClose: IDiagram): void {
-    const singleDiagramService: SingleDiagramsSolutionExplorerService = this.solutionService as SingleDiagramsSolutionExplorerService;
-    singleDiagramService.closeSingleDiagram(diagramToClose);
+  private _closeDiagram(diagramToClose: IDiagram): void {
+    const openDiagramService: OpenDiagramsSolutionExplorerService = this.solutionService as OpenDiagramsSolutionExplorerService;
+    openDiagramService.closeDiagram(diagramToClose);
 
-    this._globalSolutionService.removeSingleDiagramByUri(diagramToClose.uri);
+    this._globalSolutionService.removeOpenDiagramByUri(diagramToClose.uri);
   }
 
   private async _isDiagramDetailViewOfDiagramOpen(diagramUriToCheck: string): Promise<boolean> {
