@@ -1,5 +1,5 @@
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {computedFrom, inject} from 'aurelia-framework';
+import {Aurelia, computedFrom, containerless, inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
 import {IIdentity} from '@essential-projects/iam_contracts';
@@ -22,7 +22,7 @@ interface IUriToViewModelMap {
   [key: string]: SolutionExplorerSolution;
 }
 
-@inject(Router, EventAggregator, 'SolutionExplorerServiceFactory', 'AuthenticationService', 'DiagramValidationService', 'SolutionService')
+@inject(Router, EventAggregator, 'SolutionExplorerServiceFactory', 'AuthenticationService', 'DiagramValidationService', 'SolutionService', Aurelia)
 export class SolutionExplorerList {
   public internalSolutionUri: string;
   /**
@@ -37,6 +37,7 @@ export class SolutionExplorerList {
   private _authenticationService: IAuthenticationService;
   private _diagramValidationService: IDiagramValidationService;
   private _solutionService: ISolutionService;
+  private _aurelia: Aurelia;
   /*
    * Contains all opened solutions.
    */
@@ -55,6 +56,7 @@ export class SolutionExplorerList {
     authenticationService: IAuthenticationService,
     diagramValidationService: IDiagramValidationService,
     solutionService: ISolutionService,
+    aurelia: Aurelia,
   ) {
     this._router = router;
     this._eventAggregator = eventAggregator;
@@ -62,6 +64,7 @@ export class SolutionExplorerList {
     this._authenticationService = authenticationService;
     this._diagramValidationService = diagramValidationService;
     this._solutionService = solutionService;
+    this._aurelia = aurelia;
 
     const canReadFromFileSystem: boolean = (window as any).nodeRequire;
     if (canReadFromFileSystem) {
@@ -358,6 +361,8 @@ export class SolutionExplorerList {
         nameOfOpenDiagramService,
         this._solutionService,
       );
+
+    this._aurelia.container.registerInstance('SingleDiagramService', this._singleDiagramService);
 
     const identity: IIdentity = this._createIdentityForSolutionExplorer();
 
