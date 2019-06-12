@@ -837,7 +837,7 @@ export class BpmnIo {
 
     if (userWantsToSaveAs) {
       event.preventDefault();
-      this._eventAggregator.publish(`saveDiagramAs`);
+      this._eventAggregator.publish(environment.events.diagramDetail.saveDiagramAs);
       return;
     }
   }

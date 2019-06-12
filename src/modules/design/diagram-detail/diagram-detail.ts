@@ -134,7 +134,7 @@ export class DiagramDetail {
         this._clickedOnCustomStart = true;
         await this.showSelectStartEventDialog();
       }),
-      this._eventAggregator.subscribe('saveDiagramAs', () => {
+      this._eventAggregator.subscribe(environment.events.diagramDetail.saveDiagramAs, () => {
         this._electronOnSaveDiagramAs();
       }),
     ];
