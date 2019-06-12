@@ -18,7 +18,7 @@
           </a>
           <div class="update-dropdown-button-container">
             <button class="btn btn-default update-dropdown-cancel-button" click.delegate="hideDropdown()">Cancel</button>
-            <button class="btn btn-default update-dropdown-update-button" click.delegate="startUpdate()">Update</button>
+            <button class="btn btn-primary update-dropdown-update-button" click.delegate="startUpdate()">Update</button>
           </div>
         </template>
         <template if.bind="isDownloading && !updateDownloadFinished">
@@ -37,7 +37,7 @@
           <div class="update-dropdown-title-container">
             <span class="update-dropdown-title">Update ready</span>
           </div>
-          <button class="btn btn-default update-dropdown-install-button" click.delegate="installUpdate()">Install</button>
+          <button class="btn btn-primary update-dropdown-install-button" click.delegate="installUpdate()">Install</button>
           <span class="update-dropdown-install-text">Would you like to install the update now?<br>Otherwise it will be installed when restarting the BPMN-Studio.</span>
         </template>
       </div>
@@ -55,7 +55,7 @@
           <i class="fas fa-bars"></i>
         </a>
         <a class="status-bar__element status-bar__diff-view" class.bind="currentDiffMode === DiffMode.NewVsOld ? 'status-bar__element--active' : ''" click.delegate="changeDiffMode(DiffMode.NewVsOld)" title="Compare the ${currentXmlIdentifier === 'New' ? currentXmlIdentifier.toLowerCase() : currentXmlIdentifier} diagram with the ${previousXmlIdentifier === 'Old' ? previousXmlIdentifier.toLowerCase() : previousXmlIdentifier} diagram" id="statusBarNewVsOld">
-          <i class="fa fa-arrow-left arrow-icon"></i> 
+          <i class="fa fa-arrow-left arrow-icon"></i>
           <div class="identifier">${currentXmlIdentifier}</div> vs. <div class="identifier">${previousXmlIdentifier}</div>
         </a>
       </div>
