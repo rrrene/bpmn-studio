@@ -50,7 +50,11 @@
 
 .docs-enlarge-link {
   cursor: pointer;
-  color: #333;
+  color: #007bff !important;
+}
+
+.docs-enlarge-link {
+  color: #0056b3;
 }
 
 .docs-enlarge-text:hover {
