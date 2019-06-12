@@ -254,7 +254,6 @@ export class BpmnIo {
     });
 
     document.addEventListener('keydown', this._saveHotkeyEventHandler);
-    document.addEventListener('keydown', this._saveAsHotkeyEventHandler);
     document.addEventListener('keydown', this._printHotkeyEventHandler);
 
     this._hideOrShowPpForSpaceReasons();
@@ -386,7 +385,6 @@ export class BpmnIo {
     this.modeler.destroy();
     window.removeEventListener('resize', this._resizeEventHandler);
     document.removeEventListener('keydown', this._saveHotkeyEventHandler);
-    document.removeEventListener('keydown', this._saveAsHotkeyEventHandler);
     document.removeEventListener('keydown', this._printHotkeyEventHandler);
 
     for (const subscription of this._subscriptions) {
