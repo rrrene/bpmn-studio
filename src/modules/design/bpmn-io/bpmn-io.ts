@@ -817,6 +817,7 @@ export class BpmnIo {
     // out, if the meta key instead of the control key is pressed.
     const currentPlatformIsMac: boolean = this._checkIfCurrentPlatformIsMac();
     const metaKeyIsPressed: boolean = currentPlatformIsMac ? event.metaKey : event.ctrlKey;
+    const shiftKeyIsPressed: boolean = event.shiftKey;
 
     /*
     * If both keys (meta and s) are pressed, save the diagram.
@@ -825,33 +826,21 @@ export class BpmnIo {
     * @see environment.events.diagramDetail.saveDiagram
     */
     const sKeyIsPressed: boolean = event.key === 's';
-    const userDoesNotWantToSave: boolean = !(metaKeyIsPressed && sKeyIsPressed);
+    const userWantsToSave: boolean = metaKeyIsPressed && sKeyIsPressed && !shiftKeyIsPressed;
+    const userWantsToSaveAs: boolean = metaKeyIsPressed && sKeyIsPressed && shiftKeyIsPressed;
 
-    if (userDoesNotWantToSave) {
+    if (userWantsToSave) {
+      event.preventDefault();
+
+      this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
       return;
     }
 
-    // Prevent the browser from handling the default action for CTRL + s.
-    event.preventDefault();
-
-    this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
-  }
-
-  private _saveAsHotkeyEventHandler = (event: KeyboardEvent): void  => {
-    const currentPlatformIsMac: boolean = this._checkIfCurrentPlatformIsMac();
-    const metaKeyIsPressed: boolean = currentPlatformIsMac ? event.metaKey : event.ctrlKey;
-    const shiftKeyIsPressed: boolean = event.shiftKey;
-    const sKeyIsPressed: boolean = event.key === 's';
-
-    const userDoesNotWantToSaveAs: boolean = !(metaKeyIsPressed && shiftKeyIsPressed && sKeyIsPressed);
-
-    if (userDoesNotWantToSaveAs) {
+    if (userWantsToSaveAs) {
+      event.preventDefault();
+      this._eventAggregator.publish(`saveDiagramAs`);
       return;
     }
-
-    event.preventDefault();
-
-    this._eventAggregator.publish(`${environment.events.diagramDetail.exportDiagramAs}:BPMN`);
   }
 
   /**
