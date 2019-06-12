@@ -22,7 +22,6 @@ export class BasicsSection implements ISection {
   public businessObjInPanel: IModdleElement;
   public elementDocumentation: string;
   public validationError: boolean = false;
-  public docInput: HTMLInputElement;
   public showModal: boolean = false;
 
   private _modeling: IModeling;
@@ -61,19 +60,12 @@ export class BasicsSection implements ISection {
     this._setValidationRules();
   }
 
-  public attached(): void {
-    this.docInput.addEventListener('dblclick', (event: MouseEvent) => {
-      this.showModal = true;
-    });
-  }
-
   public detached(): void {
     if (!this.validationError) {
       return;
     }
     this.businessObjInPanel.id = this._previousProcessRefId;
     this._validationController.validate();
-    this.docInput.removeEventListener('dblclick', () => true);
   }
 
   public isSuitableForElement(element: IShape): boolean {
