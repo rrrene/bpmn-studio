@@ -499,6 +499,7 @@ export class SolutionExplorerSolution {
 
     if (diagramIsNotYetOpened && diagramIsFromLocalSolution) {
       await this.singleDiagramService.openSingleDiagram(diagram.uri, this._createIdentityForSolutionExplorer());
+      await this.singleDiagramService.saveDiagram(openedDiagram);
     }
 
     this.navigateToDetailView(diagram);
