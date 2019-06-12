@@ -28,7 +28,7 @@
       <li
         repeat.for="diagram of openedDiagrams"
         class.bind="activeDiagramUri === diagram.uri ? 'diagram-entry diagram-entry--highlight' : 'diagram-entry'"
-        click.delegate="navigateToDetailView(diagram)"
+        click.delegate="openDiagram(diagram)"
         id="diagramList-${diagram.name}">
 
         <div if.bind="currentlyRenamingDiagramUri === diagram.uri" class="diagram-rename-container">

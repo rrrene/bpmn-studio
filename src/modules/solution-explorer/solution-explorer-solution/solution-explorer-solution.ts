@@ -489,6 +489,10 @@ export class SolutionExplorerSolution {
     return this.activeDiagram.uri;
   }
 
+  public async openDiagram(diagram: IDiagram): Promise<void> {
+    this.navigateToDetailView(diagram);
+  }
+
   private _createIdentityForSolutionExplorer(): IIdentity {
 
     const accessToken: string = this._createDummyAccessToken();
