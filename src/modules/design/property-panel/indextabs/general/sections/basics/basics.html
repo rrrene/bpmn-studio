@@ -22,10 +22,12 @@
             <input type="text" class="props-input" value.bind="businessObjInPanel.name" change.delegate="updateName()" disabled.bind="!isEditable">
           </td>
         </tr>
+      </table>
+      <table class="props-table-docs">
         <tr>
-          <th>Docs</th>
           <td>
-            <textarea ref="docInput" type="text" class="props-input-textarea" value.bind="elementDocumentation" change.delegate="updateDocumentation()" disabled.bind="!isEditable" aria-multiline="true"></textarea>
+              Docs <a class="docs-enlarge-link" click.delegate="showModal = true"><small class="docs-enlarge-text">Enlarge</small></a>
+            <textarea type="text" class="props-input-textarea" value.bind="elementDocumentation" change.delegate="updateDocumentation()" disabled.bind="!isEditable" aria-multiline="true"></textarea>
           </td>
         </tr>
       </table>

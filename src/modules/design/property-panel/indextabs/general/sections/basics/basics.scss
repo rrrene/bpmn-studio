@@ -37,3 +37,26 @@
   pointer-events: none;
   opacity: 0.5;
 }
+
+.props-table-docs {
+  width: 100%;
+}
+
+.props-table-docs td {
+  width: 100%;
+  padding: 5px 0;
+  color: #a5a5a5;
+}
+
+.docs-enlarge-link {
+  cursor: pointer;
+  color: #007bff !important;
+}
+
+.docs-enlarge-link {
+  color: #0056b3;
+}
+
+.docs-enlarge-text:hover {
+  text-decoration: underline;
+}
