@@ -490,6 +490,17 @@ export class SolutionExplorerSolution {
   }
 
   public async openDiagram(diagram: IDiagram): Promise<void> {
+
+    const diagramIsNotYetOpened: boolean = !this.singleDiagramService.getOpenedDiagrams().some((openedDiagram: IDiagram): boolean => {
+      return openedDiagram.uri === diagram.uri;
+    });
+
+    const diagramIsFromLocalSolution: boolean = !diagram.uri.startsWith('http');
+
+    if (diagramIsNotYetOpened && diagramIsFromLocalSolution) {
+      await this.singleDiagramService.openSingleDiagram(diagram.uri, this._createIdentityForSolutionExplorer());
+    }
+
     this.navigateToDetailView(diagram);
   }
 
