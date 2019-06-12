@@ -342,13 +342,13 @@ export class DiagramDetail {
         await this.activeSolutionEntry.service.saveDiagram(this.activeDiagram, newPath);
         try {
           this.activeDiagram = await this._singleDiagramService.openSingleDiagram(newPath, this.activeSolutionEntry.identity);
+          this._solutionService.addSingleDiagram(this.activeDiagram);
 
         } catch (error) {
           const alreadyOpenedDiagram: IDiagram = await this._singleDiagramService.getOpenedDiagramByURI(newPath);
           await this._singleDiagramService.closeSingleDiagram(alreadyOpenedDiagram);
           this.activeDiagram = await this._singleDiagramService.openSingleDiagram(newPath, this.activeSolutionEntry.identity);
         }
-        this._solutionService.addSingleDiagram(this.activeDiagram);
         this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri('Single Diagrams');
 
         this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
