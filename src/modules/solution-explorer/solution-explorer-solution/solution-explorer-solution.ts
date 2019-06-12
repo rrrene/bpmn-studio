@@ -18,6 +18,7 @@ import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 import {join} from 'path';
 
+import {IIdentity} from '@essential-projects/iam_contracts';
 import {
         IDiagramCreationService,
         ISolutionEntry,
@@ -486,6 +487,25 @@ export class SolutionExplorerSolution {
     }
 
     return this.activeDiagram.uri;
+  }
+
+  private _createIdentityForSolutionExplorer(): IIdentity {
+
+    const accessToken: string = this._createDummyAccessToken();
+    // TODO: Get the identity from the IdentityService of `@process-engine/iam`
+    const identity: IIdentity = {
+      token: accessToken,
+      userId: '', // Provided by the IdentityService.
+    };
+
+    return identity;
+  }
+
+  private _createDummyAccessToken(): string {
+    const dummyAccessTokenString: string = 'dummy_token';
+    const base64EncodedString: string = btoa(dummyAccessTokenString);
+
+    return base64EncodedString;
   }
 
   private get _diagramSorter(): DiagramSorter {
