@@ -140,10 +140,10 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     throw new Error('Method not supported.');
   }
 
-  public saveDiagram(diagram: IDiagram): Promise<void> {
-    this._solutionService.addOpenDiagram(diagram);
+  public saveDiagram(diagram: IDiagram, pathspec?: string): Promise<void> {
+    this._solutionService.addSingleDiagram(diagram);
 
-    return this._solutionExplorerToOpenDiagrams.saveDiagram(diagram);
+    return this._solutionExplorerToOpenDiagrams.saveDiagram(diagram, pathspec);
   }
 
   public async openDiagramFromSolution(diagramUri: string, identity: IIdentity): Promise<IDiagram> {
