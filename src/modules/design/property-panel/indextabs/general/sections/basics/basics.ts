@@ -112,8 +112,7 @@ export class BasicsSection implements ISection {
       return;
     }
 
-    // tslint:disable-next-line: no-magic-numbers
-    this.elementType = this.businessObjInPanel.$type.substr(5);
+    this.elementType = this._humanizeElementType(this.businessObjInPanel.$type);
 
     const documentationExists: boolean = this.businessObjInPanel.documentation !== undefined
                                       && this.businessObjInPanel.documentation !== null
@@ -124,6 +123,13 @@ export class BasicsSection implements ISection {
     } else {
       this.elementDocumentation = '';
     }
+  }
+
+  private _humanizeElementType(type: string): string {
+    const rawType: string = type.replace(/^bpmn:/, '');
+    const humanizedType: string = rawType.replace(/([a-z])([A-Z])/, '$1 $2');
+
+    return humanizedType;
   }
 
   private _validateFormId(event: ValidateEvent): void {
