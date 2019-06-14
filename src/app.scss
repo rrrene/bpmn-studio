@@ -79,11 +79,14 @@ input:focus {
   border-color: #4c7032;
 }
 
+.btn-primary:not(:disabled):not(.disabled):active,
 .btn-primary:hover:enabled {
   background: #4c7032;
   border-color: #2b401c;
 }
-
+.btn-primary:not(:disabled):not(.disabled):active:focus {
+  box-shadow: 0 0 0 0.2rem rgba(95, 142, 20, 0.5);
+}
 
 .btn-default:hover:enabled {
   background-color: #eee;
