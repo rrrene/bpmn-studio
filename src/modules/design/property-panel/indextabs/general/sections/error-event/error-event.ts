@@ -179,7 +179,11 @@ export class ErrorEventSection implements ISection {
 
     if (elementReferencesError) {
       this.selectedId = errorId;
-      this.updateError();
+
+      this.selectedError = this.errors.find((error: IError) => {
+        return error.id === this.selectedId;
+      });
+
     } else {
       this.selectedError = null;
       this.selectedId = null;
