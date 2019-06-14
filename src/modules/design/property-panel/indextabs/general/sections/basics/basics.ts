@@ -23,6 +23,7 @@ export class BasicsSection implements ISection {
   public elementDocumentation: string;
   public validationError: boolean = false;
   public showModal: boolean = false;
+  public elementType: string;
 
   private _modeling: IModeling;
   private _modeler: IBpmnModeler;
@@ -110,6 +111,9 @@ export class BasicsSection implements ISection {
     if (!this.businessObjInPanel) {
       return;
     }
+
+    // tslint:disable-next-line: no-magic-numbers
+    this.elementType = this.businessObjInPanel.$type.substr(5);
 
     const documentationExists: boolean = this.businessObjInPanel.documentation !== undefined
                                       && this.businessObjInPanel.documentation !== null
