@@ -134,15 +134,19 @@ export class BpmnIo {
     }, handlerPriority);
 
     this.modeler.on('contextPad.create', (event: IInternalEvent) => {
-      if (!this.solutionIsRemote) {
-        const elementIsParticipant: boolean = event.element.type === 'bpmn:Participant';
-        if (elementIsParticipant) {
-          setTimeout(() => {
-            const contextPadWrench: Element = document.querySelector('.bpmn-icon-screw-wrench');
-            contextPadWrench.parentNode.removeChild(contextPadWrench);
-          }, 0);
-        }
+      if (this.solutionIsRemote) {
+        return;
       }
+
+      const elementIsNoParticipant: boolean = event.element.type !== 'bpmn:Participant';
+      if (elementIsNoParticipant) {
+        return;
+      }
+
+      setTimeout(() => {
+        const contextPadWrench: Element = document.querySelector('.bpmn-icon-screw-wrench');
+        contextPadWrench.parentNode.removeChild(contextPadWrench);
+      }, 0);
     });
 
     this.modeler.on(['shape.added', 'shape.removed'], (event: IInternalEvent) => {
