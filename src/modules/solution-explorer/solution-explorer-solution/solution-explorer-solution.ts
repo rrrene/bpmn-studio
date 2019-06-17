@@ -389,6 +389,21 @@ export class SolutionExplorerSolution {
             && !this._openedSolution.uri.startsWith('http');
   }
 
+  public get diagramChangedStateMap(): Map<string, boolean> {
+
+    const isChangedMap: Map<string, boolean> = new Map<string, boolean>();
+
+    this.openedDiagrams.forEach((diagram: IDiagram): void => {
+      const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(diagram.uri);
+
+      const isChanged: boolean = diagramState !== null && diagramState.metaData.isChanged;
+
+      isChangedMap.set(diagram.uri, isChanged);
+    });
+
+    return isChangedMap;
+  }
+
   public canDeleteDiagram(): boolean {
     return !this.solutionIsOpenDiagrams && this._openedSolution !== undefined;
   }

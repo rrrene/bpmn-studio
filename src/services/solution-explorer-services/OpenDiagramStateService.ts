@@ -4,7 +4,7 @@ import {IDiagramState} from '../../contracts';
 
 export class OpenDiagramStateService {
 
-  public saveDiagramState(uri: string, xml: string, location: any, selectedElements: Array<IShape>): void {
+  public saveDiagramState(uri: string, xml: string, location: any, selectedElements: Array<IShape>, isChanged: boolean): void {
     const diagramState: IDiagramState = {
       data: {
         xml: xml,
@@ -12,6 +12,7 @@ export class OpenDiagramStateService {
       metaData: {
         location: location,
         selectedElements: selectedElements,
+        isChanged: isChanged,
       },
     };
 

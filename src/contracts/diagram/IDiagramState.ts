@@ -8,5 +8,6 @@ export interface IDiagramState {
   metaData: {
     location: IViewbox,
     selectedElements: Array<IShape>,
+    isChanged: boolean,
   };
 }

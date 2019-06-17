@@ -312,6 +312,9 @@ export class BpmnIo {
 
       this._eventAggregator.subscribe(environment.events.diagramDetail.saveDiagram, async() => {
         this.savedXml = await this.getXML();
+        this._diagramHasChanges = false;
+
+        this._saveDiagramState(this.diagramUri);
       }),
 
       this._eventAggregator.subscribe(environment.events.diagramChange, async() => {
@@ -606,8 +609,9 @@ export class BpmnIo {
     const selectedElement: Array<IShape> = this.modeler.get('selection')._selectedElements;
     const viewbox: IViewbox  = modelerCanvas.viewbox();
     const xml: string = await this.getXML();
+    const isChanged: boolean = this._diagramHasChanges;
 
-    this._openDiagramStateService.saveDiagramState(diagramUri, xml, viewbox, selectedElement);
+    this._openDiagramStateService.saveDiagramState(diagramUri, xml, viewbox, selectedElement, isChanged);
   }
 
   private _importXmlIntoModeler(xml: string): Promise<void> {
