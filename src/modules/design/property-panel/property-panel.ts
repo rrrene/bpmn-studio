@@ -36,6 +36,8 @@ export class PropertyPanel {
   private _currentIndextabTitle: string = this.generalIndextab.title;
   private _openDiagramsStateService: OpenDiagramsStateService;
 
+  private _diagramChanged: boolean = false;
+
   constructor(openDiagramsStateService: OpenDiagramsStateService) {
     this._openDiagramsStateService = openDiagramsStateService;
   }
@@ -161,8 +163,16 @@ export class PropertyPanel {
     }
   }
 
-  public xmlChanged(_: string, oldValue: string): void {
+  public diagramUriChanged(_: string, oldValue: string): void {
     if (oldValue === undefined) {
+      return;
+    }
+
+    this._diagramChanged = true;
+  }
+
+  public xmlChanged(_: string, oldValue: string): void {
+    if (oldValue === undefined || !this._diagramChanged) {
       return;
     }
 
@@ -170,5 +180,7 @@ export class PropertyPanel {
     setTimeout(() => {
       this._selectAnElement();
     }, 0);
+
+    this._diagramChanged = false;
   }
 }
