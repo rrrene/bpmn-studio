@@ -85,4 +85,14 @@
   <!--Delete Diagram Modal-->
   <delete-diagram-modal view-model.ref="deleteDiagramModal"></delete-diagram-modal>
 
+  <modal show.bind="showCloseModal"
+         header-text="Document Contains Changes"
+         body-text="Your diagram has unsaved changes. Save changes to diagram before closing?">
+    <template replace-part="modal-footer">
+      <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelButtonCloseView">Cancel</button>
+      <button type="button" class="btn btn-default" data-dismiss="modal" id="dontSaveButtonCloseView">Don't save</button>
+      <button type="button" class="btn btn-default" data-dismiss="modal" id="saveButtonCloseView">Save</button>
+    </template>
+  </modal>
+
 </template>
