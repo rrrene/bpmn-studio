@@ -433,35 +433,6 @@ export class SolutionExplorerSolution {
     return diagramFolder;
   }
 
-  // TODO: This method is copied all over the place.
-  public async navigateToDetailView(diagram: IDiagram): Promise<void> {
-    const diagramIsNoRemoteDiagram: boolean = !diagram.uri.startsWith('http');
-    if (diagramIsNoRemoteDiagram) {
-      const viewIsHeatmapOrInspectCorrelation: boolean = this._inspectView === 'inspect-correlation'
-                                                      || this._inspectView === 'heatmap';
-
-      if (viewIsHeatmapOrInspectCorrelation) {
-        this._inspectView = 'dashboard';
-      }
-
-      this._eventAggregator.publish(environment.events.navBar.inspectNavigateToDashboard);
-
-      const activeRouteIsInspect: boolean = this._diagramRoute === 'inspect';
-      if (activeRouteIsInspect) {
-        this._notificationService.showNotification(NotificationType.INFO,
-          'There are currently no runtime information about this process available.');
-      }
-    }
-
-    await this._router.navigateToRoute(this._diagramRoute, {
-      view: this._inspectView ? this._inspectView : this._designView,
-      diagramName: diagram.name,
-      diagramUri: diagram.uri,
-      solutionUri: this.displayedSolutionEntry.uri,
-    });
-
-  }
-
   @computedFrom('activeDiagram.uri')
   public get activeDiagramUri(): string {
     const activeDiagramIsNotSet: boolean = this.activeDiagram === undefined;
@@ -513,7 +484,36 @@ export class SolutionExplorerSolution {
       await this.openDiagramService.saveDiagram(openedDiagram);
     }
 
-    this.navigateToDetailView(diagram);
+    this._navigateToDetailView(diagram);
+  }
+
+  // TODO: This method is copied all over the place.
+  private async _navigateToDetailView(diagram: IDiagram): Promise<void> {
+    const diagramIsNoRemoteDiagram: boolean = !diagram.uri.startsWith('http');
+    if (diagramIsNoRemoteDiagram) {
+      const viewIsHeatmapOrInspectCorrelation: boolean = this._inspectView === 'inspect-correlation'
+                                                      || this._inspectView === 'heatmap';
+
+      if (viewIsHeatmapOrInspectCorrelation) {
+        this._inspectView = 'dashboard';
+      }
+
+      this._eventAggregator.publish(environment.events.navBar.inspectNavigateToDashboard);
+
+      const activeRouteIsInspect: boolean = this._diagramRoute === 'inspect';
+      if (activeRouteIsInspect) {
+        this._notificationService.showNotification(NotificationType.INFO,
+          'There are currently no runtime information about this process available.');
+      }
+    }
+
+    await this._router.navigateToRoute(this._diagramRoute, {
+      view: this._inspectView ? this._inspectView : this._designView,
+      diagramName: diagram.name,
+      diagramUri: diagram.uri,
+      solutionUri: this.displayedSolutionEntry.uri,
+    });
+
   }
 
   private _createIdentityForSolutionExplorer(): IIdentity {
@@ -561,7 +561,7 @@ export class SolutionExplorerSolution {
   }
 
   private async _shouldCloseDiagramModal(diagramToSave: IDiagram): Promise<boolean> {
-    await this.navigateToDetailView(diagramToSave);
+    await this._navigateToDetailView(diagramToSave);
 
     const modalResult: Promise<boolean> = new Promise((resolve: Function, reject: Function): boolean | void => {
       const dontSaveFunction: EventListenerOrEventListenerObject = async (): Promise<void> => {
@@ -718,7 +718,7 @@ export class SolutionExplorerSolution {
 
     await this.updateSolution();
     this._resetDiagramCreation();
-    this.navigateToDetailView(emptyDiagram);
+    this._navigateToDetailView(emptyDiagram);
   }
 
   /**
@@ -740,7 +740,7 @@ export class SolutionExplorerSolution {
 
       await this.updateSolution();
       this._resetDiagramCreation();
-      this.navigateToDetailView(emptyDiagram);
+      this._navigateToDetailView(emptyDiagram);
 
     } else if (pressedKey === ESCAPE_KEY) {
       this._resetDiagramCreation();
