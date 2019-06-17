@@ -1,4 +1,4 @@
-import {bindable} from 'aurelia-framework';
+import {bindable, inject} from 'aurelia-framework';
 
 import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 
@@ -6,6 +6,7 @@ import {
   IBpmnModdle,
   IBpmnModeler,
   IDefinition,
+  IDiagramState,
   IElementRegistry,
   IEvent,
   IEventBus,
@@ -15,6 +16,9 @@ import {Extensions} from './indextabs/extensions/extensions';
 import {Forms} from './indextabs/forms/forms';
 import {General} from './indextabs/general/general';
 
+import {OpenDiagramsStateService} from '../../../services/solution-explorer-services/OpenDiagramsStateService';
+
+@inject('OpenDiagramsStateService')
 export class PropertyPanel {
 
   @bindable() public modeler: IBpmnModeler;
@@ -30,6 +34,11 @@ export class PropertyPanel {
   private _moddle: IBpmnModdle;
   private _eventBus: IEventBus;
   private _currentIndextabTitle: string = this.generalIndextab.title;
+  private _openDiagramsStateService: OpenDiagramsStateService;
+
+  constructor(openDiagramsStateService: OpenDiagramsStateService) {
+    this._openDiagramsStateService = openDiagramsStateService;
+  }
 
   public attached(): void {
     this._moddle = this.modeler.get('moddle');
