@@ -690,8 +690,6 @@ export class BpmnIo {
         return element.type === 'bpmn:Participant';
       });
 
-      const multipleParticipants: boolean = participants.length > 1;
-
       if (this._diagramHasChanges) {
         participants.forEach((participant: IShape) => {
           participant.businessObject.processRef.id = this._tempProcess.id;
