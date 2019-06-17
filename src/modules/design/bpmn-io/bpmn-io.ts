@@ -581,6 +581,7 @@ export class BpmnIo {
         resolve(result);
       });
     });
+
     return returnPromise;
   }
 
