@@ -1,4 +1,4 @@
-import { IShape } from '@process-engine/bpmn-elements_contracts';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
 
 export interface IDiagramState {
   data: {
