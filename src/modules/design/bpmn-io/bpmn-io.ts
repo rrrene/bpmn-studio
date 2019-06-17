@@ -511,8 +511,12 @@ export class BpmnIo {
     }
 
     const xml: string = diagramState.data.xml;
+    const viewbox: IViewbox = diagramState.metaData.location;
 
     await this._importXmlIntoModeler(xml);
+
+    // TODO: Refactor
+    this.modeler.get('canvas').viewbox(viewbox);
   }
 
   private async _validateDiagram(): Promise<void> {
