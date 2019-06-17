@@ -414,7 +414,18 @@ export class BpmnIo {
     this.diagramHasChanged = false;
   }
 
-  public async diagramChanged(): Promise<void> {
+  public async diagramChanged(_: string, previousUri: string): Promise<void> {
+    const previousDiagramExists: boolean = previousUri !== undefined;
+    if (!this.solutionIsRemote && previousDiagramExists) {
+      const modelerCanvas: ICanvas = this.modeler.get('canvas');
+
+      const selectedElement: Array<IShape> = this.modeler.get('selection')._selectedElements;
+      const viewbox: IViewbox  = modelerCanvas.viewbox();
+      const xml: string = await this.getXML();
+
+      this._openDiagramStateService.saveDiagramState(previousUri, xml, viewbox, selectedElement);
+    }
+
     this.solutionIsRemote = this.diagramUri.startsWith('http');
     this._tempProcess = undefined;
     this.diagramHasChanged = true;
