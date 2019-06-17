@@ -485,6 +485,7 @@ export class BpmnIo {
         }
       }, 0);
     }
+
     this._diagramHasChanges = false;
   }
 
