@@ -177,19 +177,6 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return elementsWithTokenHistory;
   }
 
-  private async getElementsWithError(processInstanceId: string): Promise<Array<IShape>> {
-    const flowNodeInstances: Array<DataModels.FlowNodeInstances.FlowNodeInstance> =
-      await this._liveExecutionTrackerRepository.getFlowNodeInstancesForProcessInstance(processInstanceId);
-
-    return flowNodeInstances
-      .filter((flowNodeInstance: DataModels.FlowNodeInstances.FlowNodeInstance) => {
-        return flowNodeInstance.state === 'error';
-      })
-      .map((flowNodeInstance: DataModels.FlowNodeInstances.FlowNodeInstance) => {
-        return this._elementRegistry.get(flowNodeInstance.flowNodeId);
-      });
-  }
-
   public getAllElementsThatCanHaveAToken(): Array<IShape> {
     const allElementsThatCanHaveAToken: Array<IShape> = this._elementRegistry.filter((element: IShape): boolean => {
       const elementCanHaveAToken: boolean = element.type !== 'bpmn:SequenceFlow'
@@ -423,6 +410,19 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
   public terminateProcess(processInstanceId: string): Promise<void> {
     return this._liveExecutionTrackerRepository.terminateProcess(processInstanceId);
+  }
+
+  private async getElementsWithError(processInstanceId: string): Promise<Array<IShape>> {
+    const flowNodeInstances: Array<DataModels.FlowNodeInstances.FlowNodeInstance> =
+      await this._liveExecutionTrackerRepository.getFlowNodeInstancesForProcessInstance(processInstanceId);
+
+    return flowNodeInstances
+      .filter((flowNodeInstance: DataModels.FlowNodeInstances.FlowNodeInstance) => {
+        return flowNodeInstance.state === 'error';
+      })
+      .map((flowNodeInstance: DataModels.FlowNodeInstances.FlowNodeInstance) => {
+        return this._elementRegistry.get(flowNodeInstance.flowNodeId);
+      });
   }
 
   private _colorizeElements(elements: Array<IShape>, color: IColorPickerColor): void {
