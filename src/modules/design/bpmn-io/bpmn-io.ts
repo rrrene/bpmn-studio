@@ -419,6 +419,9 @@ export class BpmnIo {
   }
 
   public async diagramChanged(_: string, previousUri: string): Promise<void> {
+    this.diagramHasChanged = true;
+    this._tempProcess = undefined;
+
     const previousDiagramExists: boolean = previousUri !== undefined;
     if (!this.solutionIsRemote && previousDiagramExists) {
       const modelerCanvas: ICanvas = this.modeler.get('canvas');
@@ -431,8 +434,6 @@ export class BpmnIo {
     }
 
     this.solutionIsRemote = this.diagramUri.startsWith('http');
-    this._tempProcess = undefined;
-    this.diagramHasChanged = true;
 
     if (this.solutionIsRemote) {
       const viewerNotInitialized: boolean = this.viewer === undefined;
