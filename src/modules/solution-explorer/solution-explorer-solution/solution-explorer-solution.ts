@@ -157,16 +157,6 @@ export class SolutionExplorerSolution {
     }
   }
 
-  private _startPolling(): void {
-    this._refreshTimeoutTask = setTimeout(async() =>  {
-      await this.updateSolution();
-
-      if (this._isAttached) {
-        this._startPolling();
-      }
-    }, environment.processengine.solutionExplorerPollingIntervalInMs);
-  }
-
   public async showDeleteDiagramModal(diagram: IDiagram, event: Event): Promise<void> {
     /**
      * We are stopping the event propagation here, because we don't want
@@ -485,6 +475,16 @@ export class SolutionExplorerSolution {
     }
 
     this._navigateToDetailView(diagram);
+  }
+
+  private _startPolling(): void {
+    this._refreshTimeoutTask = setTimeout(async() =>  {
+      await this.updateSolution();
+
+      if (this._isAttached) {
+        this._startPolling();
+      }
+    }, environment.processengine.solutionExplorerPollingIntervalInMs);
   }
 
   // TODO: This method is copied all over the place.
