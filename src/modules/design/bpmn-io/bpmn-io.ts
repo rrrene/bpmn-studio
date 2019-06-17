@@ -402,7 +402,7 @@ export class BpmnIo {
     this._tempProcess = undefined;
   }
 
-  public xmlChanged(): void {
+  public xmlChanged(_: string, oldValue: string): void {
     if (this.diagramHasChanged) {
       if (this.solutionIsRemote) {
         this.viewer.importXML(this.xml);
@@ -412,6 +412,10 @@ export class BpmnIo {
         this._recoverDiagramState();
       } else {
         this.modeler.importXML(this.xml);
+      }
+    } else {
+      if (oldValue !== undefined) {
+        this._saveDiagramState(this.diagramUri);
       }
     }
 
@@ -424,13 +428,7 @@ export class BpmnIo {
 
     const previousDiagramExists: boolean = previousUri !== undefined;
     if (!this.solutionIsRemote && previousDiagramExists) {
-      const modelerCanvas: ICanvas = this.modeler.get('canvas');
-
-      const selectedElement: Array<IShape> = this.modeler.get('selection')._selectedElements;
-      const viewbox: IViewbox  = modelerCanvas.viewbox();
-      const xml: string = await this.getXML();
-
-      this._openDiagramStateService.saveDiagramState(previousUri, xml, viewbox, selectedElement);
+      await this._saveDiagramState(previousUri);
     }
 
     this.solutionIsRemote = this.diagramUri.startsWith('http');
@@ -599,6 +597,16 @@ export class BpmnIo {
 
       this._linting.deactivateLinting();
     }
+  }
+
+  private async _saveDiagramState(diagramUri: string): Promise<void> {
+    const modelerCanvas: ICanvas = this.modeler.get('canvas');
+
+    const selectedElement: Array<IShape> = this.modeler.get('selection')._selectedElements;
+    const viewbox: IViewbox  = modelerCanvas.viewbox();
+    const xml: string = await this.getXML();
+
+    this._openDiagramStateService.saveDiagramState(diagramUri, xml, viewbox, selectedElement);
   }
 
   private _importXmlIntoModeler(xml: string): Promise<void> {
