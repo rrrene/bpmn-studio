@@ -28,6 +28,7 @@ import {
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 import {OpenDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
+import {OpenDiagramsStateService} from '../../../services/solution-explorer-services/OpenDiagramsStateService';
 import {DeleteDiagramModal} from './delete-diagram-modal/delete-diagram-modal';
 
 const ENTER_KEY: string = 'Enter';
@@ -50,6 +51,7 @@ interface IDiagramCreationState extends IDiagramNameInputState {
   'DiagramCreationService',
   'NotificationService',
   'SolutionService',
+  'OpenDiagramsStateService',
 )
 export class SolutionExplorerSolution {
 
@@ -60,6 +62,7 @@ export class SolutionExplorerSolution {
   private _validationController: ValidationController;
   private _diagramCreationService: IDiagramCreationService;
   private _notificationService: NotificationService;
+  private _openDiagramStateService: OpenDiagramsStateService;
 
   private _diagramRoute: string = 'design';
   private _inspectView: string;
@@ -109,6 +112,7 @@ export class SolutionExplorerSolution {
     diagramCreationService: IDiagramCreationService,
     notificationService: NotificationService,
     solutionService: ISolutionService,
+    openDiagramStateService: OpenDiagramsStateService,
   ) {
     this._router = router;
     this._eventAggregator = eventAggregator;
@@ -116,6 +120,7 @@ export class SolutionExplorerSolution {
     this._diagramCreationService = diagramCreationService;
     this._notificationService = notificationService;
     this._globalSolutionService = solutionService;
+    this._openDiagramStateService = openDiagramStateService;
   }
 
   public async attached(): Promise<void> {
