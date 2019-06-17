@@ -1,3 +1,4 @@
+// tslint:disable no-use-before-declare
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
 import {
   bindable,
@@ -20,10 +21,11 @@ import {join} from 'path';
 
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {
-        IDiagramCreationService,
-        ISolutionEntry,
-        ISolutionService,
-        NotificationType,
+  IDiagramCreationService,
+  IDiagramState,
+  ISolutionEntry,
+  ISolutionService,
+  NotificationType,
 } from '../../../contracts/index';
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
@@ -579,7 +581,7 @@ export class SolutionExplorerSolution {
     await this._navigateToDetailView(diagramToSave);
 
     const modalResult: Promise<boolean> = new Promise((resolve: Function, reject: Function): boolean | void => {
-      const dontSaveFunction: EventListenerOrEventListenerObject = async (): Promise<void> => {
+      const dontSaveFunction: EventListenerOrEventListenerObject = async(): Promise<void> => {
         this.showCloseModal = false;
 
         document.getElementById('dontSaveButtonCloseView').removeEventListener('click', dontSaveFunction);
