@@ -1,6 +1,6 @@
 <template>
   <require from="./navbar.css"></require>
-  <div class="bpmn-studio-navbar bpmn-studio-navbar--macos" id="navBarContainer">
+  <div class="bpmn-studio-navbar" class.bind="showLeftMarginInNavbar ? 'bpmn-studio-navbar--left-margin' : ''" id="navBarContainer">
     <div class="menu-bar__menu--left" id="navBarLeft">
       <div class="menu__menu-tabbed-link">
         <button id="navbarSolutionExplorerButton" class="button menu-tabbed-link action-button" class.bind="solutionExplorerIsActive ? 'button--active' : ''" click.delegate="toggleSolutionExplorer()" title="Toggle visibility of the Solution Explorer">

@@ -28,6 +28,7 @@ export class NavBar {
   public disableInspectCorrelationButton: boolean = false;
   public diagramContainsUnsavedChanges: boolean = false;
   public savingTargetIsRemoteSolution: boolean = false;
+  public showLeftMarginInNavbar: boolean = false;
 
   public inspectView: string = 'dashboard';
   public designView: string = 'detail';
@@ -50,8 +51,11 @@ export class NavBar {
   }
 
   public attached(): void {
-
     this.solutionExplorerIsActive = window.localStorage.getItem('SolutionExplorerVisibility') === 'true';
+
+    window.addEventListener('resize', this._resizeEventHandler);
+
+    this._resizeEventHandler();
 
     this._updateNavbar();
 
@@ -405,4 +409,18 @@ export class NavBar {
     this.showProcessName = false;
   }
 
+  private _checkIfCurrentPlatformIsMac(): boolean {
+    const macRegex: RegExp = /.*mac*./i;
+    const currentPlatform: string = navigator.platform;
+    const currentPlatformIsMac: boolean = macRegex.test(currentPlatform);
+
+    return currentPlatformIsMac;
+  }
+
+  private _resizeEventHandler = (event: Event = null): void => {
+    const isMac: boolean = this._checkIfCurrentPlatformIsMac();
+    const isFullscreen: boolean = !window.screenTop && !window.screenY;
+
+    this.showLeftMarginInNavbar = isMac && !isFullscreen;
+  }
 }
