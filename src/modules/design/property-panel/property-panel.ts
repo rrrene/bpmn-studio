@@ -16,9 +16,9 @@ import {Extensions} from './indextabs/extensions/extensions';
 import {Forms} from './indextabs/forms/forms';
 import {General} from './indextabs/general/general';
 
-import {OpenDiagramsStateService} from '../../../services/solution-explorer-services/OpenDiagramsStateService';
+import {OpenDiagramStateService} from '../../../services/solution-explorer-services/OpenDiagramStateService';
 
-@inject('OpenDiagramsStateService')
+@inject('OpenDiagramStateService')
 export class PropertyPanel {
 
   @bindable() public modeler: IBpmnModeler;
@@ -34,12 +34,12 @@ export class PropertyPanel {
   private _moddle: IBpmnModdle;
   private _eventBus: IEventBus;
   private _currentIndextabTitle: string = this.generalIndextab.title;
-  private _openDiagramsStateService: OpenDiagramsStateService;
+  private _openDiagramStateService: OpenDiagramStateService;
 
   private _diagramChanged: boolean = false;
 
-  constructor(openDiagramsStateService: OpenDiagramsStateService) {
-    this._openDiagramsStateService = openDiagramsStateService;
+  constructor(openDiagramStateService: OpenDiagramStateService) {
+    this._openDiagramStateService = openDiagramStateService;
   }
 
   public attached(): void {
@@ -85,7 +85,7 @@ export class PropertyPanel {
   }
 
   private _selectAnElement(): void {
-    const diagramState: IDiagramState = this._openDiagramsStateService.loadDiagramState(this.diagramUri);
+    const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(this.diagramUri);
 
     const noSelectedElementState: boolean = diagramState === null || diagramState.metaData.selectedElements.length === 0;
     if (noSelectedElementState) {

@@ -2,7 +2,7 @@ import {IShape} from '@process-engine/bpmn-elements_contracts';
 
 import {IDiagramState} from '../../contracts';
 
-export class OpenDiagramsStateService {
+export class OpenDiagramStateService {
 
   public saveDiagramState(uri: string, xml: string, location: any, selectedElements: Array<IShape>): void {
     const diagramState: IDiagramState = {

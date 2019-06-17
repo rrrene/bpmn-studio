@@ -6,7 +6,7 @@ import {SolutionExplorerManagementApiRepository} from '@process-engine/solutione
 import {SolutionExplorerService} from '@process-engine/solutionexplorer.service';
 
 import {DiagramTrashFolderService} from './DiagramTrashFolderService';
-import {OpenDiagramsStateService} from './OpenDiagramsStateService';
+import {OpenDiagramStateService} from './OpenDiagramStateService';
 import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
 
 export async function configure(config: FrameworkConfiguration): Promise<void> {
@@ -19,7 +19,7 @@ export async function configure(config: FrameworkConfiguration): Promise<void> {
 
   config.container.registerSingleton('SolutionExplorerServiceFactory', SolutionExplorerServiceFactory);
   config.container.registerSingleton('DiagramTrashFolderService', DiagramTrashFolderService);
-  config.container.registerSingleton('OpenDiagramsStateService', OpenDiagramsStateService);
+  config.container.registerSingleton('OpenDiagramStateService', OpenDiagramStateService);
 }
 
 function registerFileSystem(container: Container): void {
