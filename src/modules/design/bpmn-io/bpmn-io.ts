@@ -12,6 +12,7 @@ import {
   ICanvas,
   IDiagramExportService,
   IDiagramPrintService,
+  IDiagramState,
   IEditorActions,
   IElementRegistry,
   IEvent,
@@ -27,12 +28,13 @@ import {
 } from '../../../contracts/index';
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
+import {OpenDiagramsStateService} from '../../../services/solution-explorer-services/OpenDiagramsStateService';
 import {DiagramExportService, DiagramPrintService} from './services/index';
 
 const sideBarRightSize: number = 35;
 const elementRegistryTimeoutMilliseconds: number = 50;
 
-@inject('NotificationService', EventAggregator)
+@inject('NotificationService', EventAggregator, 'OpenDiagramsStateService')
 export class BpmnIo {
   public modeler: IBpmnModeler;
   public viewer: IBpmnModeler;
@@ -66,6 +68,7 @@ export class BpmnIo {
   private _subscriptions: Array<Subscription>;
   private _diagramExportService: IDiagramExportService;
   private _diagramPrintService: IDiagramPrintService;
+  private _openDiagramStateService: OpenDiagramsStateService;
 
   private _tempProcess: IProcessRef;
   private _diagramHasChanges: boolean = false;
@@ -81,9 +84,10 @@ export class BpmnIo {
    */
   public paletteContainer: HTMLDivElement;
 
-  constructor(notificationService: NotificationService, eventAggregator: EventAggregator) {
+  constructor(notificationService: NotificationService, eventAggregator: EventAggregator, openDiagramStateService: OpenDiagramsStateService) {
     this._notificationService = notificationService;
     this._eventAggregator = eventAggregator;
+    this._openDiagramStateService = openDiagramStateService;
   }
 
   public created(): void {
