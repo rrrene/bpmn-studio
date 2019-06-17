@@ -416,6 +416,11 @@ export class BpmnIo {
       } else {
         this.modeler.importXML(this.xml);
       }
+
+      const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(this.diagramUri);
+      const diagramContainsChanges: boolean = diagramState !== null && diagramState.metaData.isChanged;
+
+      this._eventAggregator.publish(environment.events.differsFromOriginal, diagramContainsChanges);
     } else {
       if (oldValue !== undefined) {
         this._saveDiagramState(this.diagramUri);
