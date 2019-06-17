@@ -73,11 +73,28 @@ export class PropertyPanel {
       this.checkIndexTabSuitability();
     });
 
-    this.setFirstElement();
+    setTimeout(() => {
+      this._selectAnElement();
+    }, 0);
   }
 
   public updateIndextab(selectedIndextab: IIndextab): void {
     this._currentIndextabTitle = selectedIndextab.title;
+  }
+
+  private _selectAnElement(): void {
+    const diagramState: IDiagramState = this._openDiagramsStateService.loadDiagramState(this.diagramUri);
+
+    const noSelectedElementState: boolean = diagramState === null || diagramState.metaData.selectedElements.length === 0;
+    if (noSelectedElementState) {
+      this.setFirstElement();
+
+      return;
+    }
+
+    const selectedElementId: string = diagramState.metaData.selectedElements[0].id;
+
+    this._selectElementById(selectedElementId);
   }
 
   private setFirstElement(): void {
@@ -106,11 +123,15 @@ export class PropertyPanel {
         firstElement = process;
       }
 
-      const elementRegistry: IElementRegistry = this.modeler.get('elementRegistry');
-      const elementInPanel: IShape = elementRegistry.get(firstElement.id);
-
-      this.modeler.get('selection').select(elementInPanel);
+      this._selectElementById(firstElement.id);
     }));
+  }
+
+  private _selectElementById(elementId: string): void {
+    const elementRegistry: IElementRegistry = this.modeler.get('elementRegistry');
+    const element: IShape = elementRegistry.get(elementId);
+
+    this.modeler.get('selection').select(element);
   }
 
   private processHasLanes(process: IModdleElement): boolean {
@@ -140,15 +161,14 @@ export class PropertyPanel {
     }
   }
 
-  public diagramUriChanged(newValue: string, oldValue: string): void {
+  public xmlChanged(_: string, oldValue: string): void {
     if (oldValue === undefined) {
       return;
     }
 
     // This is needed to make sure the xml was already imported into the modeler
     setTimeout(() => {
-      this.setFirstElement();
+      this._selectAnElement();
     }, 0);
   }
-
 }
