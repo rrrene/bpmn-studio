@@ -178,16 +178,16 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   }
 
   private async getElementsWhereProcessWasStopped(processInstanceId: string): Promise<Array<IShape>> {
-    const flowNodeInstances: Array<DataModels.FlowNodes.FlowNodeInstance> =
+    const flowNodeInstances: Array<DataModels.FlowNodeInstances.FlowNodeInstance> =
       await this._liveExecutionTrackerRepository.getFlowNodeInstancesForProcessInstance(processInstanceId);
 
     return flowNodeInstances
-      .filter((flowNodeInstance: DataModels.FlowNodes.FlowNodeInstance) => {
+      .filter((flowNodeInstance: DataModels.FlowNodeInstances.FlowNodeInstance) => {
         return flowNodeInstance.state === 'error';
       })
-      .map((flowNodeInstance: DataModels.FlowNodes.FlowNodeInstance) => {
-      return this._elementRegistry.get(flowNodeInstance.flowNodeId);
-    });
+      .map((flowNodeInstance: DataModels.FlowNodeInstances.FlowNodeInstance) => {
+        return this._elementRegistry.get(flowNodeInstance.flowNodeId);
+      });
   }
 
   public getAllElementsThatCanHaveAToken(): Array<IShape> {
@@ -410,11 +410,11 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   public async getColorizedDiagram(processInstanceId: string): Promise<string> {
     const elementsWithActiveToken: Array<IShape> = await this.getElementsWithActiveToken(processInstanceId);
     const elementsWithTokenHistory: Array<IShape> = await this.getElementsWithTokenHistory(processInstanceId);
-    const elementsWhereProcessWasStopped: Array<IShape> = await this.getElementsWhereProcessWasStopped(processInstanceId);
+    const elementsWithError: Array<IShape> = await this.getElementsWhereProcessWasStopped(processInstanceId);
 
     this._colorizeElements(elementsWithTokenHistory, defaultBpmnColors.green);
     this._colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
-    this._colorizeElements(elementsWhereProcessWasStopped, defaultBpmnColors.red);
+    this._colorizeElements(elementsWithError, defaultBpmnColors.red);
 
     const colorizedXml: string = await this.exportXmlFromDiagramModeler();
 

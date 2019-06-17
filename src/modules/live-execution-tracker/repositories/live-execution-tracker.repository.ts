@@ -21,7 +21,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     this._managementApiClient = managementApiClientService;
   }
 
-  public async getFlowNodeInstancesForProcessInstance(processInstanceId: string): Promise<Array<DataModels.FlowNodes.FlowNodeInstance>> {
+  public async getFlowNodeInstancesForProcessInstance(processInstanceId: string): Promise<Array<DataModels.FlowNodeInstances.FlowNodeInstance>> {
     return this._managementApiClient.getFlowNodeInstancesForProcessInstance(this._identity, processInstanceId);
   }
 
