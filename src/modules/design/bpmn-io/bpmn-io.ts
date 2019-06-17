@@ -408,7 +408,11 @@ export class BpmnIo {
         this.viewer.importXML(this.xml);
       }
 
-      this.modeler.importXML(this.xml);
+      if (this._diagramHasState(this.diagramUri)) {
+        this._recoverDiagramState();
+      } else {
+        this.modeler.importXML(this.xml);
+      }
     }
 
     this.diagramHasChanged = false;
@@ -494,6 +498,23 @@ export class BpmnIo {
     }
   }
 
+  private _diagramHasState(uri: string): boolean {
+    const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(uri);
+
+    return diagramState !== null;
+  }
+
+  private async _recoverDiagramState(): Promise<void> {
+    const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(this.diagramUri);
+    if (diagramState === null) {
+      return;
+    }
+
+    const xml: string = diagramState.data.xml;
+
+    await this._importXmlIntoModeler(xml);
+  }
+
   private async _validateDiagram(): Promise<void> {
     const validationResult: IValidateResult = await this._linting.lint();
     this._linting.update();
@@ -573,6 +594,21 @@ export class BpmnIo {
 
       this._linting.deactivateLinting();
     }
+  }
+
+  private _importXmlIntoModeler(xml: string): Promise<void> {
+    return new Promise((resolve: Function, reject: Function): void => {
+      this.modeler.importXML(xml, (error: Error) => {
+        const errorOccured: boolean = error !== undefined;
+        if (errorOccured) {
+          reject();
+
+          return;
+        }
+
+        resolve();
+      });
+    });
   }
 
   private _fitDiagramToViewport(): void {
