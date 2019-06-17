@@ -312,12 +312,12 @@ export class SolutionExplorerList {
 
       const solutionAIsInternalProcessEngine: boolean = solutionA.uri === window.localStorage.getItem('InternalProcessEngineRoute');
       if (solutionAIsInternalProcessEngine) {
-        return -1;
+        return 1;
       }
 
       return solutionA.uri.startsWith('http') && !solutionB.uri.startsWith('http')
-              ? -1
-              : 1;
+              ? 1
+              : -1;
     });
 
     return sortedEntries;
