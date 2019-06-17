@@ -47,16 +47,6 @@
       </template>
     </modal>
 
-    <modal show.bind="showLeaveModal"
-          header-text="Document Contains Changes"
-          body-text="Your process has unsaved changes. Save changes to diagram before leaving?">
-      <template replace-part="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelButtonLeaveView">Cancel</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="dontSaveButtonLeaveView">Leave and don't save</button>
-        <button type="button" class="btn btn-primary" data-dismiss="modal" id="saveButtonLeaveView">Save and leave</button>
-      </template>
-    </modal>
-
     <modal show.bind="showSaveBeforeDeployModal"
           header-text="Save Diagram Before Deploying"
           body-text="In order to deploy your diagram, you have to save your recent changes to disk.">

@@ -42,7 +42,6 @@ export class Design {
   @bindable({defaultBindingMode: bindingMode.oneWay}) public xml: string;
 
   public showQuitModal: boolean = false;
-  public showLeaveModal: boolean = false;
   public showSelectDiagramModal: boolean = false;
 
   public showDetail: boolean = true;
@@ -286,83 +285,6 @@ export class Design {
 
   public togglePanel(): void {
     this._eventAggregator.publish(environment.events.bpmnio.togglePropertyPanel);
-  }
-
-  public async canDeactivate(destinationInstruction: NavigationInstruction): Promise<Redirect> {
-    const userCanNotDeactivateRoute: boolean = !(await this.canDeactivateModal(destinationInstruction));
-    if (userCanNotDeactivateRoute) {
-
-      const redirectUrl: string = `${this._router.currentInstruction.fragment}?${this._router.currentInstruction.queryString}`;
-      /*
-      * As suggested in https://github.com/aurelia/router/issues/302, we use
-      * the router directly to navigate back, which results in staying on this
-      * component-- and this is the desired behaviour.
-      */
-      return new Redirect(redirectUrl, {trigger: false, replace: false});
-    }
-  }
-
-  public async canDeactivateModal(currentRouteInstruction: NavigationInstruction): Promise<boolean> {
-    const modalResult: Promise<boolean> = new Promise((resolve: Function, reject: Function): boolean | void => {
-
-      const modalCanBeSuppressed: boolean = !this.diagramDetail.diagramHasChanged || this._modalCanBeSuppressed(currentRouteInstruction);
-      if (modalCanBeSuppressed) {
-        resolve(true);
-
-        return;
-      }
-
-      const dontSaveAndLeaveFunction: EventListenerOrEventListenerObject = (): void => {
-        this.showLeaveModal = false;
-        this.diagramDetail.diagramHasChanged = false;
-        this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
-
-        document.getElementById('dontSaveButtonLeaveView').removeEventListener('click', dontSaveAndLeaveFunction);
-        document.getElementById('saveButtonLeaveView').removeEventListener('click', saveAndLeaveFunction);
-        document.getElementById('cancelButtonLeaveView').removeEventListener('click', cancelAndLeaveFunction);
-
-        resolve(true);
-      };
-
-      const saveAndLeaveFunction: EventListenerOrEventListenerObject = async(): Promise<void> => {
-        if (this.diagramDetail.diagramIsInvalid) {
-          resolve(false);
-        }
-
-        try {
-          await this.diagramDetail.saveDiagram();
-          this.diagramDetail.diagramHasChanged = false;
-          this.showLeaveModal = false;
-
-          resolve(true);
-        } catch {
-          return;
-        }
-
-        document.getElementById('dontSaveButtonLeaveView').removeEventListener('click', dontSaveAndLeaveFunction);
-        document.getElementById('saveButtonLeaveView').removeEventListener('click', saveAndLeaveFunction);
-        document.getElementById('cancelButtonLeaveView').removeEventListener('click', cancelAndLeaveFunction);
-      };
-
-      const cancelAndLeaveFunction: EventListenerOrEventListenerObject = (): void => {
-        this.showLeaveModal = false;
-
-        document.getElementById('dontSaveButtonLeaveView').removeEventListener('click', dontSaveAndLeaveFunction);
-        document.getElementById('saveButtonLeaveView').removeEventListener('click', saveAndLeaveFunction);
-        document.getElementById('cancelButtonLeaveView').removeEventListener('click', cancelAndLeaveFunction);
-
-        resolve(false);
-      };
-
-      this.showLeaveModal = true;
-
-      // register onClick handler
-      document.getElementById('dontSaveButtonLeaveView').addEventListener('click', dontSaveAndLeaveFunction);
-      document.getElementById('saveButtonLeaveView').addEventListener('click', saveAndLeaveFunction);
-      document.getElementById('cancelButtonLeaveView').addEventListener('click', cancelAndLeaveFunction);
-    });
-
-    return modalResult;
   }
 
   public deactivate(): void {
