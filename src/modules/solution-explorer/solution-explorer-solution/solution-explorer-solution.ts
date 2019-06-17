@@ -549,6 +549,8 @@ export class SolutionExplorerSolution {
     const openDiagramService: OpenDiagramsSolutionExplorerService = this.solutionService as OpenDiagramsSolutionExplorerService;
     openDiagramService.closeDiagram(diagramToClose);
 
+    this._openDiagramStateService.deleteDiagramState(diagramToClose.uri);
+
     this._globalSolutionService.removeOpenDiagramByUri(diagramToClose.uri);
   }
 
