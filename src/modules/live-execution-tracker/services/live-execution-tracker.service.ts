@@ -177,7 +177,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return elementsWithTokenHistory;
   }
 
-  private async getElementsWhereProcessWasStopped(processInstanceId: string): Promise<Array<IShape>> {
+  private async getElementsWithError(processInstanceId: string): Promise<Array<IShape>> {
     const flowNodeInstances: Array<DataModels.FlowNodeInstances.FlowNodeInstance> =
       await this._liveExecutionTrackerRepository.getFlowNodeInstancesForProcessInstance(processInstanceId);
 
@@ -410,7 +410,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   public async getColorizedDiagram(processInstanceId: string): Promise<string> {
     const elementsWithActiveToken: Array<IShape> = await this.getElementsWithActiveToken(processInstanceId);
     const elementsWithTokenHistory: Array<IShape> = await this.getElementsWithTokenHistory(processInstanceId);
-    const elementsWithError: Array<IShape> = await this.getElementsWhereProcessWasStopped(processInstanceId);
+    const elementsWithError: Array<IShape> = await this.getElementsWithError(processInstanceId);
 
     this._colorizeElements(elementsWithTokenHistory, defaultBpmnColors.green);
     this._colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
