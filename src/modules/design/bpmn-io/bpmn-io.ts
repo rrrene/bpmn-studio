@@ -314,7 +314,7 @@ export class BpmnIo {
         this.savedXml = await this.getXML();
         this._diagramHasChanges = false;
 
-        this._saveDiagramState(this.diagramUri);
+        await this._saveDiagramState(this.diagramUri);
       }),
 
       this._eventAggregator.subscribe(environment.events.diagramChange, async() => {
@@ -397,7 +397,7 @@ export class BpmnIo {
     this._tempProcess = undefined;
   }
 
-  public xmlChanged(_: string, oldValue: string): void {
+  public async xmlChanged(newValue: string, oldValue: string): Promise<void> {
     if (this.diagramHasChanged) {
       this.savedXml = newValue;
 
@@ -417,7 +417,7 @@ export class BpmnIo {
       this._eventAggregator.publish(environment.events.differsFromOriginal, diagramContainsChanges);
     } else {
       if (oldValue !== undefined) {
-        this._saveDiagramState(this.diagramUri);
+        await this._saveDiagramState(this.diagramUri);
       }
     }
 
