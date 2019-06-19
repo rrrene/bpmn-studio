@@ -1,5 +1,5 @@
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {Aurelia, computedFrom, inject} from 'aurelia-framework';
+import {computedFrom, inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
 import {IIdentity} from '@essential-projects/iam_contracts';
@@ -8,7 +8,6 @@ import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service
 
 import {
   IAuthenticationService,
-  IDiagramValidationService,
   ILoginResult,
   ISolutionEntry,
   ISolutionService,
@@ -22,7 +21,7 @@ interface IUriToViewModelMap {
   [key: string]: SolutionExplorerSolution;
 }
 
-@inject(Router, EventAggregator, 'SolutionExplorerServiceFactory', 'AuthenticationService', 'DiagramValidationService', 'SolutionService', Aurelia)
+@inject(Router, EventAggregator, 'SolutionExplorerServiceFactory', 'AuthenticationService', 'SolutionService', 'SingleDiagramService')
 export class SolutionExplorerList {
   public internalSolutionUri: string;
   /**
@@ -35,9 +34,7 @@ export class SolutionExplorerList {
   private _eventAggregator: EventAggregator;
   private _solutionExplorerServiceFactory: SolutionExplorerServiceFactory;
   private _authenticationService: IAuthenticationService;
-  private _diagramValidationService: IDiagramValidationService;
   private _solutionService: ISolutionService;
-  private _aurelia: Aurelia;
   /*
    * Contains all opened solutions.
    */
@@ -54,17 +51,15 @@ export class SolutionExplorerList {
     eventAggregator: EventAggregator,
     solutionExplorerServiceFactory: SolutionExplorerServiceFactory,
     authenticationService: IAuthenticationService,
-    diagramValidationService: IDiagramValidationService,
     solutionService: ISolutionService,
-    aurelia: Aurelia,
+    singleDiagramService: SingleDiagramsSolutionExplorerService,
   ) {
     this._router = router;
     this._eventAggregator = eventAggregator;
     this._solutionExplorerServiceFactory = solutionExplorerServiceFactory;
     this._authenticationService = authenticationService;
-    this._diagramValidationService = diagramValidationService;
     this._solutionService = solutionService;
-    this._aurelia = aurelia;
+    this._singleDiagramService = singleDiagramService;
 
     const canReadFromFileSystem: boolean = (window as any).nodeRequire;
     if (canReadFromFileSystem) {
@@ -347,26 +342,11 @@ export class SolutionExplorerList {
   /**
    * Add entry for single file service.
    */
+
   private async _createOpenDiagramServiceEntry(): Promise<void> {
-
-    const fileSystemSolutionExplorer: ISolutionExplorerService = await this._solutionExplorerServiceFactory.newFileSystemSolutionExplorer();
-
-    const uriOfOpenDiagramService: string = 'about:open-diagrams';
-    const nameOfOpenDiagramService: string = 'Open Diagrams';
-
-    this.openDiagramService = new OpenDiagramsSolutionExplorerService(
-        this._diagramValidationService,
-        fileSystemSolutionExplorer,
-        uriOfOpenDiagramService,
-        nameOfOpenDiagramService,
-        this._solutionService,
-      );
-
-    this._aurelia.container.registerInstance('SingleDiagramService', this._singleDiagramService);
-
     const identity: IIdentity = this._createIdentityForSolutionExplorer();
 
-    this._addSolutionEntry(uriOfOpenDiagramService, this.openDiagramService, identity, true);
+    this._addSolutionEntry('Single Diagrams', this.openDiagramService, identity, true);
   }
 
   private _getFontAwesomeIconForSolution(service: ISolutionExplorerService, uri: string): string {
