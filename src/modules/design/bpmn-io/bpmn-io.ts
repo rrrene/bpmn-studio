@@ -422,10 +422,11 @@ export class BpmnIo {
       const diagramContainsChanges: boolean = diagramState !== null && diagramState.metaData.isChanged;
 
       this._eventAggregator.publish(environment.events.differsFromOriginal, diagramContainsChanges);
-    } else {
-      if (oldValue !== undefined) {
-        await this._saveDiagramState(this.diagramUri);
-      }
+    }
+
+    const oldValueExists: boolean = oldValue !== undefined;
+    if (!this.diagramHasChanged && oldValueExists) {
+      await this._saveDiagramState(this.diagramUri);
     }
 
     this.diagramHasChanged = false;
@@ -519,7 +520,9 @@ export class BpmnIo {
 
   private async _recoverDiagramState(): Promise<void> {
     const diagramState: IDiagramState = this._loadDiagramState(this.diagramUri);
-    if (diagramState === null) {
+
+    const diagramHasState: boolean = diagramState !== null;
+    if (diagramHasState) {
       return;
     }
 
