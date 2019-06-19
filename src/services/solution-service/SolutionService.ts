@@ -127,7 +127,7 @@ export class SolutionService implements ISolutionService {
 
   public persistSolutionsInLocalStorage(): void {
     /**
-     * Right now the oopen diagram solution entry doesn't get persisted.
+     * Right now the open diagram solution entry doesn't get persisted.
      */
     const entriesToPersist: Array<ISolutionEntry> = this._allSolutionEntries.filter((entry: ISolutionEntry) => {
       const entryIsNotOpenDiagramSolution: boolean = entry.uri !== 'Open Diagrams';
