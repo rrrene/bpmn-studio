@@ -149,8 +149,8 @@ export class SolutionExplorerSolution {
     }
 
     setTimeout(async() => {
-    await this.updateSolution();
-    this._startPolling();
+      await this.updateSolution();
+      this._startPolling();
     }, 0);
   }
 
