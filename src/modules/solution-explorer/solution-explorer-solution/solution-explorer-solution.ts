@@ -207,6 +207,10 @@ export class SolutionExplorerSolution {
    * Reload the solution by requesting it from the solution service.
    */
   public async updateSolution(): Promise<void> {
+    if (this.solutionIsOpenDiagrams) {
+      return;
+    }
+
     try {
       this._openedSolution = await this.solutionService.loadSolution();
       const updatedDiagramList: Array<IDiagram> = this._openedSolution.diagrams.sort(this._diagramSorter);
@@ -514,6 +518,10 @@ export class SolutionExplorerSolution {
   }
 
   private _startPolling(): void {
+    if (this.solutionIsOpenDiagrams) {
+      return;
+    }
+
     this._refreshTimeoutTask = setTimeout(async() =>  {
 
       await this.updateSolution();
