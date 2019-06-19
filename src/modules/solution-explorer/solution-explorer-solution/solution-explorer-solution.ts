@@ -395,7 +395,7 @@ export class SolutionExplorerSolution {
   public canRenameDiagram(): boolean {
     return !this.solutionIsOpenDiagrams
             && this._openedSolution
-            && !this._openedSolution.uri.startsWith('http');
+            && !this._isUriFromRemoteSolution(this._openedSolution.uri);
   }
 
   public get diagramChangedStateMap(): Map<string, boolean> {
@@ -491,7 +491,7 @@ export class SolutionExplorerSolution {
       return openedDiagram.uri === diagram.uri;
     });
 
-    const diagramIsFromLocalSolution: boolean = !diagram.uri.startsWith('http');
+    const diagramIsFromLocalSolution: boolean = !this._isUriFromRemoteSolution(diagram.uri);
 
     if (diagramIsNotYetOpened && diagramIsFromLocalSolution) {
       const openedDiagram: IDiagram = await this.openDiagramService.openDiagram(diagram.uri, this._createIdentityForSolutionExplorer());
@@ -513,7 +513,7 @@ export class SolutionExplorerSolution {
 
   // TODO: This method is copied all over the place.
   private async _navigateToDetailView(diagram: IDiagram): Promise<void> {
-    const diagramIsNoRemoteDiagram: boolean = !diagram.uri.startsWith('http');
+    const diagramIsNoRemoteDiagram: boolean = !this._isUriFromRemoteSolution(diagram.uri);
     if (diagramIsNoRemoteDiagram) {
       const viewIsHeatmapOrInspectCorrelation: boolean = this._inspectView === 'inspect-correlation'
                                                       || this._inspectView === 'heatmap';
@@ -1068,7 +1068,7 @@ export class SolutionExplorerSolution {
         // The solution may have changed on the file system.
         await this.updateSolution();
 
-        const isRemoteSolution: boolean = this._openedSolution.uri.startsWith('http');
+        const isRemoteSolution: boolean = this._isUriFromRemoteSolution(this._openedSolution.uri);
         const isRunningInElectron: boolean = (window as any).nodeRequire;
 
         let expectedDiagramUri: string;
@@ -1087,4 +1087,7 @@ export class SolutionExplorerSolution {
       .on(this._diagramCreationState);
   }
 
+  private _isUriFromRemoteSolution(uri: string): boolean {
+    return uri.startsWith('http');
+  }
 }
