@@ -1,8 +1,11 @@
+import {inject} from 'aurelia-framework';
+
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 
 import {IDiagramValidationService, ISolutionService} from '../../contracts';
+import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
 
 /**
  * This service allows to keep all opened open diagrams inside a solution.
@@ -16,26 +19,23 @@ import {IDiagramValidationService, ISolutionService} from '../../contracts';
  * To remove a diagram from the solution, call use #closeDiagram().
  */
 
+@inject('DiagramValidationService', 'SolutionExplorerServiceFactory', 'SolutionService')
 export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerService {
 
   private _validationService: IDiagramValidationService;
   private _solutionExplorerToOpenDiagrams: ISolutionExplorerService;
-  private _uriOfOpenDiagramService: string;
-  private _nameOfOpenDiagramService: string;
+  private _uriOfOpenDiagramService: string = 'Single Diagrams';
+  private _nameOfOpenDiagramService: string = 'Single Diagrams';
   private _openedDiagrams: Array<IDiagram> = [];
   private _solutionService: ISolutionService;
 
   constructor(
     validationService: IDiagramValidationService,
-    solutionExplorerToOpenDiagrams: ISolutionExplorerService,
-    uriOfOpenDiagramService: string,
-    nameOfOpenDiagramService: string,
+    serviceFactory: SolutionExplorerServiceFactory,
     solutionService: ISolutionService,
   ) {
     this._validationService = validationService;
-    this._solutionExplorerToOpenDiagrams = solutionExplorerToOpenDiagrams;
-    this._uriOfOpenDiagramService = uriOfOpenDiagramService;
-    this._nameOfOpenDiagramService = nameOfOpenDiagramService;
+    this._setSolutionExplorer(serviceFactory);
     this._solutionService = solutionService;
   }
 
@@ -161,5 +161,9 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     });
 
     return index;
+  }
+
+  private async _setSolutionExplorer(serviceFactory: SolutionExplorerServiceFactory): Promise<void> {
+    this._solutionExplorerToOpenDiagrams = await serviceFactory.newFileSystemSolutionExplorer();
   }
 }

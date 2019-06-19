@@ -6,20 +6,22 @@ import {SolutionExplorerManagementApiRepository} from '@process-engine/solutione
 import {SolutionExplorerService} from '@process-engine/solutionexplorer.service';
 
 import {DiagramTrashFolderService} from './DiagramTrashFolderService';
+import {OpenDiagramsSolutionExplorerService} from './OpenDiagramsSolutionExplorerService';
 import {OpenDiagramStateService} from './OpenDiagramStateService';
 import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
 
 export async function configure(config: FrameworkConfiguration): Promise<void> {
-  if ((window as any).nodeRequire) {
-    // only available if a filesystem is present
-    registerFileSystem(config.container);
-  }
-
   registerManagementApi(config.container);
 
   config.container.registerSingleton('SolutionExplorerServiceFactory', SolutionExplorerServiceFactory);
   config.container.registerSingleton('DiagramTrashFolderService', DiagramTrashFolderService);
   config.container.registerSingleton('OpenDiagramStateService', OpenDiagramStateService);
+
+  if ((window as any).nodeRequire) {
+    // only available if a filesystem is present
+    registerFileSystem(config.container);
+    config.container.registerSingleton('SingleDiagramService', OpenDiagramsSolutionExplorerService);
+  }
 }
 
 function registerFileSystem(container: Container): void {
