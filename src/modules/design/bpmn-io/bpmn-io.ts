@@ -443,6 +443,8 @@ export class BpmnIo {
 
     this.solutionIsRemote = this.diagramUri.startsWith('http');
 
+    this.xmlChanged();
+
     if (this.solutionIsRemote) {
       const viewerNotInitialized: boolean = this.viewer === undefined;
       if (viewerNotInitialized) {
