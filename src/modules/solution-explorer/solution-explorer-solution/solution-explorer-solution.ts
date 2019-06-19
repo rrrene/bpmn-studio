@@ -515,6 +515,7 @@ export class SolutionExplorerSolution {
 
   private _startPolling(): void {
     this._refreshTimeoutTask = setTimeout(async() =>  {
+
       await this.updateSolution();
 
       if (this._isAttached) {
