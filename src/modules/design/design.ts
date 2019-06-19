@@ -42,7 +42,6 @@ export class Design {
   @bindable({defaultBindingMode: bindingMode.oneWay}) public xml: string;
 
   public showSelectDiagramModal: boolean = false;
-
   public showDetail: boolean = true;
   public showXML: boolean = false;
   public showDiff: boolean = false;
