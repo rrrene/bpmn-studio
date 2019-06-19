@@ -326,7 +326,7 @@ export class DiagramDetail {
   /**
    * Saves the current diagram.
    */
-  public async saveDiagram(newPath?: string): Promise<void> {
+  public async saveDiagram(): Promise<void> {
     const savingTargetIsRemoteSolution: boolean = this.activeSolutionEntry.uri.startsWith('http');
 
     if (this.diagramIsInvalid || savingTargetIsRemoteSolution) {
@@ -337,46 +337,64 @@ export class DiagramDetail {
       const xml: string = await this.bpmnio.getXML();
       this.activeDiagram.xml = xml;
 
-      if (newPath) {
-        await this.activeSolutionEntry.service.saveDiagram(this.activeDiagram, newPath);
-        try {
-          this.activeDiagram = await this._singleDiagramService.openSingleDiagram(newPath, this.activeSolutionEntry.identity);
-          this._solutionService.addSingleDiagram(this.activeDiagram);
+      await this.activeSolutionEntry.service.saveDiagram(this.activeDiagram);
 
-        } catch (error) {
-          const alreadyOpenedDiagram: IDiagram = await this._singleDiagramService.getOpenedDiagramByURI(newPath);
-          await this._singleDiagramService.closeSingleDiagram(alreadyOpenedDiagram);
-          this.activeDiagram = await this._singleDiagramService.openSingleDiagram(newPath, this.activeSolutionEntry.identity);
-        }
-        this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri('Single Diagrams');
+      this.diagramHasChanged = false;
 
-        this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
+      this.bpmnio.saveCurrentXML();
 
-        this.bpmnio.saveCurrentXML();
+      this._notificationService.showNotification(NotificationType.SUCCESS, `File saved!`);
+      this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
+    } catch (error) {
+      this._notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
+      throw error;
+    }
+  }
 
-        this.diagramHasChanged = false;
+  public async saveDiagramAs(path: string): Promise<void> {
+    if (this.diagramIsInvalid) {
+      return;
+    }
 
-        await this._router.navigateToRoute('design', {
-          diagramName: this.activeDiagram.name,
-          diagramUri: this.activeDiagram.uri,
-          solutionUri: this.activeSolutionEntry.uri,
-        });
+    try {
+      const xml: string = await this.bpmnio.getXML();
 
-        this.diagramSavedAs = true;
-        return;
-      } else {
-        await this.activeSolutionEntry.service.saveDiagram(this.activeDiagram);
+      const diagram: IDiagram = {
+        name: this.activeDiagram.name,
+        id: this.activeDiagram.id,
+        uri: this.activeDiagram.uri,
+        xml: xml,
+      };
+
+      await this.activeSolutionEntry.service.saveDiagram(diagram, path);
+
+      try {
+        this.activeDiagram = await this._singleDiagramService.openSingleDiagram(path, this.activeSolutionEntry.identity);
+        this._solutionService.addSingleDiagram(this.activeDiagram);
+      } catch (error) {
+        const alreadyOpenedDiagram: IDiagram = await this._singleDiagramService.getOpenedDiagramByURI(path);
+        await this._singleDiagramService.closeSingleDiagram(alreadyOpenedDiagram);
+        this.activeDiagram = await this._singleDiagramService.openSingleDiagram(path, this.activeSolutionEntry.identity);
       }
+
+      this.xml = this.activeDiagram.xml;
+      this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri('Single Diagrams');
+
+      this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
 
       this.bpmnio.saveCurrentXML();
 
       this.diagramHasChanged = false;
-      this._notificationService
-          .showNotification(NotificationType.SUCCESS, `File saved!`);
-      this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
+
+      await this._router.navigateToRoute('design', {
+        diagramName: this.activeDiagram.name,
+        diagramUri: this.activeDiagram.uri,
+        solutionUri: this.activeSolutionEntry.uri,
+      });
+
+      this._notificationService.showNotification(NotificationType.SUCCESS, `File saved!`);
     } catch (error) {
-      this._notificationService
-          .showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
+      this._notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
       throw error;
     }
   }
@@ -557,7 +575,7 @@ export class DiagramDetail {
         return;
       }
 
-      await this.saveDiagram(savePath);
+      await this.saveDiagramAs(savePath);
     });
   }
 
