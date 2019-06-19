@@ -622,12 +622,12 @@ export class SolutionExplorerSolution {
         resolve(false);
       };
 
-      this.showCloseModal = true;
-
       // register onClick handler
       document.getElementById('dontSaveButtonCloseView').addEventListener('click', dontSaveFunction);
       document.getElementById('saveButtonCloseView').addEventListener('click', saveFunction);
       document.getElementById('cancelButtonCloseView').addEventListener('click', cancelFunction);
+
+      this.showCloseModal = true;
     });
 
     return modalResult;
