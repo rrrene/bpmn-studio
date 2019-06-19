@@ -201,21 +201,28 @@ export class BpmnIo {
   }
 
   public async attached(): Promise<void> {
-    const xmlIsNotEmpty: boolean = this.xml !== undefined && this.xml !== null;
-    if (xmlIsNotEmpty) {
-      this.modeler.importXML(this.xml, async(err: Error) => {
-        this.savedXml = await this.getXML();
-      });
+    if (this._diagramHasState(this.diagramUri)) {
+      const diagramState: IDiagramState = this._loadDiagramState(this.diagramUri);
 
-      // Wait until the HTML is rendered
-      setTimeout(() => {
-        this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
+      await this._importXmlIntoModeler(diagramState.data.xml);
+    } else {
 
-        if (this._bpmnLintButton) {
-          this._bpmnLintButton.style.display = 'none';
-        }
-      }, 0);
+      const xmlIsNotEmpty: boolean = this.xml !== undefined && this.xml !== null;
+      if (xmlIsNotEmpty) {
+        this.modeler.importXML(this.xml, async(err: Error) => {
+          this.savedXml = await this.getXML();
+        });
+      }
     }
+
+    // Wait until the HTML is rendered
+    setTimeout(() => {
+      this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
+
+      if (this._bpmnLintButton) {
+        this._bpmnLintButton.style.display = 'none';
+      }
+    }, 0);
 
     if (this.solutionIsRemote) {
       this.viewer.importXML(this.xml);
