@@ -163,16 +163,19 @@ export class PropertyPanel {
     }
   }
 
-  public diagramUriChanged(_: string, oldValue: string): void {
-    if (oldValue === undefined) {
+  public diagramUriChanged(newUri: string, previousUri: string): void {
+    const previousUriDoesNotExist: boolean = previousUri === undefined;
+    if (previousUriDoesNotExist) {
       return;
     }
 
     this._diagramChanged = true;
   }
 
-  public xmlChanged(_: string, oldValue: string): void {
-    if (oldValue === undefined || !this._diagramChanged) {
+  public xmlChanged(newXml: string, previousXml: string): void {
+    const previousXmlDoesNotExist: boolean = previousXml === undefined;
+    const diagramDidNotChange: boolean = !this._diagramChanged;
+    if (previousXmlDoesNotExist || diagramDidNotChange) {
       return;
     }
 

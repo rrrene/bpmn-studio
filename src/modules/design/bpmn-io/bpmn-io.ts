@@ -432,7 +432,7 @@ export class BpmnIo {
     this.diagramHasChanged = false;
   }
 
-  public async diagramChanged(_: string, previousUri: string): Promise<void> {
+  public async diagramChanged(newUri: string, previousUri: string): Promise<void> {
     this.diagramHasChanged = true;
     this._tempProcess = undefined;
 
