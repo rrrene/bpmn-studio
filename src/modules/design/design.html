@@ -37,16 +37,6 @@
       </div>
     </div>
 
-    <modal show.bind="showQuitModal"
-           header-text="Document Contains Changes"
-           body-text="Your process has unsaved changes. Save changes to diagram before quitting the BPMN-Studio?">
-      <template replace-part="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" click.delegate="cancelQuitting()">Cancel</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" click.delegate="quitWithoutSaving()">Quit and don't save</button>
-        <button type="button" class="btn btn-primary" data-dismiss="modal" click.delegate="quitWithSaving()">Save and quit</button>
-      </template>
-    </modal>
-
     <modal show.bind="showSaveBeforeDeployModal"
           header-text="Save Diagram Before Deploying"
           body-text="In order to deploy your diagram, you have to save your recent changes to disk.">

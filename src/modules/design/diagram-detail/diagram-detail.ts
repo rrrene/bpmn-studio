@@ -240,15 +240,6 @@ export class DiagramDetail {
     }
   }
 
-  public diagramHasChangedChanged(): void {
-    const isRunningInElectron: boolean = this._ipcRenderer !== undefined;
-    if (isRunningInElectron) {
-      const canNotClose: boolean = this.diagramHasChanged;
-
-      this._ipcRenderer.send('can-not-close', canNotClose);
-    }
-  }
-
   public async setOptionsAndStart(): Promise<void> {
 
     if (this.hasValidationError) {

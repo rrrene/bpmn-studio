@@ -41,7 +41,6 @@ export class Design {
   @bindable() public xmlForDiff: string;
   @bindable({defaultBindingMode: bindingMode.oneWay}) public xml: string;
 
-  public showQuitModal: boolean = false;
   public showSelectDiagramModal: boolean = false;
 
   public showDetail: boolean = true;
@@ -76,11 +75,6 @@ export class Design {
   // TODO: Refactor this function
   // tslint:disable-next-line cyclomatic-complexity
   public async activate(routeParameters: IDesignRouteParameters): Promise<void> {
-    const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
-    if (isRunningInElectron) {
-      this._prepareSaveModalForClosing();
-    }
-
     const solutionIsSet: boolean = routeParameters.solutionUri !== undefined;
     const diagramNameIsSet: boolean = routeParameters.diagramName !== undefined;
 
@@ -361,43 +355,6 @@ export class Design {
     this.showXML = false;
     this.showPropertyPanelButton = false;
     this.showDiffDestinationButton = true;
-  }
-
-  private _prepareSaveModalForClosing(): void {
-    this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
-
-    const showCloseModalEventName: string = 'show-close-modal';
-
-    const showCloseModalFunction: Function = (): void => {
-      this.showQuitModal = true;
-    };
-
-    this._ipcRenderer.on(showCloseModalEventName, showCloseModalFunction);
-    this._ipcRendererEventListeners.push({
-                                            name: showCloseModalEventName,
-                                            function: showCloseModalFunction,
-                                        });
-
-  }
-
-  public quitWithoutSaving(): void {
-    this._ipcRenderer.send('can-not-close', false);
-    this._ipcRenderer.send('close-bpmn-studio');
-  }
-
-  public async quitWithSaving(): Promise<void> {
-    if (this.diagramDetail.diagramIsInvalid) {
-      return;
-    }
-
-    await this.diagramDetail.saveDiagram();
-    this.diagramDetail.diagramHasChanged = false;
-
-    this._ipcRenderer.send('close-bpmn-studio');
-  }
-
-  public cancelQuitting(): void {
-    this.showQuitModal = false;
   }
 
   /**

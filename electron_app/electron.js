@@ -19,8 +19,6 @@ const oidcConfig = require('./oidc-config');
 let filePath;
 let isInitialized = false;
 
-let canNotCloseApplication = false;
-
 const Main = {};
 
 /**
@@ -299,24 +297,6 @@ Main._createMainWindow = function () {
   // broken if we carry a file system link as the last item of the browser
   // history.
   Main._window.loadURL('/');
-
-  Main._window.on('close', (event) => {
-    if (canNotCloseApplication) {
-      event.preventDefault();
-
-      Main._window.webContents.send('show-close-modal');
-
-      return false;
-    }
-  });
-
-  electron.ipcMain.on('close-bpmn-studio', (event) => {
-    Main._window.close();
-  });
-
-  electron.ipcMain.on('can-not-close', (event, canCloseResult) => {
-    canNotCloseApplication = canCloseResult;
-  });
 
   Main._window.on('closed', (event) => {
     Main._window = null;
