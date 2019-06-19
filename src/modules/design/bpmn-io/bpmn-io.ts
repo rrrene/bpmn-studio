@@ -411,7 +411,7 @@ export class BpmnIo {
         this.modeler.importXML(this.xml);
       }
 
-      const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(this.diagramUri);
+      const diagramState: IDiagramState = this._loadDiagramState(this.diagramUri);
       const diagramContainsChanges: boolean = diagramState !== null && diagramState.metaData.isChanged;
 
       this._eventAggregator.publish(environment.events.differsFromOriginal, diagramContainsChanges);
@@ -501,13 +501,17 @@ export class BpmnIo {
   }
 
   private _diagramHasState(uri: string): boolean {
-    const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(uri);
+    const diagramState: IDiagramState = this._loadDiagramState(uri);
 
     return diagramState !== null;
   }
 
+  private _loadDiagramState(diagramUri: string): IDiagramState {
+    return this._openDiagramStateService.loadDiagramState(diagramUri);
+  }
+
   private async _recoverDiagramState(): Promise<void> {
-    const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(this.diagramUri);
+    const diagramState: IDiagramState = this._loadDiagramState(this.diagramUri);
     if (diagramState === null) {
       return;
     }
