@@ -521,8 +521,8 @@ export class BpmnIo {
   private async _recoverDiagramState(): Promise<void> {
     const diagramState: IDiagramState = this._loadDiagramState(this.diagramUri);
 
-    const diagramHasState: boolean = diagramState !== null;
-    if (diagramHasState) {
+    const diagramHasNoState: boolean = diagramState === null;
+    if (diagramHasNoState) {
       return;
     }
 
