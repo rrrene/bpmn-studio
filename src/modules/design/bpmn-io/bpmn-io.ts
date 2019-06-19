@@ -318,17 +318,9 @@ export class BpmnIo {
       }),
 
       this._eventAggregator.subscribe(environment.events.diagramChange, async() => {
-        /*
-        * This Regex removes all newlines and spaces to make sure that both xml
-        * are not formatted.
-        */
-        const whitespaceAndNewLineRegex: RegExp = /\r?\n|\r|\s/g;
-
         this.xml = await this.getXML();
-        const unformattedXml: string = this.xml.replace(whitespaceAndNewLineRegex, '');
-        const unformattedSaveXml: string = this.savedXml.replace(whitespaceAndNewLineRegex, '');
 
-        const diagramIsChanged: boolean = unformattedSaveXml !== unformattedXml;
+        const diagramIsChanged: boolean = !this._areXmlsIdentical(this.xml, this.savedXml);
 
         this._validateDiagram();
 
@@ -618,6 +610,19 @@ export class BpmnIo {
     const isChanged: boolean = this._diagramHasChanges;
 
     this._openDiagramStateService.saveDiagramState(diagramUri, xml, viewbox, selectedElement, isChanged);
+  }
+
+  private _areXmlsIdentical(firstXml: string, secondXml: string): boolean {
+    /*
+    * This Regex removes all newlines and spaces to make sure that both xml
+    * are not formatted.
+    */
+    const whitespaceAndNewLineRegex: RegExp = /\r?\n|\r|\s/g;
+
+    const unformattedXml: string = firstXml.replace(whitespaceAndNewLineRegex, '');
+    const unformattedSaveXml: string = secondXml.replace(whitespaceAndNewLineRegex, '');
+
+    return unformattedSaveXml === unformattedXml;
   }
 
   private _importXmlIntoModeler(xml: string): Promise<void> {
