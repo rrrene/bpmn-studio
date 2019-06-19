@@ -139,6 +139,15 @@ export class SolutionExplorerSolution {
       }),
     ];
 
+    if (this.solutionIsOpenDiagrams) {
+      const updateSubscription: Subscription =
+        this._eventAggregator.subscribe(environment.events.solutionExplorer.updateOpenDiagrams, (): void => {
+          this.updateSolution();
+        });
+
+      this._subscriptions.push(updateSubscription);
+    }
+
     setTimeout(async() => {
     await this.updateSolution();
     this._startPolling();
@@ -496,6 +505,10 @@ export class SolutionExplorerSolution {
     if (diagramIsNotYetOpened && diagramIsFromLocalSolution) {
       const openedDiagram: IDiagram = await this.openDiagramService.openDiagram(diagram.uri, this._createIdentityForSolutionExplorer());
       await this.openDiagramService.saveDiagram(openedDiagram);
+    }
+
+    if (!this._isUriFromRemoteSolution(diagram.uri) && !this.solutionIsOpenDiagrams) {
+      this._eventAggregator.publish(environment.events.solutionExplorer.updateOpenDiagrams);
     }
 
     this._navigateToDetailView(diagram);

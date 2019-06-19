@@ -98,6 +98,9 @@ export default {
       showTokenViewer: 'inspectCorrelation:tokenViewer:show',
       showLogViewer: 'inpsectCorrelation:logViewer:show',
     },
+    solutionExplorer: {
+      updateOpenDiagrams: 'solutioneExplorer:openDiagrams:update',
+    },
   },
   baseRoute: processEngineRoute,
   propertyPanel: {
