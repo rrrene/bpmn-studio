@@ -399,6 +399,8 @@ export class BpmnIo {
 
   public xmlChanged(_: string, oldValue: string): void {
     if (this.diagramHasChanged) {
+      this.savedXml = newValue;
+
       if (this.solutionIsRemote) {
         this.viewer.importXML(this.xml);
       }
@@ -602,12 +604,13 @@ export class BpmnIo {
   }
 
   private async _saveDiagramState(diagramUri: string): Promise<void> {
+    const savedXml: string = this.savedXml;
     const modelerCanvas: ICanvas = this.modeler.get('canvas');
 
     const selectedElement: Array<IShape> = this.modeler.get('selection')._selectedElements;
     const viewbox: IViewbox  = modelerCanvas.viewbox();
     const xml: string = await this.getXML();
-    const isChanged: boolean = this._diagramHasChanges;
+    const isChanged: boolean = this._areXmlsIdentical(xml, savedXml);
 
     this._openDiagramStateService.saveDiagramState(diagramUri, xml, viewbox, selectedElement, isChanged);
   }
