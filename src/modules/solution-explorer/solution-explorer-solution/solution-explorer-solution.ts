@@ -225,9 +225,14 @@ export class SolutionExplorerSolution {
   public async closeDiagram(diagram: IDiagram, event: Event): Promise<void> {
     event.stopPropagation();
 
-    const cancelClosing: boolean = !(await this._shouldCloseDiagramModal(diagram));
-    if (cancelClosing) {
-      return;
+    const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(diagram.uri);
+    const diagramHasUnsavedChanges: boolean = diagramState !== null && diagramState.metaData.isChanged;
+
+    if (diagramHasUnsavedChanges) {
+      const cancelClosing: boolean = !(await this._shouldCloseDiagramModal(diagram));
+      if (cancelClosing) {
+        return;
+      }
     }
 
     const closedDiagramWasActiveDiagram: boolean = this.activeDiagramUri === diagram.uri;
