@@ -130,7 +130,7 @@ export class SolutionExplorerSolution {
     this._isAttached = true;
 
     this._originalIconClass = this.fontAwesomeIconClass;
-    this._updateSolutionExplorer();
+    await this._updateSolutionExplorer();
     this._setValidationRules();
 
     this._subscriptions = [
@@ -139,8 +139,10 @@ export class SolutionExplorerSolution {
       }),
     ];
 
+    setTimeout(async() => {
     await this.updateSolution();
     this._startPolling();
+    }, 0);
   }
 
   public detached(): void {
