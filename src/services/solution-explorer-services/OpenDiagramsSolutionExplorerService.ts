@@ -141,7 +141,6 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
   }
 
   public saveDiagram(diagram: IDiagram, pathspec?: string): Promise<void> {
-    this._solutionService.addSingleDiagram(diagram);
 
     return this._solutionExplorerToOpenDiagrams.saveDiagram(diagram, pathspec);
   }
