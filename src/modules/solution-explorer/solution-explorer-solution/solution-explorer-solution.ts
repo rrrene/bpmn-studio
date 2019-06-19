@@ -495,7 +495,6 @@ export class SolutionExplorerSolution {
   }
 
   public async openDiagram(diagram: IDiagram): Promise<void> {
-
     const diagramIsNotYetOpened: boolean = !this.openDiagramService.getOpenedDiagrams().some((openedDiagram: IDiagram): boolean => {
       return openedDiagram.uri === diagram.uri;
     });
