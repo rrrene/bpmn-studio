@@ -55,7 +55,6 @@ export class BpmnIo {
   public minPropertyPanelWidth: number = 200;
   public diagramIsInvalid: boolean = false;
   public diagramHasChanged: boolean = false;
-  @bindable public diagramSavedAs: boolean;
 
   private _bpmnLintButton: HTMLElement;
   private _linting: ILinting;
@@ -406,7 +405,7 @@ export class BpmnIo {
   }
 
   public async xmlChanged(newValue: string, oldValue: string): Promise<void> {
-    if (this.diagramHasChanged && !this.diagramSavedAs) {
+    if (this.diagramHasChanged) {
       this.savedXml = newValue;
 
       if (this.solutionIsRemote) {

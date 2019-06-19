@@ -55,7 +55,6 @@ export class DiagramDetail {
   public showRemoteSolutionOnDeployModal: boolean = false;
   public remoteSolutions: Array<ISolutionEntry> = [];
   public selectedRemoteSolution: ISolutionEntry;
-  public diagramSavedAs: boolean = false;
 
   private _notificationService: NotificationService;
   private _eventAggregator: EventAggregator;
@@ -367,7 +366,6 @@ export class DiagramDetail {
         return;
       } else {
         await this.activeSolutionEntry.service.saveDiagram(this.activeDiagram);
-        this.diagramSavedAs = false;
       }
 
       this.bpmnio.saveCurrentXML();
