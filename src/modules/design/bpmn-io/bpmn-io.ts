@@ -528,8 +528,9 @@ export class BpmnIo {
 
     await this._importXmlIntoModeler(xml);
 
-    // TODO: Refactor
-    this.modeler.get('canvas').viewbox(viewbox);
+    setTimeout(() => {
+      this.modeler.get('canvas').viewbox(viewbox);
+    }, 0);
   }
 
   private async _validateDiagram(): Promise<void> {
