@@ -397,9 +397,11 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   public async getColorizedDiagram(processInstanceId: string): Promise<string> {
     const elementsWithActiveToken: Array<IShape> = await this.getElementsWithActiveToken(processInstanceId);
     const elementsWithTokenHistory: Array<IShape> = await this.getElementsWithTokenHistory(processInstanceId);
+    const elementsWithError: Array<IShape> = await this.getElementsWithError(processInstanceId);
 
     this._colorizeElements(elementsWithTokenHistory, defaultBpmnColors.green);
     this._colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
+    this._colorizeElements(elementsWithError, defaultBpmnColors.red);
 
     const colorizedXml: string = await this.exportXmlFromDiagramModeler();
 
@@ -408,6 +410,19 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
   public terminateProcess(processInstanceId: string): Promise<void> {
     return this._liveExecutionTrackerRepository.terminateProcess(processInstanceId);
+  }
+
+  private async getElementsWithError(processInstanceId: string): Promise<Array<IShape>> {
+    const flowNodeInstances: Array<DataModels.FlowNodeInstances.FlowNodeInstance> =
+      await this._liveExecutionTrackerRepository.getFlowNodeInstancesForProcessInstance(processInstanceId);
+
+    return flowNodeInstances
+      .filter((flowNodeInstance: DataModels.FlowNodeInstances.FlowNodeInstance) => {
+        return flowNodeInstance.state === 'error';
+      })
+      .map((flowNodeInstance: DataModels.FlowNodeInstances.FlowNodeInstance) => {
+        return this._elementRegistry.get(flowNodeInstance.flowNodeId);
+      });
   }
 
   private _colorizeElements(elements: Array<IShape>, color: IColorPickerColor): void {
