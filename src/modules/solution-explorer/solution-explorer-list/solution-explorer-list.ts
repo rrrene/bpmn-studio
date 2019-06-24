@@ -21,7 +21,7 @@ interface IUriToViewModelMap {
   [key: string]: SolutionExplorerSolution;
 }
 
-@inject(Router, EventAggregator, 'SolutionExplorerServiceFactory', 'AuthenticationService', 'SolutionService', 'SingleDiagramService')
+@inject(Router, EventAggregator, 'SolutionExplorerServiceFactory', 'AuthenticationService', 'SolutionService', 'OpenDiagramService')
 export class SolutionExplorerList {
   public internalSolutionUri: string;
   /**
@@ -52,14 +52,14 @@ export class SolutionExplorerList {
     solutionExplorerServiceFactory: SolutionExplorerServiceFactory,
     authenticationService: IAuthenticationService,
     solutionService: ISolutionService,
-    singleDiagramService: SingleDiagramsSolutionExplorerService,
+    openDiagramService: OpenDiagramsSolutionExplorerService,
   ) {
     this._router = router;
     this._eventAggregator = eventAggregator;
     this._solutionExplorerServiceFactory = solutionExplorerServiceFactory;
     this._authenticationService = authenticationService;
     this._solutionService = solutionService;
-    this._singleDiagramService = singleDiagramService;
+    this.openDiagramService = openDiagramService;
 
     const canReadFromFileSystem: boolean = (window as any).nodeRequire;
     if (canReadFromFileSystem) {
@@ -343,10 +343,10 @@ export class SolutionExplorerList {
    * Add entry for single file service.
    */
 
-  private async _createOpenDiagramServiceEntry(): Promise<void> {
+  private _createOpenDiagramServiceEntry(): void {
     const identity: IIdentity = this._createIdentityForSolutionExplorer();
 
-    this._addSolutionEntry('Single Diagrams', this.openDiagramService, identity, true);
+    this._addSolutionEntry('about:open-diagrams', this.openDiagramService, identity, true);
   }
 
   private _getFontAwesomeIconForSolution(service: ISolutionExplorerService, uri: string): string {

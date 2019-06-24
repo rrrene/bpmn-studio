@@ -24,7 +24,7 @@ import {
 
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
-import {SingleDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/SingleDiagramsSolutionExplorerService';
+import {OpenDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
 import {BpmnIo} from '../bpmn-io/bpmn-io';
 
 @inject('ManagementApiClientService',
@@ -33,7 +33,7 @@ import {BpmnIo} from '../bpmn-io/bpmn-io';
         EventAggregator,
         Router,
         ValidationController,
-        'SingleDiagramService')
+        'OpenDiagramService')
 export class DiagramDetail {
 
   @bindable() public activeDiagram: IDiagram;
@@ -70,7 +70,7 @@ export class DiagramDetail {
     german: /^[äöüß]/i,
   };
   private _clickedOnCustomStart: boolean = false;
-  private _singleDiagramService: SingleDiagramsSolutionExplorerService;
+  private _openDiagramService: OpenDiagramsSolutionExplorerService;
 
   constructor(managementApiClient: IManagementApi,
               notificationService: NotificationService,
@@ -78,14 +78,14 @@ export class DiagramDetail {
               eventAggregator: EventAggregator,
               router: Router,
               validationController: ValidationController,
-              singleDiagramService: SingleDiagramsSolutionExplorerService) {
+              openDiagramService: OpenDiagramsSolutionExplorerService) {
     this._notificationService = notificationService;
     this._solutionService = solutionService;
     this._eventAggregator = eventAggregator;
     this._router = router;
     this._validationController = validationController;
     this._managementApiClient = managementApiClient;
-    this._singleDiagramService = singleDiagramService;
+    this._openDiagramService = openDiagramService;
   }
 
   public determineActivationStrategy(): string {
@@ -371,24 +371,21 @@ export class DiagramDetail {
 
     try {
       await this.activeSolutionEntry.service.saveDiagram(diagram, path);
+      this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
     } catch (error) {
       this._notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
       throw error;
     }
 
-    try {
-      this.activeDiagram = await this._singleDiagramService.openSingleDiagram(path, this.activeSolutionEntry.identity);
-      this._solutionService.addSingleDiagram(this.activeDiagram);
-    } catch (error) {
-      const alreadyOpenedDiagram: IDiagram = await this._singleDiagramService.getOpenedDiagramByURI(path);
-      await this._singleDiagramService.closeSingleDiagram(alreadyOpenedDiagram);
-      this.activeDiagram = await this._singleDiagramService.openSingleDiagram(path, this.activeSolutionEntry.identity);
-    }
+    await this._openDiagramService.closeDiagram(this.activeDiagram);
+    this._solutionService.removeOpenDiagramByUri(this.activeDiagram.uri);
+    this.bpmnio.saveStateForNewUri = true;
+
+    this.activeDiagram = await this._openDiagramService.openDiagram(path, this.activeSolutionEntry.identity);
+    this._solutionService.addOpenDiagram(this.activeDiagram);
 
     this.xml = this.activeDiagram.xml;
-    this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri('Single Diagrams');
-
-    this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
+    this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri('about:open-diagrams');
 
     this.bpmnio.saveCurrentXML();
 

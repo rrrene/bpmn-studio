@@ -5,6 +5,7 @@ import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 
 import {IDiagramValidationService, ISolutionService} from '../../contracts';
+import {OpenDiagramStateService} from './OpenDiagramStateService';
 import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
 
 /**
@@ -19,24 +20,27 @@ import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
  * To remove a diagram from the solution, call use #closeDiagram().
  */
 
-@inject('DiagramValidationService', 'SolutionExplorerServiceFactory', 'SolutionService')
+@inject('DiagramValidationService', 'SolutionExplorerServiceFactory', 'SolutionService', 'OpenDiagramStateService')
 export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerService {
 
   private _validationService: IDiagramValidationService;
   private _solutionExplorerToOpenDiagrams: ISolutionExplorerService;
-  private _uriOfOpenDiagramService: string = 'Single Diagrams';
-  private _nameOfOpenDiagramService: string = 'Single Diagrams';
+  private _uriOfOpenDiagramService: string = 'about:open-diagrams';
+  private _nameOfOpenDiagramService: string = 'Open Diagrams';
   private _openedDiagrams: Array<IDiagram> = [];
   private _solutionService: ISolutionService;
+  private _openDiagramStateService: OpenDiagramStateService;
 
   constructor(
     validationService: IDiagramValidationService,
     serviceFactory: SolutionExplorerServiceFactory,
     solutionService: ISolutionService,
+    openDiagramStateService: OpenDiagramStateService,
   ) {
     this._validationService = validationService;
     this._setSolutionExplorer(serviceFactory);
     this._solutionService = solutionService;
+    this._openDiagramStateService = openDiagramStateService;
   }
 
   public getOpenedDiagrams(): Array<IDiagram> {
@@ -115,6 +119,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     const index: number = this._findOfDiagramWithURI(diagram.uri);
 
     this._openedDiagrams.splice(index, 1);
+    this._openDiagramStateService.deleteDiagramState(diagram.uri);
 
     return Promise.resolve();
   }

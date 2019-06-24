@@ -20,7 +20,7 @@ export async function configure(config: FrameworkConfiguration): Promise<void> {
   if ((window as any).nodeRequire) {
     // only available if a filesystem is present
     registerFileSystem(config.container);
-    config.container.registerSingleton('SingleDiagramService', OpenDiagramsSolutionExplorerService);
+    config.container.registerSingleton('OpenDiagramService', OpenDiagramsSolutionExplorerService);
   }
 }
 

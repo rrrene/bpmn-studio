@@ -235,7 +235,7 @@ export class SolutionExplorerSolution {
   }
 
   /*
-   * Used when this is a single diagram solution explorer service.
+   * Used when this is a open diagram solution explorer service.
    */
   public async closeDiagram(diagram: IDiagram, event: Event): Promise<void> {
     event.stopPropagation();
@@ -595,8 +595,6 @@ export class SolutionExplorerSolution {
   private _closeDiagram(diagramToClose: IDiagram): void {
     const openDiagramService: OpenDiagramsSolutionExplorerService = this.solutionService as OpenDiagramsSolutionExplorerService;
     openDiagramService.closeDiagram(diagramToClose);
-
-    this._openDiagramStateService.deleteDiagramState(diagramToClose.uri);
 
     this._globalSolutionService.removeOpenDiagramByUri(diagramToClose.uri);
   }
