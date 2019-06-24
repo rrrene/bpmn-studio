@@ -14,7 +14,7 @@ import {
   ISolutionService,
   IUserIdentity,
 } from '../../../contracts';
-import {SingleDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/SingleDiagramsSolutionExplorerService';
+import {OpenDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
 import {SolutionExplorerServiceFactory} from '../../../services/solution-explorer-services/SolutionExplorerServiceFactory';
 import {SolutionExplorerSolution} from '../solution-explorer-solution/solution-explorer-solution';
 
@@ -25,6 +25,11 @@ interface IUriToViewModelMap {
 @inject(Router, EventAggregator, 'SolutionExplorerServiceFactory', 'AuthenticationService', 'DiagramValidationService', 'SolutionService')
 export class SolutionExplorerList {
   public internalSolutionUri: string;
+  /**
+   * Reference on the service used to open open diagrams.
+   * This service is also put inside the map.
+   */
+  public openDiagramService: OpenDiagramsSolutionExplorerService;
 
   private _router: Router;
   private _eventAggregator: EventAggregator;
@@ -36,11 +41,6 @@ export class SolutionExplorerList {
    * Contains all opened solutions.
    */
   private _openedSolutions: Array<ISolutionEntry> = [];
-  /**
-   * Reference on the service used to open single diagrams.
-   * This service is also put inside the map.
-   */
-  private _singleDiagramService: SingleDiagramsSolutionExplorerService;
   /*
    * Keep a seperate map of all viewmodels for the solutions entries.
    * The uri maps to the viewmodel. The contents of this map get set by aurelia
@@ -65,7 +65,7 @@ export class SolutionExplorerList {
 
     const canReadFromFileSystem: boolean = (window as any).nodeRequire;
     if (canReadFromFileSystem) {
-      this._createSingleDiagramServiceEntry();
+      this._createOpenDiagramServiceEntry();
     }
 
     // Allows us to debug the solution explorer list.
@@ -100,25 +100,25 @@ export class SolutionExplorerList {
     this._router.navigateToRoute('settings');
   }
 
-  public async openSingleDiagram(uri: string): Promise<IDiagram> {
+  public async openDiagram(uri: string): Promise<IDiagram> {
     const identity: IIdentity = this._createIdentityForSolutionExplorer();
 
-    const diagram: IDiagram = await this._singleDiagramService.openSingleDiagram(uri, identity);
+    const diagram: IDiagram = await this.openDiagramService.openDiagram(uri, identity);
 
     return diagram;
   }
 
   /**
-   * Gets the single diagram with the given uri, if the diagram was opened
+   * Gets the diagram with the given uri, if the diagram was opened
    * before.
    */
-  public getOpenedSingleDiagramByURI(uri: string): IDiagram | null {
-    return this._singleDiagramService.getOpenedDiagramByURI(uri);
+  public getOpenedDiagramByURI(uri: string): IDiagram | null {
+    return this.openDiagramService.getOpenedDiagramByURI(uri);
   }
 
-  public getSingleDiagramSolutionEntry(): ISolutionEntry {
+  public getOpenDiagramSolutionEntry(): ISolutionEntry {
     return this._openedSolutions.find((entry: ISolutionEntry) => {
-      return entry.uri === 'Single Diagrams';
+      return entry.uri === 'about:open-diagrams';
     });
   }
 
@@ -276,6 +276,11 @@ export class SolutionExplorerList {
       return solutionUri;
     }
 
+    const isOpenDiagrams: boolean = solutionUri === 'about:open-diagrams';
+    if (isOpenDiagrams) {
+      return 'Open Diagrams';
+    }
+
     const lastIndexOfSlash: number = solutionUri.lastIndexOf('/');
     const lastIndexOfBackSlash: number = solutionUri.lastIndexOf('\\');
     const lastFolderIndex: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash) + 1;
@@ -297,27 +302,27 @@ export class SolutionExplorerList {
   /*
    * Give aurelia a hint on what objects to observe.
    * If we dont do this, it falls back to active pooling which is slow.
-   * `_singleDiagramService._openedDiagrams.length` observed because
+   * `openDiagramService._openedDiagrams.length` observed because
    * aurelia cannot see the business rules happening in this._shouldDisplaySolution().
    */
-  @computedFrom('_openedSolutions.length', '_singleDiagramService._openedDiagrams.length')
+  @computedFrom('_openedSolutions.length', 'openDiagramService._openedDiagrams.length')
   public get openedSolutions(): Array<ISolutionEntry> {
     const filteredEntries: Array<ISolutionEntry> = this._openedSolutions
       .filter(this._shouldDisplaySolution);
 
     const sortedEntries: Array<ISolutionEntry> = filteredEntries.sort((solutionA: ISolutionEntry, solutionB: ISolutionEntry) => {
-      if (solutionA.isSingleDiagramService) {
+      if (solutionA.isOpenDiagramService) {
         return -1;
       }
 
       const solutionAIsInternalProcessEngine: boolean = solutionA.uri === window.localStorage.getItem('InternalProcessEngineRoute');
       if (solutionAIsInternalProcessEngine) {
-        return -1;
+        return 1;
       }
 
       return solutionA.uri.startsWith('http') && !solutionB.uri.startsWith('http')
-              ? -1
-              : 1;
+              ? 1
+              : -1;
     });
 
     return sortedEntries;
@@ -339,24 +344,24 @@ export class SolutionExplorerList {
   /**
    * Add entry for single file service.
    */
-  private async _createSingleDiagramServiceEntry(): Promise<void> {
+  private async _createOpenDiagramServiceEntry(): Promise<void> {
 
     const fileSystemSolutionExplorer: ISolutionExplorerService = await this._solutionExplorerServiceFactory.newFileSystemSolutionExplorer();
 
-    const uriOfSingleDiagramService: string = 'Single Diagrams';
-    const nameOfSingleDiagramService: string = 'Single Diagrams';
+    const uriOfOpenDiagramService: string = 'about:open-diagrams';
+    const nameOfOpenDiagramService: string = 'Open Diagrams';
 
-    this._singleDiagramService = new SingleDiagramsSolutionExplorerService(
+    this.openDiagramService = new OpenDiagramsSolutionExplorerService(
         this._diagramValidationService,
         fileSystemSolutionExplorer,
-        uriOfSingleDiagramService,
-        nameOfSingleDiagramService,
+        uriOfOpenDiagramService,
+        nameOfOpenDiagramService,
         this._solutionService,
       );
 
     const identity: IIdentity = this._createIdentityForSolutionExplorer();
 
-    this._addSolutionEntry(uriOfSingleDiagramService, this._singleDiagramService, identity, true);
+    this._addSolutionEntry(uriOfOpenDiagramService, this.openDiagramService, identity, true);
   }
 
   private _getFontAwesomeIconForSolution(service: ISolutionExplorerService, uri: string): string {
@@ -365,8 +370,8 @@ export class SolutionExplorerList {
       return 'fa-database';
     }
 
-    const solutionIsSingleDiagrams: boolean = service === this._singleDiagramService;
-    if (solutionIsSingleDiagrams) {
+    const solutionIsOpenDiagrams: boolean = service === this.openDiagramService;
+    if (solutionIsOpenDiagrams) {
       return 'fa-copy';
     }
 
@@ -375,22 +380,22 @@ export class SolutionExplorerList {
 
   private _canCreateNewDiagramsInSolution(service: ISolutionExplorerService, uri: string): boolean {
     const solutionIsNotOpenedFromRemote: boolean = !uri.startsWith('http');
-    const solutionIsNotSingleDiagrams: boolean = service !== this._singleDiagramService;
+    const solutionIsNotOpenDiagrams: boolean = service !== this.openDiagramService;
 
-    return solutionIsNotOpenedFromRemote && solutionIsNotSingleDiagrams;
+    return solutionIsNotOpenedFromRemote && solutionIsNotOpenDiagrams;
   }
 
   private _canCloseSolution(service: ISolutionExplorerService, uri: string): boolean {
-    const solutionIsNotSingleDiagrams: boolean = !this._isSingleDiagramService(service);
+    const solutionIsNotOpenDiagrams: boolean = !this._isOpenDiagramService(service);
 
     const internalProcessEngineRoute: string = window.localStorage.getItem('InternalProcessEngineRoute');
     const solutionIsNotInternalSolution: boolean = uri !== internalProcessEngineRoute;
 
-    return solutionIsNotSingleDiagrams && solutionIsNotInternalSolution;
+    return solutionIsNotOpenDiagrams && solutionIsNotInternalSolution;
   }
 
-  private _isSingleDiagramService(service: ISolutionExplorerService): boolean {
-    return service === this._singleDiagramService;
+  private _isOpenDiagramService(service: ISolutionExplorerService): boolean {
+    return service === this.openDiagramService;
   }
 
   /**
@@ -400,11 +405,11 @@ export class SolutionExplorerList {
   private _shouldDisplaySolution(entry: ISolutionEntry): boolean {
     const service: ISolutionExplorerService = entry.service;
 
-    const isSingleDiagramService: boolean = (service as any).getOpenedDiagrams !== undefined;
-    if (isSingleDiagramService) {
-      const singleDiagramService: SingleDiagramsSolutionExplorerService = service as SingleDiagramsSolutionExplorerService;
+    const isOpenDiagramService: boolean = (service as any).getOpenedDiagrams !== undefined;
+    if (isOpenDiagramService) {
+      const openDiagramService: OpenDiagramsSolutionExplorerService = service as OpenDiagramsSolutionExplorerService;
 
-      const someDiagramsAreOpened: boolean = singleDiagramService.getOpenedDiagrams().length > 0;
+      const someDiagramsAreOpened: boolean = openDiagramService.getOpenedDiagrams().length > 0;
 
       return someDiagramsAreOpened;
     }
@@ -425,8 +430,8 @@ export class SolutionExplorerList {
     identity: IIdentity,
     insertAtBeginning: boolean,
     processEngineVersion?: string,
-    ): Promise<void> {
-    const isSingleDiagramService: boolean = this._isSingleDiagramService(service);
+  ): Promise<void> {
+    const isOpenDiagramService: boolean = this._isOpenDiagramService(service);
     const fontAwesomeIconClass: string = this._getFontAwesomeIconForSolution(service, uri);
     const canCloseSolution: boolean = this._canCloseSolution(service, uri);
     const canCreateNewDiagramsInSolution: boolean = this._canCreateNewDiagramsInSolution(service, uri);
@@ -451,7 +456,7 @@ export class SolutionExplorerList {
       fontAwesomeIconClass,
       canCloseSolution,
       canCreateNewDiagramsInSolution,
-      isSingleDiagramService,
+      isOpenDiagramService,
       identity,
       authority,
       isLoggedIn,

@@ -19,3 +19,4 @@ export * from './user-input-validation/index';
 export * from './inspect-correlation/index';
 export * from './solution-explorer';
 export * from './navigation';
+export * from './diagram/index';

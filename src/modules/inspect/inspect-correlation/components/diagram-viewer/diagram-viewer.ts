@@ -181,7 +181,7 @@ export class DiagramViewer {
       }
     }
 
-    this.fitDiagramToViewport();
+    this._fitDiagramToViewport();
   }
 
   public activeDiagramChanged(): void {
@@ -195,14 +195,14 @@ export class DiagramViewer {
     this.xmlIsNotSelected = true;
     this.xml = undefined;
 
-    this.fitDiagramToViewport();
+    this._fitDiagramToViewport();
   }
 
   public xmlChanged(): void {
     this.xmlIsNotSelected = this.xml === undefined;
   }
 
-  public fitDiagramToViewport(): void {
+  private _fitDiagramToViewport(): void {
     const canvas: ICanvas = this._diagramViewer.get('canvas');
     canvas.zoom('fit-viewport', 'auto');
   }

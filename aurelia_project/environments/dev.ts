@@ -35,8 +35,8 @@ export default {
     xmlChanged: 'xmlChanged',
     startPage: {
       openLocalSolution: 'startpage:openlocalsolution',
-      openSingleDiagram: 'startpage:openSingleDiagram',
-      createSingleDiagram: 'startpage:createSingleDiagram',
+      openDiagram: 'startpage:openDiagram',
+      createDiagram: 'startpage:createDiagram',
     },
     statusBar: {
       showDiagramViewButtons: 'statusbar:diagramviewbuttons:show',
@@ -97,6 +97,9 @@ export default {
       showInspectPanel: 'inspectCorrelation:inspectPanel:show',
       showTokenViewer: 'inspectCorrelation:tokenViewer:show',
       showLogViewer: 'inpsectCorrelation:logViewer:show',
+    },
+    solutionExplorer: {
+      updateOpenDiagrams: 'solutioneExplorer:openDiagrams:update',
     },
   },
   baseRoute: processEngineRoute,

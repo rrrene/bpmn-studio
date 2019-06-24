@@ -370,9 +370,9 @@ export class NavBar {
 
     if (solutionIsSet && diagramIsSet) {
 
-      const activeSolutionIsSingleDiagramSolution: boolean = solutionUri === 'Single Diagrams';
-      if (activeSolutionIsSingleDiagramSolution) {
-        const persistedDiagrams: Array<IDiagram> = this._solutionService.getSingleDiagrams();
+      const activeSolutionIsOpenDiagramSolution: boolean = solutionUri === 'about:open-diagrams';
+      if (activeSolutionIsOpenDiagramSolution) {
+        const persistedDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();
 
         this.activeDiagram = persistedDiagrams.find((diagram: IDiagram) => {
           return diagram.name === diagramName;

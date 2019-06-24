@@ -5,37 +5,37 @@ import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service
 import {IDiagramValidationService, ISolutionService} from '../../contracts';
 
 /**
- * This service allows to keep all opened single diagrams inside a solution.
+ * This service allows to keep all opened open diagrams inside a solution.
  *
  * This is needed because the default solution explorer does not keep state
- * about single diagrams.
+ * about open diagrams.
  *
- * With this service you can retrieve, all opened single diagrams inside a
+ * With this service you can retrieve, all opened diagrams inside a
  * solution.
  *
- * To remove a diagram from the solution, call use #closeSingleDiagram().
+ * To remove a diagram from the solution, call use #closeDiagram().
  */
 
-export class SingleDiagramsSolutionExplorerService implements ISolutionExplorerService {
+export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerService {
 
   private _validationService: IDiagramValidationService;
   private _solutionExplorerToOpenDiagrams: ISolutionExplorerService;
-  private _uriOfSingleDiagramService: string;
-  private _nameOfSingleDiagramService: string;
+  private _uriOfOpenDiagramService: string;
+  private _nameOfOpenDiagramService: string;
   private _openedDiagrams: Array<IDiagram> = [];
   private _solutionService: ISolutionService;
 
   constructor(
     validationService: IDiagramValidationService,
     solutionExplorerToOpenDiagrams: ISolutionExplorerService,
-    uriOfSingleDiagramService: string,
-    nameOfSingleDiagramService: string,
+    uriOfOpenDiagramService: string,
+    nameOfOpenDiagramService: string,
     solutionService: ISolutionService,
   ) {
     this._validationService = validationService;
     this._solutionExplorerToOpenDiagrams = solutionExplorerToOpenDiagrams;
-    this._uriOfSingleDiagramService = uriOfSingleDiagramService;
-    this._nameOfSingleDiagramService = nameOfSingleDiagramService;
+    this._uriOfOpenDiagramService = uriOfOpenDiagramService;
+    this._nameOfOpenDiagramService = nameOfOpenDiagramService;
     this._solutionService = solutionService;
   }
 
@@ -44,7 +44,7 @@ export class SingleDiagramsSolutionExplorerService implements ISolutionExplorerS
   }
 
   /**
-   * Gets the single diagram with the given uri, if the diagram was opened
+   * Gets the open diagram with the given uri, if the diagram was opened
    * before.
    */
   public getOpenedDiagramByURI(uri: string): IDiagram | null {
@@ -67,13 +67,13 @@ export class SingleDiagramsSolutionExplorerService implements ISolutionExplorerS
   public loadSolution(): Promise<ISolution> {
     const solution: ISolution = {
       diagrams: this._openedDiagrams,
-      name: this._uriOfSingleDiagramService,
-      uri: this._nameOfSingleDiagramService,
+      name: this._nameOfOpenDiagramService,
+      uri: this._uriOfOpenDiagramService,
     };
     return Promise.resolve(solution);
   }
 
-  public async openSingleDiagram(uri: string, identity: IIdentity): Promise<IDiagram> {
+  public async openDiagram(uri: string, identity: IIdentity): Promise<IDiagram> {
 
     const uriIsNoBpmnFile: boolean = !uri.endsWith('.bpmn');
 
@@ -111,7 +111,7 @@ export class SingleDiagramsSolutionExplorerService implements ISolutionExplorerS
     return diagram;
   }
 
-  public closeSingleDiagram(diagram: IDiagram): Promise<void> {
+  public closeDiagram(diagram: IDiagram): Promise<void> {
     const index: number = this._findOfDiagramWithURI(diagram.uri);
 
     this._openedDiagrams.splice(index, 1);
@@ -141,9 +141,17 @@ export class SingleDiagramsSolutionExplorerService implements ISolutionExplorerS
   }
 
   public saveDiagram(diagram: IDiagram): Promise<void> {
-    this._solutionService.addSingleDiagram(diagram);
+    this._solutionService.addOpenDiagram(diagram);
 
     return this._solutionExplorerToOpenDiagrams.saveDiagram(diagram);
+  }
+
+  public async openDiagramFromSolution(diagramUri: string, identity: IIdentity): Promise<IDiagram> {
+    const openedDiagram: IDiagram = await this.openDiagram(diagramUri, identity);
+
+    this._solutionService.addOpenDiagram(openedDiagram);
+
+    return openedDiagram;
   }
 
   private _findOfDiagramWithURI(uri: string): number {

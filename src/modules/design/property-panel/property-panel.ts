@@ -1,4 +1,4 @@
-import {bindable} from 'aurelia-framework';
+import {bindable, inject} from 'aurelia-framework';
 
 import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 
@@ -6,6 +6,7 @@ import {
   IBpmnModdle,
   IBpmnModeler,
   IDefinition,
+  IDiagramState,
   IElementRegistry,
   IEvent,
   IEventBus,
@@ -15,6 +16,9 @@ import {Extensions} from './indextabs/extensions/extensions';
 import {Forms} from './indextabs/forms/forms';
 import {General} from './indextabs/general/general';
 
+import {OpenDiagramStateService} from '../../../services/solution-explorer-services/OpenDiagramStateService';
+
+@inject('OpenDiagramStateService')
 export class PropertyPanel {
 
   @bindable() public modeler: IBpmnModeler;
@@ -30,6 +34,13 @@ export class PropertyPanel {
   private _moddle: IBpmnModdle;
   private _eventBus: IEventBus;
   private _currentIndextabTitle: string = this.generalIndextab.title;
+  private _openDiagramStateService: OpenDiagramStateService;
+
+  private _diagramChanged: boolean = false;
+
+  constructor(openDiagramStateService: OpenDiagramStateService) {
+    this._openDiagramStateService = openDiagramStateService;
+  }
 
   public attached(): void {
     this._moddle = this.modeler.get('moddle');
@@ -64,11 +75,28 @@ export class PropertyPanel {
       this.checkIndexTabSuitability();
     });
 
-    this.setFirstElement();
+    setTimeout(() => {
+      this._selectPreviouslySelectedOrFirstElement();
+    }, 0);
   }
 
   public updateIndextab(selectedIndextab: IIndextab): void {
     this._currentIndextabTitle = selectedIndextab.title;
+  }
+
+  private _selectPreviouslySelectedOrFirstElement(): void {
+    const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(this.diagramUri);
+
+    const noSelectedElementState: boolean = diagramState === null || diagramState.metaData.selectedElements.length === 0;
+    if (noSelectedElementState) {
+      this.setFirstElement();
+
+      return;
+    }
+
+    const selectedElementId: string = diagramState.metaData.selectedElements[0].id;
+
+    this._selectElementById(selectedElementId);
   }
 
   private setFirstElement(): void {
@@ -97,11 +125,15 @@ export class PropertyPanel {
         firstElement = process;
       }
 
-      const elementRegistry: IElementRegistry = this.modeler.get('elementRegistry');
-      const elementInPanel: IShape = elementRegistry.get(firstElement.id);
-
-      this.modeler.get('selection').select(elementInPanel);
+      this._selectElementById(firstElement.id);
     }));
+  }
+
+  private _selectElementById(elementId: string): void {
+    const elementRegistry: IElementRegistry = this.modeler.get('elementRegistry');
+    const element: IShape = elementRegistry.get(elementId);
+
+    this.modeler.get('selection').select(element);
   }
 
   private processHasLanes(process: IModdleElement): boolean {
@@ -131,15 +163,27 @@ export class PropertyPanel {
     }
   }
 
-  public diagramUriChanged(newValue: string, oldValue: string): void {
-    if (oldValue === undefined) {
+  public diagramUriChanged(newUri: string, previousUri: string): void {
+    const previousUriDoesNotExist: boolean = previousUri === undefined;
+    if (previousUriDoesNotExist) {
+      return;
+    }
+
+    this._diagramChanged = true;
+  }
+
+  public xmlChanged(newXml: string, previousXml: string): void {
+    const previousXmlDoesNotExist: boolean = previousXml === undefined;
+    const diagramDidNotChange: boolean = !this._diagramChanged;
+    if (previousXmlDoesNotExist || diagramDidNotChange) {
       return;
     }
 
     // This is needed to make sure the xml was already imported into the modeler
     setTimeout(() => {
-      this.setFirstElement();
+      this._selectPreviouslySelectedOrFirstElement();
     }, 0);
-  }
 
+    this._diagramChanged = false;
+  }
 }

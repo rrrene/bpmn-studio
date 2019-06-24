@@ -28,7 +28,7 @@
       <li
         repeat.for="diagram of openedDiagrams"
         class.bind="activeDiagramUri === diagram.uri ? 'diagram-entry diagram-entry--highlight' : 'diagram-entry'"
-        click.delegate="navigateToDetailView(diagram)"
+        click.delegate="openDiagram(diagram)"
         id="diagramList-${diagram.name}">
 
         <div if.bind="currentlyRenamingDiagramUri === diagram.uri" class="diagram-rename-container">
@@ -43,9 +43,10 @@
         <template if.bind="currentlyRenamingDiagramUri !== diagram.uri">
 
           <i if.bind="shouldFileIconBeShown()" class="diagram-entry__icon fa fa-cogs"></i>
+          <i if.bind="solutionIsOpenDiagrams && diagramChangedStateMap.get(diagram.uri)" class="diagram-entry__unsaved-icon fas fa-circle"></i>
           <div class="diagram-entry__name-container" contextmenu.delegate="activateContextMenu($event, diagram)">
-            <span class="diagram-entry__name" title="${diagram.name}" title.bind="solutionIsSingleDiagrams ? diagram.uri : ''">${diagram.name}</span>
-            <span class="diagram-entry__location" if.bind="solutionIsSingleDiagrams" title="${getDiagramLocation(diagram.uri)}">${getDiagramFolder(diagram.uri)}</span>
+            <span class="diagram-entry__name" title="${diagram.name}" title.bind="solutionIsOpenDiagrams ? diagram.uri : ''">${diagram.name}</span>
+            <span class="diagram-entry__location" if.bind="solutionIsOpenDiagrams" title="${getDiagramLocation(diagram.uri)}">${getDiagramFolder(diagram.uri)}</span>
           </div>
 
           <div class="diagram-entry__actions">
@@ -60,7 +61,7 @@
 
             <button
               class="button"
-              if.bind="solutionIsSingleDiagrams"
+              if.bind="solutionIsOpenDiagrams"
               click.delegate="closeDiagram(diagram, $event)"
               title="Close the diagram">
 
@@ -84,5 +85,15 @@
 
   <!--Delete Diagram Modal-->
   <delete-diagram-modal view-model.ref="deleteDiagramModal"></delete-diagram-modal>
+
+  <modal show.bind="showCloseModal"
+         header-text="Document Contains Changes"
+         body-text="Your diagram has unsaved changes. Save changes to diagram before closing?">
+    <template replace-part="modal-footer">
+      <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelButtonCloseView">Cancel</button>
+      <button type="button" class="btn btn-secondary" data-dismiss="modal" id="dontSaveButtonCloseView">Don't save</button>
+      <button type="button" class="btn btn-primary" data-dismiss="modal" id="saveButtonCloseView">Save</button>
+    </template>
+  </modal>
 
 </template>

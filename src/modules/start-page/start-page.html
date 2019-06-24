@@ -6,7 +6,7 @@
       <img class="start-page__icon" src="src/resources/images/icon.png">
       <div class="start-page__quick-start" show.bind="isRunningInElectron">
         <div class="quick-start__item">
-          <div class="quick-start__topic" click.delegate="openSingleDiagram()">Open Diagram</div>
+          <div class="quick-start__topic" click.delegate="openDiagram()">Open Diagram</div>
           <div show.bind="isRunningInElectron && isRunningOnMacOS" class="quick-start__shortcut">⌘ + O</div>
           <div show.bind="isRunningInElectron && isRunningOnWindows" class="quick-start__shortcut">Strg + O</div>
         </div>
@@ -16,7 +16,7 @@
           <div show.bind="isRunningInElectron && isRunningOnWindows" class="quick-start__shortcut">Strg + Shift + O</div>
         </div>
         <div class="quick-start__item">
-          <div class="quick-start__topic" click.delegate="createNewSingleDiagram()">New Diagram</div>
+          <div class="quick-start__topic" click.delegate="createNewDiagram()">New Diagram</div>
           <div show.bind="isRunningInElectron && isRunningOnMacOS" class="quick-start__shortcut">⌘ + N</div>
           <div show.bind="isRunningInElectron && isRunningOnWindows" class="quick-start__shortcut">Strg + N</div>
         </div>

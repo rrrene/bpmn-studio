@@ -19,8 +19,6 @@ const oidcConfig = require('./oidc-config');
 let filePath;
 let isInitialized = false;
 
-let canNotCloseApplication = false;
-
 const Main = {};
 
 /**
@@ -300,29 +298,11 @@ Main._createMainWindow = function () {
   // history.
   Main._window.loadURL('/');
 
-  Main._window.on('close', (event) => {
-    if (canNotCloseApplication) {
-      event.preventDefault();
-
-      Main._window.webContents.send('show-close-modal');
-
-      return false;
-    }
-  });
-
-  electron.ipcMain.on('close-bpmn-studio', (event) => {
-    Main._window.close();
-  });
-
-  electron.ipcMain.on('can-not-close', (event, canCloseResult) => {
-    canNotCloseApplication = canCloseResult;
-  });
-
   Main._window.on('closed', (event) => {
     Main._window = null;
   });
 
-  setOpenSingleDiagram();
+  setOpenDiagram();
   setOpenSolutions();
 
   const platformIsWindows = process.platform === 'win32';
@@ -361,8 +341,8 @@ Main._createMainWindow = function () {
     });
   }
 
-  function setOpenSingleDiagram() {
-    electron.ipcMain.on('open_single_diagram', (event) => {
+  function setOpenDiagram() {
+    electron.ipcMain.on('open_diagram', (event) => {
       const openedFile = dialog.showOpenDialog({
         filters: [
           {
@@ -376,7 +356,7 @@ Main._createMainWindow = function () {
         ]
       });
 
-      event.sender.send('import_opened_single_diagram', openedFile);
+      event.sender.send('import_opened_diagram', openedFile);
     });
   }
 

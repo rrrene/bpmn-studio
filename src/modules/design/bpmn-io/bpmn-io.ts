@@ -12,6 +12,7 @@ import {
   ICanvas,
   IDiagramExportService,
   IDiagramPrintService,
+  IDiagramState,
   IEditorActions,
   IElementRegistry,
   IEvent,
@@ -27,12 +28,13 @@ import {
 } from '../../../contracts/index';
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
+import {OpenDiagramStateService} from '../../../services/solution-explorer-services/OpenDiagramStateService';
 import {DiagramExportService, DiagramPrintService} from './services/index';
 
 const sideBarRightSize: number = 35;
 const elementRegistryTimeoutMilliseconds: number = 50;
 
-@inject('NotificationService', EventAggregator)
+@inject('NotificationService', EventAggregator, 'OpenDiagramStateService')
 export class BpmnIo {
   public modeler: IBpmnModeler;
   public viewer: IBpmnModeler;
@@ -66,6 +68,7 @@ export class BpmnIo {
   private _subscriptions: Array<Subscription>;
   private _diagramExportService: IDiagramExportService;
   private _diagramPrintService: IDiagramPrintService;
+  private _openDiagramStateService: OpenDiagramStateService;
 
   private _tempProcess: IProcessRef;
   private _diagramHasChanges: boolean = false;
@@ -81,9 +84,10 @@ export class BpmnIo {
    */
   public paletteContainer: HTMLDivElement;
 
-  constructor(notificationService: NotificationService, eventAggregator: EventAggregator) {
+  constructor(notificationService: NotificationService, eventAggregator: EventAggregator, openDiagramStateService: OpenDiagramStateService) {
     this._notificationService = notificationService;
     this._eventAggregator = eventAggregator;
+    this._openDiagramStateService = openDiagramStateService;
   }
 
   public created(): void {
@@ -197,21 +201,28 @@ export class BpmnIo {
   }
 
   public async attached(): Promise<void> {
-    const xmlIsNotEmpty: boolean = this.xml !== undefined && this.xml !== null;
-    if (xmlIsNotEmpty) {
-      this.modeler.importXML(this.xml, async(err: Error) => {
-        this.savedXml = await this.getXML();
-      });
+    if (this._diagramHasState(this.diagramUri)) {
+      const diagramState: IDiagramState = this._loadDiagramState(this.diagramUri);
 
-      // Wait until the HTML is rendered
-      setTimeout(() => {
-        this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
+      await this._importXmlIntoModeler(diagramState.data.xml);
+    } else {
 
-        if (this._bpmnLintButton) {
-          this._bpmnLintButton.style.display = 'none';
-        }
-      }, 0);
+      const xmlIsNotEmpty: boolean = this.xml !== undefined && this.xml !== null;
+      if (xmlIsNotEmpty) {
+        this.modeler.importXML(this.xml, async(err: Error) => {
+          this.savedXml = await this.getXML();
+        });
+      }
     }
+
+    // Wait until the HTML is rendered
+    setTimeout(() => {
+      this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
+
+      if (this._bpmnLintButton) {
+        this._bpmnLintButton.style.display = 'none';
+      }
+    }, 0);
 
     if (this.solutionIsRemote) {
       this.viewer.importXML(this.xml);
@@ -308,20 +319,15 @@ export class BpmnIo {
 
       this._eventAggregator.subscribe(environment.events.diagramDetail.saveDiagram, async() => {
         this.savedXml = await this.getXML();
+        this._diagramHasChanges = false;
+
+        await this._saveDiagramState(this.diagramUri);
       }),
 
       this._eventAggregator.subscribe(environment.events.diagramChange, async() => {
-        /*
-        * This Regex removes all newlines and spaces to make sure that both xml
-        * are not formatted.
-        */
-        const whitespaceAndNewLineRegex: RegExp = /\r?\n|\r|\s/g;
-
         this.xml = await this.getXML();
-        const unformattedXml: string = this.xml.replace(whitespaceAndNewLineRegex, '');
-        const unformattedSaveXml: string = this.savedXml.replace(whitespaceAndNewLineRegex, '');
 
-        const diagramIsChanged: boolean = unformattedSaveXml !== unformattedXml;
+        const diagramIsChanged: boolean = !this._areXmlsIdentical(this.xml, this.savedXml);
 
         this._validateDiagram();
 
@@ -398,22 +404,44 @@ export class BpmnIo {
     this._tempProcess = undefined;
   }
 
-  public xmlChanged(): void {
+  public async xmlChanged(newValue: string, oldValue: string): Promise<void> {
     if (this.diagramHasChanged) {
+      this.savedXml = newValue;
+
       if (this.solutionIsRemote) {
         this.viewer.importXML(this.xml);
       }
 
-      this.modeler.importXML(this.xml);
+      if (this._diagramHasState(this.diagramUri)) {
+        this._recoverDiagramState();
+      } else {
+        this.modeler.importXML(this.xml);
+      }
+
+      const diagramState: IDiagramState = this._loadDiagramState(this.diagramUri);
+      const diagramContainsChanges: boolean = diagramState !== null && diagramState.metaData.isChanged;
+
+      this._eventAggregator.publish(environment.events.differsFromOriginal, diagramContainsChanges);
+    }
+
+    const oldValueExists: boolean = oldValue !== undefined;
+    if (!this.diagramHasChanged && oldValueExists) {
+      await this._saveDiagramState(this.diagramUri);
     }
 
     this.diagramHasChanged = false;
   }
 
-  public async diagramChanged(): Promise<void> {
-    this.solutionIsRemote = this.diagramUri.startsWith('http');
-    this._tempProcess = undefined;
+  public async diagramChanged(newUri: string, previousUri: string): Promise<void> {
     this.diagramHasChanged = true;
+    this._tempProcess = undefined;
+
+    const previousDiagramExists: boolean = previousUri !== undefined;
+    if (!this.solutionIsRemote && previousDiagramExists) {
+      await this._saveDiagramState(previousUri);
+    }
+
+    this.solutionIsRemote = this.diagramUri.startsWith('http');
 
     if (this.solutionIsRemote) {
       const viewerNotInitialized: boolean = this.viewer === undefined;
@@ -464,6 +492,7 @@ export class BpmnIo {
         }
       }, 0);
     }
+
     this._diagramHasChanges = false;
   }
 
@@ -477,6 +506,34 @@ export class BpmnIo {
     if (newValue !== undefined) {
       window.localStorage.setItem('propertyPanelWidth', '' + this.propertyPanelWidth);
     }
+  }
+
+  private _diagramHasState(uri: string): boolean {
+    const diagramState: IDiagramState = this._loadDiagramState(uri);
+
+    return diagramState !== null;
+  }
+
+  private _loadDiagramState(diagramUri: string): IDiagramState {
+    return this._openDiagramStateService.loadDiagramState(diagramUri);
+  }
+
+  private async _recoverDiagramState(): Promise<void> {
+    const diagramState: IDiagramState = this._loadDiagramState(this.diagramUri);
+
+    const diagramHasNoState: boolean = diagramState === null;
+    if (diagramHasNoState) {
+      return;
+    }
+
+    const xml: string = diagramState.data.xml;
+    const viewbox: IViewbox = diagramState.metaData.location;
+
+    await this._importXmlIntoModeler(xml);
+
+    setTimeout(() => {
+      this.modeler.get('canvas').viewbox(viewbox);
+    }, 0);
   }
 
   private async _validateDiagram(): Promise<void> {
@@ -542,6 +599,7 @@ export class BpmnIo {
         resolve(result);
       });
     });
+
     return returnPromise;
   }
 
@@ -558,6 +616,46 @@ export class BpmnIo {
 
       this._linting.deactivateLinting();
     }
+  }
+
+  private async _saveDiagramState(diagramUri: string): Promise<void> {
+    const savedXml: string = this.savedXml;
+    const modelerCanvas: ICanvas = this.modeler.get('canvas');
+
+    const selectedElement: Array<IShape> = this.modeler.get('selection')._selectedElements;
+    const viewbox: IViewbox  = modelerCanvas.viewbox();
+    const xml: string = await this.getXML();
+    const isChanged: boolean = !this._areXmlsIdentical(xml, savedXml);
+
+    this._openDiagramStateService.saveDiagramState(diagramUri, xml, viewbox, selectedElement, isChanged);
+  }
+
+  private _areXmlsIdentical(firstXml: string, secondXml: string): boolean {
+    /*
+    * This Regex removes all newlines and spaces to make sure that both xml
+    * are not formatted.
+    */
+    const whitespaceAndNewLineRegex: RegExp = /\r?\n|\r|\s/g;
+
+    const unformattedXml: string = firstXml.replace(whitespaceAndNewLineRegex, '');
+    const unformattedSaveXml: string = secondXml.replace(whitespaceAndNewLineRegex, '');
+
+    return unformattedSaveXml === unformattedXml;
+  }
+
+  private _importXmlIntoModeler(xml: string): Promise<void> {
+    return new Promise((resolve: Function, reject: Function): void => {
+      this.modeler.importXML(xml, (error: Error) => {
+        const errorOccured: boolean = error !== undefined;
+        if (errorOccured) {
+          reject();
+
+          return;
+        }
+
+        resolve();
+      });
+    });
   }
 
   private _fitDiagramToViewport(): void {
@@ -619,8 +717,6 @@ export class BpmnIo {
       const participants: Array<IShape> = elementRegistry.filter((element: IShape) => {
         return element.type === 'bpmn:Participant';
       });
-
-      const multipleParticipants: boolean = participants.length > 1;
 
       if (this._diagramHasChanges) {
         participants.forEach((participant: IShape) => {

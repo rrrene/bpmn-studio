@@ -10,13 +10,13 @@ export class SolutionService implements ISolutionService {
   private _allSolutionEntries: Array<ISolutionEntry> = [];
   private _serviceFactory: SolutionExplorerServiceFactory;
   private _persistedEntries: Array<ISolutionEntry> = [];
-  private _persistedSingleDiagrams: Array<IDiagram> = [];
+  private _persistedOpenDiagrams: Array<IDiagram> = [];
 
   constructor(serviceFactory: SolutionExplorerServiceFactory) {
     this._serviceFactory = serviceFactory;
 
     const openedSolutions: Array<ISolutionEntry> = this._getSolutionFromLocalStorage();
-    this._persistedSingleDiagrams = this._getSingleDiagramsFromLocalStorage();
+    this._persistedOpenDiagrams = this._getOpenDiagramsFromLocalStorage();
 
     const openedSolutionsAreNotSet: boolean = openedSolutions === null;
     if (openedSolutionsAreNotSet) {
@@ -96,43 +96,43 @@ export class SolutionService implements ISolutionService {
   }
 
   /**
-   * SINGLE DIAGRAMS
+   * OPEN DIAGRAMS
    */
 
-  public addSingleDiagram(diagramToAdd: IDiagram): void {
-    const indexOfDiagram: number = this._persistedSingleDiagrams.findIndex((diagram: IDiagram) => diagram.uri === diagramToAdd.uri);
+  public addOpenDiagram(diagramToAdd: IDiagram): void {
+    const indexOfDiagram: number = this._persistedOpenDiagrams.findIndex((diagram: IDiagram) => diagram.uri === diagramToAdd.uri);
     const diagramIsPersisted: boolean = indexOfDiagram >= 0;
 
     if (diagramIsPersisted) {
-      this._persistedSingleDiagrams[indexOfDiagram] = diagramToAdd;
+      this._persistedOpenDiagrams[indexOfDiagram] = diagramToAdd;
     } else {
-      this._persistedSingleDiagrams.push(diagramToAdd);
+      this._persistedOpenDiagrams.push(diagramToAdd);
     }
 
-    this._persistSingleDiagramsInLocalStorage();
+    this._persistOpenDiagramsInLocalStorage();
   }
 
-  public removeSingleDiagramByUri(diagramUri: string): void {
-    const indexOfDiagramToRemove: number = this._persistedSingleDiagrams.findIndex((diagram: IDiagram) => {
+  public removeOpenDiagramByUri(diagramUri: string): void {
+    const indexOfDiagramToRemove: number = this._persistedOpenDiagrams.findIndex((diagram: IDiagram) => {
       return diagram.uri === diagramUri;
     });
 
-    this._persistedSingleDiagrams.splice(indexOfDiagramToRemove, 1);
-    this._persistSingleDiagramsInLocalStorage();
+    this._persistedOpenDiagrams.splice(indexOfDiagramToRemove, 1);
+    this._persistOpenDiagramsInLocalStorage();
   }
 
-  public getSingleDiagrams(): Array<IDiagram> {
-    return this._persistedSingleDiagrams;
+  public getOpenDiagrams(): Array<IDiagram> {
+    return this._persistedOpenDiagrams;
   }
 
   public persistSolutionsInLocalStorage(): void {
     /**
-     * Right now the single diagram solution entry doesn't get persisted.
+     * Right now the open diagram solution entry doesn't get persisted.
      */
     const entriesToPersist: Array<ISolutionEntry> = this._allSolutionEntries.filter((entry: ISolutionEntry) => {
-      const entryIsNotSingleDiagramSolution: boolean = entry.uri !== 'Single Diagrams';
+      const entryIsNotOpenDiagramSolution: boolean = entry.uri !== 'about:open-diagrams';
 
-      return entryIsNotSingleDiagramSolution;
+      return entryIsNotOpenDiagramSolution;
     });
 
     window.localStorage.setItem('openedSolutions', JSON.stringify(entriesToPersist));
@@ -145,15 +145,15 @@ export class SolutionService implements ISolutionService {
     return openedSolutions;
   }
 
-  private _getSingleDiagramsFromLocalStorage(): Array<IDiagram> {
-    const singleDiagrams: Array<IDiagram> = JSON.parse(window.localStorage.getItem('SingleDiagrams'));
-    const singleDigramsPersisted: boolean = singleDiagrams !== null;
+  private _getOpenDiagramsFromLocalStorage(): Array<IDiagram> {
+    const openDiagrams: Array<IDiagram> = JSON.parse(window.localStorage.getItem('OpenDiagrams'));
+    const openDiagramsWerePersisted: boolean = openDiagrams !== null;
 
-    return singleDigramsPersisted ? singleDiagrams : [];
+    return openDiagramsWerePersisted ? openDiagrams : [];
   }
 
-  private _persistSingleDiagramsInLocalStorage(): void {
+  private _persistOpenDiagramsInLocalStorage(): void {
 
-    window.localStorage.setItem('SingleDiagrams', JSON.stringify(this._persistedSingleDiagrams));
+    window.localStorage.setItem('OpenDiagrams', JSON.stringify(this._persistedOpenDiagrams));
   }
 }
