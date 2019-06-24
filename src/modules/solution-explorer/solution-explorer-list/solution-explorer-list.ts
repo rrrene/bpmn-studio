@@ -349,7 +349,7 @@ export class SolutionExplorerList {
     const fileSystemSolutionExplorer: ISolutionExplorerService = await this._solutionExplorerServiceFactory.newFileSystemSolutionExplorer();
 
     const uriOfOpenDiagramService: string = 'about:open-diagrams';
-    const nameOfOpenDiagramService: string = 'about:open-diagrams';
+    const nameOfOpenDiagramService: string = 'Open Diagrams';
 
     this.openDiagramService = new OpenDiagramsSolutionExplorerService(
         this._diagramValidationService,
