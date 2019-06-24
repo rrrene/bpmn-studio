@@ -461,12 +461,39 @@ Main._createMainWindow = function () {
             },
           },
           {
-            label: "Save As...",
+            type: "separator",
+          },
+          {
+            label: "Save Diagram",
+            accelerator: "CmdOrCtrl+S",
+            click: () => {
+              // Main._window.webContents.send('menubar__save_diagram');
+            },
+          },
+          {
+            label: "Save Diagram As...",
             accelerator: "CmdOrCtrl+Shift+S",
             click: () => {
               Main._window.webContents.send('menubar__start_save_diagram_as');
-            }
-          }
+            },
+          },
+          {
+            label: "Save All Diagrams",
+            accelerator: "CmdOrCtrl+Alt+S",
+            click: () => {
+              // Main._window.webContents.send('menubar__save_all_diagrams');
+            },
+          },
+          {
+            type: "separator",
+          },
+          {
+            label: "Close Diagram",
+            accelerator: "CmdOrCtrl+W",
+            click: () => {
+              // Main._window.webContents.send('menubar__close_diagram');
+            },
+          },
         ],
       };
     };
