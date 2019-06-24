@@ -276,6 +276,11 @@ export class SolutionExplorerList {
       return solutionUri;
     }
 
+    const isOpenDiagrams: boolean = solutionUri === 'about:open-diagrams';
+    if (isOpenDiagrams) {
+      return 'Open Diagrams';
+    }
+
     const lastIndexOfSlash: number = solutionUri.lastIndexOf('/');
     const lastIndexOfBackSlash: number = solutionUri.lastIndexOf('\\');
     const lastFolderIndex: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash) + 1;
