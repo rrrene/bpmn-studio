@@ -67,8 +67,8 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
   public loadSolution(): Promise<ISolution> {
     const solution: ISolution = {
       diagrams: this._openedDiagrams,
-      name: this._uriOfOpenDiagramService,
-      uri: this._nameOfOpenDiagramService,
+      name: this._nameOfOpenDiagramService,
+      uri: this._uriOfOpenDiagramService,
     };
     return Promise.resolve(solution);
   }
