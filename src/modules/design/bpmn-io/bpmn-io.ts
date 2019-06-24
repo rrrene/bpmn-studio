@@ -443,8 +443,6 @@ export class BpmnIo {
 
     this.solutionIsRemote = this.diagramUri.startsWith('http');
 
-    this.xmlChanged();
-
     if (this.solutionIsRemote) {
       const viewerNotInitialized: boolean = this.viewer === undefined;
       if (viewerNotInitialized) {
@@ -470,6 +468,8 @@ export class BpmnIo {
           this.modeler.get('selection').select(modelerShape);
         });
       }
+
+      this.xmlChanged();
 
       setTimeout(() => {
         this.viewer.attachTo(this.canvasModel);
