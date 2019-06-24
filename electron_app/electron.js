@@ -437,6 +437,16 @@ Main._createMainWindow = function () {
         label: "File",
         submenu: [
           {
+            label: "New Diagram",
+            accelerator: "CmdOrCtrl+N",
+            click: () => {
+              Main._window.webContents.send('menubar__start_create_diagram');
+            }
+          },
+          {
+            type: "separator",
+          },
+          {
             label: "Open Diagram",
             accelerator: "CmdOrCtrl+O",
             click: () => {
@@ -449,16 +459,6 @@ Main._createMainWindow = function () {
             click: () => {
               Main._window.webContents.send('menubar__start_opening_solution');
             },
-          },
-          {
-            label: "Create Diagram",
-            accelerator: "CmdOrCtrl+N",
-            click: () => {
-              Main._window.webContents.send('menubar__start_create_diagram');
-            }
-          },
-          {
-            type: "separator",
           },
           {
             label: "Save As...",
