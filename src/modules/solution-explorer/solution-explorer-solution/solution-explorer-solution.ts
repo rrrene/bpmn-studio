@@ -607,7 +607,10 @@ export class SolutionExplorerSolution {
   }
 
   private async _shouldCloseDiagramModal(diagramToSave: IDiagram): Promise<boolean> {
-    await this._navigateToDetailView(diagramToSave);
+    const diagramToSaveIsNotActiveDiagram: boolean = diagramToSave.uri !== this.activeDiagramUri;
+    if (diagramToSaveIsNotActiveDiagram) {
+      await this._navigateToDetailView(diagramToSave);
+    }
 
     const modalResult: Promise<boolean> = new Promise((resolve: Function, reject: Function): boolean | void => {
       const dontSaveFunction: EventListenerOrEventListenerObject = async(): Promise<void> => {
@@ -617,7 +620,9 @@ export class SolutionExplorerSolution {
         document.getElementById('saveButtonCloseView').removeEventListener('click', saveFunction);
         document.getElementById('cancelButtonCloseView').removeEventListener('click', cancelFunction);
 
-        await this._router.navigateBack();
+        if (diagramToSaveIsNotActiveDiagram) {
+          await this._router.navigateBack();
+        }
 
         resolve(true);
       };
@@ -646,7 +651,9 @@ export class SolutionExplorerSolution {
         document.getElementById('saveButtonCloseView').removeEventListener('click', saveFunction);
         document.getElementById('cancelButtonCloseView').removeEventListener('click', cancelFunction);
 
-        await this._router.navigateBack();
+        if (diagramToSaveIsNotActiveDiagram) {
+          await this._router.navigateBack();
+        }
 
         resolve(false);
       };
