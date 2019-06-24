@@ -356,47 +356,51 @@ export class DiagramDetail {
       return;
     }
 
+    const xml: string = await this._getXML();
+
+    if (!xml) {
+      return;
+    }
+
+    const diagram: IDiagram = {
+      name: this.activeDiagram.name,
+      id: this.activeDiagram.id,
+      uri: this.activeDiagram.uri,
+      xml: xml,
+    };
+
     try {
-      const xml: string = await this.bpmnio.getXML();
-
-      const diagram: IDiagram = {
-        name: this.activeDiagram.name,
-        id: this.activeDiagram.id,
-        uri: this.activeDiagram.uri,
-        xml: xml,
-      };
-
       await this.activeSolutionEntry.service.saveDiagram(diagram, path);
-
-      try {
-        this.activeDiagram = await this._singleDiagramService.openSingleDiagram(path, this.activeSolutionEntry.identity);
-        this._solutionService.addSingleDiagram(this.activeDiagram);
-      } catch (error) {
-        const alreadyOpenedDiagram: IDiagram = await this._singleDiagramService.getOpenedDiagramByURI(path);
-        await this._singleDiagramService.closeSingleDiagram(alreadyOpenedDiagram);
-        this.activeDiagram = await this._singleDiagramService.openSingleDiagram(path, this.activeSolutionEntry.identity);
-      }
-
-      this.xml = this.activeDiagram.xml;
-      this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri('Single Diagrams');
-
-      this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
-
-      this.bpmnio.saveCurrentXML();
-
-      this.diagramHasChanged = false;
-
-      await this._router.navigateToRoute('design', {
-        diagramName: this.activeDiagram.name,
-        diagramUri: this.activeDiagram.uri,
-        solutionUri: this.activeSolutionEntry.uri,
-      });
-
-      this._notificationService.showNotification(NotificationType.SUCCESS, `File saved!`);
     } catch (error) {
       this._notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
       throw error;
     }
+
+    try {
+      this.activeDiagram = await this._singleDiagramService.openSingleDiagram(path, this.activeSolutionEntry.identity);
+      this._solutionService.addSingleDiagram(this.activeDiagram);
+    } catch (error) {
+      const alreadyOpenedDiagram: IDiagram = await this._singleDiagramService.getOpenedDiagramByURI(path);
+      await this._singleDiagramService.closeSingleDiagram(alreadyOpenedDiagram);
+      this.activeDiagram = await this._singleDiagramService.openSingleDiagram(path, this.activeSolutionEntry.identity);
+    }
+
+    this.xml = this.activeDiagram.xml;
+    this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri('Single Diagrams');
+
+    this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
+
+    this.bpmnio.saveCurrentXML();
+
+    this.diagramHasChanged = false;
+
+    await this._router.navigateToRoute('design', {
+      diagramName: this.activeDiagram.name,
+      diagramUri: this.activeDiagram.uri,
+      solutionUri: this.activeSolutionEntry.uri,
+    });
+
+    this._notificationService.showNotification(NotificationType.SUCCESS, `File saved!`);
   }
 
   /**
@@ -455,6 +459,15 @@ export class DiagramDetail {
     } catch (error) {
       // If an error occurs, the token is something else.
       return token;
+    }
+  }
+
+  private async _getXML(): Promise<string> {
+    try {
+      return await this.bpmnio.getXML();
+    } catch (error) {
+      this._notificationService.showNotification(NotificationType.ERROR, `Unable to get the XML: ${error}.`);
+      return undefined;
     }
   }
 
