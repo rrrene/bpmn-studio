@@ -55,6 +55,7 @@ export class BpmnIo {
   public minPropertyPanelWidth: number = 200;
   public diagramIsInvalid: boolean = false;
   public diagramHasChanged: boolean = false;
+  public saveStateForNewUri: boolean = false;
 
   private _bpmnLintButton: HTMLElement;
   private _linting: ILinting;
@@ -404,7 +405,7 @@ export class BpmnIo {
     this._tempProcess = undefined;
   }
 
-  public async xmlChanged(newValue: string, oldValue: string): Promise<void> {
+  public async xmlChanged(newValue?: string, oldValue?: string): Promise<void> {
     if (this.diagramHasChanged) {
       this.savedXml = newValue;
 
@@ -438,7 +439,13 @@ export class BpmnIo {
 
     const previousDiagramExists: boolean = previousUri !== undefined;
     if (!this.solutionIsRemote && previousDiagramExists) {
-      await this._saveDiagramState(previousUri);
+
+      if (this.saveStateForNewUri) {
+        await this._saveDiagramState(newUri);
+        this.saveStateForNewUri = false;
+      } else {
+        await this._saveDiagramState(previousUri);
+      }
     }
 
     this.solutionIsRemote = this.diagramUri.startsWith('http');
