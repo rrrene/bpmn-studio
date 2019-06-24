@@ -14,7 +14,7 @@
           <span class="solution-entry__solution-name">${getSolutionName(solutionEntry.uri)}</span>
           <div class="solution-entry__solution-path">
             <span
-              if.bind="!solutionEntryIsRemote(solutionEntry) && getSolutionName(solutionEntry.uri) !== solutionEntry.uri"
+              if.bind="!solutionEntryIsRemote(solutionEntry) && getSolutionName(solutionEntry.uri) !== solutionEntry.uri && solutionEntry.uri !== 'about:open-diagrams'"
               title.bind="solutionEntry.uri">
               ${solutionEntry.uri}
             </span>
