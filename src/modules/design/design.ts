@@ -113,7 +113,7 @@ export class Design {
         this._eventAggregator.publish(environment.events.configPanel.processEngineRouteChanged, this.activeSolutionEntry.uri);
       }
 
-      const isOpenDiagram: boolean = this.activeSolutionEntry.uri === 'Open Diagrams';
+      const isOpenDiagram: boolean = this.activeSolutionEntry.uri === 'about:open-diagrams';
 
       if (isOpenDiagram) {
         const persistedDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();

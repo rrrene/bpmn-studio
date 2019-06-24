@@ -232,7 +232,7 @@ export class StatusBar {
     const diagramIsSet: boolean = diagramName !== undefined;
 
     if (solutionIsSet && diagramIsSet) {
-      const activeSolutionIsOpenDiagramSolution: boolean = solutionUriFromNavigation === 'Open Diagrams';
+      const activeSolutionIsOpenDiagramSolution: boolean = solutionUriFromNavigation === 'about:open-diagrams';
       if (activeSolutionIsOpenDiagramSolution) {
         const persistedDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();
 

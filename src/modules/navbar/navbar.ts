@@ -370,7 +370,7 @@ export class NavBar {
 
     if (solutionIsSet && diagramIsSet) {
 
-      const activeSolutionIsOpenDiagramSolution: boolean = solutionUri === 'Open Diagrams';
+      const activeSolutionIsOpenDiagramSolution: boolean = solutionUri === 'about:open-diagrams';
       if (activeSolutionIsOpenDiagramSolution) {
         const persistedDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();
 

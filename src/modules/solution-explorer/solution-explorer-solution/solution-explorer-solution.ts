@@ -479,7 +479,7 @@ export class SolutionExplorerSolution {
      * because it is our special case here and if the ACTIVE solution is the
      * "Open Diagrams"-Solution we need to return the uri anyway.
      */
-    const openDiagramSolutionIsActive: boolean = solutionUri === 'Open Diagrams';
+    const openDiagramSolutionIsActive: boolean = solutionUri === 'about:open-diagrams';
     if (this.solutionIsOpenDiagrams && openDiagramSolutionIsActive) {
       return this.activeDiagram.uri;
     }

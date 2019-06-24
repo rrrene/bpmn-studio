@@ -118,7 +118,7 @@ export class SolutionExplorerList {
 
   public getOpenDiagramSolutionEntry(): ISolutionEntry {
     return this._openedSolutions.find((entry: ISolutionEntry) => {
-      return entry.uri === 'Open Diagrams';
+      return entry.uri === 'about:open-diagrams';
     });
   }
 
@@ -343,8 +343,8 @@ export class SolutionExplorerList {
 
     const fileSystemSolutionExplorer: ISolutionExplorerService = await this._solutionExplorerServiceFactory.newFileSystemSolutionExplorer();
 
-    const uriOfOpenDiagramService: string = 'Open Diagrams';
-    const nameOfOpenDiagramService: string = 'Open Diagrams';
+    const uriOfOpenDiagramService: string = 'about:open-diagrams';
+    const nameOfOpenDiagramService: string = 'about:open-diagrams';
 
     this.openDiagramService = new OpenDiagramsSolutionExplorerService(
         this._diagramValidationService,

@@ -150,7 +150,7 @@ export class Inspect {
     const diagramIsSet: boolean = diagramName !== undefined;
     if (diagramIsSet) {
 
-      const activeSolutionIsOpenSolution: boolean = solutionUri === 'Open Diagrams';
+      const activeSolutionIsOpenSolution: boolean = solutionUri === 'about:open-diagrams';
       if (activeSolutionIsOpenSolution) {
         const persistedDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();
 
