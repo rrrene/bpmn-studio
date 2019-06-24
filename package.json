@@ -129,7 +129,7 @@
     "@essential-projects/http_contracts": "~2.4.0",
     "@essential-projects/iam_contracts": "~3.5.0",
     "@process-engine/bpmn-elements_contracts": "2.0.0",
-    "@process-engine/consumer_api_contracts": "5.2.0-ae6e8fe5-b9",
+    "@process-engine/consumer_api_contracts": "7.0.0-f7e1f918-b14",
     "@process-engine/kpi_api_contracts": "1.3.0",
     "@process-engine/management_api_contracts": "10.0.0-423219a7-b15",
     "@process-engine/process_engine_contracts": "44.0.0",
