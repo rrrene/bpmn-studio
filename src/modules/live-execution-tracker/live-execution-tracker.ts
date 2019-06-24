@@ -702,12 +702,11 @@ export class LiveExecutionTracker {
 
   private async _handleElementColorization(): Promise<void> {
     // This prevents the LET from Coloring several times at once
-    // Disabled, because this will break colorizing in parallel running branches, when notifications are used.
-    // if (this._isColorizing) {
-    //   this._colorizeAgain = true;
+    if (this._isColorizing) {
+      this._colorizeAgain = true;
 
-    //   return;
-    // }
+      return;
+    }
 
     this._isColorizing = true;
 
