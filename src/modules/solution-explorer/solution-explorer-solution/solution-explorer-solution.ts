@@ -245,6 +245,7 @@ export class SolutionExplorerSolution {
 
     if (diagramHasUnsavedChanges) {
       const cancelClosing: boolean = !(await this._shouldCloseDiagramModal(diagram));
+
       if (cancelClosing) {
         return;
       }
