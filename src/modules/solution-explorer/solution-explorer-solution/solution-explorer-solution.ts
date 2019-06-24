@@ -507,12 +507,7 @@ export class SolutionExplorerSolution {
     const diagramIsFromLocalSolution: boolean = !this._isUriFromRemoteSolution(diagram.uri);
 
     if (diagramIsNotYetOpened && diagramIsFromLocalSolution) {
-      const openedDiagram: IDiagram = await this.openDiagramService.openDiagram(diagram.uri, this._createIdentityForSolutionExplorer());
-      await this.openDiagramService.saveDiagram(openedDiagram);
-    }
-
-    if (!this._isUriFromRemoteSolution(diagram.uri) && !this.solutionIsOpenDiagrams) {
-      this._eventAggregator.publish(environment.events.solutionExplorer.updateOpenDiagrams);
+      await this.openDiagramService.openDiagramFromSolution(diagram.uri, this._createIdentityForSolutionExplorer());
     }
 
     this._navigateToDetailView(diagram);

@@ -146,6 +146,14 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     return this._solutionExplorerToOpenDiagrams.saveDiagram(diagram);
   }
 
+  public async openDiagramFromSolution(diagramUri: string, identity: IIdentity): Promise<IDiagram> {
+    const openedDiagram: IDiagram = await this.openDiagram(diagramUri, identity);
+
+    this._solutionService.addOpenDiagram(openedDiagram);
+
+    return openedDiagram;
+  }
+
   private _findOfDiagramWithURI(uri: string): number {
     const index: number = this._openedDiagrams
       .findIndex((diagram: IDiagram): boolean => {
