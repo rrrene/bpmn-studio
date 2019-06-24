@@ -100,7 +100,7 @@ export class SolutionService implements ISolutionService {
    */
 
   public addSingleDiagram(diagramToAdd: IDiagram): void {
-    const indexOfDiagram: number = this._persistedSingleDiagrams.indexOf(diagramToAdd);
+    const indexOfDiagram: number = this._persistedSingleDiagrams.findIndex((diagram: IDiagram) => diagram.uri === diagramToAdd.uri);
     const diagramIsPersisted: boolean = indexOfDiagram >= 0;
 
     if (diagramIsPersisted) {

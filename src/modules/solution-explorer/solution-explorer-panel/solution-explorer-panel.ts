@@ -95,8 +95,8 @@ export class SolutionExplorerPanel {
     persistedSingleDiagrams.forEach(async(diagram: IDiagram) => {
       try {
         await this.solutionExplorerList.openSingleDiagram(diagram.uri);
-      } catch (error) {
-        this._solutionService.removeSingleDiagramByUri(diagram.uri);
+      } catch {
+        return;
       }
     });
 
