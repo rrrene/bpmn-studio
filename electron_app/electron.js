@@ -467,7 +467,7 @@ Main._createMainWindow = function () {
             label: "Save Diagram",
             accelerator: "CmdOrCtrl+S",
             click: () => {
-              // Main._window.webContents.send('menubar__save_diagram');
+              // Main._window.webContents.send('menubar__start_save_diagram');
             },
           },
           {
@@ -481,7 +481,7 @@ Main._createMainWindow = function () {
             label: "Save All Diagrams",
             accelerator: "CmdOrCtrl+Alt+S",
             click: () => {
-              // Main._window.webContents.send('menubar__save_all_diagrams');
+              // Main._window.webContents.send('menubar__start_save_all_diagrams');
             },
           },
           {
@@ -491,7 +491,7 @@ Main._createMainWindow = function () {
             label: "Close Diagram",
             accelerator: "CmdOrCtrl+W",
             click: () => {
-              // Main._window.webContents.send('menubar__close_diagram');
+              // Main._window.webContents.send('menubar__start_close_diagram');
             },
           },
         ],
