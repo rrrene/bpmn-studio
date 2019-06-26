@@ -103,6 +103,12 @@ export class DiagramDetail {
     if (isRunningInElectron) {
       this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
       this._ipcRenderer.on('menubar__start_save_diagram_as', this._electronOnSaveDiagramAs);
+
+      const triggerSaveDiagramEvent: Function = (): void => {
+        this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
+      };
+
+      this._ipcRenderer.on('menubar__start_save_diagram', triggerSaveDiagramEvent);
     }
 
     this._eventAggregator.publish(environment.events.navBar.showTools);

@@ -467,7 +467,7 @@ Main._createMainWindow = function () {
             label: "Save Diagram",
             accelerator: "CmdOrCtrl+S",
             click: () => {
-              // Main._window.webContents.send('menubar__start_save_diagram');
+              Main._window.webContents.send('menubar__start_save_diagram');
             },
           },
           {

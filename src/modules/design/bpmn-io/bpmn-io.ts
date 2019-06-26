@@ -254,8 +254,11 @@ export class BpmnIo {
       document.addEventListener('mouseup', mouseUpFunction);
     });
 
-    document.addEventListener('keydown', this._saveHotkeyEventHandler);
     document.addEventListener('keydown', this._printHotkeyEventHandler);
+
+    if (!this._isRunningInElectron) {
+     document.addEventListener('keydown', this._saveHotkeyEventHandler);
+    }
 
     this._hideOrShowPpForSpaceReasons();
 
@@ -385,8 +388,11 @@ export class BpmnIo {
     this.modeler.detach();
     this.modeler.destroy();
     window.removeEventListener('resize', this._resizeEventHandler);
-    document.removeEventListener('keydown', this._saveHotkeyEventHandler);
     document.removeEventListener('keydown', this._printHotkeyEventHandler);
+
+    if (!this._isRunningInElectron) {
+      document.removeEventListener('keydown', this._saveHotkeyEventHandler);
+    }
 
     for (const subscription of this._subscriptions) {
       subscription.dispose();
@@ -625,6 +631,12 @@ export class BpmnIo {
 
       this._linting.deactivateLinting();
     }
+  }
+
+  private get _isRunningInElectron(): boolean {
+    const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
+
+    return isRunningInElectron;
   }
 
   private async _saveDiagramState(diagramUri: string): Promise<void> {
