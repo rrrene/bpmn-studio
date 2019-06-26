@@ -240,13 +240,12 @@ export class SolutionExplorerSolution {
    * Reload the solution by requesting it from the solution service.
    */
   public async updateSolution(): Promise<void> {
-    if (this.solutionIsOpenDiagrams) {
-      return;
-    }
-
     try {
       this._openedSolution = await this.solutionService.loadSolution();
-      const updatedDiagramList: Array<IDiagram> = this._openedSolution.diagrams.sort(this._diagramSorter);
+
+      const updatedDiagramList: Array<IDiagram> = this.solutionIsOpenDiagrams ?
+                                                  this._openedSolution.diagrams :
+                                                  this._openedSolution.diagrams.sort(this._diagramSorter);
 
       const diagramsOfSolutionChanged: boolean = this._sortedDiagramsOfSolutions.toString() !== updatedDiagramList.toString();
       if (diagramsOfSolutionChanged) {
@@ -624,7 +623,9 @@ export class SolutionExplorerSolution {
   }
 
   private _refreshDisplayedDiagrams(): void {
-    this._sortedDiagramsOfSolutions = this._openedSolution.diagrams.sort(this._diagramSorter);
+    this._sortedDiagramsOfSolutions = this.solutionIsOpenDiagrams ?
+                                      this._openedSolution.diagrams :
+                                      this._openedSolution.diagrams.sort(this._diagramSorter);
   }
 
   private _closeDiagram(diagramToClose: IDiagram): void {
