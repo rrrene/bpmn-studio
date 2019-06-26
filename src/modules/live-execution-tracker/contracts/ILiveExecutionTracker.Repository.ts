@@ -10,7 +10,7 @@ export interface ILiveExecutionTrackerRepository {
   getActiveTokensForProcessInstance(processInstanceId: string): Promise<Array<ActiveToken> | null>;
   getCorrelationById(correlationId: string): Promise<DataModels.Correlations.Correlation>;
   getEmptyActivitiesForProcessInstance(processInstanceId: string): Promise<DataModels.EmptyActivities.EmptyActivityList | null>;
-  getFlowNodeInstancesForProcessInstance(processInstanceId: string): Promise<Array<DataModels.FlowNodes.FlowNodeInstance>>;
+  getFlowNodeInstancesForProcessInstance(processInstanceId: string): Promise<Array<DataModels.FlowNodeInstances.FlowNodeInstance>>;
   getProcessModelById(processModelId: string): Promise<DataModels.ProcessModels.ProcessModel>;
   getTokenHistoryGroupForProcessInstance(processInstanceId: string): Promise<DataModels.TokenHistory.TokenHistoryGroup | null>;
 
