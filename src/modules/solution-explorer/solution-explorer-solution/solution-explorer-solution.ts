@@ -100,6 +100,7 @@ export class SolutionExplorerSolution {
   public diagramContextMenu: HTMLElement;
   public showContextMenu: boolean = false;
   public deleteDiagramModal: DeleteDiagramModal;
+  public processEngineRunning: boolean = false;
 
   private _renameDiagramInput: HTMLInputElement;
   private _originalIconClass: string;
@@ -130,8 +131,7 @@ export class SolutionExplorerSolution {
     this._isAttached = true;
 
     this._originalIconClass = this.fontAwesomeIconClass;
-    await this._updateSolutionExplorer();
-    this._setValidationRules();
+    this._updateSolutionExplorer();
 
     this._subscriptions = [
       this._eventAggregator.subscribe('router:navigation:success', () => {
@@ -148,10 +148,39 @@ export class SolutionExplorerSolution {
       this._subscriptions.push(updateSubscription);
     }
 
-    setTimeout(async() => {
-      await this.updateSolution();
-      this._startPolling();
-    }, 0);
+    if (this.displayedSolutionEntry.uri.startsWith('http')) {
+      await this.waitForProcessEngine();
+    } else {
+      this.processEngineRunning = true;
+      this._setValidationRules();
+
+      setTimeout(async() => {
+        await this.updateSolution();
+        this._startPolling();
+      }, 0);
+
+    }
+  }
+
+  public waitForProcessEngine(): Promise<boolean> {
+    return new Promise((resolve: Function, reject: Function): void => {
+      const makeRequest: Function = ((): void => {
+        setTimeout(async() => {
+          try {
+            const response: Response = await fetch(this.displayedSolutionEntry.uri);
+            this.processEngineRunning = true;
+            await this.updateSolution();
+            this._startPolling();
+            resolve(true);
+          } catch (error) {
+            makeRequest();
+          }
+          // tslint:disable-next-line: no-magic-numbers
+        }, 10);
+      });
+
+      makeRequest();
+    });
   }
 
   public detached(): void {
@@ -200,6 +229,10 @@ export class SolutionExplorerSolution {
    * Called by aurelia, if the value of the solutionService binding changes.
    */
   public solutionServiceChanged(newValue: ISolutionExplorerService, oldValue: ISolutionExplorerService): Promise<void> {
+    if (!this.processEngineRunning) {
+      return;
+    }
+
     return this.updateSolution();
   }
 
@@ -207,13 +240,12 @@ export class SolutionExplorerSolution {
    * Reload the solution by requesting it from the solution service.
    */
   public async updateSolution(): Promise<void> {
-    if (this.solutionIsOpenDiagrams) {
-      return;
-    }
-
     try {
       this._openedSolution = await this.solutionService.loadSolution();
-      const updatedDiagramList: Array<IDiagram> = this._openedSolution.diagrams.sort(this._diagramSorter);
+
+      const updatedDiagramList: Array<IDiagram> = this.solutionIsOpenDiagrams ?
+                                                  this._openedSolution.diagrams :
+                                                  this._openedSolution.diagrams.sort(this._diagramSorter);
 
       const diagramsOfSolutionChanged: boolean = this._sortedDiagramsOfSolutions.toString() !== updatedDiagramList.toString();
       if (diagramsOfSolutionChanged) {
@@ -221,6 +253,7 @@ export class SolutionExplorerSolution {
       }
 
       this.fontAwesomeIconClass = this._originalIconClass;
+      this.processEngineRunning = true;
     } catch (error) {
       // In the future we can maybe display a small icon indicating the error.
       if (isError(error, UnauthorizedError)) {
@@ -230,6 +263,7 @@ export class SolutionExplorerSolution {
       } else {
         this._openedSolution.diagrams = undefined;
         this.fontAwesomeIconClass = 'fa-bolt';
+        this.processEngineRunning = false;
       }
     }
   }
@@ -432,7 +466,7 @@ export class SolutionExplorerSolution {
   }
 
   public get solutionIsNotLoaded(): boolean {
-    return this._openedSolution === null || this._openedSolution === undefined;
+    return this._openedSolution === null || this._openedSolution === undefined || !this.processEngineRunning;
   }
 
   public get openedDiagrams(): Array<IDiagram> {
@@ -589,7 +623,9 @@ export class SolutionExplorerSolution {
   }
 
   private _refreshDisplayedDiagrams(): void {
-    this._sortedDiagramsOfSolutions = this._openedSolution.diagrams.sort(this._diagramSorter);
+    this._sortedDiagramsOfSolutions = this.solutionIsOpenDiagrams ?
+                                      this._openedSolution.diagrams :
+                                      this._openedSolution.diagrams.sort(this._diagramSorter);
   }
 
   private _closeDiagram(diagramToClose: IDiagram): void {

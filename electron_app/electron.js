@@ -44,9 +44,9 @@ Main.execute = function () {
   const hasSingleInstanceLock = app.hasSingleInstanceLock();
 
   if (hasSingleInstanceLock) {
-    Main._startInternalProcessEngine();
-
     Main._initializeApplication();
+    
+    Main._startInternalProcessEngine();
 
     app.on('second-instance', (event, argv, workingDirectory) => {
       const noArgumentsSet = argv[1] === undefined;
@@ -682,7 +682,6 @@ Main._startInternalProcessEngine = async function () {
         // Create path for sqlite database in BPMN-Studio context.
         const userDataFolderPath = getUserConfigFolder();
         const sqlitePath = `${userDataFolderPath}/bpmn-studio/process_engine_databases`;
-
         const pe = require('@process-engine/process_engine_runtime');
         pe.startRuntime(sqlitePath);
 
