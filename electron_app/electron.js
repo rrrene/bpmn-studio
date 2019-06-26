@@ -303,6 +303,7 @@ Main._createMainWindow = function () {
   });
 
   setOpenDiagram();
+  setSaveDiagramAs();
   setOpenSolutions();
 
   const platformIsWindows = process.platform === 'win32';
@@ -341,12 +342,35 @@ Main._createMainWindow = function () {
     });
   }
 
+  function setSaveDiagramAs() {
+    electron.ipcMain.on('open_save-diagram-as_dialog', (event) => {
+      const filePath = dialog.showSaveDialog({
+        filters: [
+          {
+            name: "BPMN",
+            extensions: ["bpmn", "xml"]
+          },
+          {
+            name: 'All Files',
+            extensions: ['*']
+          }
+        ]
+      });
+
+      event.sender.send('save_diagram_as', filePath);
+    });
+  }
+
   function setOpenDiagram() {
     electron.ipcMain.on('open_diagram', (event) => {
       const openedFile = dialog.showOpenDialog({
         filters: [
           {
             name: "BPMN",
+            extensions: ["bpmn", "xml"]
+          },
+          {
+            name: "XML",
             extensions: ["bpmn", "xml"]
           },
           {
@@ -431,6 +455,16 @@ Main._createMainWindow = function () {
             accelerator: "CmdOrCtrl+N",
             click: () => {
               Main._window.webContents.send('menubar__start_create_diagram');
+            }
+          },
+          {
+            type: "separator",
+          },
+          {
+            label: "Save As...",
+            accelerator: "CmdOrCtrl+Shift+S",
+            click: () => {
+              Main._window.webContents.send('menubar__start_save_diagram_as');
             }
           }
         ],

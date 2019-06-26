@@ -24,6 +24,7 @@ import {
 
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
+import {OpenDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
 import {BpmnIo} from '../bpmn-io/bpmn-io';
 
 @inject('ManagementApiClientService',
@@ -31,7 +32,8 @@ import {BpmnIo} from '../bpmn-io/bpmn-io';
         'SolutionService',
         EventAggregator,
         Router,
-        ValidationController)
+        ValidationController,
+        'OpenDiagramService')
 export class DiagramDetail {
 
   @bindable() public activeDiagram: IDiagram;
@@ -68,19 +70,22 @@ export class DiagramDetail {
     german: /^[äöüß]/i,
   };
   private _clickedOnCustomStart: boolean = false;
+  private _openDiagramService: OpenDiagramsSolutionExplorerService;
 
   constructor(managementApiClient: IManagementApi,
               notificationService: NotificationService,
               solutionService: ISolutionService,
               eventAggregator: EventAggregator,
               router: Router,
-              validationController: ValidationController) {
+              validationController: ValidationController,
+              openDiagramService: OpenDiagramsSolutionExplorerService) {
     this._notificationService = notificationService;
     this._solutionService = solutionService;
     this._eventAggregator = eventAggregator;
     this._router = router;
     this._validationController = validationController;
     this._managementApiClient = managementApiClient;
+    this._openDiagramService = openDiagramService;
   }
 
   public determineActivationStrategy(): string {
@@ -97,6 +102,7 @@ export class DiagramDetail {
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
     if (isRunningInElectron) {
       this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+      this._ipcRenderer.on('menubar__start_save_diagram_as', this._electronOnSaveDiagramAs);
     }
 
     this._eventAggregator.publish(environment.events.navBar.showTools);
@@ -127,7 +133,11 @@ export class DiagramDetail {
         this._clickedOnCustomStart = true;
         await this.showSelectStartEventDialog();
       }),
+      this._eventAggregator.subscribe(environment.events.diagramDetail.saveDiagramAs, () => {
+        this._electronOnSaveDiagramAs();
+      }),
     ];
+
   }
 
   public correlationChanged(newValue: string): void {
@@ -160,6 +170,11 @@ export class DiagramDetail {
   }
 
   public detached(): void {
+    const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
+    if (isRunningInElectron) {
+      this._ipcRenderer.removeListener('menubar__start_save_diagram_as', this._electronOnSaveDiagramAs);
+    }
+
     for (const subscription of this._subscriptions) {
       subscription.dispose();
     }
@@ -312,7 +327,6 @@ export class DiagramDetail {
    * Saves the current diagram.
    */
   public async saveDiagram(): Promise<void> {
-
     const savingTargetIsRemoteSolution: boolean = this.activeSolutionEntry.uri.startsWith('http');
 
     if (this.diagramIsInvalid || savingTargetIsRemoteSolution) {
@@ -324,17 +338,66 @@ export class DiagramDetail {
       this.activeDiagram.xml = xml;
 
       await this.activeSolutionEntry.service.saveDiagram(this.activeDiagram);
-      this.bpmnio.saveCurrentXML();
 
       this.diagramHasChanged = false;
-      this._notificationService
-          .showNotification(NotificationType.SUCCESS, `File saved!`);
+
+      this.bpmnio.saveCurrentXML();
+
+      this._notificationService.showNotification(NotificationType.SUCCESS, `File saved!`);
       this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
     } catch (error) {
-      this._notificationService
-          .showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
+      this._notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
       throw error;
     }
+  }
+
+  public async saveDiagramAs(path: string): Promise<void> {
+    if (this.diagramIsInvalid) {
+      return;
+    }
+
+    const xml: string = await this._getXML();
+
+    if (!xml) {
+      return;
+    }
+
+    const diagram: IDiagram = {
+      name: this.activeDiagram.name,
+      id: this.activeDiagram.id,
+      uri: this.activeDiagram.uri,
+      xml: xml,
+    };
+
+    try {
+      await this.activeSolutionEntry.service.saveDiagram(diagram, path);
+      this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
+    } catch (error) {
+      this._notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
+      throw error;
+    }
+
+    await this._openDiagramService.closeDiagram(this.activeDiagram);
+    this._solutionService.removeOpenDiagramByUri(this.activeDiagram.uri);
+    this.bpmnio.saveStateForNewUri = true;
+
+    this.activeDiagram = await this._openDiagramService.openDiagram(path, this.activeSolutionEntry.identity);
+    this._solutionService.addOpenDiagram(this.activeDiagram);
+
+    this.xml = this.activeDiagram.xml;
+    this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri('about:open-diagrams');
+
+    this.bpmnio.saveCurrentXML();
+
+    this.diagramHasChanged = false;
+
+    await this._router.navigateToRoute('design', {
+      diagramName: this.activeDiagram.name,
+      diagramUri: this.activeDiagram.uri,
+      solutionUri: this.activeSolutionEntry.uri,
+    });
+
+    this._notificationService.showNotification(NotificationType.SUCCESS, `File saved!`);
   }
 
   /**
@@ -393,6 +456,15 @@ export class DiagramDetail {
     } catch (error) {
       // If an error occurs, the token is something else.
       return token;
+    }
+  }
+
+  private async _getXML(): Promise<string> {
+    try {
+      return await this.bpmnio.getXML();
+    } catch (error) {
+      this._notificationService.showNotification(NotificationType.ERROR, `Unable to get the XML: ${error}.`);
+      return undefined;
     }
   }
 
@@ -502,6 +574,19 @@ export class DiagramDetail {
     this.diagramHasChanged
       ? this.showSaveForStartModal = true
       : await this.showSelectStartEventDialog();
+  }
+
+  private _electronOnSaveDiagramAs = async(_?: Event): Promise<void> => {
+    this._ipcRenderer.send('open_save-diagram-as_dialog');
+
+    this._ipcRenderer.once('save_diagram_as', async(event: Event, savePath: string) => {
+      const noFileSelected: boolean = savePath === null;
+      if (noFileSelected) {
+        return;
+      }
+
+      await this.saveDiagramAs(savePath);
+    });
   }
 
   private _handleFormValidateEvents(event: ValidateEvent): void {

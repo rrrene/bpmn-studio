@@ -8,7 +8,6 @@ import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service
 
 import {
   IAuthenticationService,
-  IDiagramValidationService,
   ILoginResult,
   ISolutionEntry,
   ISolutionService,
@@ -22,7 +21,7 @@ interface IUriToViewModelMap {
   [key: string]: SolutionExplorerSolution;
 }
 
-@inject(Router, EventAggregator, 'SolutionExplorerServiceFactory', 'AuthenticationService', 'DiagramValidationService', 'SolutionService')
+@inject(Router, EventAggregator, 'SolutionExplorerServiceFactory', 'AuthenticationService', 'SolutionService', 'OpenDiagramService')
 export class SolutionExplorerList {
   public internalSolutionUri: string;
   /**
@@ -35,7 +34,6 @@ export class SolutionExplorerList {
   private _eventAggregator: EventAggregator;
   private _solutionExplorerServiceFactory: SolutionExplorerServiceFactory;
   private _authenticationService: IAuthenticationService;
-  private _diagramValidationService: IDiagramValidationService;
   private _solutionService: ISolutionService;
   /*
    * Contains all opened solutions.
@@ -53,15 +51,15 @@ export class SolutionExplorerList {
     eventAggregator: EventAggregator,
     solutionExplorerServiceFactory: SolutionExplorerServiceFactory,
     authenticationService: IAuthenticationService,
-    diagramValidationService: IDiagramValidationService,
     solutionService: ISolutionService,
+    openDiagramService: OpenDiagramsSolutionExplorerService,
   ) {
     this._router = router;
     this._eventAggregator = eventAggregator;
     this._solutionExplorerServiceFactory = solutionExplorerServiceFactory;
     this._authenticationService = authenticationService;
-    this._diagramValidationService = diagramValidationService;
     this._solutionService = solutionService;
+    this.openDiagramService = openDiagramService;
 
     const canReadFromFileSystem: boolean = (window as any).nodeRequire;
     if (canReadFromFileSystem) {
@@ -344,24 +342,11 @@ export class SolutionExplorerList {
   /**
    * Add entry for single file service.
    */
-  private async _createOpenDiagramServiceEntry(): Promise<void> {
 
-    const fileSystemSolutionExplorer: ISolutionExplorerService = await this._solutionExplorerServiceFactory.newFileSystemSolutionExplorer();
-
-    const uriOfOpenDiagramService: string = 'about:open-diagrams';
-    const nameOfOpenDiagramService: string = 'Open Diagrams';
-
-    this.openDiagramService = new OpenDiagramsSolutionExplorerService(
-        this._diagramValidationService,
-        fileSystemSolutionExplorer,
-        uriOfOpenDiagramService,
-        nameOfOpenDiagramService,
-        this._solutionService,
-      );
-
+  private _createOpenDiagramServiceEntry(): void {
     const identity: IIdentity = this._createIdentityForSolutionExplorer();
 
-    this._addSolutionEntry(uriOfOpenDiagramService, this.openDiagramService, identity, true);
+    this._addSolutionEntry('about:open-diagrams', this.openDiagramService, identity, true);
   }
 
   private _getFontAwesomeIconForSolution(service: ISolutionExplorerService, uri: string): string {

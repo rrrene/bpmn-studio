@@ -55,6 +55,7 @@ export class BpmnIo {
   public minPropertyPanelWidth: number = 200;
   public diagramIsInvalid: boolean = false;
   public diagramHasChanged: boolean = false;
+  public saveStateForNewUri: boolean = false;
 
   private _bpmnLintButton: HTMLElement;
   private _linting: ILinting;
@@ -404,7 +405,7 @@ export class BpmnIo {
     this._tempProcess = undefined;
   }
 
-  public async xmlChanged(newValue: string, oldValue: string): Promise<void> {
+  public async xmlChanged(newValue?: string, oldValue?: string): Promise<void> {
     if (this.diagramHasChanged) {
       this.savedXml = newValue;
 
@@ -438,7 +439,13 @@ export class BpmnIo {
 
     const previousDiagramExists: boolean = previousUri !== undefined;
     if (!this.solutionIsRemote && previousDiagramExists) {
-      await this._saveDiagramState(previousUri);
+
+      if (this.saveStateForNewUri) {
+        await this._saveDiagramState(newUri);
+        this.saveStateForNewUri = false;
+      } else {
+        await this._saveDiagramState(previousUri);
+      }
     }
 
     this.solutionIsRemote = this.diagramUri.startsWith('http');
@@ -468,6 +475,8 @@ export class BpmnIo {
           this.modeler.get('selection').select(modelerShape);
         });
       }
+
+      this.xmlChanged();
 
       setTimeout(() => {
         this.viewer.attachTo(this.canvasModel);
@@ -815,6 +824,7 @@ export class BpmnIo {
     // out, if the meta key instead of the control key is pressed.
     const currentPlatformIsMac: boolean = this._checkIfCurrentPlatformIsMac();
     const metaKeyIsPressed: boolean = currentPlatformIsMac ? event.metaKey : event.ctrlKey;
+    const shiftKeyIsPressed: boolean = event.shiftKey;
 
     /*
     * If both keys (meta and s) are pressed, save the diagram.
@@ -823,16 +833,21 @@ export class BpmnIo {
     * @see environment.events.diagramDetail.saveDiagram
     */
     const sKeyIsPressed: boolean = event.key === 's';
-    const userDoesNotWantToSave: boolean = !(metaKeyIsPressed && sKeyIsPressed);
+    const userWantsToSave: boolean = metaKeyIsPressed && sKeyIsPressed && !shiftKeyIsPressed;
+    const userWantsToSaveAs: boolean = metaKeyIsPressed && sKeyIsPressed && shiftKeyIsPressed;
 
-    if (userDoesNotWantToSave) {
+    if (userWantsToSave) {
+      event.preventDefault();
+
+      this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
       return;
     }
 
-    // Prevent the browser from handling the default action for CTRL + s.
-    event.preventDefault();
-
-    this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
+    if (userWantsToSaveAs) {
+      event.preventDefault();
+      this._eventAggregator.publish(environment.events.diagramDetail.saveDiagramAs);
+      return;
+    }
   }
 
   /**

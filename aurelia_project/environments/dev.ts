@@ -65,6 +65,7 @@ export default {
       onDiagramDeployed: 'diagramdetail:diagram:ondeployed',
       printDiagram: 'diagramdetail:diagram:print',
       saveDiagram: 'diagramdetail:diagram:save',
+      saveDiagramAs: 'diagramdetail:diagram:save:as',
       exportDiagramAs: 'diagramdetail:diagram:exportas',
       startProcess: 'diagramdetail:process:start',
       startProcessWithOptions: 'diagramdetail:process:startWithOptions',

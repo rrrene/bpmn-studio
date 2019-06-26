@@ -1,8 +1,12 @@
+import {inject} from 'aurelia-framework';
+
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 
 import {IDiagramValidationService, ISolutionService} from '../../contracts';
+import {OpenDiagramStateService} from './OpenDiagramStateService';
+import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
 
 /**
  * This service allows to keep all opened open diagrams inside a solution.
@@ -16,27 +20,27 @@ import {IDiagramValidationService, ISolutionService} from '../../contracts';
  * To remove a diagram from the solution, call use #closeDiagram().
  */
 
+@inject('DiagramValidationService', 'SolutionExplorerServiceFactory', 'SolutionService', 'OpenDiagramStateService')
 export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerService {
 
   private _validationService: IDiagramValidationService;
   private _solutionExplorerToOpenDiagrams: ISolutionExplorerService;
-  private _uriOfOpenDiagramService: string;
-  private _nameOfOpenDiagramService: string;
+  private _uriOfOpenDiagramService: string = 'about:open-diagrams';
+  private _nameOfOpenDiagramService: string = 'Open Diagrams';
   private _openedDiagrams: Array<IDiagram> = [];
   private _solutionService: ISolutionService;
+  private _openDiagramStateService: OpenDiagramStateService;
 
   constructor(
     validationService: IDiagramValidationService,
-    solutionExplorerToOpenDiagrams: ISolutionExplorerService,
-    uriOfOpenDiagramService: string,
-    nameOfOpenDiagramService: string,
+    serviceFactory: SolutionExplorerServiceFactory,
     solutionService: ISolutionService,
+    openDiagramStateService: OpenDiagramStateService,
   ) {
     this._validationService = validationService;
-    this._solutionExplorerToOpenDiagrams = solutionExplorerToOpenDiagrams;
-    this._uriOfOpenDiagramService = uriOfOpenDiagramService;
-    this._nameOfOpenDiagramService = nameOfOpenDiagramService;
+    this._setSolutionExplorer(serviceFactory);
     this._solutionService = solutionService;
+    this._openDiagramStateService = openDiagramStateService;
   }
 
   public getOpenedDiagrams(): Array<IDiagram> {
@@ -115,6 +119,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     const index: number = this._findOfDiagramWithURI(diagram.uri);
 
     this._openedDiagrams.splice(index, 1);
+    this._openDiagramStateService.deleteDiagramState(diagram.uri);
 
     return Promise.resolve();
   }
@@ -140,10 +145,9 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     throw new Error('Method not supported.');
   }
 
-  public saveDiagram(diagram: IDiagram): Promise<void> {
-    this._solutionService.addOpenDiagram(diagram);
+  public saveDiagram(diagram: IDiagram, pathspec?: string): Promise<void> {
 
-    return this._solutionExplorerToOpenDiagrams.saveDiagram(diagram);
+    return this._solutionExplorerToOpenDiagrams.saveDiagram(diagram, pathspec);
   }
 
   public async openDiagramFromSolution(diagramUri: string, identity: IIdentity): Promise<IDiagram> {
@@ -161,5 +165,9 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     });
 
     return index;
+  }
+
+  private async _setSolutionExplorer(serviceFactory: SolutionExplorerServiceFactory): Promise<void> {
+    this._solutionExplorerToOpenDiagrams = await serviceFactory.newFileSystemSolutionExplorer();
   }
 }
