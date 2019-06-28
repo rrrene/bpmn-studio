@@ -150,11 +150,12 @@ export class SolutionExplorerSolution {
           this.updateSolution();
         });
 
+      this._subscriptions.push(updateSubscription);
+
       this._ipcRenderer.on('menubar__start_close_diagram', this._closeDiagramEventFunction);
       this._ipcRenderer.on('menubar__start_save_all_diagrams', this._saveAllDiagramsEventFunction);
     }
 
-      this._subscriptions.push(updateSubscription);
     if (this.solutionIsRemoteSolution) {
       this._ipcRenderer.on('menubar__start_close_diagram', this._closeDiagramEventFunction);
     }
