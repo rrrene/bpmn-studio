@@ -1,6 +1,6 @@
 import {IShape} from '@process-engine/bpmn-elements_contracts';
 
-import {IDiagramState} from '../../contracts';
+import {IDiagramState, IDiagramStateList, IDiagramStateListEntry} from '../../contracts';
 
 export class OpenDiagramStateService {
 
@@ -22,6 +22,13 @@ export class OpenDiagramStateService {
     window.localStorage.setItem(key, value);
   }
 
+  public updateDiagramState(uri: string, diagramState: IDiagramState): void {
+    const key: string = this._getLocalStorageKeyByUri(uri);
+    const value: string = JSON.stringify(diagramState);
+
+    window.localStorage.setItem(key, value);
+  }
+
   public loadDiagramState(uri: string): IDiagramState | null {
     const key: string = this._getLocalStorageKeyByUri(uri);
 
@@ -37,10 +44,42 @@ export class OpenDiagramStateService {
     return diagramState;
   }
 
+  public loadDiagramStateForAllDiagrams(): IDiagramStateList {
+    const diagramStateList: IDiagramStateList = [];
+
+    const uriForAllExistingDiagramStates: Array<string> = this._getUrisForAllDiagramStates();
+
+    for (const uri of uriForAllExistingDiagramStates) {
+      const diagramState: IDiagramState = this.loadDiagramState(uri);
+
+      const diagramStateListEntry: IDiagramStateListEntry = {
+        uri: uri,
+        diagramState: diagramState,
+      };
+
+      diagramStateList.push(diagramStateListEntry);
+    }
+
+    return diagramStateList;
+  }
+
   public deleteDiagramState(uri: string): void {
     const key: string = this._getLocalStorageKeyByUri(uri);
 
     window.localStorage.removeItem(key);
+  }
+
+  private _getUrisForAllDiagramStates(): Array<string> {
+    const allLocalStorageKeys: Array<string> = Object.keys(localStorage);
+    const localStorageKeysForAllDiagramStates: Array<string> = allLocalStorageKeys.filter((key: string) => {
+      return key.startsWith(this._getLocalStorageKeyByUri(''));
+    });
+
+    const urisForAllDiagramStates: Array<string> = localStorageKeysForAllDiagramStates.map((localStorageKey: string) => {
+      return localStorageKey.replace(this._getLocalStorageKeyByUri(''), '');
+    });
+
+    return urisForAllDiagramStates;
   }
 
   private _getLocalStorageKeyByUri(uri: string): string {

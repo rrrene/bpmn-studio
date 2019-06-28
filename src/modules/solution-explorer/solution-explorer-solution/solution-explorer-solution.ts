@@ -23,6 +23,7 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 import {
   IDiagramCreationService,
   IDiagramState,
+  IDiagramStateList,
   ISolutionEntry,
   ISolutionService,
   NotificationType,
@@ -148,16 +149,8 @@ export class SolutionExplorerSolution {
           this.updateSolution();
         });
 
-      const closeDiagramFunction: Function = (): void => {
-        const noDiagramActive: boolean = this.activeDiagram === undefined;
-        if (noDiagramActive) {
-          this._ipcRenderer.send('close_bpmn-studio');
-        }
-
-        this.closeDiagram(this.activeDiagram);
-      };
-
-      this._ipcRenderer.on('menubar__start_close_diagram', closeDiagramFunction);
+      this._ipcRenderer.on('menubar__start_close_diagram', this._closeDiagramEventFunction);
+      this._ipcRenderer.on('menubar__start_save_all_diagrams', this._saveAllDiagramsEventFunction);
 
       this._subscriptions.push(updateSubscription);
     }
@@ -213,7 +206,8 @@ export class SolutionExplorerSolution {
     }
 
     if (this.solutionIsOpenDiagrams) {
-      this._ipcRenderer.removeEventListener('menubar__start_close_diagram');
+      this._ipcRenderer.removeListener('menubar__start_close_diagram', this._closeDiagramEventFunction);
+      this._ipcRenderer.removeListener('menubar__start_save_all_diagrams', this._saveAllDiagramsEventFunction);
     }
   }
 
@@ -570,6 +564,19 @@ export class SolutionExplorerSolution {
     this._navigateToDetailView(diagram);
   }
 
+  private _closeDiagramEventFunction: Function = (): void => {
+    const noDiagramActive: boolean = this.activeDiagram === undefined;
+    if (noDiagramActive) {
+      this._ipcRenderer.send('close_bpmn-studio');
+    }
+
+    this.closeDiagram(this.activeDiagram);
+  }
+
+  private _saveAllDiagramsEventFunction: Function = (): void => {
+    this._saveAllUnsavedDiagrams();
+  }
+
   private _startPolling(): void {
     if (this.solutionIsOpenDiagrams) {
       return;
@@ -643,6 +650,32 @@ export class SolutionExplorerSolution {
     };
 
     return sorter;
+  }
+
+  private async _saveAllUnsavedDiagrams(): Promise<void> {
+    const diagramStateList: IDiagramStateList = this._openDiagramStateService.loadDiagramStateForAllDiagrams();
+
+    for (const diagramStateListEntry of diagramStateList) {
+      const isActiveDiagram: boolean = this.activeDiagram !== undefined && this.activeDiagram.uri === diagramStateListEntry.uri;
+      if (isActiveDiagram) {
+        this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
+
+        continue;
+      }
+
+      const diagramToSave: IDiagram = this.openedDiagrams.find((diagram: IDiagram) => {
+        return diagram.uri === diagramStateListEntry.uri;
+      });
+
+      diagramToSave.xml = diagramStateListEntry.diagramState.data.xml;
+
+      await this.openDiagramService.saveDiagram(diagramToSave);
+      const diagramState: IDiagramState = diagramStateListEntry.diagramState;
+
+      diagramState.metaData.isChanged = false;
+
+      this._openDiagramStateService.updateDiagramState(diagramStateListEntry.uri, diagramState);
+    }
   }
 
   private _refreshDisplayedDiagrams(): void {
