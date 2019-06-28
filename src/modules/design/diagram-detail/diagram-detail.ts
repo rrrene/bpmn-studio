@@ -583,6 +583,11 @@ export class DiagramDetail {
   }
 
   private _electronOnSaveDiagramAs = async(_?: Event): Promise<void> => {
+    const isRemoteSolution: boolean = this.activeDiagramUri.startsWith('http');
+    if (isRemoteSolution) {
+      return;
+    }
+
     this._ipcRenderer.send('open_save-diagram-as_dialog');
 
     this._ipcRenderer.once('save_diagram_as', async(event: Event, savePath: string) => {
