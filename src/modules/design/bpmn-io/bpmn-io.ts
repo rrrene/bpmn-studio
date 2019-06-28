@@ -416,7 +416,7 @@ export class BpmnIo {
       if (this._diagramHasState(this.diagramUri)) {
         this._recoverDiagramState();
       } else {
-        this.modeler.importXML(this.xml);
+        await this._importXmlIntoModeler(this.xml);
       }
 
       const diagramState: IDiagramState = this._loadDiagramState(this.diagramUri);
