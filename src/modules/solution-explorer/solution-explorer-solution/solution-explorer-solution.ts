@@ -565,11 +565,6 @@ export class SolutionExplorerSolution {
   }
 
   private _closeDiagramEventFunction: Function = (): void => {
-    const noDiagramActive: boolean = this.activeDiagram === undefined;
-    if (noDiagramActive) {
-      this._ipcRenderer.send('close_bpmn-studio');
-    }
-
     this.closeDiagram(this.activeDiagram);
   }
 
