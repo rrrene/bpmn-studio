@@ -95,6 +95,7 @@ export class SolutionExplorerSolution {
   @bindable public solutionService: ISolutionExplorerService;
   @bindable public openDiagramService: OpenDiagramsSolutionExplorerService;
   @bindable public solutionIsOpenDiagrams: boolean;
+  @bindable public solutionIsRemoteSolution: boolean;
   @bindable public displayedSolutionEntry: ISolutionEntry;
   @bindable public fontAwesomeIconClass: string;
   public createNewDiagramInput: HTMLInputElement;
@@ -151,8 +152,11 @@ export class SolutionExplorerSolution {
 
       this._ipcRenderer.on('menubar__start_close_diagram', this._closeDiagramEventFunction);
       this._ipcRenderer.on('menubar__start_save_all_diagrams', this._saveAllDiagramsEventFunction);
+    }
 
       this._subscriptions.push(updateSubscription);
+    if (this.solutionIsRemoteSolution) {
+      this._ipcRenderer.on('menubar__start_close_diagram', this._closeDiagramEventFunction);
     }
 
     if (this.displayedSolutionEntry.uri.startsWith('http')) {
@@ -570,7 +574,11 @@ export class SolutionExplorerSolution {
       return;
     }
 
-    this.closeDiagram(this.activeDiagram);
+    if (this.solutionIsRemoteSolution) {
+      this._router.navigateToRoute('start-page');
+    } else {
+      this.closeDiagram(this.activeDiagram);
+    }
   }
 
   private _saveAllDiagramsEventFunction: Function = (): void => {
