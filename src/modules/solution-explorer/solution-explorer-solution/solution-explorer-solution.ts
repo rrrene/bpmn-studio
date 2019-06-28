@@ -534,14 +534,16 @@ export class SolutionExplorerSolution {
   }
 
   public async openDiagram(diagram: IDiagram): Promise<void> {
-    const diagramIsNotYetOpened: boolean = !this.openDiagramService.getOpenedDiagrams().some((openedDiagram: IDiagram): boolean => {
-      return openedDiagram.uri === diagram.uri;
-    });
-
     const diagramIsFromLocalSolution: boolean = !this._isUriFromRemoteSolution(diagram.uri);
 
-    if (diagramIsNotYetOpened && diagramIsFromLocalSolution) {
-      await this.openDiagramService.openDiagramFromSolution(diagram.uri, this._createIdentityForSolutionExplorer());
+    if (diagramIsFromLocalSolution) {
+      const diagramIsNotYetOpened: boolean = !this.openDiagramService.getOpenedDiagrams().some((openedDiagram: IDiagram): boolean => {
+        return openedDiagram.uri === diagram.uri;
+      });
+
+      if (diagramIsNotYetOpened) {
+        await this.openDiagramService.openDiagramFromSolution(diagram.uri, this._createIdentityForSolutionExplorer());
+      }
     }
 
     this._navigateToDetailView(diagram);
