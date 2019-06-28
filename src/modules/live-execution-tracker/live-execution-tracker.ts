@@ -177,15 +177,18 @@ export class LiveExecutionTracker {
     const xmlFromModeler: string = await this._liveExecutionTrackerService.exportXmlFromDiagramModeler();
     await this._importXmlIntoDiagramViewer(xmlFromModeler);
 
-    await this._handleElementColorization();
-
     // The version must be later than 8.1.0
     const processEngineSupportsEvents: boolean = this._checkIfProcessEngineSupportsEvents();
-
     if (processEngineSupportsEvents) {
       // Create Backend EventListeners
       this._eventListenerSubscriptions = await this._createBackendEventListeners();
-    } else {
+    }
+
+    await this._handleElementColorization();
+
+    // Use polling if events are not supported
+    const processsEngineDoesNotSupportEvents: boolean = !processEngineSupportsEvents;
+    if (processsEngineDoesNotSupportEvents) {
       this._startPolling();
     }
 
