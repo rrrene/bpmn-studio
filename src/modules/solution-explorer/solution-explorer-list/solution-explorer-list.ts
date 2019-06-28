@@ -426,6 +426,7 @@ export class SolutionExplorerList {
     const canCloseSolution: boolean = this._canCloseSolution(service, uri);
     const canCreateNewDiagramsInSolution: boolean = this._canCreateNewDiagramsInSolution(service, uri);
     const authority: string = await this._getAuthorityForSolution(uri);
+    const hidden: boolean = this._getHiddenStateForSolutionUri(uri);
 
     const authorityIsUndefined: boolean = authority === undefined;
 
@@ -452,6 +453,7 @@ export class SolutionExplorerList {
       isLoggedIn,
       userName,
       processEngineVersion,
+      hidden,
     };
 
     this._solutionService.addSolutionEntry(entry);
@@ -461,6 +463,17 @@ export class SolutionExplorerList {
     } else {
       this._openedSolutions.push(entry);
     }
+  }
+
+  private _getHiddenStateForSolutionUri(uri: string): boolean {
+    const persistedSolutions: Array<ISolutionEntry> = this._solutionService.getPersistedEntries();
+    const solutionToLoad: ISolutionEntry = persistedSolutions.find((solution: ISolutionEntry) => solution.uri === uri);
+
+    if (!solutionToLoad) {
+      return false;
+    }
+
+    return solutionToLoad.hidden ? solutionToLoad.hidden : false;
   }
 
   private _createIdentityForSolutionExplorer(): IIdentity {
