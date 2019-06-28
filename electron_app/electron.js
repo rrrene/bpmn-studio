@@ -298,6 +298,10 @@ Main._createMainWindow = function () {
   // history.
   Main._window.loadURL('/');
 
+  electron.ipcMain.on('close_bpmn-studio', (event) => {
+    Main._window.close();
+  });
+
   Main._window.on('closed', (event) => {
     Main._window = null;
   });

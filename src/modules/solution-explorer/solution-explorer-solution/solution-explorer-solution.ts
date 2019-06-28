@@ -106,6 +106,7 @@ export class SolutionExplorerSolution {
   private _originalIconClass: string;
   private _globalSolutionService: ISolutionService;
   private _diagramInContextMenu: IDiagram;
+  private _ipcRenderer: any;
 
   private _sortedDiagramsOfSolutions: Array<IDiagram> = [];
 
@@ -130,6 +131,8 @@ export class SolutionExplorerSolution {
   public async attached(): Promise<void> {
     this._isAttached = true;
 
+    this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+
     this._originalIconClass = this.fontAwesomeIconClass;
     this._updateSolutionExplorer();
 
@@ -144,6 +147,17 @@ export class SolutionExplorerSolution {
         this._eventAggregator.subscribe(environment.events.solutionExplorer.updateOpenDiagrams, (): void => {
           this.updateSolution();
         });
+
+      const closeDiagramFunction: Function = (): void => {
+        const noDiagramActive: boolean = this.activeDiagram === undefined;
+        if (noDiagramActive) {
+          this._ipcRenderer.send('close_bpmn-studio');
+        }
+
+        this.closeDiagram(this.activeDiagram);
+      };
+
+      this._ipcRenderer.on('menubar__start_close_diagram', closeDiagramFunction);
 
       this._subscriptions.push(updateSubscription);
     }
@@ -196,6 +210,10 @@ export class SolutionExplorerSolution {
 
     if (this._isCurrentlyRenamingDiagram) {
       this._resetDiagramRenaming();
+    }
+
+    if (this.solutionIsOpenDiagrams) {
+      this._ipcRenderer.removeEventListener('menubar__start_close_diagram');
     }
   }
 
@@ -271,8 +289,11 @@ export class SolutionExplorerSolution {
   /*
    * Used when this is a open diagram solution explorer service.
    */
-  public async closeDiagram(diagram: IDiagram, event: Event): Promise<void> {
-    event.stopPropagation();
+  public async closeDiagram(diagram: IDiagram, event?: Event): Promise<void> {
+    const eventSet: boolean = event !== undefined;
+    if (eventSet) {
+      event.stopPropagation();
+    }
 
     const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(diagram.uri);
     const diagramHasUnsavedChanges: boolean = diagramState !== null && diagramState.metaData.isChanged;
