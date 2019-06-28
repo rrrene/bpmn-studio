@@ -82,7 +82,8 @@
           open-diagram-service.bind="openDiagramService"
           solution-is-open-diagrams.bind="solutionEntry.isOpenDiagramService"
           view-model.ref="solutionEntryViewModels[solutionEntry.uri]"
-          font-awesome-icon-class.two-way="solutionEntry.fontAwesomeIconClass">
+          font-awesome-icon-class.two-way="solutionEntry.fontAwesomeIconClass"
+          style.bind="solutionEntry.hidden ? 'display: none;' : 'display: inherit;'">
         </solution-explorer-solution>
       </div>
     </div>
