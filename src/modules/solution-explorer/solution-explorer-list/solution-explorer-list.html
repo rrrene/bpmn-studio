@@ -23,6 +23,15 @@
           <div class="solution-entry__actions">
 
             <button class="button"
+              if.bind="solutionEntry.uri !== 'about:open-diagrams'"
+              click.delegate="toggleSolution(solutionEntry)"
+              title="spoiler">
+
+              <i if.bind="solutionEntry.hidden"class="fas fa-expand-arrows-alt"></i>
+              <i else class="fas fa-compress-arrows-alt"></i>
+            </button>
+
+            <button class="button"
               if.bind="solutionIsInternalSolution(solutionEntry)"
               click.delegate="openSettings()"
               title="Open settings of the internal ProcessEngine">
