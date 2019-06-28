@@ -88,6 +88,11 @@ export class SolutionExplorerList {
     await Promise.all(refreshPromises);
   }
 
+  public toggleSolution(solutionEntry: ISolutionEntry): void {
+    solutionEntry.hidden = !solutionEntry.hidden;
+    this._solutionService.persistSolutionsInLocalStorage();
+  }
+
   public solutionIsInternalSolution(solution: ISolutionEntry): boolean {
     const solutionIsInternalSolution: boolean = solution.uri === this.internalSolutionUri;
 
