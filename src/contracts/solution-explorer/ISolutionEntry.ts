@@ -19,4 +19,5 @@ export interface ISolutionEntry {
   isLoggedIn: boolean;
   userName?: string;
   processEngineVersion?: string;
+  hidden: boolean;
 }
