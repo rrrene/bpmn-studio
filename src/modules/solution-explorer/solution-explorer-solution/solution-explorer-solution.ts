@@ -565,6 +565,11 @@ export class SolutionExplorerSolution {
   }
 
   private _closeDiagramEventFunction: Function = (): void => {
+    const noDiagramIsActive: boolean = this.activeDiagram === undefined;
+    if (noDiagramIsActive) {
+      return;
+    }
+
     this.closeDiagram(this.activeDiagram);
   }
 
