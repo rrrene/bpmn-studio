@@ -298,6 +298,27 @@ export class LiveExecutionTracker {
     return processEngineSupportsEvents;
   }
 
+  private _checkIfProcessEngineSupportsGettingFlowNodeInstances(): boolean {
+
+    const processEngineVersion: string = this.activeSolutionEntry.processEngineVersion;
+
+    const noProcessEngineVersionSet: boolean = processEngineVersion === undefined;
+    if (noProcessEngineVersionSet) {
+      return false;
+    }
+
+    const regexResult: RegExpExecArray = versionRegex.exec(processEngineVersion);
+    const majorVersion: number = parseInt(regexResult[1]);
+    const minorVersion: number = parseInt(regexResult[2]);
+
+    // The version must be 8.3.0 or later
+    const processEngineSupportsEvents: boolean = majorVersion > 8
+                                              || (majorVersion === 8
+                                               && minorVersion >= 3);
+
+    return processEngineSupportsEvents;
+  }
+
   private async _getParentProcessModelId(): Promise<string> {
     const parentProcessInstanceIdNotFound: boolean = this._parentProcessInstanceId === undefined;
     if (parentProcessInstanceIdNotFound) {
@@ -689,7 +710,8 @@ export class LiveExecutionTracker {
 
     const colorizedXml: string | undefined = await (async(): Promise<string | undefined> => {
       try {
-        return await this._liveExecutionTrackerService.getColorizedDiagram(this.processInstanceId);
+        return await this._liveExecutionTrackerService.getColorizedDiagram(this.processInstanceId,
+                                                                           this._checkIfProcessEngineSupportsGettingFlowNodeInstances());
       } catch (error) {
         const message: string = `Could not colorize XML: ${error}`;
 

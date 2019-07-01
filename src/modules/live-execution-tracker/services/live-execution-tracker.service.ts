@@ -394,14 +394,17 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     });
   }
 
-  public async getColorizedDiagram(processInstanceId: string): Promise<string> {
+  public async getColorizedDiagram(processInstanceId: string, processEngineSupportsGettingFlowNodeInstances?: boolean): Promise<string> {
     const elementsWithActiveToken: Array<IShape> = await this.getElementsWithActiveToken(processInstanceId);
     const elementsWithTokenHistory: Array<IShape> = await this.getElementsWithTokenHistory(processInstanceId);
-    const elementsWithError: Array<IShape> = await this.getElementsWithError(processInstanceId);
 
     this._colorizeElements(elementsWithTokenHistory, defaultBpmnColors.green);
     this._colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
-    this._colorizeElements(elementsWithError, defaultBpmnColors.red);
+
+    if (processEngineSupportsGettingFlowNodeInstances) {
+      const elementsWithError: Array<IShape> = await this.getElementsWithError(processInstanceId);
+      this._colorizeElements(elementsWithError, defaultBpmnColors.red);
+    }
 
     const colorizedXml: string = await this.exportXmlFromDiagramModeler();
 
