@@ -8,7 +8,7 @@
         <tr>
           <th>Condition</th>
           <td>
-            <input type="text" class="props-input" value.bind="condition" disabled.bind="!isEditable">
+            <input type="text" class="props-input" value.bind="condition" change.delegate="updateCondition()" disabled.bind="!isEditable">
           </td>
         </tr>
       </table>
