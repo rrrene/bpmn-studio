@@ -1,6 +1,6 @@
 import {inject} from 'aurelia-dependency-injection';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import * as toastr from 'toastr';
+import toastr from 'toastr';
 import {INotification, NotificationType} from '../../contracts/index';
 
 @inject(EventAggregator)
