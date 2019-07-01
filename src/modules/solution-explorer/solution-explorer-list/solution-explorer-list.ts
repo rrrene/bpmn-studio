@@ -89,6 +89,10 @@ export class SolutionExplorerList {
   }
 
   public toggleSolution(solutionEntry: ISolutionEntry): void {
+    if (solutionEntry.isOpenDiagramService) {
+      return;
+    }
+
     solutionEntry.hidden = !solutionEntry.hidden;
     this._solutionService.persistSolutionsInLocalStorage();
   }
@@ -252,7 +256,14 @@ export class SolutionExplorerList {
    * Starts the creation process of a new diagram inside the given solution
    * entry.
    */
-  public async createDiagram(uri: string): Promise<void> {
+  public async createDiagram(solutionEntryOrUri: any): Promise<void> {
+    const hiddenPropertyExists: boolean = solutionEntryOrUri.hidden !== undefined;
+    if (hiddenPropertyExists && solutionEntryOrUri.hidden) {
+      this.toggleSolution(solutionEntryOrUri);
+    }
+
+    const uri: string = solutionEntryOrUri.uri ? solutionEntryOrUri.uri : solutionEntryOrUri;
+
     let viewModelOfEntry: SolutionExplorerSolution = this.solutionEntryViewModels[uri];
 
     const solutionIsNotOpened: boolean = viewModelOfEntry === undefined || viewModelOfEntry === null;
