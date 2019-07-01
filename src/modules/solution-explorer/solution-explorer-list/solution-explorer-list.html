@@ -8,19 +8,18 @@
       <div repeat.for="solutionEntry of openedSolutions" class="solution-entry">
 
         <div class="solution-entry__header" title.bind="solutionEntry.processEngineVersion ? `${solutionEntry.uri} | Version: ${solutionEntry.processEngineVersion}` : solutionEntry.uri">
+             
+        <div class="solution-entry__collapse-header" click.delegate="toggleSolution(solutionEntry)">
 
-          <button class="button"
-            if.bind="solutionEntry.uri !== 'about:open-diagrams'"
-            click.delegate="toggleSolution(solutionEntry)"
-            title="spoiler">
+          <div class="solution-entry__left-icon_and_name">
 
-            <i if.bind="solutionEntry.hidden" class="fas fa-angle-right"></i>
-            <i else class="fas fa-angle-down"></i>
-          </button>
-
-          <i class="fa ${solutionEntry.fontAwesomeIconClass} solution-entry__solution-icon" title.bind="solutionEntry.fontAwesomeIconClass === 'fa-bolt' ? 'ProcessEngine Disconnected!' : ''"></i>
-
-          <span class="solution-entry__solution-name">${getSolutionName(solutionEntry.uri)}</span>
+            <i if.bind="solutionEntry.hidden && solutionEntry.uri !== 'about:open-diagrams'" class="fas fa-angle-right"></i>
+            <i if.bind="!solutionEntry.hidden && solutionEntry.uri !== 'about:open-diagrams'" class="fas fa-angle-down"></i>
+  
+            <i class="fa ${solutionEntry.fontAwesomeIconClass} solution-entry__solution-icon" title.bind="solutionEntry.fontAwesomeIconClass === 'fa-bolt' ? 'ProcessEngine Disconnected!' : ''"></i>
+    
+            <span class="solution-entry__solution-name">${getSolutionName(solutionEntry.uri)}</span>
+          </div>
           <div class="solution-entry__solution-path">
             <span
               if.bind="!solutionEntryIsRemote(solutionEntry) && getSolutionName(solutionEntry.uri) !== solutionEntry.uri && solutionEntry.uri !== 'about:open-diagrams'"
@@ -28,8 +27,10 @@
               ${solutionEntry.uri}
             </span>
           </div>
+        </div>
 
-          <div class="solution-entry__actions">
+
+          <div class.bind="solutionEntry.uri.startsWith('http') ? 'solution-entry__actions_remote-solution' : 'solution-entry__actions'">
 
             <button class="button"
               if.bind="solutionIsInternalSolution(solutionEntry)"
@@ -56,23 +57,24 @@
 
               <i class="fa fa-times"></i>
             </button>
+
+            <button class="button login-logout-button"
+              if.bind="solutionEntry.uri.startsWith('http') && !solutionEntry.isLoggedIn"
+              click.delegate="login(solutionEntry)"
+              title="Login to remote solution">
+
+              <i class="fa fa-lock-open"></i>
+            </button>
+
+            <button class="button login-logout-button"
+              if.bind="solutionEntry.isLoggedIn"
+              click.delegate="logout(solutionEntry)"
+              title.bind="`Logout ${solutionEntry.userName}`">
+
+              <i class="fa fa-lock"></i>
+            </button>
           </div>
 
-          <button class="button login-logout-button"
-            if.bind="solutionEntry.uri.startsWith('http') && !solutionEntry.isLoggedIn"
-            click.delegate="login(solutionEntry)"
-            title="Login to remote solution">
-
-            <i class="fa fa-lock-open"></i>
-          </button>
-
-          <button class="button login-logout-button"
-            if.bind="solutionEntry.isLoggedIn"
-            click.delegate="logout(solutionEntry)"
-            title.bind="`Logout ${solutionEntry.userName}`">
-
-            <i class="fa fa-lock"></i>
-          </button>
 
         </div>
 

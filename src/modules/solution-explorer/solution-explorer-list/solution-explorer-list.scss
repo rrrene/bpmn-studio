@@ -52,10 +52,10 @@
 }
 
 .solution-entry__solution-path {
-  flex: 1;
   overflow: hidden;
   margin-left: 10px;
   margin-top: 2px;
+  padding-left: 5px;
   font-size: 12px;
   color: #ccc;
   text-overflow: ellipsis;
@@ -63,6 +63,10 @@
 
 .solution-entry__actions {
   display: none;
+}
+
+.solution-entry__actions_remote-solution {
+  display: none;  
 }
 
 .login-logout-button {
@@ -75,10 +79,26 @@
   .solution-entry__actions {
     display: flex;
   }
+
+  .solution-entry__actions_remote-solution {
+    display: flex;
+    position: absolute;
+    right: 5px;
+  }
 }
 
 .solution-entry:hover .solution-entry__actions {
   display: flex;
+}
+
+.solution-entry:hover .solution-entry__actions_remote-solution {
+  display: flex;
+  position: absolute;
+  right: 5px;
+}
+
+.solution-entry__left-icon_and_name {
+  float: left;
 }
 
 .solution-entry__actions button {
