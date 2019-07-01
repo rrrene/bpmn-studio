@@ -800,9 +800,15 @@ export class SolutionExplorerSolution {
       return;
     }
 
+    await this._openDiagramAndUpdateSolution(emptyDiagram);
+  }
+
+  private async _openDiagramAndUpdateSolution(createdDiagram: IDiagram): Promise<void> {
+    await this.openDiagramService.openDiagramFromSolution(createdDiagram.uri, this._createIdentityForSolutionExplorer());
+
     await this.updateSolution();
     this._resetDiagramCreation();
-    this._navigateToDetailView(emptyDiagram);
+    this._navigateToDetailView(createdDiagram);
   }
 
   /**
@@ -822,9 +828,7 @@ export class SolutionExplorerSolution {
         return;
       }
 
-      await this.updateSolution();
-      this._resetDiagramCreation();
-      this._navigateToDetailView(emptyDiagram);
+      await this._openDiagramAndUpdateSolution(emptyDiagram);
 
     } else if (pressedKey === ESCAPE_KEY) {
       this._resetDiagramCreation();

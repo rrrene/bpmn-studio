@@ -33,7 +33,7 @@ export interface ILiveExecutionTrackerService {
   importXmlIntoDiagramModeler(xml: string): Promise<void>;
   exportXmlFromDiagramModeler(): Promise<string>;
   clearDiagramColors(): void;
-  getColorizedDiagram(processInstanceId: string): Promise<string>;
+  getColorizedDiagram(processInstanceId: string, processEngineSupportsGettingFlowNodeInstances?: boolean): Promise<string>;
 
   isProcessInstanceActive(processInstanceId: string): Promise<boolean>;
 
