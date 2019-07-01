@@ -26,11 +26,11 @@ export class StartPage {
     this._eventAggregator.publish(environment.events.startPage.openLocalSolution);
   }
 
-  public openSingleDiagram(): void {
-    this._eventAggregator.publish(environment.events.startPage.openSingleDiagram);
+  public openDiagram(): void {
+    this._eventAggregator.publish(environment.events.startPage.openDiagram);
   }
 
-  public createNewSingleDiagram(): void {
-    this._eventAggregator.publish(environment.events.startPage.createSingleDiagram);
+  public createNewDiagram(): void {
+    this._eventAggregator.publish(environment.events.startPage.createDiagram);
   }
 }

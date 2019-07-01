@@ -6,7 +6,7 @@
   user-select: none;
 }
 
-.bpmn-studio-navbar--macos {
+.bpmn-studio-navbar--left-margin {
   -webkit-app-region: drag;
 }
 
@@ -16,7 +16,7 @@ button {
   color: inherit;
 }
 
-.bpmn-studio-navbar--macos .menu-bar__menu--left::before {
+.bpmn-studio-navbar--left-margin .menu-bar__menu--left::before {
   padding-left: 80px;
   content: "";
 }
@@ -74,6 +74,7 @@ button {
   cursor: default;
   text-decoration: inherit;
   -webkit-user-drag: none;
+  color: inherit;
 }
 
 .action-button {

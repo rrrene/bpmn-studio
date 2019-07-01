@@ -33,9 +33,9 @@ export interface ILiveExecutionTrackerService {
   importXmlIntoDiagramModeler(xml: string): Promise<void>;
   exportXmlFromDiagramModeler(): Promise<string>;
   clearDiagramColors(): void;
-  getColorizedDiagram(processInstanceId: string): Promise<string>;
+  getColorizedDiagram(processInstanceId: string, processEngineSupportsGettingFlowNodeInstances?: boolean): Promise<string>;
 
-  isCorrelationOfProcessInstanceActive(processInstanceId: string): Promise<boolean>;
+  isProcessInstanceActive(processInstanceId: string): Promise<boolean>;
 
   createProcessEndedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
   createProcessTerminatedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;

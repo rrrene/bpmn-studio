@@ -122,16 +122,6 @@ export class LiveExecutionTracker {
   public async attached(): Promise<void> {
     this._attached = true;
 
-    // The version must be later than 8.1.0
-    const processEngineSupportsEvents: boolean = this._checkIfProcessEngineSupportsEvents();
-
-    if (processEngineSupportsEvents) {
-      // Create Backend EventListeners
-      this._eventListenerSubscriptions = await this._createBackendEventListeners();
-    } else {
-      this._startPolling();
-    }
-
     // Create Viewer
     this._diagramViewer = new bundle.viewer({
       additionalModules:
@@ -184,6 +174,16 @@ export class LiveExecutionTracker {
     await this._importXmlIntoDiagramViewer(xmlFromModeler);
 
     await this._handleElementColorization();
+
+    // The version must be later than 8.1.0
+    const processEngineSupportsEvents: boolean = this._checkIfProcessEngineSupportsEvents();
+
+    if (processEngineSupportsEvents) {
+      // Create Backend EventListeners
+      this._eventListenerSubscriptions = await this._createBackendEventListeners();
+    } else {
+      this._startPolling();
+    }
 
     // Add EventListener for Resizing
     this.tokenViewerResizeDiv.addEventListener('mousedown', (mouseDownEvent: Event) => {
@@ -290,10 +290,31 @@ export class LiveExecutionTracker {
     const majorVersion: number = parseInt(regexResult[1]);
     const minorVersion: number = parseInt(regexResult[2]);
 
-    // The version must be later than 8.1.0
+    // The version must be later than 8.3.0
     const processEngineSupportsEvents: boolean = majorVersion > 8
                                               || (majorVersion === 8
-                                               && minorVersion >= 2);
+                                               && minorVersion >= 4);
+
+    return processEngineSupportsEvents;
+  }
+
+  private _checkIfProcessEngineSupportsGettingFlowNodeInstances(): boolean {
+
+    const processEngineVersion: string = this.activeSolutionEntry.processEngineVersion;
+
+    const noProcessEngineVersionSet: boolean = processEngineVersion === undefined;
+    if (noProcessEngineVersionSet) {
+      return false;
+    }
+
+    const regexResult: RegExpExecArray = versionRegex.exec(processEngineVersion);
+    const majorVersion: number = parseInt(regexResult[1]);
+    const minorVersion: number = parseInt(regexResult[2]);
+
+    // The version must be 8.3.0 or later
+    const processEngineSupportsEvents: boolean = majorVersion > 8
+                                              || (majorVersion === 8
+                                               && minorVersion >= 3);
 
     return processEngineSupportsEvents;
   }
@@ -622,6 +643,7 @@ export class LiveExecutionTracker {
 
           return;
         }
+
         resolve();
       });
     });
@@ -688,7 +710,8 @@ export class LiveExecutionTracker {
 
     const colorizedXml: string | undefined = await (async(): Promise<string | undefined> => {
       try {
-        return await this._liveExecutionTrackerService.getColorizedDiagram(this.processInstanceId);
+        return await this._liveExecutionTrackerService.getColorizedDiagram(this.processInstanceId,
+                                                                           this._checkIfProcessEngineSupportsGettingFlowNodeInstances());
       } catch (error) {
         const message: string = `Could not colorize XML: ${error}`;
 
@@ -806,9 +829,9 @@ export class LiveExecutionTracker {
         return;
       }
 
-      const isCorrelationActive: Function = async(): Promise<boolean> => {
+      const isProcessInstanceActive: Function = async(): Promise<boolean> => {
         try {
-          return await this._liveExecutionTrackerService.isCorrelationOfProcessInstanceActive(this.processInstanceId);
+          return await this._liveExecutionTrackerService.isProcessInstanceActive(this.processInstanceId);
         } catch (error) {
           const connectionLost: boolean = error === RequestError.ConnectionLost;
           // Keep polling if connection is lost
@@ -826,9 +849,10 @@ export class LiveExecutionTracker {
 
       await this._handleElementColorization();
 
-      const correlationIsActive: boolean = await isCorrelationActive();
-      const correlationIsNotActive: boolean = correlationIsActive === false;
-      if (correlationIsNotActive) {
+      const processInstanceIsActive: boolean = await isProcessInstanceActive();
+
+      const processInstanceIsNotActive: boolean = processInstanceIsActive === false;
+      if (processInstanceIsNotActive) {
         this._sendProcessStoppedNotification();
 
         return;

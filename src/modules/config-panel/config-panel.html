@@ -20,7 +20,7 @@
         </div>
       </div>
     </div>
-    <button click.delegate="updateSettings()" disabled.bind="!uriIsValid" class="btn btn-success">Save</button>
-    <button click.delegate="cancelUpdate()" class="btn btn-danger">Cancel</button>
+    <button class="btn btn-default" click.delegate="cancelUpdate()">Cancel</button>
+    <button class="btn btn-primary" click.delegate="updateSettings()" disabled.bind="!uriIsValid">Save</button>
   </div>
 </template>

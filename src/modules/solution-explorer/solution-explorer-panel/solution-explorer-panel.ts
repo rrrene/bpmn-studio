@@ -36,7 +36,7 @@ export class SolutionExplorerPanel {
   // Fields below are bound from the html view.
   public solutionExplorerList: SolutionExplorerList;
   public solutionInput: HTMLInputElement;
-  public singleDiagramInput: HTMLInputElement;
+  public openDiagramInput: HTMLInputElement;
   public showOpenRemoteSolutionModal: boolean = false;
   public uriOfRemoteSolution: string;
   public solutionExplorerPanel: SolutionExplorerPanel = this;
@@ -91,12 +91,12 @@ export class SolutionExplorerPanel {
       }
     });
 
-    const persistedSingleDiagrams: Array<IDiagram> = this._solutionService.getSingleDiagrams();
-    persistedSingleDiagrams.forEach(async(diagram: IDiagram) => {
+    const persistedOpenDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();
+    persistedOpenDiagrams.forEach(async(diagram: IDiagram) => {
       try {
-        await this.solutionExplorerList.openSingleDiagram(diagram.uri);
-      } catch (error) {
-        this._solutionService.removeSingleDiagramByUri(diagram.uri);
+        await this.solutionExplorerList.openDiagram(diagram.uri);
+      } catch {
+        return;
       }
     });
 
@@ -116,10 +116,10 @@ export class SolutionExplorerPanel {
       this._eventAggregator.subscribe(environment.events.startPage.openLocalSolution, () => {
         this.openSolution();
       }),
-      this._eventAggregator.subscribe(environment.events.startPage.openSingleDiagram, () => {
+      this._eventAggregator.subscribe(environment.events.startPage.openDiagram, () => {
         this.openDiagram();
       }),
-      this._eventAggregator.subscribe(environment.events.startPage.createSingleDiagram, () => {
+      this._eventAggregator.subscribe(environment.events.startPage.createDiagram, () => {
         this._createNewDiagram();
       }),
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
@@ -180,28 +180,28 @@ export class SolutionExplorerPanel {
   }
 
   /**
-   * Handles the file input change event for the single file input.
+   * Handles the file input change event for the open file input.
    * @param event An event that holds the files that were "uploaded" by the user.
    * Currently there is no type for this kind of event.
    */
-  public async onSingleDiagramInputChange(event: IInputEvent): Promise<void> {
+  public async onOpenDiagramInputChange(event: IInputEvent): Promise<void> {
     const uri: string = event.target.files[0].path;
-    this.singleDiagramInput.value = '';
+    this.openDiagramInput.value = '';
 
-    return this._openSingleDiagramOrDisplayError(uri);
+    return this._openDiagramOrDisplayError(uri);
   }
 
   public async openDiagram(): Promise<void> {
     const canNotReadFromFileSystem: boolean = !this.canReadFromFileSystem();
     if (canNotReadFromFileSystem) {
-      this.singleDiagramInput.click();
+      this.openDiagramInput.click();
 
       return;
     }
 
-    this._ipcRenderer.send('open_single_diagram');
+    this._ipcRenderer.send('open_diagram');
 
-    this._ipcRenderer.once('import_opened_single_diagram', async(event: Event, openedFile: File) => {
+    this._ipcRenderer.once('import_opened_diagram', async(event: Event, openedFile: File) => {
       const noFileSelected: boolean = openedFile === null;
       if (noFileSelected) {
         return;
@@ -209,7 +209,7 @@ export class SolutionExplorerPanel {
 
       const filePath: string = openedFile[0];
 
-      await this._openSingleDiagramOrDisplayError(filePath);
+      await this._openDiagramOrDisplayError(filePath);
     });
   }
 
@@ -270,20 +270,20 @@ export class SolutionExplorerPanel {
     }
   }
 
-  private async _openSingleDiagramOrDisplayError(uri: string): Promise<void> {
+  private async _openDiagramOrDisplayError(uri: string): Promise<void> {
     try {
 
-      const openedDiagram: IDiagram = await this.solutionExplorerList.openSingleDiagram(uri);
-      const solution: ISolutionEntry = this.solutionExplorerList.getSingleDiagramSolutionEntry();
+      const openedDiagram: IDiagram = await this.solutionExplorerList.openDiagram(uri);
+      const solution: ISolutionEntry = this.solutionExplorerList.getOpenDiagramSolutionEntry();
 
-      this._solutionService.addSingleDiagram(openedDiagram);
+      this._solutionService.addOpenDiagram(openedDiagram);
 
       await this._navigateToDetailView(openedDiagram, solution);
 
     } catch (error) {
       // The diagram may already be opened.
-      const diagram: IDiagram | null = await this.solutionExplorerList.getOpenedSingleDiagramByURI(uri);
-      const solution: ISolutionEntry = this.solutionExplorerList.getSingleDiagramSolutionEntry();
+      const diagram: IDiagram | null = await this.solutionExplorerList.getOpenedDiagramByURI(uri);
+      const solution: ISolutionEntry = this.solutionExplorerList.getOpenDiagramSolutionEntry();
 
       const diagramWithURIIsAlreadyOpened: boolean = diagram !== null;
       if (diagramWithURIIsAlreadyOpened) {
@@ -296,7 +296,7 @@ export class SolutionExplorerPanel {
 
   private _electronFileOpeningHook = async(_: Event, pathToFile: string): Promise<void> => {
     const uri: string = pathToFile;
-    this._openSingleDiagramOrDisplayError(uri);
+    this._openDiagramOrDisplayError(uri);
   }
 
   private _electronOnMenuOpenDiagramHook = async(_: Event): Promise<void> => {
@@ -344,7 +344,7 @@ export class SolutionExplorerPanel {
     if (fileInfo.path) {
       // There was a file opened before BPMN-Studio was loaded, open it.
       const uri: string = fileInfo.path;
-      this._openSingleDiagramOrDisplayError(uri);
+      this._openDiagramOrDisplayError(uri);
     }
   }
 
@@ -370,7 +370,7 @@ export class SolutionExplorerPanel {
 
     const openingPromises: Array<Promise<void>> = urisToOpen
       .map((uri: string): Promise<void> => {
-        return this._openSingleDiagramOrDisplayError(uri);
+        return this._openDiagramOrDisplayError(uri);
       });
 
     await Promise.all(openingPromises);

@@ -22,6 +22,8 @@ export class BasicsSection implements ISection {
   public businessObjInPanel: IModdleElement;
   public elementDocumentation: string;
   public validationError: boolean = false;
+  public showModal: boolean = false;
+  public elementType: string;
 
   private _modeling: IModeling;
   private _modeler: IBpmnModeler;
@@ -110,6 +112,8 @@ export class BasicsSection implements ISection {
       return;
     }
 
+    this.elementType = this._humanizeElementType(this.businessObjInPanel.$type);
+
     const documentationExists: boolean = this.businessObjInPanel.documentation !== undefined
                                       && this.businessObjInPanel.documentation !== null
                                       && this.businessObjInPanel.documentation.length > 0;
@@ -119,6 +123,13 @@ export class BasicsSection implements ISection {
     } else {
       this.elementDocumentation = '';
     }
+  }
+
+  private _humanizeElementType(type: string): string {
+    const rawType: string = type.replace(/^bpmn:/, '');
+    const humanizedType: string = rawType.replace(/([a-z])([A-Z])/, '$1 $2');
+
+    return humanizedType;
   }
 
   private _validateFormId(event: ValidateEvent): void {

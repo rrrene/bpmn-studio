@@ -15,9 +15,9 @@ interface IClipboard {
 
 @inject('NotificationService', 'InspectCorrelationService')
 export class LogViewer {
-  @bindable() public log: Array<DataModels.Logging.LogEntry>;
-  @bindable() public correlation: DataModels.Correlations.Correlation;
-  @bindable() public activeSolutionEntry: ISolutionEntry;
+  @bindable public log: Array<DataModels.Logging.LogEntry>;
+  @bindable public processInstance: DataModels.Correlations.CorrelationProcessInstance;
+  @bindable public activeSolutionEntry: ISolutionEntry;
   public LogSortProperty: typeof LogSortProperty = LogSortProperty;
   public sortedLog: Array<DataModels.Logging.LogEntry>;
   public sortSettings: ILogSortSettings = {
@@ -33,9 +33,16 @@ export class LogViewer {
     this._inspectCorrelationService = inspectCorrelationService;
   }
 
-  public async correlationChanged(): Promise<void> {
+  public async processInstanceChanged(): Promise<void> {
     setTimeout(async() => {
-      this.log = await this._inspectCorrelationService.getLogsForCorrelation(this.correlation, this.activeSolutionEntry.identity);
+      this.log = await this._inspectCorrelationService.getLogsForProcessInstance(this.processInstance.processModelId,
+                                                                                 this.processInstance.processInstanceId,
+                                                                                 this.activeSolutionEntry.identity);
+
+      this.sortSettings = {
+        ascending: false,
+        sortProperty: undefined,
+      };
 
       this.sortList(LogSortProperty.Time);
     }, 0);
@@ -56,6 +63,7 @@ export class LogViewer {
                                 .day()
                                 .hours()
                                 .minutes()
+                                .seconds()
                                 .asFormattedDate();
 
     return dateString;
@@ -85,6 +93,20 @@ export class LogViewer {
   private _getSortedLogByProperty(property: LogSortProperty): Array<DataModels.Logging.LogEntry> {
     const sortedLog: Array<DataModels.Logging.LogEntry> =
       this.log.sort((firstEntry: DataModels.Logging.LogEntry, secondEntry: DataModels.Logging.LogEntry) => {
+
+        // FlowNodeId and FlowNodeInstanceId can be 'undefined', if the LogEntry is for a ProcessInstance.
+        // Using 'greaterThan' in conjunction with 'undefined' will always be "false", which will mess up the sorting.
+        // So these cases must be handled separately.
+        const firstFieldIsUndefined: boolean = !firstEntry[property];
+        if (firstFieldIsUndefined) {
+          return -1;
+        }
+
+        const secondFieldIsUndefined: boolean = !secondEntry[property];
+        if (secondFieldIsUndefined) {
+          return 1;
+        }
+
         const firstEntryIsBigger: boolean = firstEntry[property] > secondEntry[property];
         if (firstEntryIsBigger) {
           return 1;

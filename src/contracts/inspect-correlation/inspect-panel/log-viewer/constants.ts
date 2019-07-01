@@ -1,5 +1,7 @@
 export enum LogSortProperty {
-  Time = 'timestamp',
-  Message = 'message',
+  FlowNodeId = 'flowNodeId',
+  FlowNodeInstanceId = 'flowNodeInstanceId',
   LogLevel = 'logLevel',
+  Message = 'message',
+  Time = 'timestamp',
 }

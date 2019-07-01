@@ -25,6 +25,7 @@ export class TimerEventSection implements ISection {
   public timerElement: IModdleElement;
   public TimerType: typeof TimerType = TimerType;
   public timerType: TimerType;
+  public isTimerStartEvent: boolean = false;
 
   private _businessObjInPanel: ITimerEventElement;
   private _moddle: IBpmnModdle;
@@ -42,6 +43,8 @@ export class TimerEventSection implements ISection {
     this._linter = model.modeler.get('linting');
 
     this.timerElement = this._getTimerElement();
+
+    this.isTimerStartEvent = this._businessObjInPanel.$type === 'bpmn:StartEvent';
 
     this._init();
   }
@@ -83,9 +86,9 @@ export class TimerEventSection implements ISection {
         break;
       }
       case TimerType.Cycle: {
-        timerTypeObject = {
-          timeCycle: moddleElement,
-        };
+        timerTypeObject = this.isTimerStartEvent
+          ? {timeCycle: moddleElement}
+          : {};
         break;
       }
       default: {
@@ -106,23 +109,14 @@ export class TimerEventSection implements ISection {
   }
 
   public updateTimerDefinition(): void {
-    const timeElement: IModdleElement = this._getTimerElement();
-    timeElement.body = this.timerElement.body;
     this._publishDiagramChange();
-
     this._updateLinterWhenActive();
   }
 
   private _init(): void {
     const {timeDate, timeDuration, timeCycle} = this._businessObjInPanel.eventDefinitions[0];
 
-    if ((timeDate === undefined)
-        && (timeDuration === undefined)
-        && (timeCycle === undefined)) {
-      return;
-    }
-
-    if (timeCycle !== undefined) {
+    if (timeCycle !== undefined &&  this.isTimerStartEvent) {
       this.timerType = TimerType.Cycle;
       return;
     }
@@ -147,7 +141,8 @@ export class TimerEventSection implements ISection {
     if (timeDate !== undefined) {
       return timeDate;
     }
-    if (timeCycle !== undefined) {
+
+    if (timeCycle !== undefined && this.isTimerStartEvent) {
       return timeCycle;
     }
 

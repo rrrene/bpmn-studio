@@ -19,8 +19,6 @@ const oidcConfig = require('./oidc-config');
 let filePath;
 let isInitialized = false;
 
-let canNotCloseApplication = false;
-
 const Main = {};
 
 /**
@@ -46,9 +44,9 @@ Main.execute = function () {
   const hasSingleInstanceLock = app.hasSingleInstanceLock();
 
   if (hasSingleInstanceLock) {
-    Main._startInternalProcessEngine();
-
     Main._initializeApplication();
+    
+    Main._startInternalProcessEngine();
 
     app.on('second-instance', (event, argv, workingDirectory) => {
       const noArgumentsSet = argv[1] === undefined;
@@ -300,29 +298,12 @@ Main._createMainWindow = function () {
   // history.
   Main._window.loadURL('/');
 
-  Main._window.on('close', (event) => {
-    if (canNotCloseApplication) {
-      event.preventDefault();
-
-      Main._window.webContents.send('show-close-modal');
-
-      return false;
-    }
-  });
-
-  electron.ipcMain.on('close-bpmn-studio', (event) => {
-    Main._window.close();
-  });
-
-  electron.ipcMain.on('can-not-close', (event, canCloseResult) => {
-    canNotCloseApplication = canCloseResult;
-  });
-
   Main._window.on('closed', (event) => {
     Main._window = null;
   });
 
-  setOpenSingleDiagram();
+  setOpenDiagram();
+  setSaveDiagramAs();
   setOpenSolutions();
 
   const platformIsWindows = process.platform === 'win32';
@@ -361,9 +342,9 @@ Main._createMainWindow = function () {
     });
   }
 
-  function setOpenSingleDiagram() {
-    electron.ipcMain.on('open_single_diagram', (event) => {
-      const openedFile = dialog.showOpenDialog({
+  function setSaveDiagramAs() {
+    electron.ipcMain.on('open_save-diagram-as_dialog', (event) => {
+      const filePath = dialog.showSaveDialog({
         filters: [
           {
             name: "BPMN",
@@ -376,7 +357,30 @@ Main._createMainWindow = function () {
         ]
       });
 
-      event.sender.send('import_opened_single_diagram', openedFile);
+      event.sender.send('save_diagram_as', filePath);
+    });
+  }
+
+  function setOpenDiagram() {
+    electron.ipcMain.on('open_diagram', (event) => {
+      const openedFile = dialog.showOpenDialog({
+        filters: [
+          {
+            name: "BPMN",
+            extensions: ["bpmn", "xml"]
+          },
+          {
+            name: "XML",
+            extensions: ["bpmn", "xml"]
+          },
+          {
+            name: 'All Files',
+            extensions: ['*']
+          }
+        ]
+      });
+
+      event.sender.send('import_opened_diagram', openedFile);
     });
   }
 
@@ -451,6 +455,16 @@ Main._createMainWindow = function () {
             accelerator: "CmdOrCtrl+N",
             click: () => {
               Main._window.webContents.send('menubar__start_create_diagram');
+            }
+          },
+          {
+            type: "separator",
+          },
+          {
+            label: "Save As...",
+            accelerator: "CmdOrCtrl+Shift+S",
+            click: () => {
+              Main._window.webContents.send('menubar__start_save_diagram_as');
             }
           }
         ],
@@ -668,7 +682,6 @@ Main._startInternalProcessEngine = async function () {
         // Create path for sqlite database in BPMN-Studio context.
         const userDataFolderPath = getUserConfigFolder();
         const sqlitePath = `${userDataFolderPath}/bpmn-studio/process_engine_databases`;
-
         const pe = require('@process-engine/process_engine_runtime');
         pe.startRuntime(sqlitePath);
 

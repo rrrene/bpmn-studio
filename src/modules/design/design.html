@@ -37,32 +37,12 @@
       </div>
     </div>
 
-    <modal show.bind="showQuitModal"
-           header-text="Document Contains Changes"
-           body-text="Your process has unsaved changes. Save changes to diagram before quitting the BPMN-Studio?">
-      <template replace-part="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" click.delegate="cancelQuitting()">Cancel</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal" click.delegate="quitWithoutSaving()">Quit and don't save</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal" click.delegate="quitWithSaving()">Save and quit</button>
-      </template>
-    </modal>
-
-    <modal show.bind="showLeaveModal"
-          header-text="Document Contains Changes"
-          body-text="Your process has unsaved changes. Save changes to diagram before leaving?">
-      <template replace-part="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelButtonLeaveView">Cancel</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal" id="dontSaveButtonLeaveView">Leave and don't save</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal" id="saveButtonLeaveView">Save and leave</button>
-      </template>
-    </modal>
-
     <modal show.bind="showSaveBeforeDeployModal"
           header-text="Save Diagram Before Deploying"
           body-text="In order to deploy your diagram, you have to save your recent changes to disk.">
       <template replace-part="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelDeploy" click.delegate="diagramDetail.cancelSaveBeforeDeployModal()"> Cancel</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal" id="saveButtonDeploy" click.delegate="diagramDetail.saveDiagramAndDeploy()"> Save and deploy</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" id="saveButtonDeploy" click.delegate="diagramDetail.saveDiagramAndDeploy()"> Save and deploy</button>
       </template>
     </modal>
 
@@ -77,7 +57,7 @@
 
       <template replace-part="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelButtonRemoteSolutionsOnDeploy" click.delegate="diagramDetail.cancelDialog()">Cancel</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal" id="saveButtonRemoteSolutionsOnDeploy" click.delegate="diagramDetail.uploadProcess(diagramDetail.selectedRemoteSolution)" >Deploy Process</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" id="saveButtonRemoteSolutionsOnDeploy" click.delegate="diagramDetail.uploadProcess(diagramDetail.selectedRemoteSolution)" >Deploy Process</button>
       </template>
     </modal>
 
@@ -86,7 +66,7 @@
           body-text="Your process has unsaved changes. Save changes to diagram before starting the process?">
       <template replace-part="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelButtonProcessStart" click.delegate="diagramDetail.cancelDialog()">Cancel</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal" id="saveButtonProcessStart" click.delegate="diagramDetail.saveChangesBeforeStart()" >Save and start process</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" id="saveButtonProcessStart" click.delegate="diagramDetail.saveChangesBeforeStart()" >Save and start process</button>
       </template>
     </modal>
 
@@ -122,7 +102,7 @@
 
       <template replace-part="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelButtonProcessStart" click.delegate="diagramDetail.cancelDialog()">Cancel</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal" id="startButton" click.delegate="diagramDetail.setOptionsAndStart()" disabled.bind="diagramDetail.hasValidationError">${ diagramHasChanged ? 'Save and start process' : 'Start process'}</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" id="startButton" click.delegate="diagramDetail.setOptionsAndStart()" disabled.bind="diagramDetail.hasValidationError">${ diagramHasChanged ? 'Save and start process' : 'Start process'}</button>
       </template>
     </modal>
 
@@ -141,7 +121,7 @@
       </template>
       <template replace-part="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelStartEventSelection" click.delegate="diagramDetail.cancelDialog()">Cancel</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal" id="startProcessWithSelectedStartEvent" click.delegate="diagramDetail.continueStarting()" disabled.bind="!diagramDetail.selectedStartEventId">Start Process</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" id="startProcessWithSelectedStartEvent" click.delegate="diagramDetail.continueStarting()" disabled.bind="!diagramDetail.selectedStartEventId">Start Process</button>
       </template>
     </modal>
 
@@ -156,7 +136,7 @@
       </template>
       <template replace-part="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" id="js-cancel-diagram-selection" click.delegate="cancelDialog()">Cancel</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal" id="js-choose-diagram" click.delegate="setDiffDestination(selectedDiagram.solutionUri, selectedDiagram.diagram.name)">Compare</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" id="js-choose-diagram" click.delegate="setDiffDestination(selectedDiagram.solutionUri, selectedDiagram.diagram.name)">Compare</button>
       </template>
     </modal>
 

@@ -22,10 +22,6 @@ input:focus {
   display: none;
 }
 
-a:hover {
-  color: inherit;
-}
-
 .bpmn-studio-layout {
   display: flex;
   height: 100%;
@@ -75,6 +71,21 @@ a:hover {
   background-color: #fff;
   border-color: #ccc;
   color: #333;
+}
+
+.btn-primary,
+.btn-primary:disabled {
+  background: #5d8a3c;
+  border-color: #4c7032;
+}
+
+.btn-primary:not(:disabled):not(.disabled):active,
+.btn-primary:hover:enabled {
+  background: #4c7032;
+  border-color: #2b401c;
+}
+.btn-primary:not(:disabled):not(.disabled):active:focus {
+  box-shadow: 0 0 0 0.2rem rgba(95, 142, 20, 0.5);
 }
 
 .btn-default:hover:enabled {

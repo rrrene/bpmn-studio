@@ -181,7 +181,11 @@ export class SignalEventSection implements ISection {
 
     if (elementReferencesSignal) {
       this.selectedId = signalId;
-      this.updateSignal();
+
+      this.selectedSignal = this.signals.find((signal: ISignal) => {
+        return signal.id === this.selectedId;
+      });
+
     } else {
       this.selectedSignal = null;
       this.selectedId = null;

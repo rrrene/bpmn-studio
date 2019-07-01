@@ -45,6 +45,7 @@ export function configure(aurelia: Aurelia): void {
      * EventAggregator and AuthenticationService.
      */
     .feature('services/solution-explorer-services')
+    .feature('modules/inspect/token-viewer')
     .feature('modules/inspect/inspect-correlation')
     .feature('services/diagram-creation-service')
     .feature('services/solution-service')

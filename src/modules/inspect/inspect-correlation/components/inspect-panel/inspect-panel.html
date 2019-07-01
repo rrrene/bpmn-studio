@@ -9,12 +9,12 @@
                 class.bind="showCorrelationList ? 'inspect-panel__active-tab' : ''"
                 click.delegate="changeTab(InspectPanelTab.CorrelationList)"
                 title="Show a list of all correlations for this process model">
-          Correlation List (${correlations.length})
+          Correlation List (${processInstances.length})
         </button>
         <button class="inspect-panel__tab ${showLogViewer ? 'inspect-panel__active-tab' : ''}"
-                class.bind="selectedCorrelation === undefined ? 'inspect-panel__disabled-tab' : ''"
-                disabled.bind="selectedCorrelation === undefined"
-                title.bind="selectedCorrelation !== undefined ? 'Show log of correlation' : 'Select a correlation in order to toggle the log viewer'"
+                class.bind="selectedProcessInstance === undefined ? 'inspect-panel__disabled-tab' : ''"
+                disabled.bind="selectedProcessInstance === undefined"
+                title.bind="selectedProcessInstance !== undefined ? 'Show log of correlation' : 'Select a correlation in order to toggle the log viewer'"
                 click.delegate="changeTab(InspectPanelTab.LogViewer)">
           Log Viewer
         </button>
@@ -24,8 +24,8 @@
       </div>
     </div>
     <div class="inspect-panel__body">
-      <correlation-list if.bind="showCorrelationList" correlations.bind="correlations" selected-correlation.two-way="selectedCorrelation"></correlation-list>
-      <log-viewer if.bind="showLogViewer" active-solution-entry.bind="activeSolutionEntry" correlation.bind="selectedCorrelation"></log-viewer>
+      <correlation-list if.bind="showCorrelationList" active-diagram.bind="activeDiagram" correlations.to-view="correlations" process-instances.from-view="processInstances" selected-process-instance.from-view="selectedProcessInstance" selected-correlation.from-view="selectedCorrelation"></correlation-list>
+      <log-viewer if.bind="showLogViewer" active-solution-entry.bind="activeSolutionEntry" process-instance.to-view="selectedProcessInstance"></log-viewer>
     </div>
   </div>
 </template>

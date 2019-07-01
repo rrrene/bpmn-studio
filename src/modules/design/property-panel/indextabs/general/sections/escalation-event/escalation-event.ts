@@ -201,7 +201,11 @@ export class EscalationEventSection implements ISection {
 
     if (elementReferencesEscalation) {
       this.selectedId = escalationId;
-      this.updateEscalation();
+
+      this.selectedEscalation = this.escalations.find((escalation: IEscalation) => {
+        return escalation.id === this.selectedId;
+      });
+
     } else {
       this.selectedEscalation = null;
       this.selectedId = null;

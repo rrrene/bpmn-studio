@@ -14,7 +14,7 @@
           <span class="solution-entry__solution-name">${getSolutionName(solutionEntry.uri)}</span>
           <div class="solution-entry__solution-path">
             <span
-              if.bind="!solutionEntryIsRemote(solutionEntry) && getSolutionName(solutionEntry.uri) !== solutionEntry.uri"
+              if.bind="!solutionEntryIsRemote(solutionEntry) && getSolutionName(solutionEntry.uri) !== solutionEntry.uri && solutionEntry.uri !== 'about:open-diagrams'"
               title.bind="solutionEntry.uri">
               ${solutionEntry.uri}
             </span>
@@ -70,7 +70,8 @@
         <solution-explorer-solution
           displayed-solution-entry.bind="solutionEntry"
           solution-service.bind="solutionEntry.service"
-          solution-is-single-diagrams.bind="solutionEntry.isSingleDiagramService"
+          open-diagram-service.bind="openDiagramService"
+          solution-is-open-diagrams.bind="solutionEntry.isOpenDiagramService"
           view-model.ref="solutionEntryViewModels[solutionEntry.uri]"
           font-awesome-icon-class.two-way="solutionEntry.fontAwesomeIconClass">
         </solution-explorer-solution>

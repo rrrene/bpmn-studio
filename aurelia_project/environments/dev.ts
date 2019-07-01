@@ -35,8 +35,8 @@ export default {
     xmlChanged: 'xmlChanged',
     startPage: {
       openLocalSolution: 'startpage:openlocalsolution',
-      openSingleDiagram: 'startpage:openSingleDiagram',
-      createSingleDiagram: 'startpage:createSingleDiagram',
+      openDiagram: 'startpage:openDiagram',
+      createDiagram: 'startpage:createDiagram',
     },
     statusBar: {
       showDiagramViewButtons: 'statusbar:diagramviewbuttons:show',
@@ -65,6 +65,7 @@ export default {
       onDiagramDeployed: 'diagramdetail:diagram:ondeployed',
       printDiagram: 'diagramdetail:diagram:print',
       saveDiagram: 'diagramdetail:diagram:save',
+      saveDiagramAs: 'diagramdetail:diagram:save:as',
       exportDiagramAs: 'diagramdetail:diagram:exportas',
       startProcess: 'diagramdetail:process:start',
       startProcessWithOptions: 'diagramdetail:process:startWithOptions',
@@ -97,6 +98,9 @@ export default {
       showInspectPanel: 'inspectCorrelation:inspectPanel:show',
       showTokenViewer: 'inspectCorrelation:tokenViewer:show',
       showLogViewer: 'inpsectCorrelation:logViewer:show',
+    },
+    solutionExplorer: {
+      updateOpenDiagrams: 'solutioneExplorer:openDiagrams:update',
     },
   },
   baseRoute: processEngineRoute,

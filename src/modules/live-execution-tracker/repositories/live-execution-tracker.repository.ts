@@ -21,6 +21,10 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     this._managementApiClient = managementApiClientService;
   }
 
+  public async getFlowNodeInstancesForProcessInstance(processInstanceId: string): Promise<Array<DataModels.FlowNodeInstances.FlowNodeInstance>> {
+    return this._managementApiClient.getFlowNodeInstancesForProcessInstance(this._identity, processInstanceId);
+  }
+
   public async getCorrelationById(correlationId: string): Promise<DataModels.Correlations.Correlation> {
     // This is necessary because the managementApi sometimes throws an error when the correlation is not yet existing.
     for (let retries: number = 0; retries < this._maxRetries; retries++) {
@@ -38,7 +42,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     return undefined;
   }
 
-  public async isCorrelationOfProcessInstanceActive(processInstanceId: string): Promise<boolean> {
+  public async isProcessInstanceActive(processInstanceId: string): Promise<boolean> {
 
     const getActiveTokens: Function = async(): Promise<Array<ActiveToken> | RequestError> => {
       for (let retries: number = 0; retries < this._maxRetries; retries++) {
@@ -60,7 +64,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     const activeTokensOrRequestError: Array<ActiveToken> | RequestError = await getActiveTokens();
 
     const couldNotGetActiveTokens: boolean = activeTokensOrRequestError === RequestError.ConnectionLost
-      || activeTokensOrRequestError === RequestError.OtherError;
+                                          || activeTokensOrRequestError === RequestError.OtherError;
     if (couldNotGetActiveTokens) {
       const requestError: RequestError = (activeTokensOrRequestError as RequestError);
 

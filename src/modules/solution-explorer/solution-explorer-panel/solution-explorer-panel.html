@@ -38,7 +38,7 @@
       </div>
 
       <input class="solution-explorer-panel__input d-none" ref="solutionInput" type="file" change.delegate="onSolutionInputChange($event)" webkitdirectory>
-      <input class="solution-explorer-panel__input d-none" ref="singleDiagramInput" type="file" change.delegate="onSingleDiagramInputChange($event)" accept=".xml, application/xml, .bpmn, application/bpmn20-xml">
+      <input class="solution-explorer-panel__input d-none" ref="openDiagramInput" type="file" change.delegate="onOpenDiagramInputChange($event)" accept=".xml, application/xml, .bpmn, application/bpmn20-xml">
 
       <solution-explorer-list view-model.ref="solutionExplorerList"></solution-explorer-list>
 
@@ -57,7 +57,7 @@
     </template>
     <template replace-part="modal-footer">
       <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelOpenRemoteSolutionButton" click.delegate="closeRemoteSolutionModal()">Cancel</button>
-      <button type="submit" class="btn btn-default" data-dismiss="modal" id="openRemoteSolutionButton" disabled.bind="!uriIsValid || uriIsEmpty" click.delegate="openRemoteSolution()">Open Solution</button>
+      <button type="submit" class="btn btn-primary" data-dismiss="modal" id="openRemoteSolutionButton" disabled.bind="!uriIsValid || uriIsEmpty" click.delegate="openRemoteSolution()">Open Solution</button>
     </template>
   </modal>
 

@@ -80,6 +80,16 @@
   margin-right: 6px;
 }
 
+.diagram-entry__unsaved-icon {
+  flex: 0;
+  position: relative;
+  left: -14px;
+  margin-top: 6px;
+  margin-right: -9px;
+  font-size: 9px;
+  opacity: 0.5;
+}
+
 .diagram-entry__name-container {
   flex: 1;
   overflow: hidden;

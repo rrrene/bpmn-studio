@@ -1,6 +1,6 @@
 
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject, observable} from 'aurelia-framework';
+import {inject} from 'aurelia-framework';
 
 import {IConditionExpression, IFlowElement, IShape} from '@process-engine/bpmn-elements_contracts';
 
@@ -16,7 +16,7 @@ export class FlowSection implements ISection {
 
   public path: string = '/sections/flow/flow';
   public canHandleElement: boolean = false;
-  @observable public condition: string;
+  public condition: string;
 
   private _businessObjInPanel: IFlowElement;
   private _moddle: IBpmnModdle;
@@ -55,7 +55,7 @@ export class FlowSection implements ISection {
     }
   }
 
-  public conditionChanged(newValue: string, oldValue: string): void {
+  public updateCondition(): void {
     const objectHasNoConditionExpression: boolean = this._businessObjInPanel.conditionExpression === undefined
                                                  || this._businessObjInPanel.conditionExpression === null;
 
@@ -63,7 +63,7 @@ export class FlowSection implements ISection {
       this._createConditionExpression();
     }
 
-    this._businessObjInPanel.conditionExpression.body = newValue;
+    this._businessObjInPanel.conditionExpression.body = this.condition;
     this._publishDiagramChange();
   }
 
