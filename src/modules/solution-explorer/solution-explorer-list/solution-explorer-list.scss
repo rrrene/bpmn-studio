@@ -25,6 +25,10 @@
   color: darkgray;
 }
 
+.solution-entry__header:hover {
+  background-color: rgba(230, 230, 230, 0.6);
+}
+
 .solution-entry__header button {
   padding: 0 2px;
   background: transparent;
