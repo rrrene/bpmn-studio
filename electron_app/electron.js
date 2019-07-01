@@ -498,6 +498,13 @@ Main._createMainWindow = function () {
               Main._window.webContents.send('menubar__start_close_diagram');
             },
           },
+          {
+            label: "Close All Diagrams",
+            accelerator: "CmdOrCtrl+Alt+W",
+            click: () => {
+              Main._window.webContents.send('menubar__start_close_all_diagrams');
+            },
+          },
         ],
       };
     };

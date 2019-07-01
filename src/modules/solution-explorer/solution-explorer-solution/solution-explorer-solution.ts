@@ -153,6 +153,7 @@ export class SolutionExplorerSolution {
       this._subscriptions.push(updateSubscription);
 
       this._ipcRenderer.on('menubar__start_close_diagram', this._closeDiagramEventFunction);
+      this._ipcRenderer.on('menubar__start_close_all_diagrams', this._closeAllDiagramsEventFunction);
       this._ipcRenderer.on('menubar__start_save_all_diagrams', this._saveAllDiagramsEventFunction);
     }
 
@@ -212,6 +213,7 @@ export class SolutionExplorerSolution {
 
     if (this.solutionIsOpenDiagrams) {
       this._ipcRenderer.removeListener('menubar__start_close_diagram', this._closeDiagramEventFunction);
+      this._ipcRenderer.removeListener('menubar__start_close_all_diagrams', this._closeAllDiagramsEventFunction);
       this._ipcRenderer.removeListener('menubar__start_save_all_diagrams', this._saveAllDiagramsEventFunction);
     }
   }
@@ -307,12 +309,17 @@ export class SolutionExplorerSolution {
 
     const closedDiagramWasActiveDiagram: boolean = this.activeDiagramUri === diagram.uri;
     if (closedDiagramWasActiveDiagram) {
-      const subscription: Subscription = this._eventAggregator.subscribe('router:navigation:success', () => {
-        this._closeDiagram(diagram);
-        subscription.dispose();
-      });
 
-      this._router.navigateToRoute('start-page');
+      return new Promise<void>((resolve: Function): void => {
+        const subscription: Subscription = this._eventAggregator.subscribe('router:navigation:success', () => {
+          this._closeDiagram(diagram);
+          subscription.dispose();
+
+          resolve();
+        });
+
+        this._router.navigateToRoute('start-page');
+      });
     } else {
       this._closeDiagram(diagram);
     }
@@ -579,6 +586,14 @@ export class SolutionExplorerSolution {
       this._router.navigateToRoute('start-page');
     } else {
       this.closeDiagram(this.activeDiagram);
+    }
+  }
+
+  private _closeAllDiagramsEventFunction: Function = async(): Promise<void> => {
+    const currentlyOpenDiagrams: Array<IDiagram> = this.openedDiagrams.slice();
+
+    for (const openDiagram of currentlyOpenDiagrams) {
+      await this.closeDiagram(openDiagram);
     }
   }
 
