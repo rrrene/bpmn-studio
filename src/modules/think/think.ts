@@ -19,7 +19,7 @@ export class Think {
   private _solutionService: ISolutionService;
   private _notificationService: NotificationService;
 
-  private _solutionUriIsSet: boolean;
+  private _diagramSelected: boolean = false;
 
   private _ipcRenderer: any;
 
@@ -31,7 +31,7 @@ export class Think {
   public async canActivate(routeParameters: IThinkRouteParameters): Promise<boolean> {
     const solutionUriIsSet: boolean = routeParameters.solutionUri !== undefined;
 
-    this._solutionUriIsSet = solutionUriIsSet;
+    this._diagramSelected = routeParameters.diagramName !== undefined;
 
     const solutionUri: string = solutionUriIsSet
                               ? routeParameters.solutionUri
@@ -75,7 +75,8 @@ export class Think {
   }
 
   private _closeBpmnStudio: Function = (): void => {
-    if (!this._solutionUriIsSet) {
+
+    if (!this._diagramSelected) {
       this._ipcRenderer.send('close_bpmn-studio');
     }
   }
