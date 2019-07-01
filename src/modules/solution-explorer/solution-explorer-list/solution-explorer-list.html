@@ -9,6 +9,15 @@
 
         <div class="solution-entry__header" title.bind="solutionEntry.processEngineVersion ? `${solutionEntry.uri} | Version: ${solutionEntry.processEngineVersion}` : solutionEntry.uri">
 
+          <button class="button"
+            if.bind="solutionEntry.uri !== 'about:open-diagrams'"
+            click.delegate="toggleSolution(solutionEntry)"
+            title="spoiler">
+
+            <i if.bind="solutionEntry.hidden" class="fas fa-angle-right"></i>
+            <i else class="fas fa-angle-down"></i>
+          </button>
+
           <i class="fa ${solutionEntry.fontAwesomeIconClass} solution-entry__solution-icon" title.bind="solutionEntry.fontAwesomeIconClass === 'fa-bolt' ? 'ProcessEngine Disconnected!' : ''"></i>
 
           <span class="solution-entry__solution-name">${getSolutionName(solutionEntry.uri)}</span>
@@ -21,15 +30,6 @@
           </div>
 
           <div class="solution-entry__actions">
-
-            <button class="button"
-              if.bind="solutionEntry.uri !== 'about:open-diagrams'"
-              click.delegate="toggleSolution(solutionEntry)"
-              title="spoiler">
-
-              <i if.bind="solutionEntry.hidden"class="fas fa-expand-arrows-alt"></i>
-              <i else class="fas fa-compress-arrows-alt"></i>
-            </button>
 
             <button class="button"
               if.bind="solutionIsInternalSolution(solutionEntry)"
