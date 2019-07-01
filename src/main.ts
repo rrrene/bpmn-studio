@@ -6,6 +6,9 @@ import {NotificationService} from './services/notification-service/notification.
 
 import {oidcConfig} from './open-id-connect-configuration';
 
+import process from 'process';
+(window as any).process = process;
+
 export function configure(aurelia: Aurelia): void {
 
   if (navigator.cookieEnabled === false) {
