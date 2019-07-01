@@ -1,4 +1,4 @@
-import * as download from 'downloadjs';
+import download from 'downloadjs';
 import {IDiagramExportRepositoryContracts} from '../../../../contracts/exportRepository';
 
 export class DiagramExportRepository implements IDiagramExportRepositoryContracts {
