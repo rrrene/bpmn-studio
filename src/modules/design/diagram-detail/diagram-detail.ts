@@ -227,7 +227,7 @@ export class DiagramDetail {
 
       this.showDiagramExistingModal = true;
 
-      const modalResult: Promise<boolean> = new Promise((resolve: Function, reject: Function): boolean | void => {
+      const modalResultPromise: Promise<boolean> = new Promise((resolve: Function, reject: Function): boolean | void => {
         const cancelModal: EventListenerOrEventListenerObject = (): void => {
           this.showDiagramExistingModal = false;
           resolve(false);
@@ -251,7 +251,8 @@ export class DiagramDetail {
         }, 0);
       });
 
-      if (!await modalResult) {
+      const modalResult: boolean = await modalResultPromise;
+      if (!modalResult) {
         return;
       }
 
