@@ -201,12 +201,23 @@ export class Design {
       }),
     ];
 
+    const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
+    if (isRunningInElectron) {
+      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+      this._ipcRenderer.send('menu_show-all-menu-entries');
+    }
+
     this._eventAggregator.publish(environment.events.statusBar.showDiagramViewButtons);
   }
 
   public detached(): void {
     this._eventAggregator.publish(environment.events.statusBar.hideDiagramViewButtons);
     this._subscriptions.forEach((subscription: Subscription) => subscription.dispose());
+
+    const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
+    if (isRunningInElectron) {
+      this._ipcRenderer.send('menu_hide-diagram-entries');
+    }
   }
 
   public determineActivationStrategy(): string {

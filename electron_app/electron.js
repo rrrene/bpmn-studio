@@ -596,15 +596,64 @@ Main._createMainWindow = function () {
       };
     };
 
-    let template = [
-      getApplicationMenu(),
-      getFileMenu(),
-      getEditMenu(),
-      getWindowMenu(),
-      getHelpMenu(),
-    ];
+    const showMenuEntriesWithoutDiagramEntries = () => {
+      const fileMenu = getFileMenu();
 
-    electron.Menu.setApplicationMenu(electron.Menu.buildFromTemplate(template));
+      let previousEntryIsSeperator = false;
+
+      const filteredSubmenu  = fileMenu.submenu.filter((submenuEntry) => {
+        const isSeparator = submenuEntry.type !== undefined && submenuEntry.type === 'separator';
+        if(isSeparator) {
+          // This is used to prevent double separators
+          if(previousEntryIsSeperator) {
+            return false;
+          }
+
+          previousEntryIsSeperator = true;
+          return true;
+        }
+
+        const isSaveButton = submenuEntry.label !== undefined && submenuEntry.label.startsWith('Save')
+        if(isSaveButton) {
+          return false;
+        }
+
+        previousEntryIsSeperator = false;
+        return true;
+      });
+      fileMenu.submenu = filteredSubmenu;
+
+      const template = [
+        getApplicationMenu(),
+        fileMenu,
+        getWindowMenu(),
+        getHelpMenu(),
+      ];
+
+      electron.Menu.setApplicationMenu(electron.Menu.buildFromTemplate(template));
+    }
+
+    const showAllMenuEntries = () => {
+      const template = [
+        getApplicationMenu(),
+        getFileMenu(),
+        getEditMenu(),
+        getWindowMenu(),
+        getHelpMenu(),
+      ];
+
+      electron.Menu.setApplicationMenu(electron.Menu.buildFromTemplate(template));
+    }
+
+    showMenuEntriesWithoutDiagramEntries();
+
+    electron.ipcMain.on('menu_hide-diagram-entries', () => {
+      showMenuEntriesWithoutDiagramEntries();
+    });
+
+    electron.ipcMain.on('menu_show-all-menu-entries', () => {
+      showAllMenuEntries();
+    })
   }
 }
 
