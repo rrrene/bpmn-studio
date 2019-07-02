@@ -52,7 +52,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
    * before.
    */
   public getOpenedDiagramByURI(uri: string): IDiagram | null {
-    const indexOfDiagram: number = this._findOfDiagramWithURI(uri);
+    const indexOfDiagram: number = this._findIndexOfDiagramWithURI(uri);
 
     const diagramWasNotFound: boolean = indexOfDiagram < 0;
     if (diagramWasNotFound) {
@@ -85,7 +85,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
       throw new Error('File is no BPMN file.');
     }
 
-    const uriAlreadyOpened: boolean = this._findOfDiagramWithURI(uri) >= 0;
+    const uriAlreadyOpened: boolean = this._findIndexOfDiagramWithURI(uri) >= 0;
 
     if (uriAlreadyOpened) {
       throw new Error('This diagram is already opened.');
@@ -128,7 +128,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
   }
 
   public closeDiagram(diagram: IDiagram): Promise<void> {
-    const index: number = this._findOfDiagramWithURI(diagram.uri);
+    const index: number = this._findIndexOfDiagramWithURI(diagram.uri);
 
     this._openedDiagrams.splice(index, 1);
     this._openDiagramStateService.deleteDiagramState(diagram.uri);
@@ -170,7 +170,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     return openedDiagram;
   }
 
-  private _findOfDiagramWithURI(uri: string): number {
+  private _findIndexOfDiagramWithURI(uri: string): number {
     const index: number = this._openedDiagrams
       .findIndex((diagram: IDiagram): boolean => {
         return diagram.uri === uri;
