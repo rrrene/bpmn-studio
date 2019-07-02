@@ -109,14 +109,12 @@ export class Design {
 
       const solutionIsRemote: boolean = this.activeSolutionEntry.uri.startsWith('http');
       if (solutionIsRemote) {
-        const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
         if (isRunningInElectron) {
           this._ipcRenderer.send('menu_hide-diagram-entries');
         }
 
         this._eventAggregator.publish(environment.events.configPanel.processEngineRouteChanged, this.activeSolutionEntry.uri);
       } else {
-        const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
         if (isRunningInElectron) {
           this._ipcRenderer.send('menu_show-all-menu-entries');
         }
