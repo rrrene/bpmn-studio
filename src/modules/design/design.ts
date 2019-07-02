@@ -93,6 +93,11 @@ export class Design {
 
     const navigateToAnotherDiagram: boolean = diagramNamesAreDifferent || diagramUrisAreDifferent || routeFromOtherView || solutionIsDifferent;
 
+    const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
+    if (isRunningInElectron) {
+      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+    }
+
     if (solutionIsSet) {
       this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(routeParameters.solutionUri);
 
@@ -104,7 +109,17 @@ export class Design {
 
       const solutionIsRemote: boolean = this.activeSolutionEntry.uri.startsWith('http');
       if (solutionIsRemote) {
+        const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
+        if (isRunningInElectron) {
+          this._ipcRenderer.send('menu_hide-diagram-entries');
+        }
+
         this._eventAggregator.publish(environment.events.configPanel.processEngineRouteChanged, this.activeSolutionEntry.uri);
+      } else {
+        const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
+        if (isRunningInElectron) {
+          this._ipcRenderer.send('menu_show-all-menu-entries');
+        }
       }
 
       const isOpenDiagram: boolean = this.activeSolutionEntry.uri === 'about:open-diagrams';
@@ -197,7 +212,6 @@ export class Design {
 
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
     if (isRunningInElectron) {
-      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
       this._ipcRenderer.send('menu_show-all-menu-entries');
     }
 
