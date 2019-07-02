@@ -140,5 +140,17 @@
       </template>
     </modal>
 
+    <modal show.bind="diagramDetail.showDiagramExistingModal"
+          header-text="Warning: Diagram already exists!">
+      <template replace-part="modal-body">
+        There is already a diagram with the same name and ID on the target solution.
+        The deployment overwrites the diagram on the remote solution.
+      </template>
+      <template replace-part="modal-footer">
+        <button type="button" class="btn btn-default" id="cancelDiagramDeploy">Cancel</button>
+        <button type="button" class="btn btn-primary" id="overrideDiagramOnSolution">Deploy</button>
+      </template>
+    </modal>
+
   </div>
 </template>
