@@ -22,11 +22,6 @@ export interface IDesignRouteParameters {
   solutionUri?: string;
 }
 
-type IEventListener = {
-  name: string,
-  function: Function,
-};
-
 type DiagramWithSolution = {
   diagram: IDiagram,
   solutionName: string,
@@ -62,7 +57,6 @@ export class Design {
   private _router: Router;
   private _routeView: string;
   private _ipcRenderer: any;
-  private _ipcRendererEventListeners: Array<IEventListener> = [];
 
   constructor(eventAggregator: EventAggregator, solutionService: ISolutionService, router: Router, notificationService: NotificationService) {
     this._eventAggregator = eventAggregator;
@@ -293,10 +287,6 @@ export class Design {
 
   public deactivate(): void {
     this.diagramDetail.deactivate();
-
-    for (const eventListener of this._ipcRendererEventListeners) {
-      this._ipcRenderer.removeListener(eventListener.name, eventListener.function);
-    }
   }
 
   public activeDiagramChanged(newValue: IDiagram, oldValue: IDiagram): void {
