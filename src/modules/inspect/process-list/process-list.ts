@@ -4,7 +4,7 @@ import {Router} from 'aurelia-router';
 
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
-import * as moment from 'moment';
+import moment from 'moment';
 
 import {
   AuthenticationStateEvent,

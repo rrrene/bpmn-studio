@@ -6,6 +6,8 @@ import {NotificationService} from './services/notification-service/notification.
 
 import {oidcConfig} from './open-id-connect-configuration';
 
+import process from 'process';
+
 export function configure(aurelia: Aurelia): void {
 
   if (navigator.cookieEnabled === false) {
@@ -27,6 +29,7 @@ export function configure(aurelia: Aurelia): void {
 
     aurelia.container.registerInstance('InternalProcessEngineBaseRoute', processEngineBaseRouteWithProtocol);
   } else {
+    (window as any).process = process;
     localStorage.setItem('InternalProcessEngineRoute', environment.baseRoute);
     aurelia.container.registerInstance('InternalProcessEngineBaseRoute', null);
   }
