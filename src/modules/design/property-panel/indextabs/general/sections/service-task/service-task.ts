@@ -83,7 +83,7 @@ export class ServiceTaskSection implements ISection {
 
     const noPropertyElementFound: boolean = propertiesElement === undefined;
     if (noPropertyElementFound) {
-      return undefined
+      return undefined;
     }
 
     const noValuesDefined: boolean = propertiesElement.values === undefined;
