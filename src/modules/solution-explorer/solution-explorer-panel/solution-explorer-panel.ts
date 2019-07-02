@@ -10,9 +10,6 @@ import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 import {SolutionExplorerList} from '../solution-explorer-list/solution-explorer-list';
 
-import * as os from 'os';
-import * as path from 'path';
-
 /**
  * This component handels:
  *  - Opening files via drag and drop
