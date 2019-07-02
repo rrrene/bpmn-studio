@@ -13,8 +13,8 @@
 
           <div class="solution-entry__left-icon_and_name">
 
-            <i if.bind="solutionEntry.hidden && solutionEntry.uri !== 'about:open-diagrams'" class="fas fa-angle-right"></i>
-            <i if.bind="!solutionEntry.hidden && solutionEntry.uri !== 'about:open-diagrams'" class="fas fa-angle-down"></i>
+            <i if.bind="solutionEntry.hidden && solutionEntry.uri !== 'about:open-diagrams'" class="fas fa-angle-right collapse__icon"></i>
+            <i if.bind="!solutionEntry.hidden && solutionEntry.uri !== 'about:open-diagrams'" class="fas fa-angle-down collapse__icon"></i>
   
             <i class="fa ${solutionEntry.fontAwesomeIconClass} solution-entry__solution-icon" title.bind="solutionEntry.fontAwesomeIconClass === 'fa-bolt' ? 'ProcessEngine Disconnected!' : ''"></i>
     
