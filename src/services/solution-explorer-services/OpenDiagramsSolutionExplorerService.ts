@@ -80,13 +80,11 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
   public async openDiagram(uri: string, identity: IIdentity): Promise<IDiagram> {
 
     const uriIsNoBpmnFile: boolean = !uri.endsWith('.bpmn');
-
     if (uriIsNoBpmnFile) {
       throw new Error('File is no BPMN file.');
     }
 
     const uriAlreadyOpened: boolean = this._findIndexOfDiagramWithURI(uri) >= 0;
-
     if (uriAlreadyOpened) {
       throw new Error('This diagram is already opened.');
     }
