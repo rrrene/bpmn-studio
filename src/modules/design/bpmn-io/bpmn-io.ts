@@ -426,7 +426,7 @@ export class BpmnIo {
     }
 
     const oldValueExists: boolean = oldValue !== undefined;
-    if (!this.diagramHasChanged && oldValueExists) {
+    if (!this.diagramHasChanged && oldValueExists && !this.solutionIsRemote) {
       await this._saveDiagramState(this.diagramUri);
     }
 
