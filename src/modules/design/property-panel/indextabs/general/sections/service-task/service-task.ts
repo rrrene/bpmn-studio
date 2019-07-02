@@ -76,10 +76,20 @@ export class ServiceTaskSection implements ISection {
     this._eventAggregator.publish(environment.events.diagramChange);
   }
 
-  private _getPropertiesElement(): IPropertiesElement {
+  private _getPropertiesElement(): IPropertiesElement | undefined {
     const propertiesElement: IPropertiesElement = this.businessObjInPanel.extensionElements.values.find((element: IPropertiesElement) => {
-      return element.$type === 'camunda:Properties' && element.values !== undefined;
+      return element.$type === 'camunda:Properties';
     });
+
+    const noPropertyElementFound: boolean = propertiesElement === undefined;
+    if (noPropertyElementFound) {
+      return undefined
+    }
+
+    const noValuesDefined: boolean = propertiesElement.values === undefined;
+    if (noValuesDefined) {
+      propertiesElement.values = [];
+    }
 
     return propertiesElement;
   }
