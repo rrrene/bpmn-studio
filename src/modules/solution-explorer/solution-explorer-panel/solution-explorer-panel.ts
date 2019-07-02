@@ -308,7 +308,13 @@ export class SolutionExplorerPanel {
   }
 
   private _electronOnCreateDiagram = async(_: Event): Promise<void> => {
-    this._createNewDiagram();
+    this._openNewDiagram();
+  }
+
+  private _openNewDiagram(): void {
+    const uri: string = 'about:open-diagrams';
+
+    this.solutionExplorerList.createDiagram(uri);
   }
 
   private _createNewDiagram(): void {
@@ -316,12 +322,11 @@ export class SolutionExplorerPanel {
     const activeSolution: ISolutionEntry = this._solutionService.getSolutionEntryForUri(activeSolutionUri);
 
     const activeSolutionCanCreateDiagrams: boolean = activeSolution !== undefined
-                                                  && !activeSolution.uri.startsWith('http')
-                                                  && activeSolution.canCreateNewDiagramsInSolution;
+                                                  && !activeSolution.uri.startsWith('http');
 
     const uri: string = activeSolutionCanCreateDiagrams
                         ? activeSolutionUri
-                        : path.join(os.homedir(), 'Desktop');
+                        : 'about:open-diagrams';
 
     this.solutionExplorerList.createDiagram(uri);
   }

@@ -4,7 +4,7 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 
-import {IDiagramValidationService, ISolutionService} from '../../contracts';
+import {IDiagramState, IDiagramValidationService, ISolutionService} from '../../contracts';
 import {OpenDiagramStateService} from './OpenDiagramStateService';
 import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
 
@@ -96,19 +96,31 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     const indexBeforeFilename: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash);
 
     const filepath: string = uri.substring(0, indexBeforeFilename);
-
-    await this._solutionExplorerToOpenDiagrams.openSolution(filepath, identity);
-
     const filename: string = uri.replace(/^.*[\\\/]/, '');
     const filenameWithoutEnding: string = filename.replace('.bpmn', '');
 
-    const diagram: IDiagram = await this._solutionExplorerToOpenDiagrams.loadDiagram(filenameWithoutEnding, filepath);
+    let diagram: IDiagram;
 
-    await this._validationService
-      .validate(diagram.xml)
-      .isXML()
-      .isBPMN()
-      .throwIfError();
+    const isUnsavedDiagram: boolean = filepath === 'about:open-diagrams';
+    if (isUnsavedDiagram) {
+      const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(uri);
+
+      diagram = {
+        name: filenameWithoutEnding,
+        xml: diagramState.data.xml,
+        uri: uri,
+      };
+    } else {
+      await this._solutionExplorerToOpenDiagrams.openSolution(filepath, identity);
+
+      diagram = await this._solutionExplorerToOpenDiagrams.loadDiagram(filenameWithoutEnding, filepath);
+
+      await this._validationService
+        .validate(diagram.xml)
+        .isXML()
+        .isBPMN()
+        .throwIfError();
+    }
 
     this._openedDiagrams.push(diagram);
 

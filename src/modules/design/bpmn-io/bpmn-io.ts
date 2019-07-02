@@ -647,10 +647,12 @@ export class BpmnIo {
     const savedXml: string = this.savedXml;
     const modelerCanvas: ICanvas = this.modeler.get('canvas');
 
+    const isUnsavedDiagram: boolean = diagramUri.startsWith('about:open-diagrams');
+
     const selectedElement: Array<IShape> = this.modeler.get('selection')._selectedElements;
     const viewbox: IViewbox  = modelerCanvas.viewbox();
     const xml: string = await this.getXML();
-    const isChanged: boolean = !this._areXmlsIdentical(xml, savedXml);
+    const isChanged: boolean = isUnsavedDiagram ? true : !this._areXmlsIdentical(xml, savedXml);
 
     this._openDiagramStateService.saveDiagramState(diagramUri, xml, viewbox, selectedElement, isChanged);
   }

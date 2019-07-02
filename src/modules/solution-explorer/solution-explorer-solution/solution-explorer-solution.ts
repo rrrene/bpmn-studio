@@ -422,6 +422,12 @@ export class SolutionExplorerSolution {
       return;
     }
 
+    if (this.solutionIsOpenDiagrams) {
+      this._openNewDiagram();
+
+      return;
+    }
+
     this._diagramCreationState.isCreateDiagramInputShown = true;
     this._validationController.validate();
 
@@ -858,6 +864,34 @@ export class SolutionExplorerSolution {
     const invalidCharacterString: string = `${filteredInvalidCharacters}`.replace(/(.)./g, '$1 ');
 
     return `${messagePrefix} ${invalidCharacterString}`;
+  }
+
+  private async _openNewDiagram(): Promise<void> {
+    const unsavedDiagrams: Array<IDiagram> = this.openedDiagrams.filter((diagram: IDiagram): boolean => {
+      const diagramIsUnsavedDiagram: boolean = diagram.name.startsWith('Untitled');
+
+      return diagramIsUnsavedDiagram;
+    });
+
+    const unsavedDiagramIndexes: Array<number> = unsavedDiagrams.map((diagram: IDiagram) => {
+      const diagramIndex: number = parseInt(diagram.name.replace('Untitled-', ''));
+
+      return diagramIndex;
+    });
+
+    const anotherUnsavedDiagramExists: boolean = unsavedDiagrams.length > 0;
+    const newDiagramIndex: number = anotherUnsavedDiagramExists ? Math.max(...unsavedDiagramIndexes) + 1 : 1;
+
+    const createdDiagram: IDiagram = await this._diagramCreationService
+      .createNewDiagram(this._openedSolution.uri, `Untitled-${newDiagramIndex}`);
+
+    this._openDiagramStateService.saveDiagramState(createdDiagram.uri, createdDiagram.xml, undefined, undefined, true);
+
+    this.openDiagramService.openDiagramFromSolution(createdDiagram.uri, this._createIdentityForSolutionExplorer());
+
+    await this.updateSolution();
+
+    this._navigateToDetailView(createdDiagram);
   }
 
   /**
