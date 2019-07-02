@@ -88,6 +88,15 @@ export class SolutionExplorerList {
     await Promise.all(refreshPromises);
   }
 
+  public toggleSolution(solutionEntry: ISolutionEntry): void {
+    if (solutionEntry.isOpenDiagramService) {
+      return;
+    }
+
+    solutionEntry.hidden = !solutionEntry.hidden;
+    this._solutionService.persistSolutionsInLocalStorage();
+  }
+
   public solutionIsInternalSolution(solution: ISolutionEntry): boolean {
     const solutionIsInternalSolution: boolean = solution.uri === this.internalSolutionUri;
 
@@ -247,7 +256,14 @@ export class SolutionExplorerList {
    * Starts the creation process of a new diagram inside the given solution
    * entry.
    */
-  public async createDiagram(uri: string): Promise<void> {
+  public async createDiagram(solutionEntryOrUri: any): Promise<void> {
+    const hiddenPropertyExists: boolean = solutionEntryOrUri.hidden !== undefined;
+    if (hiddenPropertyExists && solutionEntryOrUri.hidden) {
+      this.toggleSolution(solutionEntryOrUri);
+    }
+
+    const uri: string = solutionEntryOrUri.uri ? solutionEntryOrUri.uri : solutionEntryOrUri;
+
     let viewModelOfEntry: SolutionExplorerSolution = this.solutionEntryViewModels[uri];
 
     const solutionIsNotOpened: boolean = viewModelOfEntry === undefined || viewModelOfEntry === null;
@@ -421,6 +437,7 @@ export class SolutionExplorerList {
     const canCloseSolution: boolean = this._canCloseSolution(service, uri);
     const canCreateNewDiagramsInSolution: boolean = this._canCreateNewDiagramsInSolution(service, uri);
     const authority: string = await this._getAuthorityForSolution(uri);
+    const hidden: boolean = this._getHiddenStateForSolutionUri(uri);
 
     const authorityIsUndefined: boolean = authority === undefined;
 
@@ -447,6 +464,7 @@ export class SolutionExplorerList {
       isLoggedIn,
       userName,
       processEngineVersion,
+      hidden,
     };
 
     this._solutionService.addSolutionEntry(entry);
@@ -456,6 +474,17 @@ export class SolutionExplorerList {
     } else {
       this._openedSolutions.push(entry);
     }
+  }
+
+  private _getHiddenStateForSolutionUri(uri: string): boolean {
+    const persistedSolutions: Array<ISolutionEntry> = this._solutionService.getPersistedEntries();
+    const solutionToLoad: ISolutionEntry = persistedSolutions.find((solution: ISolutionEntry) => solution.uri === uri);
+
+    if (!solutionToLoad) {
+      return false;
+    }
+
+    return solutionToLoad.hidden ? solutionToLoad.hidden : false;
   }
 
   private _createIdentityForSolutionExplorer(): IIdentity {

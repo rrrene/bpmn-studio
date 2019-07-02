@@ -13,6 +13,7 @@
 }
 
 .solution-entry:last-child {
+  margin-bottom: 10px;
   border-bottom: none;
 }
 
@@ -22,6 +23,21 @@
   padding: 2.5px 5px;
   padding-bottom: 2px;
   color: darkgray;
+  cursor: pointer;
+}
+
+.solution-entry__header:hover {
+  background-color: rgba(230, 230, 230, 0.6);
+}
+
+.solution-entry__header button {
+  padding: 0 2px;
+  background: transparent;
+  border: none;
+}
+
+.solution-entry__header button:hover {
+  cursor: default;
 }
 
 .solution-entry__solution-icon {
@@ -37,10 +53,10 @@
 }
 
 .solution-entry__solution-path {
-  flex: 1;
   overflow: hidden;
   margin-left: 10px;
   margin-top: 2px;
+  padding-left: 5px;
   font-size: 12px;
   color: #ccc;
   text-overflow: ellipsis;
@@ -48,6 +64,10 @@
 
 .solution-entry__actions {
   display: none;
+}
+
+.solution-entry__actions_remote-solution {
+  display: none;  
 }
 
 .login-logout-button {
@@ -60,10 +80,26 @@
   .solution-entry__actions {
     display: flex;
   }
+
+  .solution-entry__actions_remote-solution {
+    display: flex;
+    position: absolute;
+    right: 5px;
+  }
 }
 
 .solution-entry:hover .solution-entry__actions {
   display: flex;
+}
+
+.solution-entry:hover .solution-entry__actions_remote-solution {
+  display: flex;
+  position: absolute;
+  right: 5px;
+}
+
+.solution-entry__left-icon_and_name {
+  float: left;
 }
 
 .solution-entry__actions button {
@@ -74,4 +110,12 @@
 
 .solution-entry__actions button:hover {
   cursor: default;
+}
+
+.solution-entry__collapse-header {
+  width: 240px;
+}
+
+.collapse__icon {
+  width: 10px;
 }
