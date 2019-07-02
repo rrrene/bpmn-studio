@@ -55,6 +55,7 @@ export class DiagramDetail {
   public showRemoteSolutionOnDeployModal: boolean = false;
   public remoteSolutions: Array<ISolutionEntry> = [];
   public selectedRemoteSolution: ISolutionEntry;
+  public showDiagramExistingModal: boolean = false;
 
   private _notificationService: NotificationService;
   private _eventAggregator: EventAggregator;
@@ -220,6 +221,43 @@ export class DiagramDetail {
       return definition.$type === 'bpmn:Process';
     });
     const processModelId: string = processModel.id;
+
+    try {
+      await solutionToDeployTo.service.loadDiagram(processModelId);
+
+      this.showDiagramExistingModal = true;
+
+      const modalResult: Promise<boolean> = new Promise((resolve: Function, reject: Function): boolean | void => {
+        const cancelModal: EventListenerOrEventListenerObject = (): void => {
+          this.showDiagramExistingModal = false;
+          resolve(false);
+
+          document.getElementById('cancelDiagramDeploy').removeEventListener('click', cancelModal);
+          // tslint:disable-next-line: no-use-before-declare
+          document.getElementById('overrideDiagramOnSolution').removeEventListener('click', proceedUpload);
+        };
+
+        const proceedUpload: EventListenerOrEventListenerObject = (): void => {
+          this.showDiagramExistingModal = false;
+          resolve(true);
+
+          document.getElementById('cancelDiagramDeploy').removeEventListener('click', cancelModal);
+          document.getElementById('overrideDiagramOnSolution').removeEventListener('click', proceedUpload);
+        };
+
+        setTimeout(() => {
+          document.getElementById('cancelDiagramDeploy').addEventListener('click', cancelModal, {once: true});
+          document.getElementById('overrideDiagramOnSolution').addEventListener('click', proceedUpload, {once: true});
+        }, 0);
+      });
+
+      if (!await modalResult) {
+        return;
+      }
+
+    } catch {
+      //
+    }
 
     try {
 
