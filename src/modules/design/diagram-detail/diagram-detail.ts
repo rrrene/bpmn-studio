@@ -373,7 +373,6 @@ export class DiagramDetail {
    */
   public async saveDiagram(): Promise<void> {
     const savingTargetIsRemoteSolution: boolean = this.activeSolutionEntry.uri.startsWith('http');
-
     if (this.diagramIsInvalid || savingTargetIsRemoteSolution) {
       return;
     }
