@@ -432,8 +432,16 @@ export class DiagramDetail {
     this._solutionService.removeOpenDiagramByUri(this.activeDiagram.uri);
     this.bpmnio.saveStateForNewUri = true;
 
-    this.activeDiagram = await this._openDiagramService.openDiagram(path, this.activeSolutionEntry.identity);
-    this._solutionService.addOpenDiagram(this.activeDiagram);
+    try {
+      this.activeDiagram = await this._openDiagramService.openDiagram(path, this.activeSolutionEntry.identity);
+      this._solutionService.addOpenDiagram(this.activeDiagram);
+    } catch {
+      const alreadyOpenedDiagram: IDiagram = await this._openDiagramService.getOpenedDiagramByURI(path);
+
+      await this._openDiagramService.closeDiagram(alreadyOpenedDiagram);
+
+      this.activeDiagram = await this._openDiagramService.openDiagram(path, this.activeSolutionEntry.identity);
+    }
 
     this.xml = this.activeDiagram.xml;
     this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri('about:open-diagrams');
