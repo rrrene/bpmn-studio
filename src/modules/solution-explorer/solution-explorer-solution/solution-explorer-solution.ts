@@ -422,7 +422,7 @@ export class SolutionExplorerSolution {
       return;
     }
 
-    if (this.solutionIsOpenDiagrams) {
+    if (this.displayedSolutionEntry.isOpenDiagramService) {
       this._openNewDiagram();
 
       return;
