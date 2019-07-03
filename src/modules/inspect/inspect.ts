@@ -160,7 +160,10 @@ export class Inspect {
 
     const solutionIsRemote: boolean = solutionUri.startsWith('http');
     if (solutionIsRemote) {
-      this._eventAggregator.publish(environment.events.configPanel.processEngineRouteChanged, solutionUri);
+      this._eventAggregator.publish(
+        environment.events.configPanel.solutionEntryChanged,
+        this._solutionService.getSolutionEntryForUri(solutionUri),
+      );
     }
 
     const diagramIsSet: boolean = diagramName !== undefined;

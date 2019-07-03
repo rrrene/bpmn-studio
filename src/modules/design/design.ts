@@ -113,7 +113,7 @@ export class Design {
           this._ipcRenderer.send('menu_hide-diagram-entries');
         }
 
-        this._eventAggregator.publish(environment.events.configPanel.processEngineRouteChanged, this.activeSolutionEntry.uri);
+        this._eventAggregator.publish(environment.events.configPanel.solutionEntryChanged, this.activeSolutionEntry);
       } else {
         if (isRunningInElectron) {
           this._ipcRenderer.send('menu_show-all-menu-entries');

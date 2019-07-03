@@ -45,7 +45,7 @@ export default {
       showInspectCorrelationButtons: 'statusbar:inspectcorrelationbuttons',
     },
     configPanel: {
-      processEngineRouteChanged: 'configpanel:processEngineRoute:changed',
+      solutionEntryChanged: 'configpanel:solutionentry:changed',
     },
     navBar: {
       showTools: 'navbar:tools:show',
