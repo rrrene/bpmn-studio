@@ -599,17 +599,17 @@ Main._createMainWindow = function () {
     const showMenuEntriesWithoutDiagramEntries = () => {
       const fileMenu = getFileMenu();
 
-      let previousEntryIsSeperator = false;
+      let previousEntryIsSeparator = false;
 
       const filteredSubmenu  = fileMenu.submenu.filter((submenuEntry) => {
         const isSeparator = submenuEntry.type !== undefined && submenuEntry.type === 'separator';
         if(isSeparator) {
           // This is used to prevent double separators
-          if(previousEntryIsSeperator) {
+          if(previousEntryIsSeparator) {
             return false;
           }
 
-          previousEntryIsSeperator = true;
+          previousEntryIsSeparator = true;
           return true;
         }
 
@@ -618,7 +618,7 @@ Main._createMainWindow = function () {
           return false;
         }
 
-        previousEntryIsSeperator = false;
+        previousEntryIsSeparator = false;
         return true;
       });
       fileMenu.submenu = filteredSubmenu;
