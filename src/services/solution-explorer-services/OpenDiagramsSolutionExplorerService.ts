@@ -23,6 +23,8 @@ import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
 @inject('DiagramValidationService', 'SolutionExplorerServiceFactory', 'SolutionService', 'OpenDiagramStateService')
 export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerService {
 
+  public isCreatingDiagram: boolean;
+
   private _validationService: IDiagramValidationService;
   private _solutionExplorerToOpenDiagrams: ISolutionExplorerService;
   private _uriOfOpenDiagramService: string = 'about:open-diagrams';

@@ -882,6 +882,11 @@ export class SolutionExplorerSolution {
     const anotherUnsavedDiagramExists: boolean = unsavedDiagrams.length > 0;
     const newDiagramIndex: number = anotherUnsavedDiagramExists ? Math.max(...unsavedDiagramIndexes) + 1 : 1;
 
+    const solutionIsNotFullyOpen: boolean = this._openedSolution === undefined;
+    if (solutionIsNotFullyOpen) {
+      await this.updateSolution();
+    }
+
     const createdDiagram: IDiagram = await this._diagramCreationService
       .createNewDiagram(this._openedSolution.uri, `Untitled-${newDiagramIndex}`);
 

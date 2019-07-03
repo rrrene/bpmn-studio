@@ -272,7 +272,12 @@ export class SolutionExplorerList {
 
     const solutionIsNotOpened: boolean = viewModelOfEntry === undefined || viewModelOfEntry === null;
     if (solutionIsNotOpened) {
-      await this.openSolution(uri);
+      const uriIsOpenDiagrams: boolean = uri.startsWith('about:open-diagrams');
+      if (uriIsOpenDiagrams) {
+        this.openDiagramService.isCreatingDiagram = true;
+      } else {
+        await this.openSolution(uri);
+      }
     }
 
     /**
@@ -285,6 +290,7 @@ export class SolutionExplorerList {
       }
 
       viewModelOfEntry.startCreationOfNewDiagram();
+      this.openDiagramService.isCreatingDiagram = false;
     }, 0);
   }
 
@@ -323,7 +329,7 @@ export class SolutionExplorerList {
    * `openDiagramService._openedDiagrams.length` observed because
    * aurelia cannot see the business rules happening in this._shouldDisplaySolution().
    */
-  @computedFrom('_openedSolutions.length', 'openDiagramService._openedDiagrams.length')
+  @computedFrom('_openedSolutions.length', 'openDiagramService._openedDiagrams.length', 'openDiagramService.isCreatingDiagram')
   public get openedSolutions(): Array<ISolutionEntry> {
     const filteredEntries: Array<ISolutionEntry> = this._openedSolutions
       .filter(this._shouldDisplaySolution);
@@ -403,24 +409,22 @@ export class SolutionExplorerList {
     return service === this.openDiagramService;
   }
 
-  /**
-   * Wherever to display that solution entry. Some entries are not display if
-   * empty. This method capsules this logic.
-   */
-  private _shouldDisplaySolution(entry: ISolutionEntry): boolean {
-    const service: ISolutionExplorerService = entry.service;
+  private _shouldDisplaySolution: (value: ISolutionEntry, index: number, array: Array<ISolutionEntry>) => boolean =
+    (entry: ISolutionEntry): boolean => {
+      const service: ISolutionExplorerService = entry.service;
 
-    const isOpenDiagramService: boolean = (service as any).getOpenedDiagrams !== undefined;
-    if (isOpenDiagramService) {
-      const openDiagramService: OpenDiagramsSolutionExplorerService = service as OpenDiagramsSolutionExplorerService;
+      const isOpenDiagramService: boolean = (service as any).getOpenedDiagrams !== undefined;
+      if (isOpenDiagramService) {
+        const openDiagramService: OpenDiagramsSolutionExplorerService = service as OpenDiagramsSolutionExplorerService;
 
-      const someDiagramsAreOpened: boolean = openDiagramService.getOpenedDiagrams().length > 0;
+        const someDiagramsAreOpened: boolean = openDiagramService.getOpenedDiagrams().length > 0;
+        const isCreatingDiagram: boolean = this.openDiagramService.isCreatingDiagram;
 
-      return someDiagramsAreOpened;
+        return someDiagramsAreOpened || isCreatingDiagram;
+      }
+
+      return true;
     }
-
-    return true;
-  }
 
   private _getIndexOfSolution(uri: string): number {
     const indexOfSolutionWithURI: number = this._openedSolutions.findIndex((element: ISolutionEntry): boolean => {
