@@ -12,6 +12,10 @@
   padding-top: 2px;
 }
 
+.solution-entry:hover {
+  background-color: rgba(230, 230, 230, 0.6);
+}
+
 .solution-entry:last-child {
   margin-bottom: 10px;
   border-bottom: none;
@@ -63,7 +67,10 @@
 }
 
 .solution-entry__actions {
+  position: absolute;
+  right: 5px;
   display: none;
+  background-color: rgb(234, 234, 234);
 }
 
 .solution-entry__actions_remote-solution {
@@ -99,7 +106,10 @@
 }
 
 .solution-entry__left-icon_and_name {
+  display: flex;
   float: left;
+  height: 20px;
+  max-width: 200px;
 }
 
 .solution-entry__actions button {
@@ -113,9 +123,12 @@
 }
 
 .solution-entry__collapse-header {
-  width: 240px;
+  max-width: 240px;
 }
 
 .collapse__icon {
   width: 10px;
+  padding-top: 2px;
+  padding-right: 14px;
+  margin-left: 2px;
 }
