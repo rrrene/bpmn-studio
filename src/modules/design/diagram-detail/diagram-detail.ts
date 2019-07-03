@@ -377,6 +377,13 @@ export class DiagramDetail {
       return;
     }
 
+    const diagramIsUnsavedDiagram: boolean = this.activeDiagramUri.startsWith('about:open-diagrams');
+    if (diagramIsUnsavedDiagram) {
+      this._electronOnSaveDiagramAs();
+
+      return;
+    }
+
     try {
       const xml: string = await this.bpmnio.getXML();
       this.activeDiagram.xml = xml;
