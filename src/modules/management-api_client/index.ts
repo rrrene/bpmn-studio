@@ -2,6 +2,8 @@ import {IHttpClient} from '@essential-projects/http_contracts';
 import {ExternalAccessor, ManagementApiClientService} from '@process-engine/management_api_client';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {FrameworkConfiguration} from 'aurelia-framework';
+ 
+import {ISolutionEntry} from '../../contracts';
 import environment from '../../environment';
 import {HttpClientProxy} from './HttpClientProxy';
 
@@ -14,24 +16,40 @@ export async function configure(config: FrameworkConfiguration): Promise<void> {
   const urlPrefix: string = `${configuredBaseRoute}/`;
   const proxiedHttpClient: HttpClientProxy = new HttpClientProxy(httpClient, urlPrefix);
 
-  const clientService: ManagementApiClientService = createManagementApiClient(proxiedHttpClient, configuredBaseRoute);
+  const externalAccessor: ExternalAccessor = createExternalAccessor(proxiedHttpClient, configuredBaseRoute);
+  const clientService: ManagementApiClientService = createManagementApiClient(externalAccessor);
 
-  // register event to change url prefix
+  let test = 0;
+  // register event to change process engine route
   const eventAggregator: EventAggregator = config.container.get(EventAggregator);
-  eventAggregator.subscribe(environment.events.configPanel.processEngineRouteChanged, (newUrlPrefix: string) => {
-    proxiedHttpClient.setUrlPrefix(`${newUrlPrefix}/`);
+  eventAggregator.subscribe(environment.events.configPanel.solutionEntryChanged, (newSolutionEntry: ISolutionEntry) => {
+    proxiedHttpClient.setUrlPrefix(`${newSolutionEntry.uri}/`);
+    console.log(newSolutionEntry);
+    externalAccessor.config = {
+      socketUrl: newSolutionEntry.uri,
+    };
+
+    test++;
+
+    if (test > 1) {
+      externalAccessor.disconnectSocket(newSolutionEntry.identity);
+      externalAccessor.initializeSocket(newSolutionEntry.identity);
+    }
   });
 
   config.container.registerInstance('ManagementApiClientService', clientService);
 }
 
-function createManagementApiClient(httpClient: IHttpClient, socketUrl: string): ManagementApiClientService {
-
+function createExternalAccessor(httpClient: IHttpClient, socketUrl: string): ExternalAccessor {
   const externalAccessor: ExternalAccessor = new ExternalAccessor(httpClient);
 
   externalAccessor.config = {
     socketUrl: socketUrl,
   };
 
+  return externalAccessor;
+}
+
+function createManagementApiClient(externalAccessor: ExternalAccessor): ManagementApiClientService {
   return new ManagementApiClientService(externalAccessor);
 }
