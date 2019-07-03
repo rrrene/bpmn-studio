@@ -261,9 +261,9 @@ export class SolutionExplorerSolution {
     try {
       this._openedSolution = await this.solutionService.loadSolution();
 
-      const updatedDiagramList: Array<IDiagram> = this.displayedSolutionEntry.isOpenDiagramService ?
-                                                  this._openedSolution.diagrams :
-                                                  this._openedSolution.diagrams.sort(this._diagramSorter);
+      const updatedDiagramList: Array<IDiagram> = this.displayedSolutionEntry.isOpenDiagramService
+                                                  ? this._openedSolution.diagrams
+                                                  : this._openedSolution.diagrams.sort(this._diagramSorter);
 
       const diagramsOfSolutionChanged: boolean = this._sortedDiagramsOfSolutions.toString() !== updatedDiagramList.toString();
       if (diagramsOfSolutionChanged) {
