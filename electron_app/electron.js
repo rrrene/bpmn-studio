@@ -597,11 +597,10 @@ Main._createMainWindow = function () {
     };
 
     const showMenuEntriesWithoutDiagramEntries = () => {
-      const fileMenu = getFileMenu();
-
       let previousEntryIsSeparator = false;
 
-      const filteredSubmenu  = fileMenu.submenu.filter((submenuEntry) => {
+      const fileMenu = getFileMenu();
+      const filteredFileSubmenu  = fileMenu.submenu.filter((submenuEntry) => {
         const isSeparator = submenuEntry.type !== undefined && submenuEntry.type === 'separator';
         if(isSeparator) {
           // This is used to prevent double separators
@@ -621,7 +620,7 @@ Main._createMainWindow = function () {
         previousEntryIsSeparator = false;
         return true;
       });
-      fileMenu.submenu = filteredSubmenu;
+      fileMenu.submenu = filteredFileSubmenu;
 
       const template = [
         getApplicationMenu(),
