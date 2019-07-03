@@ -19,6 +19,10 @@ export class Think {
   private _solutionService: ISolutionService;
   private _notificationService: NotificationService;
 
+  private _diagramSelected: boolean = false;
+
+  private _ipcRenderer: any;
+
   constructor(solutionService: ISolutionService, notificationService: NotificationService) {
     this._solutionService = solutionService;
     this._notificationService = notificationService;
@@ -26,6 +30,8 @@ export class Think {
 
   public async canActivate(routeParameters: IThinkRouteParameters): Promise<boolean> {
     const solutionUriIsSet: boolean = routeParameters.solutionUri !== undefined;
+
+    this._diagramSelected = routeParameters.diagramName !== undefined;
 
     const solutionUri: string = solutionUriIsSet
                               ? routeParameters.solutionUri
@@ -47,9 +53,31 @@ export class Think {
 
   public activate(): void {
     this.showDiagramList = true;
+
+    const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
+
+    if (isRunningInElectron) {
+      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+      this._ipcRenderer.on('menubar__start_close_diagram', this._closeBpmnStudio);
+    }
+  }
+
+  public deactivate(): void {
+    const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
+
+    if (isRunningInElectron) {
+      this._ipcRenderer.removeListener('menubar__start_close_diagram', this._closeBpmnStudio);
+    }
   }
 
   public determineActivationStrategy(): string {
      return activationStrategy.replace;
+  }
+
+  private _closeBpmnStudio: Function = (): void => {
+
+    if (!this._diagramSelected) {
+      this._ipcRenderer.send('close_bpmn-studio');
+    }
   }
 }

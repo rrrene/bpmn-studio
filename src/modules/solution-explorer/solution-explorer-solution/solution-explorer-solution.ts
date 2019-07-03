@@ -23,6 +23,7 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 import {
   IDiagramCreationService,
   IDiagramState,
+  IDiagramStateList,
   ISolutionEntry,
   ISolutionService,
   NotificationType,
@@ -93,7 +94,6 @@ export class SolutionExplorerSolution {
   // Fields below are bound from the html view.
   @bindable public solutionService: ISolutionExplorerService;
   @bindable public openDiagramService: OpenDiagramsSolutionExplorerService;
-  @bindable public solutionIsOpenDiagrams: boolean;
   @bindable public displayedSolutionEntry: ISolutionEntry;
   @bindable public fontAwesomeIconClass: string;
   public createNewDiagramInput: HTMLInputElement;
@@ -106,6 +106,7 @@ export class SolutionExplorerSolution {
   private _originalIconClass: string;
   private _globalSolutionService: ISolutionService;
   private _diagramInContextMenu: IDiagram;
+  private _ipcRenderer: any;
 
   private _sortedDiagramsOfSolutions: Array<IDiagram> = [];
 
@@ -130,6 +131,8 @@ export class SolutionExplorerSolution {
   public async attached(): Promise<void> {
     this._isAttached = true;
 
+    this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+
     this._originalIconClass = this.fontAwesomeIconClass;
     this._updateSolutionExplorer();
 
@@ -139,13 +142,22 @@ export class SolutionExplorerSolution {
       }),
     ];
 
-    if (this.solutionIsOpenDiagrams) {
+    if (this.displayedSolutionEntry.isOpenDiagramService) {
       const updateSubscription: Subscription =
         this._eventAggregator.subscribe(environment.events.solutionExplorer.updateOpenDiagrams, (): void => {
           this.updateSolution();
         });
 
       this._subscriptions.push(updateSubscription);
+
+      this._ipcRenderer.on('menubar__start_close_diagram', this._closeDiagramEventFunction);
+      this._ipcRenderer.on('menubar__start_close_all_diagrams', this._closeAllDiagramsEventFunction);
+      this._ipcRenderer.on('menubar__start_save_all_diagrams', this._saveAllDiagramsEventFunction);
+    }
+
+    const solutionIsRemoteSolution: boolean = this.displayedSolutionEntry.uri.startsWith('http');
+    if (solutionIsRemoteSolution) {
+      this._ipcRenderer.on('menubar__start_close_diagram', this._closeDiagramEventFunction);
     }
 
     if (this.displayedSolutionEntry.uri.startsWith('http')) {
@@ -197,6 +209,12 @@ export class SolutionExplorerSolution {
     if (this._isCurrentlyRenamingDiagram) {
       this._resetDiagramRenaming();
     }
+
+    if (this.displayedSolutionEntry.isOpenDiagramService) {
+      this._ipcRenderer.removeListener('menubar__start_close_diagram', this._closeDiagramEventFunction);
+      this._ipcRenderer.removeListener('menubar__start_close_all_diagrams', this._closeAllDiagramsEventFunction);
+      this._ipcRenderer.removeListener('menubar__start_save_all_diagrams', this._saveAllDiagramsEventFunction);
+    }
   }
 
   public async showDeleteDiagramModal(diagram: IDiagram, event: Event): Promise<void> {
@@ -243,7 +261,7 @@ export class SolutionExplorerSolution {
     try {
       this._openedSolution = await this.solutionService.loadSolution();
 
-      const updatedDiagramList: Array<IDiagram> = this.solutionIsOpenDiagrams ?
+      const updatedDiagramList: Array<IDiagram> = this.displayedSolutionEntry.isOpenDiagramService ?
                                                   this._openedSolution.diagrams :
                                                   this._openedSolution.diagrams.sort(this._diagramSorter);
 
@@ -271,8 +289,11 @@ export class SolutionExplorerSolution {
   /*
    * Used when this is a open diagram solution explorer service.
    */
-  public async closeDiagram(diagram: IDiagram, event: Event): Promise<void> {
-    event.stopPropagation();
+  public async closeDiagram(diagram: IDiagram, event?: Event): Promise<void> {
+    const eventSet: boolean = event !== undefined;
+    if (eventSet) {
+      event.stopPropagation();
+    }
 
     const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(diagram.uri);
     const diagramHasUnsavedChanges: boolean = diagramState !== null && diagramState.metaData.isChanged;
@@ -287,12 +308,17 @@ export class SolutionExplorerSolution {
 
     const closedDiagramWasActiveDiagram: boolean = this.activeDiagramUri === diagram.uri;
     if (closedDiagramWasActiveDiagram) {
-      const subscription: Subscription = this._eventAggregator.subscribe('router:navigation:success', () => {
-        this._closeDiagram(diagram);
-        subscription.dispose();
-      });
 
-      this._router.navigateToRoute('start-page');
+      return new Promise<void>((resolve: Function): void => {
+        const subscription: Subscription = this._eventAggregator.subscribe('router:navigation:success', () => {
+          this._closeDiagram(diagram);
+          subscription.dispose();
+
+          resolve();
+        });
+
+        this._router.navigateToRoute('start-page');
+      });
     } else {
       this._closeDiagram(diagram);
     }
@@ -441,7 +467,7 @@ export class SolutionExplorerSolution {
   }
 
   public canRenameDiagram(): boolean {
-    return !this.solutionIsOpenDiagrams
+    return !this.displayedSolutionEntry.isOpenDiagramService
             && this._openedSolution
             && !this._isUriFromRemoteSolution(this._openedSolution.uri);
   }
@@ -462,7 +488,7 @@ export class SolutionExplorerSolution {
   }
 
   public canDeleteDiagram(): boolean {
-    return !this.solutionIsOpenDiagrams && this._openedSolution !== undefined;
+    return !this.displayedSolutionEntry.isOpenDiagramService && this._openedSolution !== undefined;
   }
 
   public get solutionIsNotLoaded(): boolean {
@@ -515,7 +541,7 @@ export class SolutionExplorerSolution {
      * "Open Diagrams"-Solution we need to return the uri anyway.
      */
     const openDiagramSolutionIsActive: boolean = solutionUri === 'about:open-diagrams';
-    if (this.solutionIsOpenDiagrams && openDiagramSolutionIsActive) {
+    if (this.displayedSolutionEntry.isOpenDiagramService && openDiagramSolutionIsActive) {
       return this.activeDiagram.uri;
     }
 
@@ -549,8 +575,34 @@ export class SolutionExplorerSolution {
     this._navigateToDetailView(diagram);
   }
 
+  private _closeDiagramEventFunction: Function = (): void => {
+    const noDiagramIsActive: boolean = this.activeDiagram === undefined;
+    if (noDiagramIsActive) {
+      return;
+    }
+
+    const solutionIsRemoteSolution: boolean = this.displayedSolutionEntry.uri.startsWith('http');
+    if (solutionIsRemoteSolution) {
+      this._router.navigateToRoute('start-page');
+    } else {
+      this.closeDiagram(this.activeDiagram);
+    }
+  }
+
+  private _closeAllDiagramsEventFunction: Function = async(): Promise<void> => {
+    const currentlyOpenDiagrams: Array<IDiagram> = this.openedDiagrams.slice();
+
+    for (const openDiagram of currentlyOpenDiagrams) {
+      await this.closeDiagram(openDiagram);
+    }
+  }
+
+  private _saveAllDiagramsEventFunction: Function = (): void => {
+    this._saveAllUnsavedDiagrams();
+  }
+
   private _startPolling(): void {
-    if (this.solutionIsOpenDiagrams) {
+    if (this.displayedSolutionEntry.isOpenDiagramService) {
       return;
     }
 
@@ -624,10 +676,36 @@ export class SolutionExplorerSolution {
     return sorter;
   }
 
+  private async _saveAllUnsavedDiagrams(): Promise<void> {
+    const diagramStateList: IDiagramStateList = this._openDiagramStateService.loadDiagramStateForAllDiagrams();
+
+    for (const diagramStateListEntry of diagramStateList) {
+      const isActiveDiagram: boolean = this.activeDiagram !== undefined && this.activeDiagram.uri === diagramStateListEntry.uri;
+      if (isActiveDiagram) {
+        this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
+
+        continue;
+      }
+
+      const diagramToSave: IDiagram = this.openedDiagrams.find((diagram: IDiagram) => {
+        return diagram.uri === diagramStateListEntry.uri;
+      });
+
+      diagramToSave.xml = diagramStateListEntry.diagramState.data.xml;
+
+      await this.openDiagramService.saveDiagram(diagramToSave);
+      const diagramState: IDiagramState = diagramStateListEntry.diagramState;
+
+      diagramState.metaData.isChanged = false;
+
+      this._openDiagramStateService.updateDiagramState(diagramStateListEntry.uri, diagramState);
+    }
+  }
+
   private _refreshDisplayedDiagrams(): void {
-    this._sortedDiagramsOfSolutions = this.solutionIsOpenDiagrams ?
-                                      this._openedSolution.diagrams :
-                                      this._openedSolution.diagrams.sort(this._diagramSorter);
+    this._sortedDiagramsOfSolutions = this.displayedSolutionEntry.isOpenDiagramService
+                                      ? this._openedSolution.diagrams
+                                      : this._openedSolution.diagrams.sort(this._diagramSorter);
   }
 
   private _closeDiagram(diagramToClose: IDiagram): void {

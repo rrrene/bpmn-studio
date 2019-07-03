@@ -11,6 +11,8 @@ export class StartPage {
   public isRunningOnWindows: boolean = false;
   public isRunningOnMacOS: boolean = false;
 
+  private _ipcRenderer: any;
+
   constructor(eventAggregator: EventAggregator) {
     this._eventAggregator = eventAggregator;
   }
@@ -20,6 +22,13 @@ export class StartPage {
       this.isRunningOnWindows = process.platform === 'win32';
       this.isRunningOnMacOS = process.platform === 'darwin';
     }
+
+    this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+    this._ipcRenderer.on('menubar__start_close_diagram', this._closeBpmnStudio);
+  }
+
+  public deactivate(): void {
+    this._ipcRenderer.removeListener('menubar__start_close_diagram', this._closeBpmnStudio);
   }
 
   public openLocalSolution(): void {
@@ -32,5 +41,9 @@ export class StartPage {
 
   public createNewDiagram(): void {
     this._eventAggregator.publish(environment.events.startPage.createDiagram);
+  }
+
+  private _closeBpmnStudio: Function = (): void => {
+    this._ipcRenderer.send('close_bpmn-studio');
   }
 }

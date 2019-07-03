@@ -103,6 +103,12 @@ export class DiagramDetail {
     if (isRunningInElectron) {
       this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
       this._ipcRenderer.on('menubar__start_save_diagram_as', this._electronOnSaveDiagramAs);
+
+      const triggerSaveDiagramEvent: Function = (): void => {
+        this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
+      };
+
+      this._ipcRenderer.on('menubar__start_save_diagram', triggerSaveDiagramEvent);
     }
 
     this._eventAggregator.publish(environment.events.navBar.showTools);
@@ -577,6 +583,11 @@ export class DiagramDetail {
   }
 
   private _electronOnSaveDiagramAs = async(_?: Event): Promise<void> => {
+    const isRemoteSolution: boolean = this.activeDiagramUri.startsWith('http');
+    if (isRemoteSolution) {
+      return;
+    }
+
     this._ipcRenderer.send('open_save-diagram-as_dialog');
 
     this._ipcRenderer.once('save_diagram_as', async(event: Event, savePath: string) => {
