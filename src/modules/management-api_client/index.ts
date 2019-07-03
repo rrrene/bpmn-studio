@@ -1,8 +1,9 @@
-import {IHttpClient} from '@essential-projects/http_contracts';
-import {ExternalAccessor, ManagementApiClientService} from '@process-engine/management_api_client';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {FrameworkConfiguration} from 'aurelia-framework';
- 
+
+import {IHttpClient} from '@essential-projects/http_contracts';
+import {ExternalAccessor, ManagementApiClientService} from '@process-engine/management_api_client';
+
 import {ISolutionEntry} from '../../contracts';
 import environment from '../../environment';
 import {HttpClientProxy} from './HttpClientProxy';
