@@ -145,10 +145,10 @@ export class LiveExecutionTracker {
     this._overlays = this._diagramViewer.get('overlays');
 
     const fitViewportForDiagramViewerOnce: Function = (): void => {
-      this._diagramViewer.off('viewbox.changed', fitViewportForDiagramViewerOnce);
+      this._diagramViewer.off('import.done', fitViewportForDiagramViewerOnce);
       this._viewerCanvas.zoom('fit-viewport', 'auto');
     };
-    this._diagramViewer.on('viewbox.changed', fitViewportForDiagramViewerOnce);
+    this._diagramViewer.on('import.done', fitViewportForDiagramViewerOnce);
     this._diagramViewer.attachTo(this.canvasModel);
 
     this._diagramViewer.on('element.click', this._elementClickHandler);
