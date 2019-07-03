@@ -625,6 +625,7 @@ Main._createMainWindow = function () {
       const template = [
         getApplicationMenu(),
         fileMenu,
+        getEditMenu(),
         getWindowMenu(),
         getHelpMenu(),
       ];
