@@ -156,15 +156,19 @@ export class SolutionExplorerList {
         processEngineVersion = responseJSON.version;
       }
     } catch (error) {
-
       this._solutionService.removeSolutionEntryByUri(uri);
 
-      /**
-       * TODO: The error message only contains 'Failed to fetch' if the connection
-       * failed. A more detailed cause (such as Connection Refused) would
-       * be better. This needs to be implemented in the service or repository.
-       */
-      throw new Error('Failed to receive the list of ProcessModels from the endpoint');
+      const errorIsFailedToFetch: boolean = error.message === 'Failed to fetch';
+      if (errorIsFailedToFetch) {
+        /**
+         * TODO: The error message only contains 'Failed to fetch' if the connection
+         * failed. A more detailed cause (such as Connection Refused) would
+         * be better. This needs to be implemented in the service or repository.
+         */
+        throw new Error('Failed to receive the list of ProcessModels from the endpoint');
+      }
+
+      throw error;
     }
 
     const newOpenedSolution: ISolution = await solutionExplorer.loadSolution();
