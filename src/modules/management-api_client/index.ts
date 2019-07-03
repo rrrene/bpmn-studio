@@ -19,21 +19,22 @@ export async function configure(config: FrameworkConfiguration): Promise<void> {
   const externalAccessor: ExternalAccessor = createExternalAccessor(proxiedHttpClient, configuredBaseRoute);
   const clientService: ManagementApiClientService = createManagementApiClient(externalAccessor);
 
-  let test = 0;
+  let socketIsAlreadyInitialized: boolean = false;
+
   // register event to change process engine route
   const eventAggregator: EventAggregator = config.container.get(EventAggregator);
   eventAggregator.subscribe(environment.events.configPanel.solutionEntryChanged, (newSolutionEntry: ISolutionEntry) => {
     proxiedHttpClient.setUrlPrefix(`${newSolutionEntry.uri}/`);
-    console.log(newSolutionEntry);
+
     externalAccessor.config = {
       socketUrl: newSolutionEntry.uri,
     };
 
-    test++;
-
-    if (test > 1) {
+    if (socketIsAlreadyInitialized) {
       externalAccessor.disconnectSocket(newSolutionEntry.identity);
       externalAccessor.initializeSocket(newSolutionEntry.identity);
+    } else {
+      socketIsAlreadyInitialized = true;
     }
   });
 
