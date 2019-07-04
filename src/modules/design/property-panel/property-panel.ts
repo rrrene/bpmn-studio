@@ -87,7 +87,9 @@ export class PropertyPanel {
   private _selectPreviouslySelectedOrFirstElement(): void {
     const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(this.diagramUri);
 
-    const noSelectedElementState: boolean = diagramState === null || diagramState.metaData.selectedElements.length === 0;
+    const noSelectedElementState: boolean = diagramState === null
+                                         || diagramState.metaData.selectedElements === undefined
+                                         || diagramState.metaData.selectedElements.length === 0;
     if (noSelectedElementState) {
       this.setFirstElement();
 

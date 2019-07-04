@@ -10,9 +10,6 @@ import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 import {SolutionExplorerList} from '../solution-explorer-list/solution-explorer-list';
 
-import * as os from 'os';
-import * as path from 'path';
-
 /**
  * This component handels:
  *  - Opening files via drag and drop
@@ -308,7 +305,13 @@ export class SolutionExplorerPanel {
   }
 
   private _electronOnCreateDiagram = async(_: Event): Promise<void> => {
-    this._createNewDiagram();
+    this._openNewDiagram();
+  }
+
+  private _openNewDiagram(): void {
+    const uri: string = 'about:open-diagrams';
+
+    this.solutionExplorerList.createDiagram(uri);
   }
 
   private _createNewDiagram(): void {
@@ -316,12 +319,11 @@ export class SolutionExplorerPanel {
     const activeSolution: ISolutionEntry = this._solutionService.getSolutionEntryForUri(activeSolutionUri);
 
     const activeSolutionCanCreateDiagrams: boolean = activeSolution !== undefined
-                                                  && !activeSolution.uri.startsWith('http')
-                                                  && activeSolution.canCreateNewDiagramsInSolution;
+                                                  && !activeSolution.uri.startsWith('http');
 
     const uri: string = activeSolutionCanCreateDiagrams
                         ? activeSolutionUri
-                        : path.join(os.homedir(), 'Desktop');
+                        : 'about:open-diagrams';
 
     this.solutionExplorerList.createDiagram(uri);
   }

@@ -261,9 +261,9 @@ export class SolutionExplorerSolution {
     try {
       this._openedSolution = await this.solutionService.loadSolution();
 
-      const updatedDiagramList: Array<IDiagram> = this.displayedSolutionEntry.isOpenDiagramService ?
-                                                  this._openedSolution.diagrams :
-                                                  this._openedSolution.diagrams.sort(this._diagramSorter);
+      const updatedDiagramList: Array<IDiagram> = this.displayedSolutionEntry.isOpenDiagramService
+                                                  ? this._openedSolution.diagrams
+                                                  : this._openedSolution.diagrams.sort(this._diagramSorter);
 
       const diagramsOfSolutionChanged: boolean = this._sortedDiagramsOfSolutions.toString() !== updatedDiagramList.toString();
       if (diagramsOfSolutionChanged) {
@@ -419,6 +419,12 @@ export class SolutionExplorerSolution {
 
     // Dont allow new diagram creation, if already renaming another diagram.
     if (this._isCurrentlyRenamingDiagram) {
+      return;
+    }
+
+    if (this.displayedSolutionEntry.isOpenDiagramService) {
+      this._openNewDiagram();
+
       return;
     }
 
@@ -858,6 +864,39 @@ export class SolutionExplorerSolution {
     const invalidCharacterString: string = `${filteredInvalidCharacters}`.replace(/(.)./g, '$1 ');
 
     return `${messagePrefix} ${invalidCharacterString}`;
+  }
+
+  private async _openNewDiagram(): Promise<void> {
+    const unsavedDiagrams: Array<IDiagram> = this.openedDiagrams.filter((diagram: IDiagram): boolean => {
+      const diagramIsUnsavedDiagram: boolean = diagram.name.startsWith('Untitled');
+
+      return diagramIsUnsavedDiagram;
+    });
+
+    const unsavedDiagramIndexes: Array<number> = unsavedDiagrams.map((diagram: IDiagram) => {
+      const diagramIndex: number = parseInt(diagram.name.replace('Untitled-', ''));
+
+      return diagramIndex;
+    });
+
+    const anotherUnsavedDiagramExists: boolean = unsavedDiagrams.length > 0;
+    const newDiagramIndex: number = anotherUnsavedDiagramExists ? Math.max(...unsavedDiagramIndexes) + 1 : 1;
+
+    const solutionIsNotFullyOpen: boolean = this._openedSolution === undefined;
+    if (solutionIsNotFullyOpen) {
+      await this.updateSolution();
+    }
+
+    const createdDiagram: IDiagram = await this._diagramCreationService
+      .createNewDiagram(this._openedSolution.uri, `Untitled-${newDiagramIndex}`);
+
+    this._openDiagramStateService.saveDiagramState(createdDiagram.uri, createdDiagram.xml, undefined, undefined, true);
+
+    this.openDiagramService.openDiagramFromSolution(createdDiagram.uri, this._createIdentityForSolutionExplorer());
+
+    await this.updateSolution();
+
+    this._navigateToDetailView(createdDiagram);
   }
 
   /**

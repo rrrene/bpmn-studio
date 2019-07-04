@@ -373,8 +373,14 @@ export class DiagramDetail {
    */
   public async saveDiagram(): Promise<void> {
     const savingTargetIsRemoteSolution: boolean = this.activeSolutionEntry.uri.startsWith('http');
-
     if (this.diagramIsInvalid || savingTargetIsRemoteSolution) {
+      return;
+    }
+
+    const diagramIsUnsavedDiagram: boolean = this.activeDiagramUri.startsWith('about:open-diagrams');
+    if (diagramIsUnsavedDiagram) {
+      this._electronOnSaveDiagramAs();
+
       return;
     }
 
@@ -401,10 +407,27 @@ export class DiagramDetail {
       return;
     }
 
-    const xml: string = await this._getXML();
+    let xml: string = await this._getXML();
 
     if (!xml) {
       return;
+    }
+
+    const diagramIsUnsaved: boolean = this.activeDiagramUri.startsWith('about:open-diagrams');
+    if (diagramIsUnsaved) {
+      const lastIndexOfSlash: number = path.lastIndexOf('/');
+      const lastIndexOfBackSlash: number = path.lastIndexOf('\\');
+      const indexBeforeFilename: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash) + 1;
+
+      const filename: string = path
+                                .slice(indexBeforeFilename, path.length)
+                                .replace('.bpmn', '');
+
+      const temporaryDiagramName: string = this.activeDiagramUri
+                                                  .replace('about:open-diagrams/', '')
+                                                  .replace('.bpmn', '');
+
+      xml = xml.replace(new RegExp(temporaryDiagramName, 'g'), filename);
     }
 
     const diagram: IDiagram = {
@@ -426,8 +449,16 @@ export class DiagramDetail {
     this._solutionService.removeOpenDiagramByUri(this.activeDiagram.uri);
     this.bpmnio.saveStateForNewUri = true;
 
-    this.activeDiagram = await this._openDiagramService.openDiagram(path, this.activeSolutionEntry.identity);
-    this._solutionService.addOpenDiagram(this.activeDiagram);
+    try {
+      this.activeDiagram = await this._openDiagramService.openDiagram(path, this.activeSolutionEntry.identity);
+      this._solutionService.addOpenDiagram(this.activeDiagram);
+    } catch {
+      const alreadyOpenedDiagram: IDiagram = await this._openDiagramService.getOpenedDiagramByURI(path);
+
+      await this._openDiagramService.closeDiagram(alreadyOpenedDiagram);
+
+      this.activeDiagram = await this._openDiagramService.openDiagram(path, this.activeSolutionEntry.identity);
+    }
 
     this.xml = this.activeDiagram.xml;
     this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri('about:open-diagrams');
