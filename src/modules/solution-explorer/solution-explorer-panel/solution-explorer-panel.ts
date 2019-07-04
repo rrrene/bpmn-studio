@@ -147,6 +147,10 @@ export class SolutionExplorerPanel {
   }
 
   public async openRemoteSolution(): Promise<void> {
+    if (!this.uriIsValid || this.uriIsEmpty) {
+      return;
+    }
+
     try {
       const lastCharacterIsASlash: boolean = this.uriOfRemoteSolution.endsWith('/');
       if (lastCharacterIsASlash) {
