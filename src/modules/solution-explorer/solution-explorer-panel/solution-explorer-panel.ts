@@ -164,8 +164,7 @@ export class SolutionExplorerPanel {
       this._notificationService.showNotification(NotificationType.ERROR, `${genericMessage}<br />${cause}`);
     }
 
-    this.uriOfRemoteSolution = undefined;
-    this.showOpenRemoteSolutionModal = false;
+    this.closeRemoteSolutionModal();
   }
 
   /**
