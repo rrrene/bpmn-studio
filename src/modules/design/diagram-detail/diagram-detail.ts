@@ -402,15 +402,26 @@ export class DiagramDetail {
     }
   }
 
-  public async saveDiagramAs(path: string): Promise<void> {
+  public async saveDiagramAs(path: string, previousDiagramName?: string): Promise<void> {
     if (this.diagramIsInvalid) {
       return;
     }
 
-    const xml: string = await this._getXML();
+    let xml: string = await this._getXML();
 
     if (!xml) {
       return;
+    }
+
+    const replaceDiagramName: boolean = previousDiagramName !== undefined;
+    if (replaceDiagramName) {
+      const lastIndexOfSlash: number = path.lastIndexOf('/');
+      const lastIndexOfBackSlash: number = path.lastIndexOf('\\');
+      const indexBeforeFilename: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash) + 1;
+
+      const filename: string = path.slice(indexBeforeFilename, path.length).replace('.bpmn', '');
+
+      xml = xml.replace(new RegExp(previousDiagramName, 'g'), filename);
     }
 
     const diagram: IDiagram = {
@@ -646,6 +657,15 @@ export class DiagramDetail {
     this._ipcRenderer.once('save_diagram_as', async(event: Event, savePath: string) => {
       const noFileSelected: boolean = savePath === null;
       if (noFileSelected) {
+        return;
+      }
+
+      const diagramIsUnsaved: boolean = this.activeDiagramUri.startsWith('about:open-diagrams');
+      if (diagramIsUnsaved) {
+        const temporaryDiagramName: string = this.activeDiagramUri.replace('about:open-diagrams/', '').replace('.bpmn', '');
+
+        await this.saveDiagramAs(savePath, temporaryDiagramName);
+
         return;
       }
 
