@@ -331,15 +331,13 @@ export class SolutionExplorerPanel {
   }
 
   private _addSolutionToRemoteSolutionHistory(solutionUri: string): void {
+    this._removeSolutionFromSolutionHistroy(solutionUri);
+
     const remoteSolutionHistory: Array<string> = this._loadRemoteSolutionHistory();
 
-    const uniqueRemoteSolutionHistory: Array<string> = remoteSolutionHistory.filter((remoteSolutionUri: string) => {
-      return remoteSolutionUri !== this.uriOfRemoteSolution;
-    });
+    remoteSolutionHistory.push(solutionUri);
 
-    uniqueRemoteSolutionHistory.push(this.uriOfRemoteSolution);
-
-    this._saveRemoteSolutionHistory(uniqueRemoteSolutionHistory);
+    this._saveRemoteSolutionHistory(remoteSolutionHistory);
   }
 
   private _removeSolutionFromSolutionHistroy(solutionUri: string): void {
