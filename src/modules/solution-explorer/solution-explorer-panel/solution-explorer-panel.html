@@ -65,9 +65,7 @@
               class.bind="uriOfRemoteSolution === remoteSolution.uri ? 'remote-solution-list__remote-solution-selected' : ''"
               title.bind="remoteSolution.status ? 'Remote solution is online.' : 'Remote solution is offline.'"
               click.delegate="selectRemoteSolution(remoteSolution.uri)">
-            <i class="fas fa-circle"
-                css.bind="remoteSolution.status ? 'color: limegreen;' : 'color: red;'">
-            </i>
+            <i class="fas" class.bind="remoteSolution.status ? 'fa-database' : 'fa-bolt'"></i>
             <span >${remoteSolution.uri}</span>
           </div>
         </div>
