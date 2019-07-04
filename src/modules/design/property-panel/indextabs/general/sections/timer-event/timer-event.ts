@@ -109,6 +109,9 @@ export class TimerEventSection implements ISection {
   }
 
   public updateTimerDefinition(): void {
+    const timeElement: IModdleElement = this._getTimerElement();
+    timeElement.body = this.timerElement.body;
+
     this._publishDiagramChange();
     this._updateLinterWhenActive();
   }
@@ -116,7 +119,7 @@ export class TimerEventSection implements ISection {
   private _init(): void {
     const {timeDate, timeDuration, timeCycle} = this._businessObjInPanel.eventDefinitions[0];
 
-    if (timeCycle !== undefined &&  this.isTimerStartEvent) {
+    if (timeCycle !== undefined && this.isTimerStartEvent) {
       this.timerType = TimerType.Cycle;
       return;
     }
