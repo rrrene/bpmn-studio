@@ -140,5 +140,17 @@
       </template>
     </modal>
 
+    <modal show.bind="diagramDetail.showDiagramExistingModal"
+          header-text="Warning: Diagram already exists!">
+      <template replace-part="modal-body">
+        The target solution already contains a diagram with that name and ID.<br>
+        Are you sure you want to overwrite the deployed diagram with your local version?
+      </template>
+      <template replace-part="modal-footer">
+        <button type="button" class="btn btn-default" id="cancelDiagramDeploy">Cancel</button>
+        <button type="button" class="btn btn-primary" id="overrideDiagramOnSolution">Deploy</button>
+      </template>
+    </modal>
+
   </div>
 </template>
