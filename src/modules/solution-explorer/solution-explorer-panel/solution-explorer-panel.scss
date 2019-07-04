@@ -81,9 +81,15 @@
    */
   margin-bottom: -1px;
   overflow: hidden;
+  color: darkgray;
   border-bottom: 1px solid #ccc;
   user-select: none;
   cursor: pointer;
+}
+
+.remote-solution-list__remote-solution:hover {
+  background-color: rgba(204, 204, 204, 0.25);
+  color: black;
 }
 
 .remote-solution-list__solution-data {
@@ -94,5 +100,6 @@
 }
 
 .remote-solution-list__remote-solution-selected {
-  background-color: rgba(204, 204, 204, 0.5);
+  background-color: rgba(204, 204, 204, 0.5) !important;
+  color: black;
 }
