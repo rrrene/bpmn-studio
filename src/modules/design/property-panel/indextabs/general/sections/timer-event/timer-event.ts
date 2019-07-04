@@ -117,8 +117,8 @@ export class TimerEventSection implements ISection {
   }
 
   public updateTimerDefinition(): void {
-    const timeElement: IModdleElement = this._getTimerElement();
-    timeElement.body = this.timerElement.body;
+    const timerElement: IModdleElement = this._getTimerElement();
+    timerElement.body = this.timerElement.body;
 
     this._publishDiagramChange();
     this._updateLinterWhenActive();
@@ -221,7 +221,7 @@ export class TimerEventSection implements ISection {
   private _createProperty(propertyName: string): void {
     const propertiesElement: IPropertiesElement = this._getPropertiesElement();
 
-    const propertyObject: Object = {
+    const propertyObject: object = {
       name: propertyName,
       value: '',
     };
