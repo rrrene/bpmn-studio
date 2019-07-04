@@ -1,5 +1,5 @@
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import {bindable, inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
@@ -9,6 +9,8 @@ import {NotificationType} from '../../../contracts/index';
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 import {SolutionExplorerList} from '../solution-explorer-list/solution-explorer-list';
+
+type RemoteSolutionUriWithStatus = {uri: string, status: boolean};
 
 /**
  * This component handels:
@@ -29,14 +31,17 @@ export class SolutionExplorerPanel {
   private _ipcRenderer: any | null = null;
   private _subscriptions: Array<Subscription> = [];
   private _solutionService: ISolutionService;
+  private _remoteSolutionHistoryStatusPollingTimer: NodeJS.Timer;
+  private _remoteSolutionHistoryStatusIsPolling: boolean;
 
   // Fields below are bound from the html view.
   public solutionExplorerList: SolutionExplorerList;
   public solutionInput: HTMLInputElement;
   public openDiagramInput: HTMLInputElement;
   public showOpenRemoteSolutionModal: boolean = false;
-  public uriOfRemoteSolution: string;
+  @bindable public uriOfRemoteSolution: string;
   public solutionExplorerPanel: SolutionExplorerPanel = this;
+  public remoteSolutionHistoryStatus: Map<string, boolean> = new Map<string, boolean>();
 
   constructor(
     eventAggregator: EventAggregator,
@@ -137,13 +142,21 @@ export class SolutionExplorerPanel {
     }
   }
 
-  public openRemoteSolutionModal(): void {
+  public async openRemoteSolutionModal(): Promise<void> {
     this.showOpenRemoteSolutionModal = true;
+
+    await this._updateRemoteSolutionHistoryStatus();
+    this._startPollingOfRemoteSolutionHistoryStatus();
+  }
+
+  public removeSolutionFromHistory(solutionUri: string): void {
+    this._removeSolutionFromSolutionHistroy(solutionUri);
   }
 
   public closeRemoteSolutionModal(): void {
     this.showOpenRemoteSolutionModal = false;
     this.uriOfRemoteSolution = undefined;
+    this._stopPollingOfRemoteSolutionHistoryStatus();
   }
 
   public async openRemoteSolution(): Promise<void> {
@@ -151,11 +164,15 @@ export class SolutionExplorerPanel {
       return;
     }
 
+    this.showOpenRemoteSolutionModal = false;
+
     try {
       const lastCharacterIsASlash: boolean = this.uriOfRemoteSolution.endsWith('/');
       if (lastCharacterIsASlash) {
         this.uriOfRemoteSolution = this.uriOfRemoteSolution.slice(0, -1);
       }
+
+      await this._addSolutionToRemoteSolutionHistory(this.uriOfRemoteSolution);
 
       await this.solutionExplorerList.openSolution(this.uriOfRemoteSolution);
     } catch (error) {
@@ -164,7 +181,20 @@ export class SolutionExplorerPanel {
       this._notificationService.showNotification(NotificationType.ERROR, `${genericMessage}<br />${cause}`);
     }
 
-    this.closeRemoteSolutionModal();
+    this.uriOfRemoteSolution = undefined;
+  }
+
+  public get remoteSolutionHistoryExists(): boolean {
+    return this.remoteSolutionHistoryWithStatus.length > 0;
+  }
+
+  public get remoteSolutionHistoryWithStatus(): Array<RemoteSolutionUriWithStatus> {
+    return this._loadRemoteSolutionHistory().reverse().map((solutionUri: string) => {
+      return {
+        uri: solutionUri,
+        status: this.remoteSolutionHistoryStatus.get(solutionUri),
+      };
+    });
   }
 
   /**
@@ -258,6 +288,59 @@ export class SolutionExplorerPanel {
     return (window as any).nodeRequire;
   }
 
+  public selectRemoteSolution(remoteSolutionUri: string): void {
+    this.uriOfRemoteSolution = remoteSolutionUri;
+  }
+
+  private _startPollingOfRemoteSolutionHistoryStatus(): void {
+    this._remoteSolutionHistoryStatusIsPolling = true;
+    this._pollRemoteSolutionHistoryStauts();
+  }
+
+  private _pollRemoteSolutionHistoryStauts(): void {
+    this._remoteSolutionHistoryStatusPollingTimer = setTimeout(() => {
+      this._updateRemoteSolutionHistoryStatus();
+
+      if (!this._remoteSolutionHistoryStatusIsPolling) {
+        return;
+      }
+
+      this._startPollingOfRemoteSolutionHistoryStatus();
+    }, environment.processengine.updateRemoteSolutionHistoryIntervalInMs);
+
+  }
+
+  private _stopPollingOfRemoteSolutionHistoryStatus(): void {
+    const noTimerExisting: boolean = this._remoteSolutionHistoryStatusPollingTimer === undefined;
+    if (noTimerExisting) {
+      return;
+    }
+
+    clearTimeout(this._remoteSolutionHistoryStatusPollingTimer);
+
+    this._remoteSolutionHistoryStatusPollingTimer = undefined;
+    this._remoteSolutionHistoryStatusIsPolling = false;
+  }
+
+  private async _updateRemoteSolutionHistoryStatus(): Promise<void> {
+    this.remoteSolutionHistoryWithStatus.forEach(async(remoteSolutionWithStatus: RemoteSolutionUriWithStatus): Promise<void> => {
+      try {
+        const response: Response = await fetch(remoteSolutionWithStatus.uri);
+
+        const data: JSON = await response.json();
+
+        const isResponseFromProcessEngine: boolean = data['name'] === '@process-engine/process_engine_runtime';
+        if (!isResponseFromProcessEngine) {
+          throw new Error('The response was not send by a ProcessEngine.');
+        }
+
+        this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, true);
+      } catch {
+        this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, false);
+      }
+    });
+  }
+
   private async _refreshSolutions(): Promise<void> {
     return this.solutionExplorerList.refreshSolutions();
   }
@@ -268,6 +351,40 @@ export class SolutionExplorerPanel {
     } catch (error) {
       this._notificationService.showNotification(NotificationType.ERROR, error.message);
     }
+  }
+
+  private _loadRemoteSolutionHistory(): Array<string> {
+    const remoteSolutionHistoryFromLocalStorage: string | null = localStorage.getItem('remoteSolutionHistory');
+    const noHistoryExisting: boolean = remoteSolutionHistoryFromLocalStorage === null;
+    const remoteSolutionHistory: Array<string> = noHistoryExisting ? [] : JSON.parse(remoteSolutionHistoryFromLocalStorage);
+
+    return remoteSolutionHistory;
+  }
+
+  private _saveRemoteSolutionHistory(remoteSolutionHistory: Array<string>): void {
+    const remoteSolutionHistoryString: string = JSON.stringify(remoteSolutionHistory);
+
+    localStorage.setItem('remoteSolutionHistory', remoteSolutionHistoryString);
+  }
+
+  private _addSolutionToRemoteSolutionHistory(solutionUri: string): void {
+    this._removeSolutionFromSolutionHistroy(solutionUri);
+
+    const remoteSolutionHistory: Array<string> = this._loadRemoteSolutionHistory();
+
+    remoteSolutionHistory.push(solutionUri);
+
+    this._saveRemoteSolutionHistory(remoteSolutionHistory);
+  }
+
+  private _removeSolutionFromSolutionHistroy(solutionUri: string): void {
+    const remoteSolutionHistory: Array<string> = this._loadRemoteSolutionHistory();
+
+    const uniqueRemoteSolutionHistory: Array<string> = remoteSolutionHistory.filter((remoteSolutionUri: string) => {
+      return remoteSolutionUri !== solutionUri;
+    });
+
+    this._saveRemoteSolutionHistory(uniqueRemoteSolutionHistory);
   }
 
   private async _openDiagramOrDisplayError(uri: string): Promise<void> {
