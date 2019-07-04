@@ -118,6 +118,9 @@ export class TimerEventSection implements ISection {
   }
 
   public timerEnabledChange(): void {
+    if (!this.isTimerStartEvent) {
+      return;
+    }
     const enabledProperty: IProperty = this._getProperty('enabled');
     enabledProperty.value = this.isEnabled.toString();
 
@@ -126,18 +129,29 @@ export class TimerEventSection implements ISection {
 
   private _init(): void {
 
-    const propertyElementDoesNotExists: boolean = this._getPropertiesElement() === undefined;
-    if (propertyElementDoesNotExists) {
-      this._createPropertiesElement();
-    }
+    if (this.isTimerStartEvent) {
 
-    const enabledProperty: IProperty = this._getProperty('enabled');
+      const extensionElementDoesNotExist: boolean = this._businessObjInPanel.extensionElements === undefined;
+      if (extensionElementDoesNotExist) {
+        this._createExtensionElement();
+      }
 
-    const enabledPropertyExists: boolean = enabledProperty !== undefined;
-    if (enabledPropertyExists) {
-      this.isEnabled = enabledProperty.value === 'true';
-    } else {
-      this._createProperty('enabled');
+      const propertyElementDoesNotExists: boolean = this._getPropertiesElement() === undefined;
+      if (propertyElementDoesNotExists) {
+        this._createPropertiesElement();
+      }
+
+      const enabledProperty: IProperty = this._getProperty('enabled');
+
+      const enabledPropertyExists: boolean = enabledProperty !== undefined;
+      if (enabledPropertyExists) {
+        this.isEnabled = enabledProperty.value === 'true';
+      } else {
+        this._createProperty('enabled');
+        this._getProperty('enabled').value = 'true';
+      }
+
+      this._publishDiagramChange();
     }
 
     const {timeDate, timeDuration, timeCycle} = this._businessObjInPanel.eventDefinitions[0];
@@ -184,6 +198,13 @@ export class TimerEventSection implements ISection {
     if (this._linter.lintingActive()) {
       this._linter.update();
     }
+  }
+
+  private _createExtensionElement(): void {
+    const extensionValues: Array<IModdleElement> = [];
+
+    const extensionElements: IModdleElement = this._moddle.create('bpmn:ExtensionElements', {values: extensionValues});
+    this._businessObjInPanel.extensionElements = extensionElements;
   }
 
   private _createPropertiesElement(): void {
