@@ -419,9 +419,13 @@ export class DiagramDetail {
       const lastIndexOfBackSlash: number = path.lastIndexOf('\\');
       const indexBeforeFilename: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash) + 1;
 
-      const filename: string = path.slice(indexBeforeFilename, path.length).replace('.bpmn', '');
+      const filename: string = path
+                                .slice(indexBeforeFilename, path.length)
+                                .replace('.bpmn', '');
 
-      const temporaryDiagramName: string = this.activeDiagramUri.replace('about:open-diagrams/', '').replace('.bpmn', '');
+      const temporaryDiagramName: string = this.activeDiagramUri
+                                                  .replace('about:open-diagrams/', '')
+                                                  .replace('.bpmn', '');
 
       xml = xml.replace(new RegExp(temporaryDiagramName, 'g'), filename);
     }
