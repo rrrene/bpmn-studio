@@ -1,7 +1,15 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {inject} from 'aurelia-framework';
 
-import {IEventElement, IModdleElement, IPropertiesElement, IProperty, IShape, ITimerEventElement, IExtensionElement} from '@process-engine/bpmn-elements_contracts';
+import {
+  IEventElement,
+  IExtensionElement,
+  IModdleElement,
+  IPropertiesElement,
+  IProperty,
+  IShape,
+  ITimerEventElement,
+} from '@process-engine/bpmn-elements_contracts';
 
 import {
   IBpmnModdle,
