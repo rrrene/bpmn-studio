@@ -294,6 +294,7 @@ export class SolutionExplorerPanel {
   }
 
   public selectRemoteSolution(remoteSolutionUri: string): void {
+    // tslint:disable-next-line no-magic-numbers
     const protocolEndIndex: number = remoteSolutionUri.indexOf('//') + 2;
     const protocol: string = remoteSolutionUri.substring(0, protocolEndIndex);
 
