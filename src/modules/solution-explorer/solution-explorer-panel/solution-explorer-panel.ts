@@ -145,7 +145,14 @@ export class SolutionExplorerPanel {
 
     this.remoteSolutionHistoryWithStatus.forEach(async(remoteSolutionWithStatus: RemoteSolutionUriWithStatus): Promise<void> => {
       try {
-        await fetch(remoteSolutionWithStatus.uri);
+        const response: Response = await fetch(remoteSolutionWithStatus.uri);
+
+        const data: JSON = await response.json();
+
+        const isResponseFromProcessEngine: boolean = data['name'] === '@process-engine/process_engine_runtime';
+        if (!isResponseFromProcessEngine) {
+          throw new Error('The response was not send by a ProcessEngine.');
+        }
 
         this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, true);
       } catch {
