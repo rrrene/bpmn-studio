@@ -480,6 +480,10 @@ export class BpmnIo {
 
           this.modeler.get('selection').select(modelerShape);
         });
+
+        this.viewer.on('import.done', () => {
+          this._fitDiagramToViewport();
+        });
       }
 
       this.xmlChanged();
