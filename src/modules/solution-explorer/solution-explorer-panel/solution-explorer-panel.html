@@ -60,7 +60,7 @@
               <a class="dropdown-item" click.delegate="selectProtocol('https://')">https://</a>
             </div>
           </div>
-          <input type="text" class="form-control" class.bind="uriIsValid ? '' : 'uri-input--invalid'" value.bind="origin.uriOfRemoteSolutionWithoutProtocol" placeholder="Please provide a URI for the remote ProcessEngine" autofocus>
+          <input type="text" class="form-control" class.bind="uriIsValid || uriIsEmpty ? '' : 'uri-input--invalid'" value.bind="origin.uriOfRemoteSolutionWithoutProtocol" placeholder="Please provide a URI for the remote ProcessEngine" autofocus>
         </div>
       </form>
       <div class="remote-solution-list">

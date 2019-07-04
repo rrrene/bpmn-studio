@@ -253,10 +253,6 @@ export class SolutionExplorerPanel {
   }
 
   public get uriIsValid(): boolean {
-    if (this.uriIsEmpty) {
-      return true;
-    }
-
     /**
      * This RegEx checks if the entered URI is valid or not.
      */
