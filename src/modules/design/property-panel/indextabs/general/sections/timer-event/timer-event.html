@@ -28,7 +28,7 @@
         <tr if.bind="timerType === TimerType.Cycle">
           <th>Enabled</th>
           <td>
-            <input type="checkbox" class="props-input" checked.bind="isEnabled" change.delegate="timerEnabledChange()" disabled.bind="!isEditable">
+            <input type="checkbox" class="props-input" checked.bind="isEnabled" disabled.bind="!isEditable">
           </td>
         </tr>
       </table>

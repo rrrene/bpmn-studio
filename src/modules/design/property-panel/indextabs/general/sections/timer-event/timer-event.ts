@@ -1,5 +1,5 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import {inject, bindable} from 'aurelia-framework';
 
 import {
   IEventElement,
@@ -34,7 +34,7 @@ export class TimerEventSection implements ISection {
   public TimerType: typeof TimerType = TimerType;
   public timerType: TimerType;
   public isTimerStartEvent: boolean = false;
-  public isEnabled: boolean = true;
+  @bindable public isEnabled: boolean = true;
 
   private _businessObjInPanel: ITimerEventElement;
   private _moddle: IBpmnModdle;
@@ -113,7 +113,6 @@ export class TimerEventSection implements ISection {
     this.timerElement.body = '';
 
     this._publishDiagramChange();
-
     this._updateLinterWhenActive();
   }
 
@@ -125,10 +124,7 @@ export class TimerEventSection implements ISection {
     this._updateLinterWhenActive();
   }
 
-  public timerEnabledChange(): void {
-    if (!this.isTimerStartEvent) {
-      return;
-    }
+  public isEnabledChanged(): void {
     const enabledProperty: IProperty = this._getProperty('enabled');
     enabledProperty.value = this.isEnabled.toString();
 
@@ -158,8 +154,6 @@ export class TimerEventSection implements ISection {
         this._createProperty('enabled');
         this._getProperty('enabled').value = 'true';
       }
-
-      this._publishDiagramChange();
     }
 
     const {timeDate, timeDuration, timeCycle} = this._businessObjInPanel.eventDefinitions[0];
