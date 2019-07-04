@@ -52,7 +52,16 @@
     <template replace-part="modal-body">
       <form role="form" submit.delegate="openRemoteSolution()">
         Location:
-       <input type="text" class="form-control" class.bind="uriIsValid ? '' : 'uri-input--invalid'" value.bind="origin.uriOfRemoteSolution" placeholder="Please provide a URI for the remote ProcessEngine" autofocus>
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <button class="btn btn-default solution-explorer-panel__protocol-selector dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${selectedProtocol}</button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" click.delegate="selectProtocol('http://')">http://</a>
+              <a class="dropdown-item" click.delegate="selectProtocol('https://')">https://</a>
+            </div>
+          </div>
+          <input type="text" class="form-control" class.bind="uriIsValid ? '' : 'uri-input--invalid'" value.bind="origin.uriOfRemoteSolutionWithoutProtocol" placeholder="Please provide a URI for the remote ProcessEngine" autofocus>
+        </div>
       </form>
       <div class="remote-solution-list">
         <div if.bind="remoteSolutionHistoryExists">
