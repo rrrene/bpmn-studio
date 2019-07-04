@@ -31,6 +31,8 @@ export class SolutionExplorerPanel {
   private _ipcRenderer: any | null = null;
   private _subscriptions: Array<Subscription> = [];
   private _solutionService: ISolutionService;
+  private _remoteSolutionHistoryStatusPollingTimer: NodeJS.Timer;
+  private _remoteSolutionHistoryStatusIsPolling: boolean;
 
   // Fields below are bound from the html view.
   public solutionExplorerList: SolutionExplorerList;
@@ -140,25 +142,11 @@ export class SolutionExplorerPanel {
     }
   }
 
-  public openRemoteSolutionModal(): void {
+  public async openRemoteSolutionModal(): Promise<void> {
     this.showOpenRemoteSolutionModal = true;
 
-    this.remoteSolutionHistoryWithStatus.forEach(async(remoteSolutionWithStatus: RemoteSolutionUriWithStatus): Promise<void> => {
-      try {
-        const response: Response = await fetch(remoteSolutionWithStatus.uri);
-
-        const data: JSON = await response.json();
-
-        const isResponseFromProcessEngine: boolean = data['name'] === '@process-engine/process_engine_runtime';
-        if (!isResponseFromProcessEngine) {
-          throw new Error('The response was not send by a ProcessEngine.');
-        }
-
-        this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, true);
-      } catch {
-        this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, false);
-      }
-    });
+    await this._updateRemoteSolutionHistoryStatus();
+    this._startPollingOfRemoteSolutionHistoryStatus();
   }
 
   public removeSolutionFromHistory(solutionUri: string): void {
@@ -168,6 +156,7 @@ export class SolutionExplorerPanel {
   public closeRemoteSolutionModal(): void {
     this.showOpenRemoteSolutionModal = false;
     this.uriOfRemoteSolution = undefined;
+    this._stopPollingOfRemoteSolutionHistoryStatus();
   }
 
   public async openRemoteSolution(): Promise<void> {
@@ -301,6 +290,55 @@ export class SolutionExplorerPanel {
 
   public selectRemoteSolution(remoteSolutionUri: string): void {
     this.uriOfRemoteSolution = remoteSolutionUri;
+  }
+
+  private _startPollingOfRemoteSolutionHistoryStatus(): void {
+    this._remoteSolutionHistoryStatusIsPolling = true;
+    this._pollRemoteSolutionHistoryStauts();
+  }
+
+  private _pollRemoteSolutionHistoryStauts(): void {
+    this._remoteSolutionHistoryStatusPollingTimer = setTimeout(() => {
+      this._updateRemoteSolutionHistoryStatus();
+
+      if (!this._remoteSolutionHistoryStatusIsPolling) {
+        return;
+      }
+
+      this._startPollingOfRemoteSolutionHistoryStatus();
+    }, environment.processengine.updateRemoteSolutionHistoryIntervalInMs);
+
+  }
+
+  private _stopPollingOfRemoteSolutionHistoryStatus(): void {
+    const noTimerExisting: boolean = this._remoteSolutionHistoryStatusPollingTimer === undefined;
+    if (noTimerExisting) {
+      return;
+    }
+
+    clearTimeout(this._remoteSolutionHistoryStatusPollingTimer);
+
+    this._remoteSolutionHistoryStatusPollingTimer = undefined;
+    this._remoteSolutionHistoryStatusIsPolling = false;
+  }
+
+  private async _updateRemoteSolutionHistoryStatus(): Promise<void> {
+    this.remoteSolutionHistoryWithStatus.forEach(async(remoteSolutionWithStatus: RemoteSolutionUriWithStatus): Promise<void> => {
+      try {
+        const response: Response = await fetch(remoteSolutionWithStatus.uri);
+
+        const data: JSON = await response.json();
+
+        const isResponseFromProcessEngine: boolean = data['name'] === '@process-engine/process_engine_runtime';
+        if (!isResponseFromProcessEngine) {
+          throw new Error('The response was not send by a ProcessEngine.');
+        }
+
+        this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, true);
+      } catch {
+        this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, false);
+      }
+    });
   }
 
   private async _refreshSolutions(): Promise<void> {
