@@ -42,9 +42,9 @@ export class TimerEventSection implements ISection {
     this._moddle = model.modeler.get('moddle');
     this._linter = model.modeler.get('linting');
 
-    this.timerElement = this._getTimerElement();
-
     this.isTimerStartEvent = this._businessObjInPanel.$type === 'bpmn:StartEvent';
+
+    this.timerElement = this._getTimerElement();
 
     this._init();
   }
