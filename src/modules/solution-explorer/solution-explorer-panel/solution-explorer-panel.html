@@ -65,6 +65,9 @@
               <i class="fas" class.bind="remoteSolution.status ? 'fa-database' : 'fa-bolt'"></i>
               <span>${remoteSolution.uri}</span>
             </div>
+            <button class="button remote-solution-list__close-button" click.delegate="removeSolutionFromHistory(remoteSolution.uri)">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
         </div>
       </div>

@@ -161,6 +161,10 @@ export class SolutionExplorerPanel {
     });
   }
 
+  public removeSolutionFromHistory(solutionUri: string): void {
+    this._removeSolutionFromSolutionHistroy(solutionUri);
+  }
+
   public closeRemoteSolutionModal(): void {
     this.showOpenRemoteSolutionModal = false;
     this.uriOfRemoteSolution = undefined;
@@ -329,6 +333,16 @@ export class SolutionExplorerPanel {
     });
 
     uniqueRemoteSolutionHistory.push(this.uriOfRemoteSolution);
+
+    this._saveRemoteSolutionHistory(uniqueRemoteSolutionHistory);
+  }
+
+  private _removeSolutionFromSolutionHistroy(solutionUri: string): void {
+    const remoteSolutionHistory: Array<string> = this._loadRemoteSolutionHistory();
+
+    const uniqueRemoteSolutionHistory: Array<string> = remoteSolutionHistory.filter((remoteSolutionUri: string) => {
+      return remoteSolutionUri !== solutionUri;
+    });
 
     this._saveRemoteSolutionHistory(uniqueRemoteSolutionHistory);
   }

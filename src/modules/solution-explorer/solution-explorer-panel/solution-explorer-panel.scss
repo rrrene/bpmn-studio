@@ -101,3 +101,13 @@
   background-color: rgba(204, 204, 204, 0.5) !important;
   color: black;
 }
+
+.remote-solution-list__close-button {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  margin-top: 1px;
+  background-color: transparent;
+  border: none;
+  transform: translateY(-50%);
+}
