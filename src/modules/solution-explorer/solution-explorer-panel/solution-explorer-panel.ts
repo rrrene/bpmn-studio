@@ -196,7 +196,6 @@ export class SolutionExplorerPanel {
   }
 
   public get remoteSolutionHistoryExists(): boolean {
-    console.log(this.remoteSolutionHistoryWithStatus.length);
     return this.remoteSolutionHistoryWithStatus.length > 0;
   }
 
