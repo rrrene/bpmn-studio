@@ -94,7 +94,7 @@
   position: absolute;
   top: 50%;
   height: 20px;
-  margin-top: -10px;
+  transform: translateY(-50%);
 }
 
 .remote-solution-list__remote-solution-selected {
