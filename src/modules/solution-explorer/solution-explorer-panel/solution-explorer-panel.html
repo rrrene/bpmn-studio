@@ -55,7 +55,7 @@
        <input type="text" class="form-control" class.bind="uriIsValid ? '' : 'uri-input--invalid'" value.bind="origin.uriOfRemoteSolution" placeholder="Please provide a URI for the remote ProcessEngine" autofocus>
       </form>
       <div class="remote-solution-list">
-        <div if.bind="remoteSolutionHistoryWithStatus.length > 0">
+        <div if.bind="remoteSolutionHistoryExists">
           <div class="remote-solution-list__remote-solution"
               repeat.for="remoteSolution of remoteSolutionHistoryWithStatus"
               class.bind="uriOfRemoteSolution === remoteSolution.uri ? 'remote-solution-list__remote-solution-selected' : ''"

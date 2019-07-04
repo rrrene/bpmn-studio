@@ -195,6 +195,11 @@ export class SolutionExplorerPanel {
     this.uriOfRemoteSolution = undefined;
   }
 
+  public get remoteSolutionHistoryExists(): boolean {
+    console.log(this.remoteSolutionHistoryWithStatus.length);
+    return this.remoteSolutionHistoryWithStatus.length > 0;
+  }
+
   public get remoteSolutionHistoryWithStatus(): Array<RemoteSolutionUriWithStatus> {
     return this._loadRemoteSolutionHistory().reverse().map((solutionUri: string) => {
       return {
