@@ -1,7 +1,15 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import {bindable, inject} from 'aurelia-framework';
 
-import {IEventElement, IModdleElement, IShape, ITimerEventElement} from '@process-engine/bpmn-elements_contracts';
+import {
+  IEventElement,
+  IExtensionElement,
+  IModdleElement,
+  IPropertiesElement,
+  IProperty,
+  IShape,
+  ITimerEventElement,
+} from '@process-engine/bpmn-elements_contracts';
 
 import {
   IBpmnModdle,
@@ -26,6 +34,7 @@ export class TimerEventSection implements ISection {
   public TimerType: typeof TimerType = TimerType;
   public timerType: TimerType;
   public isTimerStartEvent: boolean = false;
+  @bindable public isEnabled: boolean = true;
 
   private _businessObjInPanel: ITimerEventElement;
   private _moddle: IBpmnModdle;
@@ -42,9 +51,9 @@ export class TimerEventSection implements ISection {
     this._moddle = model.modeler.get('moddle');
     this._linter = model.modeler.get('linting');
 
-    this.timerElement = this._getTimerElement();
-
     this.isTimerStartEvent = this._businessObjInPanel.$type === 'bpmn:StartEvent';
+
+    this.timerElement = this._getTimerElement();
 
     this._init();
   }
@@ -104,19 +113,52 @@ export class TimerEventSection implements ISection {
     this.timerElement.body = '';
 
     this._publishDiagramChange();
-
     this._updateLinterWhenActive();
   }
 
   public updateTimerDefinition(): void {
+    const timerElement: IModdleElement = this._getTimerElement();
+    timerElement.body = this.timerElement.body;
+
     this._publishDiagramChange();
     this._updateLinterWhenActive();
   }
 
+  public isEnabledChanged(): void {
+    const enabledProperty: IProperty = this._getProperty('enabled');
+    enabledProperty.value = this.isEnabled.toString();
+
+    this._publishDiagramChange();
+  }
+
   private _init(): void {
+
+    if (this.isTimerStartEvent) {
+
+      const extensionElementDoesNotExist: boolean = this._businessObjInPanel.extensionElements === undefined;
+      if (extensionElementDoesNotExist) {
+        this._createExtensionElement();
+      }
+
+      const propertyElementDoesNotExists: boolean = this._getPropertiesElement() === undefined;
+      if (propertyElementDoesNotExists) {
+        this._createPropertiesElement();
+      }
+
+      const enabledProperty: IProperty = this._getProperty('enabled');
+
+      const enabledPropertyExists: boolean = enabledProperty !== undefined;
+      if (enabledPropertyExists) {
+        this.isEnabled = enabledProperty.value === 'true';
+      } else {
+        this._createProperty('enabled');
+        this._getProperty('enabled').value = 'true';
+      }
+    }
+
     const {timeDate, timeDuration, timeCycle} = this._businessObjInPanel.eventDefinitions[0];
 
-    if (timeCycle !== undefined &&  this.isTimerStartEvent) {
+    if (timeCycle !== undefined && this.isTimerStartEvent) {
       this.timerType = TimerType.Cycle;
       return;
     }
@@ -158,6 +200,53 @@ export class TimerEventSection implements ISection {
     if (this._linter.lintingActive()) {
       this._linter.update();
     }
+  }
+
+  private _createExtensionElement(): void {
+    const extensionValues: Array<IModdleElement> = [];
+
+    const extensionElements: IModdleElement = this._moddle.create('bpmn:ExtensionElements', {values: extensionValues});
+    this._businessObjInPanel.extensionElements = extensionElements;
+  }
+
+  private _createPropertiesElement(): void {
+    const extensionElement: IExtensionElement = this._businessObjInPanel.extensionElements;
+
+    const properties: Array<IProperty> = [];
+    const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', {values: properties});
+
+    extensionElement.values.push(propertiesElement);
+  }
+
+  private _createProperty(propertyName: string): void {
+    const propertiesElement: IPropertiesElement = this._getPropertiesElement();
+
+    const propertyObject: object = {
+      name: propertyName,
+      value: '',
+    };
+
+    const property: IProperty = this._moddle.create('camunda:Property', propertyObject);
+
+    propertiesElement.values.push(property);
+  }
+
+  private _getProperty(propertyName: string): IProperty {
+    const propertiesElement: IPropertiesElement = this._getPropertiesElement();
+
+    const property: IProperty = propertiesElement.values.find((element: IProperty) => {
+      return element.name === propertyName;
+    });
+
+    return property;
+  }
+
+  private _getPropertiesElement(): IPropertiesElement {
+    const propertiesElement: IPropertiesElement = this._businessObjInPanel.extensionElements.values.find((element: IPropertiesElement) => {
+      return element.$type === 'camunda:Properties' && element.values !== undefined;
+    });
+
+    return propertiesElement;
   }
 
 }
