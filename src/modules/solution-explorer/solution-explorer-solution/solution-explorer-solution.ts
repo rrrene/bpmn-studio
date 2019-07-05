@@ -520,6 +520,10 @@ export class SolutionExplorerSolution {
   }
 
   public getDiagramFolder(diagramUri: string): string {
+    if(diagramUri.includes('about:open-diagrams')) {
+      return '';
+    }
+    
     const diagramLocation: string = this.getDiagramLocation(diagramUri);
 
     const lastIndexOfSlash: number = diagramLocation.lastIndexOf('/');
