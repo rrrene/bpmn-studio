@@ -2,15 +2,13 @@ import {EventAggregator} from 'aurelia-event-aggregator';
 import {bindable, inject} from 'aurelia-framework';
 
 import {
-  IExtensionElement,
-  IModdleElement,
-  IPropertiesElement,
   IProperty,
   IServiceTaskElement,
 } from '@process-engine/bpmn-elements_contracts';
 
-import {IBpmnModdle, IPageModel} from '../../../../../../../../../contracts';
+import {IPageModel} from '../../../../../../../../../contracts';
 import environment from '../../../../../../../../../environment';
+import {ServiceTaskService} from '../service-task-service/service-task-service';
 
 interface IAuthParameters {
   headers: {
@@ -31,15 +29,15 @@ export class HttpServiceTask {
   public selectedHttpContentType: string;
 
   private _eventAggregator: EventAggregator;
-  private _moddle: IBpmnModdle;
+  private _serviceTaskService: ServiceTaskService;
 
   constructor(eventAggregator?: EventAggregator) {
     this._eventAggregator = eventAggregator;
   }
 
   public modelChanged(): void {
+    this._serviceTaskService = new ServiceTaskService(this.model);
     this.businessObjInPanel = this.model.elementInPanel.businessObject;
-    this._moddle = this.model.modeler.get('moddle');
 
     this._initHttpServiceTask();
   }
@@ -60,106 +58,32 @@ export class HttpServiceTask {
       this.selectedHttpContentType = undefined;
     }
 
-    this._getProperty('params').value = this._getParamsFromInput();
+    this._serviceTaskService.getProperty('params').value = this._getParamsFromInput();
     this._publishDiagramChange();
   }
 
   public httpMethodChanged(): void {
-    const property: IProperty = this._getProperty('method');
+    const property: IProperty = this._serviceTaskService.getProperty('method');
     property.value = this.selectedHttpMethod;
 
     this._getParamsFromInput();
     this._publishDiagramChange();
   }
 
-  private _createProperty(propertyName: string): void {
-    const noExtensionElements: boolean = this.businessObjInPanel.extensionElements === undefined
-                                      || this.businessObjInPanel.extensionElements === null;
-
-    if (noExtensionElements) {
-      this._createExtensionElement();
-    }
-
-    const noPropertiesElement: boolean = this._getPropertiesElement() === undefined;
-
-    if (noPropertiesElement) {
-      this._createPropertiesElement();
-    }
-
-    const propertiesElement: IPropertiesElement = this._getPropertiesElement();
-
-    const propertyObject: Object = {
-      name: propertyName,
-      value: '',
-    };
-
-    const property: IProperty = this._moddle.create('camunda:Property', propertyObject);
-
-    propertiesElement.values.push(property);
-  }
-
-  private _createExtensionElement(): void {
-    const extensionValues: Array<IModdleElement> = [];
-
-    const extensionElements: IModdleElement = this._moddle.create('bpmn:ExtensionElements', {values: extensionValues});
-    this.businessObjInPanel.extensionElements = extensionElements;
-  }
-
-  private _createPropertiesElement(): void {
-    const extensionElement: IExtensionElement = this.businessObjInPanel.extensionElements;
-
-    const properties: Array<IProperty> = [];
-    const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', {values: properties});
-
-    extensionElement.values.push(propertiesElement);
-  }
-
-  private _getPropertiesElement(): IPropertiesElement | undefined {
-    const noExtensionElements: boolean = this.businessObjInPanel.extensionElements === undefined
-                                      || this.businessObjInPanel.extensionElements === null;
-
-    if (noExtensionElements) {
-      return undefined;
-    }
-
-    const propertiesElement: IPropertiesElement = this.businessObjInPanel
-      .extensionElements
-      .values
-      .find((element: IPropertiesElement) => {
-        return element.$type === 'camunda:Properties' && element.values !== undefined;
-      });
-
-    return propertiesElement;
-  }
-
-  private _getProperty(propertyName: string): IProperty | undefined {
-    const propertiesElement: IPropertiesElement = this._getPropertiesElement();
-
-    if (!propertiesElement) {
-      return undefined;
-    }
-
-    const property: IProperty = propertiesElement.values.find((element: IProperty) => {
-      return element.name === propertyName;
-    });
-
-    return property;
-  }
-
   private _initHttpServiceTask(): void {
-    const methodPropertyExists: boolean = this._getProperty('method') !== undefined;
-    const paramPropertyExists: boolean = this._getProperty('params') !== undefined;
+    const methodPropertyExists: boolean = this._serviceTaskService.getProperty('method') !== undefined;
+    const paramPropertyExists: boolean = this._serviceTaskService.getProperty('params') !== undefined;
 
     if (methodPropertyExists) {
-      this.selectedHttpMethod = this._getProperty('method').value;
+      this.selectedHttpMethod = this._serviceTaskService.getProperty('method').value;
     } else {
-      this._createProperty('method');
+      this._serviceTaskService.createProperty('method');
     }
 
     if (paramPropertyExists) {
-      this._fillVariablesFromParam(this._getProperty('params').value);
+      this._fillVariablesFromParam(this._serviceTaskService.getProperty('params').value);
     } else {
-      this._createProperty('params');
+      this._serviceTaskService.createProperty('params');
     }
   }
 
