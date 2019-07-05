@@ -186,7 +186,7 @@ export class SolutionExplorerPanel {
       this._notificationService.showNotification(NotificationType.ERROR, `${genericMessage}<br />${cause}`);
     }
 
-    this.uriOfRemoteSolutionWithoutProtocol = undefined;
+    this.closeRemoteSolutionModal();
   }
 
   public get remoteSolutionHistoryExists(): boolean {

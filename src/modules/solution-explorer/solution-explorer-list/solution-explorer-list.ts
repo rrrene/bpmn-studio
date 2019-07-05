@@ -147,16 +147,28 @@ export class SolutionExplorerList {
 
     let processEngineVersion: string;
     try {
-      await solutionExplorer.openSolution(uri, identity);
-
       if (uriIsRemote) {
         const response: Response = await fetch(uri);
+
         const responseJSON: object & {version: string} = await response.json();
+
+        const isResponseFromProcessEngine: boolean = responseJSON['name'] === '@process-engine/process_engine_runtime';
+        if (!isResponseFromProcessEngine) {
+          throw new Error('The response was not send by a ProcessEngine.');
+        }
 
         processEngineVersion = responseJSON.version;
       }
+
+      await solutionExplorer.openSolution(uri, identity);
     } catch (error) {
       this._solutionService.removeSolutionEntryByUri(uri);
+
+      const errorIsNoProcessEngine: boolean = error.message === 'The response was not send by a ProcessEngine.'
+                                           || error.message === 'Unexpected token < in JSON at position 0';
+      if (errorIsNoProcessEngine) {
+        throw new Error('Could not find remote solution for that uri.');
+      }
 
       const errorIsFailedToFetch: boolean = error.message === 'Failed to fetch';
       if (errorIsFailedToFetch) {
