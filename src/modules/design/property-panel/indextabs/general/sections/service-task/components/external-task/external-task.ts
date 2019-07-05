@@ -21,13 +21,6 @@ export class ExternalTask {
     this._eventAggregator = eventAggregator;
   }
 
-  public attached(): void {
-    this.businessObjInPanel = this.model.elementInPanel.businessObject;
-    this._moddle = this.model.modeler.get('moddle');
-    this.selectedTopic = this.businessObjInPanel.topic;
-    this.selectedPayload = this._getPayloadFromModel();
-  }
-
   public modelChanged(): void {
     this.businessObjInPanel = this.model.elementInPanel.businessObject;
     this._moddle = this.model.modeler.get('moddle');
