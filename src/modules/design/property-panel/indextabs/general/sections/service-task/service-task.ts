@@ -63,10 +63,13 @@ export class ServiceTaskSection implements ISection {
       moduleProperty = this._getProperty('module');
       moduleProperty.value = this.selectedKind;
 
-      this._resetExternalTaskValues();
+      this._deleteExternalTaskProperties();
 
     } else if (selectedKindIsExternalTask) {
       this.businessObjInPanel.type = this.selectedKind;
+      this._deleteHttpProperties();
+    } else {
+      this._deleteExternalTaskProperties();
       this._deleteHttpProperties();
     }
 
@@ -84,6 +87,10 @@ export class ServiceTaskSection implements ISection {
   }
 
   private _getPropertiesElement(): IPropertiesElement | undefined {
+    if (this._extensionElementDoesNotExist) {
+      return undefined;
+    }
+
     const propertiesElement: IPropertiesElement = this.businessObjInPanel.extensionElements.values.find((element: IPropertiesElement) => {
       return element.$type === 'camunda:Properties';
     });
@@ -101,10 +108,14 @@ export class ServiceTaskSection implements ISection {
     return propertiesElement;
   }
 
-  private _getProperty(propertyName: string): IProperty {
+  private _getProperty(propertyName: string): IProperty | undefined {
     let property: IProperty;
 
     const propertiesElement: IPropertiesElement = this._getPropertiesElement();
+
+    if (!propertiesElement) {
+      return undefined;
+    }
 
     property = propertiesElement.values.find((element: IProperty) => {
       return element.name === propertyName;
@@ -114,6 +125,16 @@ export class ServiceTaskSection implements ISection {
   }
 
   private _createModuleProperty(): void {
+    if (this._extensionElementDoesNotExist) {
+      this._createExtensionElement();
+    }
+
+    const noPropertiesElement: boolean = this._getPropertiesElement() === undefined;
+
+    if (noPropertiesElement) {
+      this._createPropertiesElement();
+    }
+
     const propertiesElement: IPropertiesElement = this._getPropertiesElement();
 
     const modulePropertyObject: Object = {
@@ -169,11 +190,48 @@ export class ServiceTaskSection implements ISection {
       propertiesElement.values = propertiesElement.values.filter((element: IProperty) => {
         return element.name !== 'method' && element.name !== 'params' && element.name !== 'module';
       });
+
+      const emptyProperties: boolean = propertiesElement.values.length === 0;
+      if (emptyProperties) {
+        this._deletePropertiesElementAndExtensionElements();
+      }
     }
   }
 
-  private _resetExternalTaskValues(): void {
-    this.businessObjInPanel.type = '';
-    this.businessObjInPanel.topic = '';
+  private _deleteExternalTaskProperties(): void {
+    delete this.businessObjInPanel.type;
+    delete this.businessObjInPanel.topic;
+
+    const propertiesElement: IPropertiesElement = this._getPropertiesElement();
+
+    if (propertiesElement) {
+      propertiesElement.values = propertiesElement.values.filter((element: IProperty) => {
+        return element.name !== 'payload';
+      });
+
+      const emptyProperties: boolean = propertiesElement.values.length === 0;
+      if (emptyProperties) {
+        this._deletePropertiesElementAndExtensionElements();
+      }
+    }
+  }
+
+  private _deletePropertiesElementAndExtensionElements(): void {
+    const indexOfPropertiesElement: number = this.businessObjInPanel.extensionElements.values.findIndex((element: IPropertiesElement) => {
+      return element.$type === 'camunda:Properties';
+    });
+
+    delete this.businessObjInPanel.extensionElements.values[indexOfPropertiesElement];
+
+    // tslint:disable-next-line: no-magic-numbers
+    const emptyExtensionElements: boolean = this.businessObjInPanel.extensionElements.values.length < 2;
+    if (emptyExtensionElements) {
+      delete this.businessObjInPanel.extensionElements;
+    }
+  }
+
+  private get _extensionElementDoesNotExist(): boolean {
+    return this.businessObjInPanel.extensionElements === undefined
+        || this.businessObjInPanel.extensionElements.values === undefined;
   }
 }
