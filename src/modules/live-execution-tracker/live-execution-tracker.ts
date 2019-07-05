@@ -116,6 +116,12 @@ export class LiveExecutionTracker {
     // This is needed to make sure the SolutionExplorerService is completely initiated
     setTimeout(async() => {
       this.activeDiagram = await this.activeSolutionEntry.service.loadDiagram(this.processModelId);
+
+      const routeParameterContainsTaskId: boolean = routeParameters.taskId !== undefined;
+      if (routeParameterContainsTaskId) {
+        this.taskId = routeParameters.taskId;
+        this.showDynamicUiModal = true;
+      }
     }, 0);
   }
 
