@@ -73,6 +73,19 @@ export class HttpServiceTask {
   }
 
   private _createProperty(propertyName: string): void {
+    const noExtensionElements: boolean = this.businessObjInPanel.extensionElements === undefined
+                                      || this.businessObjInPanel.extensionElements === null;
+
+    if (noExtensionElements) {
+      this._createExtensionElement();
+    }
+
+    const noPropertiesElement: boolean = this._getPropertiesElement() === undefined;
+
+    if (noPropertiesElement) {
+      this._createPropertiesElement();
+    }
+
     const propertiesElement: IPropertiesElement = this._getPropertiesElement();
 
     const propertyObject: Object = {
@@ -85,16 +98,46 @@ export class HttpServiceTask {
     propertiesElement.values.push(property);
   }
 
-  private _getPropertiesElement(): IPropertiesElement {
-    const propertiesElement: IPropertiesElement = this.businessObjInPanel.extensionElements.values.find((element: IPropertiesElement) => {
-      return element.$type === 'camunda:Properties' && element.values !== undefined;
-    });
+  private _createExtensionElement(): void {
+    const extensionValues: Array<IModdleElement> = [];
+
+    const extensionElements: IModdleElement = this._moddle.create('bpmn:ExtensionElements', {values: extensionValues});
+    this.businessObjInPanel.extensionElements = extensionElements;
+  }
+
+  private _createPropertiesElement(): void {
+    const extensionElement: IExtensionElement = this.businessObjInPanel.extensionElements;
+
+    const properties: Array<IProperty> = [];
+    const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', {values: properties});
+
+    extensionElement.values.push(propertiesElement);
+  }
+
+  private _getPropertiesElement(): IPropertiesElement | undefined {
+    const noExtensionElements: boolean = this.businessObjInPanel.extensionElements === undefined
+                                      || this.businessObjInPanel.extensionElements === null;
+
+    if (noExtensionElements) {
+      return undefined;
+    }
+
+    const propertiesElement: IPropertiesElement = this.businessObjInPanel
+      .extensionElements
+      .values
+      .find((element: IPropertiesElement) => {
+        return element.$type === 'camunda:Properties' && element.values !== undefined;
+      });
 
     return propertiesElement;
   }
 
-  private _getProperty(propertyName: string): IProperty {
+  private _getProperty(propertyName: string): IProperty | undefined {
     const propertiesElement: IPropertiesElement = this._getPropertiesElement();
+
+    if (!propertiesElement) {
+      return undefined;
+    }
 
     const property: IProperty = propertiesElement.values.find((element: IProperty) => {
       return element.name === propertyName;
