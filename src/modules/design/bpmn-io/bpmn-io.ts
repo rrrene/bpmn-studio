@@ -331,7 +331,10 @@ export class BpmnIo {
       this._eventAggregator.subscribe(environment.events.diagramChange, async() => {
         this.xml = await this.getXML();
 
-        const diagramIsChanged: boolean = !this._areXmlsIdentical(this.xml, this.savedXml);
+        const savedXmlIsSet: boolean = this.savedXml !== undefined;
+        const diagramIsChanged: boolean = savedXmlIsSet
+                                            ? !this._areXmlsIdentical(this.xml, this.savedXml)
+                                            : false;
 
         this._validateDiagram();
 
@@ -411,9 +414,12 @@ export class BpmnIo {
     this._tempProcess = undefined;
   }
 
-  public async xmlChanged(newValue?: string, oldValue?: string): Promise<void> {
+  public async xmlChanged(newValue: string, oldValue?: string): Promise<void> {
     if (this.diagramHasChanged) {
-      this.savedXml = newValue;
+      const newValueExists: boolean = newValue !== undefined;
+      if (newValueExists) {
+        this.savedXml = newValue;
+      }
 
       if (this.solutionIsRemote) {
         this.viewer.importXML(this.xml);
@@ -454,8 +460,9 @@ export class BpmnIo {
       }
     }
 
-    this.solutionIsRemote = this.diagramUri.startsWith('http');
+    this._diagramHasChanges = false;
 
+    this.solutionIsRemote = this.diagramUri.startsWith('http');
     if (this.solutionIsRemote) {
       const viewerNotInitialized: boolean = this.viewer === undefined;
       if (viewerNotInitialized) {
@@ -486,7 +493,10 @@ export class BpmnIo {
         });
       }
 
-      this.xmlChanged();
+      const xmlExistsAlready: boolean = this.xml !== undefined;
+      if (xmlExistsAlready) {
+        this.xmlChanged(this.xml);
+      }
 
       setTimeout(() => {
         this.viewer.attachTo(this.canvasModel);
@@ -500,6 +510,11 @@ export class BpmnIo {
       }, 0);
 
     } else {
+      const xmlExistsAlready: boolean = this.xml !== undefined;
+      if (xmlExistsAlready) {
+        this.xmlChanged(this.xml);
+      }
+
       setTimeout(() => {
         this.modeler.attachTo(this.canvasModel);
         this.attachPaletteContainer();
@@ -511,8 +526,6 @@ export class BpmnIo {
         }
       }, 0);
     }
-
-    this._diagramHasChanges = false;
   }
 
   public nameChanged(newValue: string): void {
