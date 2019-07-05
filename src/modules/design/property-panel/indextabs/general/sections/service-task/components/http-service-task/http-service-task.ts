@@ -30,13 +30,6 @@ export class HttpServiceTask {
     this._eventAggregator = eventAggregator;
   }
 
-  public attached(): void {
-    this.businessObjInPanel = this.model.elementInPanel.businessObject;
-    this._moddle = this.model.modeler.get('moddle');
-
-    this._initHttpServiceTask();
-  }
-
   public modelChanged(): void {
     this.businessObjInPanel = this.model.elementInPanel.businessObject;
     this._moddle = this.model.modeler.get('moddle');
