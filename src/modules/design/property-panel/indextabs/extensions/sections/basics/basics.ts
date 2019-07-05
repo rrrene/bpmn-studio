@@ -104,6 +104,11 @@ export class BasicsSection implements ISection {
         .values
         .splice(index, 1);
 
+    const emptyProperties: boolean = this._propertiesElement.values.length === 0;
+    if (emptyProperties) {
+      this._deletePropertiesElementAndExtensionElements();
+    }
+
     this._reloadProperties();
     this._publishDiagramChange();
   }
@@ -120,6 +125,20 @@ export class BasicsSection implements ISection {
     this._checkAndRemoveEmptyProperties(index);
 
     this._publishDiagramChange();
+  }
+
+  private _deletePropertiesElementAndExtensionElements(): void {
+    const indexOfPropertiesElement: number = this._businessObjInPanel.extensionElements.values.findIndex((element: IPropertiesElement) => {
+      return element.$type === 'camunda:Properties';
+    });
+
+    delete this._businessObjInPanel.extensionElements.values[indexOfPropertiesElement];
+
+    // tslint:disable-next-line: no-magic-numbers
+    const emptyExtensionElements: boolean = this._businessObjInPanel.extensionElements.values.length < 2;
+    if (emptyExtensionElements) {
+      delete this._businessObjInPanel.extensionElements;
+    }
   }
 
   private _checkAndRemoveEmptyProperties(index: number): void {
