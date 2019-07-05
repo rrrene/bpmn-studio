@@ -2,8 +2,6 @@ import {EventAggregator} from 'aurelia-event-aggregator';
 import {inject} from 'aurelia-framework';
 
 import {
-  IExtensionElement,
-  IModdleElement,
   IPropertiesElement,
   IProperty,
   IServiceTaskElement,
@@ -12,6 +10,7 @@ import {
 
 import {IBpmnModdle, IPageModel, ISection} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
+import {ServiceTaskService} from './components/service-task-service/service-task-service';
 
 enum ServiceKind {
   None = 'null',
@@ -31,12 +30,15 @@ export class ServiceTaskSection implements ISection {
 
   private _eventAggregator: EventAggregator;
   private _moddle: IBpmnModdle;
+  private _serviceTaskService: ServiceTaskService;
 
   constructor(eventAggregator?: EventAggregator) {
     this._eventAggregator = eventAggregator;
   }
 
   public activate(model: IPageModel): void {
+    this._serviceTaskService = new ServiceTaskService(model);
+
     this.businessObjInPanel = model.elementInPanel.businessObject;
     this.model = model;
     this._moddle = model.modeler.get('moddle');
@@ -53,14 +55,14 @@ export class ServiceTaskSection implements ISection {
     const selectedKindIsExternalTask: boolean = this.selectedKind === ServiceKind.External;
 
     if (selectedKindIsHttpService) {
-      let moduleProperty: IProperty = this._getProperty('module');
+      let moduleProperty: IProperty = this._serviceTaskService.getProperty('module');
       const modulePropertyDoesNotExist: boolean = moduleProperty === undefined;
 
       if (modulePropertyDoesNotExist) {
         this._createModuleProperty();
       }
 
-      moduleProperty = this._getProperty('module');
+      moduleProperty = this._serviceTaskService.getProperty('module');
       moduleProperty.value = this.selectedKind;
 
       this._deleteExternalTaskProperties();
@@ -86,56 +88,18 @@ export class ServiceTaskSection implements ISection {
     this._eventAggregator.publish(environment.events.diagramChange);
   }
 
-  private _getPropertiesElement(): IPropertiesElement | undefined {
-    if (this._extensionElementDoesNotExist) {
-      return undefined;
-    }
-
-    const propertiesElement: IPropertiesElement = this.businessObjInPanel.extensionElements.values.find((element: IPropertiesElement) => {
-      return element.$type === 'camunda:Properties';
-    });
-
-    const noPropertyElementFound: boolean = propertiesElement === undefined;
-    if (noPropertyElementFound) {
-      return undefined;
-    }
-
-    const noValuesDefined: boolean = propertiesElement.values === undefined;
-    if (noValuesDefined) {
-      propertiesElement.values = [];
-    }
-
-    return propertiesElement;
-  }
-
-  private _getProperty(propertyName: string): IProperty | undefined {
-    let property: IProperty;
-
-    const propertiesElement: IPropertiesElement = this._getPropertiesElement();
-
-    if (!propertiesElement) {
-      return undefined;
-    }
-
-    property = propertiesElement.values.find((element: IProperty) => {
-      return element.name === propertyName;
-    });
-
-    return property;
-  }
-
   private _createModuleProperty(): void {
-    if (this._extensionElementDoesNotExist) {
-      this._createExtensionElement();
+    if (this._serviceTaskService.extensionElementDoesNotExist) {
+      this._serviceTaskService.createExtensionElement();
     }
 
-    const noPropertiesElement: boolean = this._getPropertiesElement() === undefined;
+    const noPropertiesElement: boolean = this._serviceTaskService.getPropertiesElement() === undefined;
 
     if (noPropertiesElement) {
-      this._createPropertiesElement();
+      this._serviceTaskService.createPropertiesElement();
     }
 
-    const propertiesElement: IPropertiesElement = this._getPropertiesElement();
+    const propertiesElement: IPropertiesElement = this._serviceTaskService.getPropertiesElement();
 
     const modulePropertyObject: Object = {
       name: 'module',
@@ -155,9 +119,9 @@ export class ServiceTaskSection implements ISection {
       return;
     }
 
-    const modulePropertyExists: boolean = this._getProperty('module') !== undefined;
+    const modulePropertyExists: boolean = this._serviceTaskService.getProperty('module') !== undefined;
     if (modulePropertyExists) {
-      this.selectedKind = ServiceKind[this._getProperty('module').value];
+      this.selectedKind = ServiceKind[this._serviceTaskService.getProperty('module').value];
 
       return;
     } else {
@@ -166,24 +130,8 @@ export class ServiceTaskSection implements ISection {
 
   }
 
-  private _createExtensionElement(): void {
-    const extensionValues: Array<IModdleElement> = [];
-
-    const extensionElements: IModdleElement = this._moddle.create('bpmn:ExtensionElements', {values: extensionValues});
-    this.businessObjInPanel.extensionElements = extensionElements;
-  }
-
-  private _createPropertiesElement(): void {
-    const extensionElement: IExtensionElement = this.businessObjInPanel.extensionElements;
-
-    const properties: Array<IProperty> = [];
-    const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', {values: properties});
-
-    extensionElement.values.push(propertiesElement);
-  }
-
   private _deleteHttpProperties(): void {
-    const propertiesElement: IPropertiesElement = this._getPropertiesElement();
+    const propertiesElement: IPropertiesElement = this._serviceTaskService.getPropertiesElement();
     const propertiesElementExists: boolean = propertiesElement !== undefined;
 
     if (propertiesElementExists) {
@@ -202,7 +150,7 @@ export class ServiceTaskSection implements ISection {
     delete this.businessObjInPanel.type;
     delete this.businessObjInPanel.topic;
 
-    const propertiesElement: IPropertiesElement = this._getPropertiesElement();
+    const propertiesElement: IPropertiesElement = this._serviceTaskService.getPropertiesElement();
 
     if (propertiesElement) {
       propertiesElement.values = propertiesElement.values.filter((element: IProperty) => {
@@ -228,10 +176,5 @@ export class ServiceTaskSection implements ISection {
     if (emptyExtensionElements) {
       delete this.businessObjInPanel.extensionElements;
     }
-  }
-
-  private get _extensionElementDoesNotExist(): boolean {
-    return this.businessObjInPanel.extensionElements === undefined
-        || this.businessObjInPanel.extensionElements.values === undefined;
   }
 }
