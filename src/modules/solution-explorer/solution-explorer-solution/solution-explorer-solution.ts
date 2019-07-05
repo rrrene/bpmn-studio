@@ -520,15 +520,16 @@ export class SolutionExplorerSolution {
   }
 
   public getDiagramFolder(diagramUri: string): string {
-    if (diagramUri.includes('about:open-diagrams')) {
-      return '';
-    }
-
     const diagramLocation: string = this.getDiagramLocation(diagramUri);
 
     const lastIndexOfSlash: number = diagramLocation.lastIndexOf('/');
     const lastIndexOfBackSlash: number = diagramLocation.lastIndexOf('\\');
     const indexBeforeFoldername: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash);
+
+    const indexIsInvalid: boolean = indexBeforeFoldername < 0;
+    if (indexIsInvalid) {
+      return '';
+    }
 
     const diagramFolder: string = diagramLocation.slice(indexBeforeFoldername, diagramLocation.length);
 
