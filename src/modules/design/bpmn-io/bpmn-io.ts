@@ -487,8 +487,8 @@ export class BpmnIo {
         });
       }
 
-      const xmlExistsAlready: boolean = this.xml !== undefined;
-      if (xmlExistsAlready) {
+      const xmlExists: boolean = this.xml !== undefined;
+      if (xmlExists) {
         this.xmlChanged(this.xml);
         this.propertyPanelViewModel.selectPreviouslySelectedOrFirstElement();
       }
@@ -505,8 +505,8 @@ export class BpmnIo {
       }, 0);
 
     } else {
-      const xmlExistsAlready: boolean = this.xml !== undefined;
-      if (xmlExistsAlready) {
+      const xmlExists: boolean = this.xml !== undefined;
+      if (xmlExists) {
         this.xmlChanged(this.xml);
         this.propertyPanelViewModel.selectPreviouslySelectedOrFirstElement();
       }
