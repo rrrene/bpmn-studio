@@ -1,7 +1,14 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {inject} from 'aurelia-framework';
 
-import {IExtensionElement, IModdleElement, IPropertiesElement, IProperty, IServiceTaskElement, IShape} from '@process-engine/bpmn-elements_contracts';
+import {
+  IExtensionElement,
+  IModdleElement,
+  IPropertiesElement,
+  IProperty,
+  IServiceTaskElement,
+  IShape,
+} from '@process-engine/bpmn-elements_contracts';
 
 import {IBpmnModdle, IPageModel, ISection} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
@@ -120,19 +127,6 @@ export class ServiceTaskSection implements ISection {
   }
 
   private _initServiceTask(): void {
-    const extensionElementDoesNotExist: boolean = this.businessObjInPanel.extensionElements === undefined
-                                         || this.businessObjInPanel.extensionElements.values === undefined;
-
-    if (extensionElementDoesNotExist) {
-      this._createExtensionElement();
-    }
-
-    const propertyElementDoesNotExists: boolean = this._getPropertiesElement() === undefined;
-
-    if (propertyElementDoesNotExists) {
-      this._createPropertiesElement();
-    }
-
     const taskIsExternalTask: boolean = this.businessObjInPanel.type === 'external';
 
     if (taskIsExternalTask) {
@@ -145,6 +139,8 @@ export class ServiceTaskSection implements ISection {
       this.selectedKind = ServiceKind[this._getProperty('module').value];
 
       return;
+    } else {
+      this.selectedKind = ServiceKind.None;
     }
 
   }
