@@ -167,7 +167,7 @@ export class SolutionExplorerList {
       const errorIsNoProcessEngine: boolean = error.message === 'The response was not send by a ProcessEngine.'
                                            || error.message === 'Unexpected token < in JSON at position 0';
       if (errorIsNoProcessEngine) {
-        throw new Error('Could not find remote solution for that uri.');
+        throw new Error('There is no processengine running on this uri.');
       }
 
       const errorIsFailedToFetch: boolean = error.message === 'Failed to fetch';
