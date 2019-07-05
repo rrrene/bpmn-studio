@@ -526,6 +526,11 @@ export class SolutionExplorerSolution {
     const lastIndexOfBackSlash: number = diagramLocation.lastIndexOf('\\');
     const indexBeforeFoldername: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash);
 
+    const indexIsInvalid: boolean = indexBeforeFoldername < 0;
+    if (indexIsInvalid) {
+      return '';
+    }
+
     const diagramFolder: string = diagramLocation.slice(indexBeforeFoldername, diagramLocation.length);
 
     return diagramFolder;
