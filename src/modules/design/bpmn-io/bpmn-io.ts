@@ -333,10 +333,7 @@ export class BpmnIo {
       this._eventAggregator.subscribe(environment.events.diagramChange, async() => {
         this.xml = await this.getXML();
 
-        const savedXmlIsSet: boolean = this.savedXml !== undefined;
-        const diagramIsChanged: boolean = savedXmlIsSet
-                                            ? !this._areXmlsIdentical(this.xml, this.savedXml)
-                                            : false;
+        const diagramIsChanged: boolean = !this._areXmlsIdentical(this.xml, this.savedXml);
 
         this._validateDiagram();
 
@@ -418,10 +415,7 @@ export class BpmnIo {
 
   public async xmlChanged(newValue: string, oldValue?: string): Promise<void> {
     if (this.diagramHasChanged) {
-      const newValueExists: boolean = newValue !== undefined;
-      if (newValueExists) {
-        this.savedXml = newValue;
-      }
+      this.savedXml = newValue;
 
       if (this.solutionIsRemote) {
         this.viewer.importXML(this.xml);
