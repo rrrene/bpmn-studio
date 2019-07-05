@@ -62,7 +62,7 @@
               title.bind="remoteSolution.status ? 'Remote solution is online.' : 'Remote solution is offline.'"
               click.delegate="selectRemoteSolution(remoteSolution.uri)">
             <div class="remote-solution-list__solution-data">
-              <i class="fas" class.bind="remoteSolution.status ? 'fa-database' : 'fa-bolt'"></i>
+              <i class="fas remote-solution-list__status-icon" class.bind="remoteSolution.status ? 'fa-database' : 'fa-bolt'"></i>
               <span>${remoteSolution.uri}</span>
             </div>
             <button class="button remote-solution-list__close-button" click.delegate="removeSolutionFromHistory(remoteSolution.uri)">
