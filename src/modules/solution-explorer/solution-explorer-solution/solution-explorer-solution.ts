@@ -131,7 +131,9 @@ export class SolutionExplorerSolution {
   public async attached(): Promise<void> {
     this._isAttached = true;
 
-    this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+    if ((window as any).nodeRequire) {
+      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+    }
 
     this._originalIconClass = this.fontAwesomeIconClass;
     this._updateSolutionExplorer();
@@ -150,13 +152,15 @@ export class SolutionExplorerSolution {
 
       this._subscriptions.push(updateSubscription);
 
-      this._ipcRenderer.on('menubar__start_close_diagram', this._closeDiagramEventFunction);
-      this._ipcRenderer.on('menubar__start_close_all_diagrams', this._closeAllDiagramsEventFunction);
-      this._ipcRenderer.on('menubar__start_save_all_diagrams', this._saveAllDiagramsEventFunction);
+      if ((window as any).nodeRequire) {
+        this._ipcRenderer.on('menubar__start_close_diagram', this._closeDiagramEventFunction);
+        this._ipcRenderer.on('menubar__start_close_all_diagrams', this._closeAllDiagramsEventFunction);
+        this._ipcRenderer.on('menubar__start_save_all_diagrams', this._saveAllDiagramsEventFunction);
+      }
     }
 
     const solutionIsRemoteSolution: boolean = this.displayedSolutionEntry.uri.startsWith('http');
-    if (solutionIsRemoteSolution) {
+    if (solutionIsRemoteSolution && (window as any).nodeRequire) {
       this._ipcRenderer.on('menubar__start_close_diagram', this._closeDiagramEventFunction);
     }
 

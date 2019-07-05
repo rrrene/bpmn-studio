@@ -21,14 +21,17 @@ export class StartPage {
     if (this.isRunningInElectron) {
       this.isRunningOnWindows = process.platform === 'win32';
       this.isRunningOnMacOS = process.platform === 'darwin';
+
+      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+      this._ipcRenderer.on('menubar__start_close_diagram', this._closeBpmnStudio);
     }
 
-    this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
-    this._ipcRenderer.on('menubar__start_close_diagram', this._closeBpmnStudio);
   }
 
   public deactivate(): void {
-    this._ipcRenderer.removeListener('menubar__start_close_diagram', this._closeBpmnStudio);
+    if (this.isRunningInElectron) {
+      this._ipcRenderer.removeListener('menubar__start_close_diagram', this._closeBpmnStudio);
+    }
   }
 
   public openLocalSolution(): void {

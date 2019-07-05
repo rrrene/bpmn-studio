@@ -3,9 +3,9 @@ import {WebStorageStateStore} from 'oidc-client';
 import environment from './environment';
 
 export const oidcConfig: OpenIdConnectConfiguration = {
-  loginRedirectRoute: '',
-  logoutRedirectRoute: '',
-  unauthorizedRedirectRoute: '',
+  loginRedirectRoute: '/',
+  logoutRedirectRoute: '/',
+  unauthorizedRedirectRoute: '/',
   logLevel: 0,
   userManagerSettings: {
     accessTokenExpiringNotificationTime: 1,
