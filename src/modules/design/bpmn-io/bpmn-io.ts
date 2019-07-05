@@ -29,6 +29,7 @@ import {
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 import {OpenDiagramStateService} from '../../../services/solution-explorer-services/OpenDiagramStateService';
+import {PropertyPanel} from '../property-panel/property-panel';
 import {DiagramExportService, DiagramPrintService} from './services/index';
 
 const sideBarRightSize: number = 35;
@@ -36,6 +37,7 @@ const elementRegistryTimeoutMilliseconds: number = 50;
 
 @inject('NotificationService', EventAggregator, 'OpenDiagramStateService')
 export class BpmnIo {
+  @bindable public propertyPanelViewModel: PropertyPanel;
   public modeler: IBpmnModeler;
   public viewer: IBpmnModeler;
 
@@ -411,7 +413,7 @@ export class BpmnIo {
     this._tempProcess = undefined;
   }
 
-  public async xmlChanged(newValue?: string, oldValue?: string): Promise<void> {
+  public async xmlChanged(newValue: string, oldValue?: string): Promise<void> {
     if (this.diagramHasChanged) {
       this.savedXml = newValue;
 
@@ -455,7 +457,6 @@ export class BpmnIo {
     }
 
     this.solutionIsRemote = this.diagramUri.startsWith('http');
-
     if (this.solutionIsRemote) {
       const viewerNotInitialized: boolean = this.viewer === undefined;
       if (viewerNotInitialized) {
@@ -486,7 +487,11 @@ export class BpmnIo {
         });
       }
 
-      this.xmlChanged();
+      const xmlExists: boolean = this.xml !== undefined;
+      if (xmlExists) {
+        this.xmlChanged(this.xml);
+        this.propertyPanelViewModel.selectPreviouslySelectedOrFirstElement();
+      }
 
       setTimeout(() => {
         this.viewer.attachTo(this.canvasModel);
@@ -500,13 +505,18 @@ export class BpmnIo {
       }, 0);
 
     } else {
+      const xmlExists: boolean = this.xml !== undefined;
+      if (xmlExists) {
+        this.xmlChanged(this.xml);
+        this.propertyPanelViewModel.selectPreviouslySelectedOrFirstElement();
+      }
+
       setTimeout(() => {
         this.modeler.attachTo(this.canvasModel);
         this.attachPaletteContainer();
         this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
 
         if (this._bpmnLintButton) {
-
           this._bpmnLintButton.style.display = 'none';
         }
       }, 0);
