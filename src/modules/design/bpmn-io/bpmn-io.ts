@@ -29,6 +29,7 @@ import {
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 import {OpenDiagramStateService} from '../../../services/solution-explorer-services/OpenDiagramStateService';
+import {PropertyPanel} from '../property-panel/property-panel';
 import {DiagramExportService, DiagramPrintService} from './services/index';
 
 const sideBarRightSize: number = 35;
@@ -36,6 +37,7 @@ const elementRegistryTimeoutMilliseconds: number = 50;
 
 @inject('NotificationService', EventAggregator, 'OpenDiagramStateService')
 export class BpmnIo {
+  @bindable public propertyPanelViewModel: PropertyPanel;
   public modeler: IBpmnModeler;
   public viewer: IBpmnModeler;
 
@@ -460,8 +462,6 @@ export class BpmnIo {
       }
     }
 
-    this._diagramHasChanges = false;
-
     this.solutionIsRemote = this.diagramUri.startsWith('http');
     if (this.solutionIsRemote) {
       const viewerNotInitialized: boolean = this.viewer === undefined;
@@ -496,6 +496,7 @@ export class BpmnIo {
       const xmlExistsAlready: boolean = this.xml !== undefined;
       if (xmlExistsAlready) {
         this.xmlChanged(this.xml);
+        this.propertyPanelViewModel.selectPreviouslySelectedOrFirstElement();
       }
 
       setTimeout(() => {
@@ -513,6 +514,7 @@ export class BpmnIo {
       const xmlExistsAlready: boolean = this.xml !== undefined;
       if (xmlExistsAlready) {
         this.xmlChanged(this.xml);
+        this.propertyPanelViewModel.selectPreviouslySelectedOrFirstElement();
       }
 
       setTimeout(() => {
@@ -526,6 +528,8 @@ export class BpmnIo {
         }
       }, 0);
     }
+
+    this._diagramHasChanges = false;
   }
 
   public nameChanged(newValue: string): void {
