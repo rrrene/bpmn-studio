@@ -523,7 +523,6 @@ export class BpmnIo {
         this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
 
         if (this._bpmnLintButton) {
-
           this._bpmnLintButton.style.display = 'none';
         }
       }, 0);
