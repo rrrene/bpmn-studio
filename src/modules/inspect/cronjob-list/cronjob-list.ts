@@ -75,7 +75,6 @@ export class CronjobList {
     this._cronjobs = await this._managementApiService.getAllActiveCronjobs(this.activeSolutionEntry.identity);
 
     this.requestSuccessful = true;
-
   }
 
   private _startPolling(): void {
