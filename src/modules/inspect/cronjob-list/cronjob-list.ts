@@ -103,6 +103,6 @@ export class CronjobList {
       return firstProcessModelId.localeCompare(secondProcessModelId);
     }
 
-    return Date.parse(firstCronjob.nextExecution.toString()) - Date.parse(secondCronjob.nextExecution.toString());
+    return firstCronjob.nextExecution.getTime() - secondCronjob.nextExecution.getTime();
   }
 }
