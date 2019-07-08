@@ -162,7 +162,6 @@
     "electron-rebuild": "^1.8.5",
     "event-stream": "4.0.1",
     "eventemitter2": "^5.0.1",
-    "fetch-ponyfill": "^6.1.0",
     "gulp": "4.0.2",
     "gulp-changed-in-place": "^2.3.0",
     "gulp-notify": "^3.2.0",

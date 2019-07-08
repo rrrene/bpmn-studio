@@ -202,11 +202,6 @@
             "main": "./src/browser"
           },
           {
-            "name": "fetch-ponyfill",
-            "main": "build/fetch-browser",
-            "path": "../node_modules/fetch-ponyfill"
-          },
-          {
             "name": "proxy-polyfill",
             "main": "proxy.min.js",
             "path": "../node_modules/proxy-polyfill"
