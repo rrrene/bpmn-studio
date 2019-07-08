@@ -62,7 +62,10 @@ export class BasicsSection implements ISection {
     this.newValues.push('');
 
     const businessObjectHasNoExtensionElements: boolean = this._businessObjInPanel.extensionElements === undefined
-                                                       || this._businessObjInPanel.extensionElements === null;
+                                                       || this._businessObjInPanel.extensionElements === null
+                                                       || this._businessObjInPanel.extensionElements.values === undefined
+                                                       || this._businessObjInPanel.extensionElements.values.length === 0;
+
     if (businessObjectHasNoExtensionElements) {
       this._createExtensionElement();
     }
@@ -156,7 +159,9 @@ export class BasicsSection implements ISection {
     this.shouldFocus = false;
 
     const businessObjectHasNoExtensionElements: boolean = this._businessObjInPanel.extensionElements === undefined
-                                                       || this._businessObjInPanel.extensionElements === null;
+                                                       || this._businessObjInPanel.extensionElements === null
+                                                       || this._businessObjInPanel.extensionElements.values === undefined
+                                                       || this._businessObjInPanel.extensionElements.values.length === 0;
 
     if (businessObjectHasNoExtensionElements) {
       return;
@@ -192,7 +197,16 @@ export class BasicsSection implements ISection {
     }
   }
 
-  private _getPropertiesElement(): IPropertiesElement {
+  private _getPropertiesElement(): IPropertiesElement | undefined {
+
+    const businessObjectHasNoExtensionElements: boolean = this._businessObjInPanel.extensionElements === undefined
+                                                       || this._businessObjInPanel.extensionElements === null
+                                                       || this._businessObjInPanel.extensionElements.values === undefined
+                                                       || this._businessObjInPanel.extensionElements.values.length === 0;
+
+    if (businessObjectHasNoExtensionElements) {
+      return undefined;
+    }
 
     const propertiesElement: IPropertiesElement  = this._businessObjInPanel.extensionElements.values.find((extensionValue: IExtensionElement) => {
       const extensionIsPropertiesElement: boolean = extensionValue.$type === 'camunda:Properties'
@@ -201,6 +215,7 @@ export class BasicsSection implements ISection {
 
       return extensionIsPropertiesElement;
     });
+
     return propertiesElement;
   }
 
