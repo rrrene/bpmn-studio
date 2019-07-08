@@ -166,6 +166,10 @@ export class ServiceTaskSection implements ISection {
 
   private _deletePropertiesElementAndExtensionElements(): void {
     const indexOfPropertiesElement: number = this.businessObjInPanel.extensionElements.values.findIndex((element: IPropertiesElement) => {
+      if (!element) {
+        return;
+      }
+
       return element.$type === 'camunda:Properties';
     });
 
