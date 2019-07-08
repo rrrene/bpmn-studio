@@ -1,7 +1,7 @@
 <template>
   <require from="./cronjob-list.css"></require>
   <div class="cronhob-list-container" id="cronhobListContainer">
-      <div show.bind="cronjobsToDisplay && cronjobsToDisplay.length > 0">
+      <div show.bind="showCronjobList">
         <h3>Active Cronjobs</h3>
         <table class="table table-striped table-bordered">
           <tr>
@@ -31,7 +31,7 @@
           </aubs-pagination>
         </div>
       </div>
-      <template if.bind="requestSuccessful && (!cronjobsToDisplay || cronjobsToDisplay.length === 0)">
+      <template if.bind="requestSuccessful && !showCronjobList">
         <h3>No active cronjobs found</h3>
       </template>
       <div show.bind="!requestSuccessful" class="container">

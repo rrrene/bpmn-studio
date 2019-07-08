@@ -41,6 +41,11 @@ export class CronjobList {
     return this._cronjobs.length;
   }
 
+  @computedFrom('cronjobsToDisplay.length')
+  public get showCronjobList(): boolean {
+    return this.cronjobsToDisplay !== undefined && this.cronjobsToDisplay.length > 0;
+  }
+
   public get cronjobsToDisplay(): Array<DataModels.Cronjobs.CronjobConfiguration> {
     const firstCronjobIndex: number = (this.currentPage - 1) * this.pageSize;
     const lastCronjobIndex: number = (this.pageSize * this.currentPage);
