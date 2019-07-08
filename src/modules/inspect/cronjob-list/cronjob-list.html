@@ -12,7 +12,7 @@
           </tr>
           <tr repeat.for="cronjob of cronjobsToDisplay" class="cronjob-list-item" id="cronjobList-${cronjob.processModelId}">
             <td>
-              <a>${cronjob.processModelId}</a>
+              <a route-href="route: design; params.bind: { view: 'detail', diagramName: cronjob.processModelId, solutionUri: activeSolutionEntry.uri }" class="cronjob-list-item-modelname">${cronjob.processModelId}</a>
             </td>
             <td>
               <a>${cronjob.startEventId}</a>
