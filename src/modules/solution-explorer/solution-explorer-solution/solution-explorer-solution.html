@@ -14,7 +14,7 @@
       </div>
     </div>
 
-    <ul class="solution__diagram-list">
+    <ul if.bind="!solutionIsNotLoaded" class="solution__diagram-list">
 
       <li if.bind="_diagramCreationState.isCreateDiagramInputShown" class="diagram-create">
         <div class="input-holder">
