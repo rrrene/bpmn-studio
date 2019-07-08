@@ -18,6 +18,7 @@ export class Dashboard {
   @bindable() public activeSolutionEntry: ISolutionEntry;
   public showTaskList: boolean = false;
   public showProcessList: boolean = false;
+  public showCronjobList: boolean = false;
 
   private _managementApiService: IManagementApi;
   private _notificationService: NotificationService;
@@ -36,6 +37,7 @@ export class Dashboard {
 
     const hasClaimsForTaskList: boolean = await this._hasClaimsForTaskList(activeSolutionEntry.identity);
     const hasClaimsForProcessList: boolean = await this._hasClaimsForProcessList(activeSolutionEntry.identity);
+    const hasClaimsForCronjobList: boolean = await this._hasClaimsForCronjobList(activeSolutionEntry.identity);
 
     if (!hasClaimsForProcessList && !hasClaimsForTaskList) {
       this._notificationService.showNotification(NotificationType.ERROR, 'You don\'t have the permission to use the dashboard features.');
@@ -46,6 +48,7 @@ export class Dashboard {
 
     this.showTaskList = hasClaimsForTaskList;
     this.showProcessList = hasClaimsForProcessList;
+    this.showCronjobList = hasClaimsForCronjobList;
 
     return true;
   }
@@ -74,6 +77,23 @@ export class Dashboard {
     try {
 
       await this._managementApiService.getActiveCorrelations(identity);
+
+    } catch (error) {
+      const errorIsForbiddenError: boolean = isError(error, ForbiddenError);
+      const errorIsUnauthorizedError: boolean = isError(error, UnauthorizedError);
+
+      if (errorIsForbiddenError || errorIsUnauthorizedError) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private async _hasClaimsForCronjobList(identity: IIdentity): Promise<boolean> {
+    try {
+
+      await this._managementApiService.getAllActiveCronjobs(identity);
 
     } catch (error) {
       const errorIsForbiddenError: boolean = isError(error, ForbiddenError);
