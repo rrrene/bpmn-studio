@@ -75,6 +75,9 @@ export class ServiceTaskService {
     }
 
     const propertiesElement: IPropertiesElement = this._businessObjInPanel.extensionElements.values.find((element: IPropertiesElement) => {
+      if (!element) {
+        return;
+      }
       return element.$type === 'camunda:Properties';
     });
 
