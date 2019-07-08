@@ -25,7 +25,7 @@ export class ProcessList {
 
   @observable public currentPage: number = 1;
   @bindable() public activeSolutionEntry: ISolutionEntry;
-  public pageSize: number = 5;
+  public pageSize: number = 10;
   public totalItems: number;
   public paginationSize: number = 10;
   public requestSuccessful: boolean = false;

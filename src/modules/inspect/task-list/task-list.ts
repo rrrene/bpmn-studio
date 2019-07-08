@@ -39,7 +39,7 @@ export class TaskList {
   @bindable() public activeSolutionEntry: ISolutionEntry;
 
   public currentPage: number = 0;
-  public pageSize: number = 5;
+  public pageSize: number = 10;
   public totalItems: number;
   public paginationSize: number = 10;
 
