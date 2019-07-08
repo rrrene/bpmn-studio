@@ -65,7 +65,6 @@
   position: absolute;
   right: 5px;
   display: none;
-  background-color: rgb(234, 234, 234);
 }
 
 .solution-entry__actions_remote-solution {
@@ -92,12 +91,17 @@
 
 .solution-entry:hover .solution-entry__actions {
   display: flex;
+  background-color: rgb(246, 246, 246);
 }
 
 .solution-entry:hover .solution-entry__actions_remote-solution {
   display: flex;
   position: absolute;
   right: 5px;
+}
+
+.solution-entry:hover .solution-entry__header:hover .solution-entry__actions {
+  background-color: rgb(234, 234, 234);
 }
 
 .solution-entry__left-icon_and_name {
