@@ -203,16 +203,9 @@ export class BasicsSection implements ISection {
   }
 
   private _createExtensionElement(): void {
-    const bpmnExecutionListenerProperties: Object = {
-      class: '',
-      event: '',
-    };
-    const bpmnExecutionListener: IModdleElement = this._moddle.create('camunda:ExecutionListener', bpmnExecutionListenerProperties);
-
     const extensionValues: Array<IModdleElement> = [];
     const properties: Array<IProperty> = [];
     const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', {values: properties});
-    extensionValues.push(bpmnExecutionListener);
     extensionValues.push(propertiesElement);
 
     const extensionElements: IModdleElement = this._moddle.create('bpmn:ExtensionElements', {values: extensionValues});
