@@ -1,5 +1,5 @@
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {bindable, inject} from 'aurelia-framework';
+import {bindable, inject, observable} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
@@ -23,6 +23,7 @@ type RemoteSolutionUriWithStatus = {uri: string, status: boolean};
  */
 @inject(EventAggregator, 'NotificationService', Router, 'SolutionService')
 export class SolutionExplorerPanel {
+  @observable public selectedProtocol: string = 'http://';
 
   private _eventAggregator: EventAggregator;
   private _notificationService: NotificationService;
@@ -39,7 +40,7 @@ export class SolutionExplorerPanel {
   public solutionInput: HTMLInputElement;
   public openDiagramInput: HTMLInputElement;
   public showOpenRemoteSolutionModal: boolean = false;
-  @bindable public uriOfRemoteSolution: string;
+  @bindable public uriOfRemoteSolutionWithoutProtocol: string;
   public solutionExplorerPanel: SolutionExplorerPanel = this;
   public remoteSolutionHistoryStatus: Map<string, boolean> = new Map<string, boolean>();
 
@@ -153,9 +154,13 @@ export class SolutionExplorerPanel {
     this._removeSolutionFromSolutionHistroy(solutionUri);
   }
 
+  public selectProtocol(protocol: string): void {
+    this.selectedProtocol = protocol;
+  }
+
   public closeRemoteSolutionModal(): void {
     this.showOpenRemoteSolutionModal = false;
-    this.uriOfRemoteSolution = undefined;
+    this.uriOfRemoteSolutionWithoutProtocol = undefined;
     this._stopPollingOfRemoteSolutionHistoryStatus();
   }
 
@@ -167,9 +172,9 @@ export class SolutionExplorerPanel {
     this.showOpenRemoteSolutionModal = false;
 
     try {
-      const lastCharacterIsASlash: boolean = this.uriOfRemoteSolution.endsWith('/');
+      const lastCharacterIsASlash: boolean = this.uriOfRemoteSolutionWithoutProtocol.endsWith('/');
       if (lastCharacterIsASlash) {
-        this.uriOfRemoteSolution = this.uriOfRemoteSolution.slice(0, -1);
+        this.uriOfRemoteSolutionWithoutProtocol = this.uriOfRemoteSolutionWithoutProtocol.slice(0, -1);
       }
 
       await this._addSolutionToRemoteSolutionHistory(this.uriOfRemoteSolution);
@@ -181,7 +186,7 @@ export class SolutionExplorerPanel {
       this._notificationService.showNotification(NotificationType.ERROR, `${genericMessage}<br />${cause}`);
     }
 
-    this.uriOfRemoteSolution = undefined;
+    this.closeRemoteSolutionModal();
   }
 
   public get remoteSolutionHistoryExists(): boolean {
@@ -243,11 +248,11 @@ export class SolutionExplorerPanel {
     });
   }
 
-  public get uriIsValid(): boolean {
-    if (this.uriIsEmpty) {
-      return true;
-    }
+  public get uriOfRemoteSolution(): string {
+    return `${this.selectedProtocol}${this.uriOfRemoteSolutionWithoutProtocol}`;
+  }
 
+  public get uriIsValid(): boolean {
     /**
      * This RegEx checks if the entered URI is valid or not.
      */
@@ -258,7 +263,7 @@ export class SolutionExplorerPanel {
   }
 
   public get uriIsEmpty(): boolean {
-    const uriIsEmtpy: boolean = this.uriOfRemoteSolution === undefined || this.uriOfRemoteSolution.length === 0;
+    const uriIsEmtpy: boolean = this.uriOfRemoteSolutionWithoutProtocol === undefined || this.uriOfRemoteSolutionWithoutProtocol.length === 0;
 
     return uriIsEmtpy;
   }
@@ -289,7 +294,14 @@ export class SolutionExplorerPanel {
   }
 
   public selectRemoteSolution(remoteSolutionUri: string): void {
-    this.uriOfRemoteSolution = remoteSolutionUri;
+    // tslint:disable-next-line no-magic-numbers
+    const protocolEndIndex: number = remoteSolutionUri.indexOf('//') + 2;
+    const protocol: string = remoteSolutionUri.substring(0, protocolEndIndex);
+
+    const uri: string = remoteSolutionUri.substring(protocolEndIndex, remoteSolutionUri.length);
+
+    this.selectProtocol(protocol);
+    this.uriOfRemoteSolutionWithoutProtocol = uri;
   }
 
   private _startPollingOfRemoteSolutionHistoryStatus(): void {
