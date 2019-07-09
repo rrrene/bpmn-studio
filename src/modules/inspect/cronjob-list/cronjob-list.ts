@@ -103,14 +103,6 @@ export class CronjobList {
     firstCronjob: DataModels.Cronjobs.CronjobConfiguration,
     secondCronjob: DataModels.Cronjobs.CronjobConfiguration,
   ): number {
-    const firstProcessModelId: string = firstCronjob.processModelId;
-    const secondProcessModelId: string = secondCronjob.processModelId;
-
-    const processModelsAreDifferent: boolean = firstProcessModelId !== secondProcessModelId;
-    if (processModelsAreDifferent) {
-      return firstProcessModelId.localeCompare(secondProcessModelId);
-    }
-
     return firstCronjob.nextExecution.getTime() - secondCronjob.nextExecution.getTime();
   }
 }
