@@ -4,7 +4,6 @@ import {Router} from 'aurelia-router';
 
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
-import moment from 'moment';
 
 import {
   AuthenticationStateEvent,
@@ -13,6 +12,7 @@ import {
   NotificationType,
 } from '../../../contracts/index';
 import environment from '../../../environment';
+import {getBeautifiedDate} from '../../../services/date-service/date.service';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 
 type ProcessInstanceWithCorrelation = {
@@ -191,7 +191,7 @@ export class ProcessList {
   }
 
   public formatDate(date: string): string {
-    return moment(date).format('YYYY-MM-DD HH:mm:ss');
+    return getBeautifiedDate(date);
   }
 
   private async getAllActiveCorrelations(): Promise<Array<DataModels.Correlations.Correlation>> {

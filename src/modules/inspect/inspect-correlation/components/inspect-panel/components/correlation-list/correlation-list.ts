@@ -6,7 +6,7 @@ import {DataModels} from '@process-engine/management_api_contracts';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 import {CorrelationListSortProperty, ICorrelationSortSettings, ICorrelationTableEntry} from '../../../../../../../contracts/index';
 import environment from '../../../../../../../environment';
-import {DateService} from '../../../../../../../services/date-service/date.service';
+import {getBeautifiedDate} from '../../../../../../../services/date-service/date.service';
 import {IProcessInstanceWithCorrelation} from '../../../../contracts/index';
 
 @inject(EventAggregator)
@@ -96,15 +96,7 @@ export class CorrelationList {
         const correlation: DataModels.Correlations.Correlation = processInstanceWithCorrelation.correlation;
         const processInstance: DataModels.Correlations.CorrelationProcessInstance = processInstanceWithCorrelation.processInstance;
 
-        const date: Date = new Date(processInstanceWithCorrelation.correlation.createdAt);
-        const formattedStartedDate: string = new DateService(date)
-                                              .year()
-                                              .month()
-                                              .day()
-                                              .hours()
-                                              .minutes()
-                                              .seconds()
-                                              .asFormattedDate();
+        const formattedStartedDate: string = getBeautifiedDate(processInstanceWithCorrelation.correlation.createdAt);
 
         const index: number = this._getIndexForProcessInstance(processInstance);
         const state: string = correlation.state.toUpperCase();
