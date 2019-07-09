@@ -26,7 +26,7 @@
         </table>
       </template>
       <div class="col-md-12 col-xs-12 pagination" show.bind="processInstancesToDisplay && processInstancesToDisplay.length > 0">
-        <aubs-pagination page-size.bind="pageSize" total-items.bind="totalItems" current-page.bind="currentPage" boundary-links.bind="true">
+        <aubs-pagination page-size.bind="pageSize" total-items.bind="totalItems" current-page.bind="currentPage" boundary-links.bind="true" pagination-size.bind="paginationSize">
         </aubs-pagination>
       </div>
       <template if.bind="requestSuccessful && (!processInstancesToDisplay || processInstancesToDisplay.length === 0)">
