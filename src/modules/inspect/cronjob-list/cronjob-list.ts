@@ -14,6 +14,8 @@ export class CronjobList {
   public requestSuccessful: boolean = false;
   public currentPage: number = 1;
   public pageSize: number = 10;
+  public paginationSize: number = 10;
+  
 
   private _managementApiService: ManagementApiClientService;
 
