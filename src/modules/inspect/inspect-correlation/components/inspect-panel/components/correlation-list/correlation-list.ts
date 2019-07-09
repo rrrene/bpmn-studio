@@ -6,10 +6,10 @@ import {DataModels} from '@process-engine/management_api_contracts';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 import {CorrelationListSortProperty, ICorrelationSortSettings, ICorrelationTableEntry} from '../../../../../../../contracts/index';
 import environment from '../../../../../../../environment';
-import {DateService} from '../../../../../../../services/date-service/date.service';
+import {getBeautifiedDate} from '../../../../../../../services/date-service/date.service';
 import {IProcessInstanceWithCorrelation} from '../../../../contracts/index';
 
-@inject(EventAggregator, DateService)
+@inject(EventAggregator)
 export class CorrelationList {
 
   @bindable public selectedProcessInstance: DataModels.Correlations.CorrelationProcessInstance;
@@ -28,11 +28,9 @@ export class CorrelationList {
 
   private _tableData: Array<ICorrelationTableEntry> = [];
   private _eventAggregator: EventAggregator;
-  private _dateService: DateService;
 
-  constructor(eventAggregator: EventAggregator, dateService: DateService) {
+  constructor(eventAggregator: EventAggregator) {
     this._eventAggregator = eventAggregator;
-    this._dateService = dateService;
   }
 
   public showLogViewer(): void {
@@ -98,7 +96,7 @@ export class CorrelationList {
         const correlation: DataModels.Correlations.Correlation = processInstanceWithCorrelation.correlation;
         const processInstance: DataModels.Correlations.CorrelationProcessInstance = processInstanceWithCorrelation.processInstance;
 
-        const formattedStartedDate: string = this._dateService.getBeautifiedDate(processInstanceWithCorrelation.correlation.createdAt);
+        const formattedStartedDate: string = getBeautifiedDate(processInstanceWithCorrelation.correlation.createdAt);
 
         const index: number = this._getIndexForProcessInstance(processInstance);
         const state: string = correlation.state.toUpperCase();

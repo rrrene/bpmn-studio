@@ -12,7 +12,7 @@ import {
   NotificationType,
 } from '../../../contracts/index';
 import environment from '../../../environment';
-import {DateService} from '../../../services/date-service/date.service';
+import {getBeautifiedDate} from '../../../services/date-service/date.service';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 
 type ProcessInstanceWithCorrelation = {
@@ -20,7 +20,7 @@ type ProcessInstanceWithCorrelation = {
   correlation: DataModels.Correlations.Correlation,
 };
 
-@inject('ManagementApiClientService', EventAggregator, 'NotificationService', 'SolutionService', Router, DateService)
+@inject('ManagementApiClientService', EventAggregator, 'NotificationService', 'SolutionService', Router)
 export class ProcessList {
 
   @observable public currentPage: number = 1;
@@ -45,20 +45,17 @@ export class ProcessList {
   private _stoppedCorrelations: Array<DataModels.Correlations.Correlation> = [];
   private _stoppedProcessInstancesWithCorrelation: Array<ProcessInstanceWithCorrelation> = [];
   private _isAttached: boolean = false;
-  private _dateService: DateService;
 
   constructor(managementApiService: IManagementApi,
               eventAggregator: EventAggregator,
               notificationService: NotificationService,
               solutionService: ISolutionService,
-              router: Router,
-              dateService: DateService) {
+              router: Router) {
     this._managementApiService = managementApiService;
     this._eventAggregator = eventAggregator;
     this._notificationService = notificationService;
     this._solutionService = solutionService;
     this._router = router;
-    this._dateService = dateService;
   }
 
   public activeSolutionEntryChanged(): void {
@@ -194,7 +191,7 @@ export class ProcessList {
   }
 
   public formatDate(date: string): string {
-    return this._dateService.getBeautifiedDate(date);
+    return getBeautifiedDate(date);
   }
 
   private async getAllActiveCorrelations(): Promise<Array<DataModels.Correlations.Correlation>> {

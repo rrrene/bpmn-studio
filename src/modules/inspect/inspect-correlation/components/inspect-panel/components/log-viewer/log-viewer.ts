@@ -5,7 +5,7 @@ import * as clipboard from 'clipboard-polyfill';
 import {DataModels} from '@process-engine/management_api_contracts';
 
 import {ILogSortSettings, ISolutionEntry, LogSortProperty, NotificationType} from '../../../../../../../contracts/index';
-import {DateService} from '../../../../../../../services/date-service/date.service';
+import {getBeautifiedDate} from '../../../../../../../services/date-service/date.service';
 import {NotificationService} from '../../../../../../../services/notification-service/notification.service';
 import {IInspectCorrelationService} from '../../../../contracts';
 
@@ -13,7 +13,7 @@ interface IClipboard {
   writeText?(text: string): void;
 }
 
-@inject('NotificationService', 'InspectCorrelationService', DateService)
+@inject('NotificationService', 'InspectCorrelationService')
 export class LogViewer {
   @bindable public log: Array<DataModels.Logging.LogEntry>;
   @bindable public processInstance: DataModels.Correlations.CorrelationProcessInstance;
@@ -27,16 +27,13 @@ export class LogViewer {
 
   private _notificationService: NotificationService;
   private _inspectCorrelationService: IInspectCorrelationService;
-  private _dateService: DateService;
 
   constructor(
     notificationService: NotificationService,
     inspectCorrelationService: IInspectCorrelationService,
-    dateService: DateService,
   ) {
     this._notificationService = notificationService;
     this._inspectCorrelationService = inspectCorrelationService;
-    this._dateService = dateService;
   }
 
   public async processInstanceChanged(): Promise<void> {
@@ -61,7 +58,7 @@ export class LogViewer {
   }
 
   public getDateStringFromTimestamp(timestamp: string): string {
-    const dateString: string = this._dateService.getBeautifiedDate(timestamp);
+    const dateString: string = getBeautifiedDate(timestamp);
 
     return dateString;
   }
