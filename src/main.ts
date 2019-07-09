@@ -40,6 +40,7 @@ export function configure(aurelia: Aurelia): void {
     .feature('modules/fetch-http-client')
     .feature('services/dynamic-ui-service')
     .feature('services/notification-service')
+    .feature('services/date-service')
     .feature('services/diagram-validation-service')
     .feature('modules/management-api_client')
     .feature('services/authentication-service')

@@ -13,7 +13,7 @@ interface IClipboard {
   writeText?(text: string): void;
 }
 
-@inject('NotificationService', 'InspectCorrelationService')
+@inject('NotificationService', 'InspectCorrelationService', DateService)
 export class LogViewer {
   @bindable public log: Array<DataModels.Logging.LogEntry>;
   @bindable public processInstance: DataModels.Correlations.CorrelationProcessInstance;
@@ -27,10 +27,12 @@ export class LogViewer {
 
   private _notificationService: NotificationService;
   private _inspectCorrelationService: IInspectCorrelationService;
+  private _dateService: DateService;
 
-  constructor(notificationService: NotificationService, inspectCorrelationService: IInspectCorrelationService) {
+  constructor(notificationService: NotificationService, inspectCorrelationService: IInspectCorrelationService, dateService: DateService) {
     this._notificationService = notificationService;
     this._inspectCorrelationService = inspectCorrelationService;
+    this._dateService = dateService;
   }
 
   public async processInstanceChanged(): Promise<void> {
@@ -54,17 +56,9 @@ export class LogViewer {
     this._notificationService.showNotification(NotificationType.SUCCESS, 'Successfully copied to clipboard.');
   }
 
-  public getDateStringFromTimestamp(time: string): string {
-    const date: Date = new Date(time);
+  public getDateStringFromTimestamp(timestamp: string): string {
 
-    const dateString: string = new DateService(date)
-                                .year()
-                                .month()
-                                .day()
-                                .hours()
-                                .minutes()
-                                .seconds()
-                                .asFormattedDate();
+    const dateString: string = this._dateService.getBeautifiedDate(timestamp);
 
     return dateString;
   }
