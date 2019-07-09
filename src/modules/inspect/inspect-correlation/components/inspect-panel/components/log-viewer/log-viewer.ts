@@ -29,7 +29,11 @@ export class LogViewer {
   private _inspectCorrelationService: IInspectCorrelationService;
   private _dateService: DateService;
 
-  constructor(notificationService: NotificationService, inspectCorrelationService: IInspectCorrelationService, dateService: DateService) {
+  constructor(
+    notificationService: NotificationService,
+    inspectCorrelationService: IInspectCorrelationService,
+    dateService: DateService,
+  ) {
     this._notificationService = notificationService;
     this._inspectCorrelationService = inspectCorrelationService;
     this._dateService = dateService;
