@@ -3,11 +3,12 @@ import {bindable, computedFrom, inject} from 'aurelia-framework';
 import {ManagementApiClientService} from '@process-engine/management_api_client';
 import {DataModels} from '@process-engine/management_api_contracts';
 
-import {ISolutionEntry} from '../../../contracts';
+import {ISolutionEntry, NotificationType} from '../../../contracts/index';
 import environment from '../../../environment';
 import {DateService} from '../../../services/date-service/date.service';
+import {NotificationService} from '../../../services/notification-service/notification.service';
 
-@inject('ManagementApiClientService')
+@inject('ManagementApiClientService', 'NotificationService')
 export class CronjobList {
   @bindable public activeSolutionEntry: ISolutionEntry;
   public requestSuccessful: boolean = false;
@@ -19,9 +20,11 @@ export class CronjobList {
   private _cronjobs: Array<DataModels.Cronjobs.CronjobConfiguration> = [];
   private _pollingTimeout: NodeJS.Timeout;
   private _isAttached: boolean;
+  private _notificationService: NotificationService;
 
-  constructor(managementApiService: ManagementApiClientService) {
+  constructor(managementApiService: ManagementApiClientService, notificationService: NotificationService) {
     this._managementApiService = managementApiService;
+    this._notificationService = notificationService;
   }
 
   public async attached(): Promise<void> {
@@ -72,9 +75,14 @@ export class CronjobList {
 }
 
   public async updateCronjobs(): Promise<void> {
-    this._cronjobs = await this._managementApiService.getAllActiveCronjobs(this.activeSolutionEntry.identity);
+    try {
+      this._cronjobs = await this._managementApiService.getAllActiveCronjobs(this.activeSolutionEntry.identity);
 
-    this.requestSuccessful = true;
+      this.requestSuccessful = true;
+    } catch (error) {
+      this._notificationService.showNotification(NotificationType.ERROR, `Error receiving process list: ${error.message}`);
+      this.requestSuccessful = false;
+    }
   }
 
   private _startPolling(): void {
