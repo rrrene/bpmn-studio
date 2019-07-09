@@ -229,16 +229,6 @@ export class SolutionExplorerSolution {
      */
     event.stopPropagation();
 
-    if (await this._isDiagramDetailViewOfDiagramOpen(diagram.uri)) {
-      const messageTitle: string = '<h4 class="toast-message__headline">Not supported while opened.</h4>';
-      const messageBody: string = 'Deleting of opened diagrams is currently not supported. Please switch to another diagram and try again.';
-      const message: string = `${messageTitle}\n${messageBody}`;
-
-      this._notificationService.showNotification(NotificationType.INFO, message, {toastClass: 'toast-not-allowed-renaming-or-deleting'});
-
-      return;
-    }
-
     const diagramWasDeleted: boolean = await this.deleteDiagramModal.show(diagram, this.solutionService);
 
     if (diagramWasDeleted) {
@@ -799,8 +789,7 @@ export class SolutionExplorerSolution {
       return false;
     }
 
-    const openedDiagramUri: string = this.activeDiagramUri;
-    const diagramIsOpened: boolean = diagramUriToCheck === openedDiagramUri;
+    const diagramIsOpened: boolean = diagramUriToCheck === this.activeDiagramUri;
 
     return diagramIsOpened;
   }
