@@ -57,7 +57,6 @@ export class LogViewer {
   }
 
   public getDateStringFromTimestamp(timestamp: string): string {
-
     const dateString: string = this._dateService.getBeautifiedDate(timestamp);
 
     return dateString;
