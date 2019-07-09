@@ -5,7 +5,7 @@ import {DataModels} from '@process-engine/management_api_contracts';
 
 import {ISolutionEntry, NotificationType} from '../../../contracts/index';
 import environment from '../../../environment';
-import {DateService} from '../../../services/date-service/date.service';
+import {getBeautifiedDate} from '../../../services/date-service/date.service';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 
 @inject('ManagementApiClientService', 'NotificationService')
@@ -63,14 +63,7 @@ export class CronjobList {
   }
 
   public getBeautifiedDate(date: Date): string {
-    const beautifiedDate: string = new DateService(date)
-                                        .year()
-                                        .month()
-                                        .day()
-                                        .hours()
-                                        .minutes()
-                                        .seconds()
-                                        .asFormattedDate();
+    const beautifiedDate: string = getBeautifiedDate(date);
 
     return beautifiedDate;
 }
