@@ -41,6 +41,7 @@ export class TaskList {
   public currentPage: number = 0;
   public pageSize: number = 10;
   public totalItems: number;
+  public paginationSize: number = 10;
 
   public requestSuccessful: boolean = false;
 

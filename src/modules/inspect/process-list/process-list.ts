@@ -27,6 +27,7 @@ export class ProcessList {
   @bindable() public activeSolutionEntry: ISolutionEntry;
   public pageSize: number = 10;
   public totalItems: number;
+  public paginationSize: number = 10;
   public requestSuccessful: boolean = false;
   public processInstancesToDisplay: Array<ProcessInstanceWithCorrelation> = [];
 
