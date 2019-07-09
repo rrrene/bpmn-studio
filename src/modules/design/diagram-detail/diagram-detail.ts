@@ -104,12 +104,7 @@ export class DiagramDetail {
     if (isRunningInElectron) {
       this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
       this._ipcRenderer.on('menubar__start_save_diagram_as', this._electronOnSaveDiagramAs);
-
-      const triggerSaveDiagramEvent: Function = (): void => {
-        this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
-      };
-
-      this._ipcRenderer.on('menubar__start_save_diagram', triggerSaveDiagramEvent);
+      this._ipcRenderer.on('menubar__start_save_diagram', this._electronOnSaveDiagram);
     }
 
     this._eventAggregator.publish(environment.events.navBar.showTools);
@@ -179,6 +174,7 @@ export class DiagramDetail {
   public detached(): void {
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
     if (isRunningInElectron) {
+      this._ipcRenderer.removeListener('menubar__start_save_diagram', this._electronOnSaveDiagram);
       this._ipcRenderer.removeListener('menubar__start_save_diagram_as', this._electronOnSaveDiagramAs);
     }
 
@@ -668,6 +664,10 @@ export class DiagramDetail {
 
       await this.saveDiagramAs(savePath);
     });
+  }
+
+  private _electronOnSaveDiagram = async(_?: Event): Promise<void> => {
+    this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
   }
 
   private _handleFormValidateEvents(event: ValidateEvent): void {
