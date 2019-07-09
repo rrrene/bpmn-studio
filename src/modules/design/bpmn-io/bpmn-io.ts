@@ -449,8 +449,12 @@ export class BpmnIo {
     if (!this.solutionIsRemote && previousDiagramExists) {
 
       if (this.saveStateForNewUri) {
-        await this._saveDiagramState(newUri);
         this.saveStateForNewUri = false;
+
+        const previousDiagramWasNoNewDiagram: boolean = !previousUri.startsWith('about:open-diagrams');
+        if (previousDiagramWasNoNewDiagram) {
+          await this._saveDiagramState(newUri);
+        }
       } else {
         await this._saveDiagramState(previousUri);
       }
