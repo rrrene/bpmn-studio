@@ -91,8 +91,6 @@ export class DeleteDiagramModal {
       this._notificationService.showNotification(NotificationType.ERROR, message);
     }
 
-    this._openDiagramStateService.deleteDiagramState(this.diagram.uri);
-
     const diagramIndex: number = this._openDiagramService
       .getOpenedDiagrams()
       .findIndex((diagram: IDiagram) => diagram.uri === this.diagram.uri);
@@ -118,7 +116,10 @@ export class DeleteDiagramModal {
         view: this._router.currentInstruction.params.view,
       });
     }
+
     this._openDiagramService.closeDiagram(this.diagram);
+    this._solutionService.removeOpenDiagramByUri(this.diagram.uri);
+    this._openDiagramStateService.deleteDiagramState(this.diagram.uri);
 
     this.diagram = undefined;
     this._solutionExplorerService = undefined;
