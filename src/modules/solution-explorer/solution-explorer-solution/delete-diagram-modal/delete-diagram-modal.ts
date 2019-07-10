@@ -99,9 +99,7 @@ export class DeleteDiagramModal {
 
     const diagramToNavigateTo: IDiagram = this._openDiagramService
       .getOpenedDiagrams()
-      .find((diagram: IDiagram, index: number) => {
-        return index === searchIndex;
-      });
+      .find((diagram: IDiagram, index: number) => index === searchIndex);
 
     const activeSolution: ISolution = await this._solutionExplorerService.loadSolution();
     const diagramIsDeployed: boolean = this.diagram.uri.startsWith('http');

@@ -468,9 +468,7 @@ export class BpmnIo {
 
         const previousDiagramIsNotDeleted: boolean = this._solutionService
           .getOpenDiagrams()
-          .some((diagram: IDiagram) => {
-            return diagram.uri === previousUri;
-          });
+          .some((diagram: IDiagram) => diagram.uri === previousUri);
 
         if (previousDiagramIsNotDeleted) {
           await this._saveDiagramState(previousUri);
