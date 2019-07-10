@@ -9,38 +9,41 @@ import {Router} from 'aurelia-router';
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 
+import {IEventFunction, ISolutionService, NotificationType} from '../../../../contracts/index';
 import {NotificationService} from '../../../../services/notification-service/notification.service';
 import {OpenDiagramsSolutionExplorerService} from '../../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
 import {OpenDiagramStateService} from '../../../../services/solution-explorer-services/OpenDiagramStateService';
 
-@inject('NotificationService', 'OpenDiagramStateService', Router, 'OpenDiagramService')
+@inject('NotificationService', 'OpenDiagramStateService', Router, 'OpenDiagramService', 'SolutionService')
 export class DeleteDiagramModal {
   public showModal: boolean = false;
   public diagram: IDiagram;
   public deleteDiagramModal: DeleteDiagramModal = this;
 
-  private _solutionService: ISolutionExplorerService;
+  private _solutionExplorerService: ISolutionExplorerService;
   private _notificationService: NotificationService;
   private _openDiagramStateService: OpenDiagramStateService;
   private _openDiagramService: OpenDiagramsSolutionExplorerService;
   private _router: Router;
+  private _solutionService: ISolutionService;
 
   constructor(
     notificationService: NotificationService,
     openDiagramStateService: OpenDiagramStateService,
     router: Router,
     openDiagramService: OpenDiagramsSolutionExplorerService,
+    solutionService: ISolutionService,
     ) {
     this._notificationService = notificationService;
     this._openDiagramStateService = openDiagramStateService;
     this._router = router;
     this._openDiagramService = openDiagramService;
+    this._solutionService = solutionService;
   }
 
-  public async show(diagram: IDiagram, solutionService: ISolutionExplorerService): Promise<boolean> {
+  public async show(diagram: IDiagram, solutionExplorerService: ISolutionExplorerService): Promise<boolean> {
     this.diagram = diagram;
-    this._solutionService = solutionService;
-
+    this._solutionExplorerService = solutionExplorerService;
 
     this.showModal = true;
 
@@ -74,14 +77,14 @@ export class DeleteDiagramModal {
 
   private _closeModal(): void {
     this.diagram = undefined;
-    this._solutionService = undefined;
+    this._solutionExplorerService = undefined;
 
     this.showModal = false;
   }
 
   private async _deleteDiagram(): Promise<void> {
     try {
-      await this._solutionService.deleteDiagram(this.diagram);
+      await this._solutionExplorerService.deleteDiagram(this.diagram);
     } catch (error) {
       const message: string = `Unable to delete the diagram: ${error.message}`;
 
@@ -102,7 +105,7 @@ export class DeleteDiagramModal {
         return index === searchIndex;
       });
 
-    const activeSolution: ISolution = await this._solutionService.loadSolution();
+    const activeSolution: ISolution = await this._solutionExplorerService.loadSolution();
     const diagramIsDeployed: boolean = this.diagram.uri.startsWith('http');
 
     if (diagramIsDeployed || !diagramToNavigateTo) {
@@ -118,7 +121,7 @@ export class DeleteDiagramModal {
     this._openDiagramService.closeDiagram(this.diagram);
 
     this.diagram = undefined;
-    this._solutionService = undefined;
+    this._solutionExplorerService = undefined;
 
     this.showModal = false;
   }
