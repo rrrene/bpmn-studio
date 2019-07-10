@@ -81,7 +81,7 @@ export class SolutionExplorerPanel {
 
     // Open the previously opened solutions.
     const previouslyOpenedSolutions: Array<ISolutionEntry> = this._solutionService.getPersistedEntries();
-    previouslyOpenedSolutions.forEach(async(entry: ISolutionEntry) => {
+    previouslyOpenedSolutions.forEach((entry: ISolutionEntry) => {
       // We are not adding the solution of the connect PE here again since that happened above.
       const entryIsNotConnectedProcessEngine: boolean = entry.uri !== uriOfProcessEngine;
       if (entryIsNotConnectedProcessEngine) {
@@ -91,7 +91,7 @@ export class SolutionExplorerPanel {
          * produced by the openSolution method.
          */
         try {
-          await this.solutionExplorerList.openSolution(entry.uri, false, entry.identity);
+          this.solutionExplorerList.openSolution(entry.uri, false, entry.identity);
         } catch (error) {
 
           return;
@@ -100,9 +100,9 @@ export class SolutionExplorerPanel {
     });
 
     const persistedOpenDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();
-    persistedOpenDiagrams.forEach(async(diagram: IDiagram) => {
+    persistedOpenDiagrams.forEach((diagram: IDiagram) => {
       try {
-        await this.solutionExplorerList.openDiagram(diagram.uri);
+        this.solutionExplorerList.openDiagram(diagram.uri);
       } catch {
         return;
       }
