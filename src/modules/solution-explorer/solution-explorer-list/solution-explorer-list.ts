@@ -146,8 +146,11 @@ export class SolutionExplorerList {
     }
 
     let processEngineVersion: string;
+    const internalProcessEngineRoute: string = window.localStorage.getItem('InternalProcessEngineRoute');
+    const uriIsNotInternalProcessEngine: boolean = internalProcessEngineRoute !== uri;
+
     try {
-      if (uriIsRemote) {
+      if (uriIsRemote && uriIsNotInternalProcessEngine) {
         const response: Response = await fetch(uri);
 
         const responseJSON: object & {version: string} = await response.json();
@@ -172,6 +175,16 @@ export class SolutionExplorerList {
 
       const errorIsFailedToFetch: boolean = error.message === 'Failed to fetch';
       if (errorIsFailedToFetch) {
+
+         /**
+         * If opening the solution has failed with a 'Failed to fetch' the solution has not been added yet
+         * so we must open it again when it is started. The version indicates when that has been done.
+         */
+        if (!uriIsNotInternalProcessEngine) {
+          const processEngineHasStarted: string = await this._getProcessEngineVersionFromInternalPE(uri);
+          this.openSolution(uri, insertAtBeginning, identity);
+          return;
+        }
         /**
          * TODO: The error message only contains 'Failed to fetch' if the connection
          * failed. A more detailed cause (such as Connection Refused) would
@@ -190,6 +203,10 @@ export class SolutionExplorerList {
 
     if (arrayAlreadyContainedURI) {
       throw new Error('Solution is already opened.');
+    }
+
+    if (!processEngineVersion && !uriIsNotInternalProcessEngine) {
+      processEngineVersion = await this._getProcessEngineVersionFromInternalPE(uri);
     }
 
     this._addSolutionEntry(uri, solutionExplorer, identity, insertAtBeginning, processEngineVersion);
@@ -362,6 +379,26 @@ export class SolutionExplorerList {
     });
 
     return sortedEntries;
+  }
+
+  private _getProcessEngineVersionFromInternalPE(uri: string): Promise<string> {
+    return new Promise((resolve: Function): void => {
+      const makeRequest: Function = ((): void => {
+        setTimeout(async() => {
+          try {
+            const response: Response = await fetch(uri);
+            const responseJSON: object & {version: string} = await response.json();
+
+            resolve(responseJSON.version);
+          } catch (error) {
+            makeRequest();
+          }
+          // tslint:disable-next-line: no-magic-numbers
+        }, 100);
+      });
+
+      makeRequest();
+    });
   }
 
   private _cleanupSolution(uri: string): void {
