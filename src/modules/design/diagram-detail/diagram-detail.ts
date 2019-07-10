@@ -438,6 +438,7 @@ export class DiagramDetail {
       this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
     } catch (error) {
       this._notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
+
       throw error;
     }
 
