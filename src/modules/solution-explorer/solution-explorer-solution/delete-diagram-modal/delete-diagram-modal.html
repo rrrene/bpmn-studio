@@ -1,12 +1,9 @@
 <template>
   <require from="./delete-diagram-modal.css"></require>
 
-  <modal if.bind="showModal" 
-         header-text.bind="diagramIsUnsaved ? 'You are deleting a file with unsaved changes.' : 'Are you sure you want to delete this diagram?'" 
-         origin.bind="deleteDiagramModal">
+  <modal if.bind="showModal" header-text="Are you sure you want to delete this diagram?" origin.bind="deleteDiagramModal">
     <template replace-part="modal-body">
-        <p if.bind="diagramIsUnsaved">Your changes will be lost if you don't save them.</p>
-        <p>Diagram Name: ${origin.diagram.name}</p>
+      Diagram Name: ${origin.diagram.name}
     </template>
     <template replace-part="modal-footer">
       <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelDeleteDiagramButton">Cancel</button>

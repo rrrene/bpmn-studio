@@ -9,7 +9,6 @@ import {Router} from 'aurelia-router';
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 
-import {IDiagramState, IEventFunction, NotificationType} from '../../../../contracts/index';
 import {NotificationService} from '../../../../services/notification-service/notification.service';
 import {OpenDiagramsSolutionExplorerService} from '../../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
 import {OpenDiagramStateService} from '../../../../services/solution-explorer-services/OpenDiagramStateService';
@@ -19,7 +18,6 @@ export class DeleteDiagramModal {
   public showModal: boolean = false;
   public diagram: IDiagram;
   public deleteDiagramModal: DeleteDiagramModal = this;
-  public diagramIsUnsaved: boolean = false;
 
   private _solutionService: ISolutionExplorerService;
   private _notificationService: NotificationService;
@@ -43,8 +41,6 @@ export class DeleteDiagramModal {
     this.diagram = diagram;
     this._solutionService = solutionService;
 
-    const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(this.diagram.uri);
-    this.diagramIsUnsaved = diagramState ? diagramState.metaData.isChanged : false;
 
     this.showModal = true;
 
