@@ -173,13 +173,8 @@ export class SolutionExplorerList {
         throw new Error('There is no processengine running on this uri.');
       }
 
-      const errorIsFailedToFetch: boolean = error.message === 'Failed to fetch';
-      if (errorIsFailedToFetch) {
-
-         /**
-         * If opening the solution has failed with a 'Failed to fetch' the solution has not been added yet
-         * so we must open it again when it is started. The version indicates when that has been done.
-         */
+      const openSolutionFailedWithFailedToFetch: boolean = error.message === 'Failed to fetch';
+      if (openSolutionFailedWithFailedToFetch) {
         if (!uriIsNotInternalProcessEngine) {
           const processEngineHasStarted: string = await this._getProcessEngineVersionFromInternalPE(uri);
           this.openSolution(uri, insertAtBeginning, identity);
@@ -387,7 +382,7 @@ export class SolutionExplorerList {
         setTimeout(async() => {
           try {
             const response: Response = await fetch(uri);
-            const responseJSON: object & {version: string} = await response.json();
+            const responseJSON: any = await response.json();
 
             resolve(responseJSON.version);
           } catch (error) {
