@@ -39,6 +39,12 @@ const ESCAPE_KEY: string = 'Escape';
 
 type DiagramSorter = (firstElement: IDiagram, secondElement: IDiagram) => number;
 
+enum CloseModalResult {
+  Cancel = 0,
+  Save = 1,
+  Delete = 2,
+}
+
 interface IDiagramNameInputState {
   currentDiagramInputValue: string;
 }
@@ -293,7 +299,7 @@ export class SolutionExplorerSolution {
     const diagramHasUnsavedChanges: boolean = diagramState !== null && diagramState.metaData.isChanged;
 
     if (diagramHasUnsavedChanges) {
-      const cancelClosing: boolean = !(await this._shouldCloseDiagramModal(diagram));
+      const cancelClosing: boolean = (await this._showCloseDiagramModal(diagram)) === CloseModalResult.Cancel;
 
       if (cancelClosing) {
         return;
@@ -584,11 +590,101 @@ export class SolutionExplorerSolution {
   }
 
   private _closeAllDiagramsEventFunction: Function = async(): Promise<void> => {
-    const currentlyOpenDiagrams: Array<IDiagram> = this.openedDiagrams.slice();
+    const currentlyOpenDiagrams: Array<IDiagram> = [...this.openedDiagrams];
 
-    for (const openDiagram of currentlyOpenDiagrams) {
-      await this.closeDiagram(openDiagram);
+    await this._closeMultipleDiagrams(currentlyOpenDiagrams);
+  }
+
+  private async _closeMultipleDiagrams(diagrams: Array<IDiagram>): Promise<void> {
+    const diagramsIsEmpty: boolean = diagrams === undefined || diagrams.length < 1;
+    if (diagramsIsEmpty) {
+      return;
     }
+
+    const amountOfDiagrams: number = diagrams.length;
+
+    this._navigateToDiagram(diagrams[0]);
+
+    for (let index: number = 0; index < amountOfDiagrams; index++) {
+      const nextDiagramIndex: number = index + 1;
+      const isLastDiagram: boolean = nextDiagramIndex >= amountOfDiagrams;
+
+      const currentDiagram: IDiagram = diagrams[index];
+      const nextDiagram: IDiagram = isLastDiagram ? undefined : diagrams[nextDiagramIndex];
+
+      const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(currentDiagram.uri);
+      const diagramHasUnsavedChanges: boolean = diagramState !== null && diagramState.metaData.isChanged;
+
+      let saveDiagram: boolean = false;
+      let closeDiagram: boolean = true;
+
+      if (diagramHasUnsavedChanges) {
+        const closeModalResult: CloseModalResult = await this._showCloseDiagramModal(currentDiagram, false);
+
+        closeDiagram = closeModalResult !== CloseModalResult.Cancel;
+        saveDiagram = closeModalResult === CloseModalResult.Save;
+      }
+
+      if (saveDiagram) {
+        await this._waitForNavigation();
+      }
+
+      if (isLastDiagram) {
+        await this._navigateToStartPage();
+      } else {
+        await this._navigateToDiagram(nextDiagram);
+      }
+
+      if (closeDiagram) {
+        await this._closeDiagram(currentDiagram);
+      }
+    }
+  }
+
+  private _waitForNavigation(): Promise<void> {
+    return new Promise((resolve: Function): void => {
+      const subscription: Subscription = this._eventAggregator.subscribe('router:navigation:success', () => {
+        subscription.dispose();
+
+        resolve();
+      });
+    });
+  }
+
+  private _navigateToStartPage(): Promise<void> {
+    return new Promise((resolve: Function): void => {
+      this._eventAggregator.subscribeOnce('router:navigation:success', () => {
+
+        resolve();
+      });
+
+      this._router.navigateToRoute('start-page');
+    });
+  }
+
+  private async _navigateToDiagram(diagram: IDiagram): Promise<void> {
+    return new Promise((resolve: Function): void => {
+      this._eventAggregator.subscribeOnce('router:navigation:success', () => {
+        resolve();
+      });
+
+      this._router.navigateToRoute('design', {
+        view: this._designView,
+        diagramName: diagram.name,
+        diagramUri: diagram.uri,
+        solutionUri: this.displayedSolutionEntry.uri,
+      });
+    });
+  }
+
+  private async _navigateBack(): Promise<void> {
+    return new Promise<void>((resolve: Function): void => {
+      this._eventAggregator.subscribeOnce('router:navigation:success', () => {
+        resolve();
+      });
+
+      this._router.navigateBack();
+    });
   }
 
   private _saveAllDiagramsEventFunction: Function = (): void => {
@@ -702,20 +798,22 @@ export class SolutionExplorerSolution {
                                       : this._openedSolution.diagrams.sort(this._diagramSorter);
   }
 
-  private _closeDiagram(diagramToClose: IDiagram): void {
+  private async _closeDiagram(diagramToClose: IDiagram): Promise<void> {
     const openDiagramService: OpenDiagramsSolutionExplorerService = this.solutionService as OpenDiagramsSolutionExplorerService;
-    openDiagramService.closeDiagram(diagramToClose);
+    await openDiagramService.closeDiagram(diagramToClose);
 
     this._globalSolutionService.removeOpenDiagramByUri(diagramToClose.uri);
   }
 
-  private async _shouldCloseDiagramModal(diagramToSave: IDiagram): Promise<boolean> {
+  private async _showCloseDiagramModal(diagramToSave: IDiagram, shouldNavigate: boolean = true): Promise<CloseModalResult> {
+    const previousLocation: string = (this._router.history as any).previousLocation;
+
     const diagramToSaveIsNotActiveDiagram: boolean = diagramToSave.uri !== this.activeDiagramUri;
-    if (diagramToSaveIsNotActiveDiagram) {
-      await this._navigateToDetailView(diagramToSave);
+    if (diagramToSaveIsNotActiveDiagram && shouldNavigate) {
+      await this._navigateToDiagram(diagramToSave);
     }
 
-    const modalResult: Promise<boolean> = new Promise((resolve: Function, reject: Function): boolean | void => {
+    const modalResult: Promise<CloseModalResult> = new Promise((resolve: Function, reject: Function): CloseModalResult | void => {
       const dontSaveFunction: EventListenerOrEventListenerObject = async(): Promise<void> => {
         this.showCloseModal = false;
 
@@ -723,14 +821,23 @@ export class SolutionExplorerSolution {
         document.getElementById('saveButtonCloseView').removeEventListener('click', saveFunction);
         document.getElementById('cancelButtonCloseView').removeEventListener('click', cancelFunction);
 
-        if (diagramToSaveIsNotActiveDiagram) {
-          await this._router.navigateBack();
+        if (diagramToSaveIsNotActiveDiagram && shouldNavigate) {
+          await this._navigateBack();
         }
 
-        resolve(true);
+        resolve(CloseModalResult.Delete);
       };
 
       const saveFunction: EventListenerOrEventListenerObject = async(): Promise<void> => {
+        this._eventAggregator.subscribeOnce(environment.events.navBar.diagramChangesResolved, async() => {
+          if (shouldNavigate) {
+            await this._waitForNavigation();
+
+            this._router.navigate(previousLocation);
+          }
+
+          resolve(CloseModalResult.Save);
+        });
 
         this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
 
@@ -739,12 +846,6 @@ export class SolutionExplorerSolution {
         document.getElementById('dontSaveButtonCloseView').removeEventListener('click', dontSaveFunction);
         document.getElementById('saveButtonCloseView').removeEventListener('click', saveFunction);
         document.getElementById('cancelButtonCloseView').removeEventListener('click', cancelFunction);
-
-        this._eventAggregator.subscribeOnce(environment.events.navBar.diagramChangesResolved, async() => {
-          await this._router.navigateBack();
-
-          resolve(true);
-        });
       };
 
       const cancelFunction: EventListenerOrEventListenerObject = async(): Promise<void> => {
@@ -754,11 +855,11 @@ export class SolutionExplorerSolution {
         document.getElementById('saveButtonCloseView').removeEventListener('click', saveFunction);
         document.getElementById('cancelButtonCloseView').removeEventListener('click', cancelFunction);
 
-        if (diagramToSaveIsNotActiveDiagram) {
-          await this._router.navigateBack();
+        if (diagramToSaveIsNotActiveDiagram && shouldNavigate) {
+          await this._navigateBack();
         }
 
-        resolve(false);
+        resolve(CloseModalResult.Cancel);
       };
 
       // register onClick handler
