@@ -375,7 +375,7 @@ export class DiagramDetail {
 
     const diagramIsUnsavedDiagram: boolean = this.activeDiagramUri.startsWith('about:open-diagrams');
     if (diagramIsUnsavedDiagram) {
-      this._electronOnSaveDiagramAs();
+      await this._electronOnSaveDiagramAs();
 
       return;
     }
@@ -438,6 +438,7 @@ export class DiagramDetail {
       this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
     } catch (error) {
       this._notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
+
       throw error;
     }
 
@@ -470,6 +471,10 @@ export class DiagramDetail {
     });
 
     this._notificationService.showNotification(NotificationType.SUCCESS, `File saved!`);
+
+    this._eventAggregator.subscribeOnce('router:navigation:success', () => {
+      this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
+    });
   }
 
   /**
