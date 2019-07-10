@@ -69,10 +69,10 @@
             </button>
 
             <button
-              class.bind="activeDiagramUri !== diagram.uri ? 'button' : 'button button--disabled'"
+              class="button"
               if.bind="canDeleteDiagram()"
               click.delegate="showDeleteDiagramModal(diagram, $event)"
-              title.bind="activeDiagramUri !== diagram.uri ? 'Delete the diagram' : 'The diagram is currently open, it cant be deleted.'">
+              title="Delete the diagram">
 
               <i class="fa fa-trash"></i>
             </button>

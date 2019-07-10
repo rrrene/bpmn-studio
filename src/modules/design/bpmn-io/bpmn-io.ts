@@ -6,6 +6,7 @@ import {IModdleElement, IProcessRef, IPropertiesElement, IShape} from '@process-
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 import * as bpmnlintConfig from '@process-engine/bpmn-lint_rules';
 
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 import {
   IBpmnModeler,
   IBpmnXmlSaveOptions,
@@ -20,6 +21,7 @@ import {
   IInternalEvent,
   IKeyboard,
   ILinting,
+  ISolutionService,
   IValidateIssue,
   IValidateIssueCategory,
   IValidateResult,
@@ -35,7 +37,7 @@ import {DiagramExportService, DiagramPrintService} from './services/index';
 const sideBarRightSize: number = 35;
 const elementRegistryTimeoutMilliseconds: number = 50;
 
-@inject('NotificationService', EventAggregator, 'OpenDiagramStateService')
+@inject('NotificationService', EventAggregator, 'OpenDiagramStateService', 'SolutionService')
 export class BpmnIo {
   @bindable public propertyPanelViewModel: PropertyPanel;
   public modeler: IBpmnModeler;
@@ -72,6 +74,7 @@ export class BpmnIo {
   private _diagramExportService: IDiagramExportService;
   private _diagramPrintService: IDiagramPrintService;
   private _openDiagramStateService: OpenDiagramStateService;
+  private _solutionService: ISolutionService;
 
   private _tempProcess: IProcessRef;
   private _diagramHasChanges: boolean = false;
@@ -87,10 +90,16 @@ export class BpmnIo {
    */
   public paletteContainer: HTMLDivElement;
 
-  constructor(notificationService: NotificationService, eventAggregator: EventAggregator, openDiagramStateService: OpenDiagramStateService) {
+  constructor(
+    notificationService: NotificationService,
+    eventAggregator: EventAggregator,
+    openDiagramStateService: OpenDiagramStateService,
+    solutionService: ISolutionService,
+  ) {
     this._notificationService = notificationService;
     this._eventAggregator = eventAggregator;
     this._openDiagramStateService = openDiagramStateService;
+    this._solutionService = solutionService;
   }
 
   public created(): void {
@@ -456,7 +465,14 @@ export class BpmnIo {
           await this._saveDiagramState(newUri);
         }
       } else {
-        await this._saveDiagramState(previousUri);
+
+        const previousDiagramIsNotDeleted: boolean = this._solutionService
+          .getOpenDiagrams()
+          .some((diagram: IDiagram) => diagram.uri === previousUri);
+
+        if (previousDiagramIsNotDeleted) {
+          await this._saveDiagramState(previousUri);
+        }
       }
     }
 
