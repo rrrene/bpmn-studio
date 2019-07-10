@@ -1,5 +1,5 @@
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import {bindable, inject, observable} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
@@ -10,8 +10,7 @@ import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 import {SolutionExplorerList} from '../solution-explorer-list/solution-explorer-list';
 
-import * as os from 'os';
-import * as path from 'path';
+type RemoteSolutionUriWithStatus = {uri: string, status: boolean};
 
 /**
  * This component handels:
@@ -24,6 +23,7 @@ import * as path from 'path';
  */
 @inject(EventAggregator, 'NotificationService', Router, 'SolutionService')
 export class SolutionExplorerPanel {
+  @observable public selectedProtocol: string = 'http://';
 
   private _eventAggregator: EventAggregator;
   private _notificationService: NotificationService;
@@ -32,14 +32,17 @@ export class SolutionExplorerPanel {
   private _ipcRenderer: any | null = null;
   private _subscriptions: Array<Subscription> = [];
   private _solutionService: ISolutionService;
+  private _remoteSolutionHistoryStatusPollingTimer: NodeJS.Timer;
+  private _remoteSolutionHistoryStatusIsPolling: boolean;
 
   // Fields below are bound from the html view.
   public solutionExplorerList: SolutionExplorerList;
   public solutionInput: HTMLInputElement;
   public openDiagramInput: HTMLInputElement;
   public showOpenRemoteSolutionModal: boolean = false;
-  public uriOfRemoteSolution: string;
+  @bindable public uriOfRemoteSolutionWithoutProtocol: string;
   public solutionExplorerPanel: SolutionExplorerPanel = this;
+  public remoteSolutionHistoryStatus: Map<string, boolean> = new Map<string, boolean>();
 
   constructor(
     eventAggregator: EventAggregator,
@@ -63,17 +66,20 @@ export class SolutionExplorerPanel {
 
     const persistedInternalSolution: ISolutionEntry = this._solutionService.getSolutionEntryForUri(uriOfProcessEngine);
     const internalSolutionWasPersisted: boolean = persistedInternalSolution !== undefined;
-    if (internalSolutionWasPersisted) {
-      // Only open the internal solution with the persisted identity when it as persisted.
-      await this.solutionExplorerList.openSolution(uriOfProcessEngine, true, persistedInternalSolution.identity);
-    } else {
-      // Otherwise just open it without an identity.
-      await this.solutionExplorerList.openSolution(uriOfProcessEngine);
+
+    try {
+      if (internalSolutionWasPersisted) {
+        this.solutionExplorerList.openSolution(uriOfProcessEngine, false, persistedInternalSolution.identity);
+      } else {
+        this.solutionExplorerList.openSolution(uriOfProcessEngine);
+      }
+    } catch {
+      return;
     }
 
     // Open the previously opened solutions.
     const previouslyOpenedSolutions: Array<ISolutionEntry> = this._solutionService.getPersistedEntries();
-    previouslyOpenedSolutions.forEach(async(entry: ISolutionEntry) => {
+    previouslyOpenedSolutions.forEach((entry: ISolutionEntry) => {
       // We are not adding the solution of the connect PE here again since that happened above.
       const entryIsNotConnectedProcessEngine: boolean = entry.uri !== uriOfProcessEngine;
       if (entryIsNotConnectedProcessEngine) {
@@ -83,7 +89,7 @@ export class SolutionExplorerPanel {
          * produced by the openSolution method.
          */
         try {
-          await this.solutionExplorerList.openSolution(entry.uri, false, entry.identity);
+          this.solutionExplorerList.openSolution(entry.uri, false, entry.identity);
         } catch (error) {
 
           return;
@@ -92,9 +98,9 @@ export class SolutionExplorerPanel {
     });
 
     const persistedOpenDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();
-    persistedOpenDiagrams.forEach(async(diagram: IDiagram) => {
+    persistedOpenDiagrams.forEach((diagram: IDiagram) => {
       try {
-        await this.solutionExplorerList.openDiagram(diagram.uri);
+        this.solutionExplorerList.openDiagram(diagram.uri);
       } catch {
         return;
       }
@@ -140,21 +146,41 @@ export class SolutionExplorerPanel {
     }
   }
 
-  public openRemoteSolutionModal(): void {
+  public async openRemoteSolutionModal(): Promise<void> {
     this.showOpenRemoteSolutionModal = true;
+
+    await this._updateRemoteSolutionHistoryStatus();
+    this._startPollingOfRemoteSolutionHistoryStatus();
+  }
+
+  public removeSolutionFromHistory(solutionUri: string): void {
+    this._removeSolutionFromSolutionHistroy(solutionUri);
+  }
+
+  public selectProtocol(protocol: string): void {
+    this.selectedProtocol = protocol;
   }
 
   public closeRemoteSolutionModal(): void {
     this.showOpenRemoteSolutionModal = false;
-    this.uriOfRemoteSolution = undefined;
+    this.uriOfRemoteSolutionWithoutProtocol = undefined;
+    this._stopPollingOfRemoteSolutionHistoryStatus();
   }
 
   public async openRemoteSolution(): Promise<void> {
+    if (!this.uriIsValid || this.uriIsEmpty) {
+      return;
+    }
+
+    this.showOpenRemoteSolutionModal = false;
+
     try {
-      const lastCharacterIsASlash: boolean = this.uriOfRemoteSolution.endsWith('/');
+      const lastCharacterIsASlash: boolean = this.uriOfRemoteSolutionWithoutProtocol.endsWith('/');
       if (lastCharacterIsASlash) {
-        this.uriOfRemoteSolution = this.uriOfRemoteSolution.slice(0, -1);
+        this.uriOfRemoteSolutionWithoutProtocol = this.uriOfRemoteSolutionWithoutProtocol.slice(0, -1);
       }
+
+      await this._addSolutionToRemoteSolutionHistory(this.uriOfRemoteSolution);
 
       await this.solutionExplorerList.openSolution(this.uriOfRemoteSolution);
     } catch (error) {
@@ -163,8 +189,20 @@ export class SolutionExplorerPanel {
       this._notificationService.showNotification(NotificationType.ERROR, `${genericMessage}<br />${cause}`);
     }
 
-    this.uriOfRemoteSolution = undefined;
-    this.showOpenRemoteSolutionModal = false;
+    this.closeRemoteSolutionModal();
+  }
+
+  public get remoteSolutionHistoryExists(): boolean {
+    return this.remoteSolutionHistoryWithStatus.length > 0;
+  }
+
+  public get remoteSolutionHistoryWithStatus(): Array<RemoteSolutionUriWithStatus> {
+    return this._loadRemoteSolutionHistory().reverse().map((solutionUri: string) => {
+      return {
+        uri: solutionUri,
+        status: this.remoteSolutionHistoryStatus.get(solutionUri),
+      };
+    });
   }
 
   /**
@@ -213,11 +251,11 @@ export class SolutionExplorerPanel {
     });
   }
 
-  public get uriIsValid(): boolean {
-    if (this.uriIsEmpty) {
-      return true;
-    }
+  public get uriOfRemoteSolution(): string {
+    return `${this.selectedProtocol}${this.uriOfRemoteSolutionWithoutProtocol}`;
+  }
 
+  public get uriIsValid(): boolean {
     /**
      * This RegEx checks if the entered URI is valid or not.
      */
@@ -228,7 +266,7 @@ export class SolutionExplorerPanel {
   }
 
   public get uriIsEmpty(): boolean {
-    const uriIsEmtpy: boolean = this.uriOfRemoteSolution === undefined || this.uriOfRemoteSolution.length === 0;
+    const uriIsEmtpy: boolean = this.uriOfRemoteSolutionWithoutProtocol === undefined || this.uriOfRemoteSolutionWithoutProtocol.length === 0;
 
     return uriIsEmtpy;
   }
@@ -258,6 +296,66 @@ export class SolutionExplorerPanel {
     return (window as any).nodeRequire;
   }
 
+  public selectRemoteSolution(remoteSolutionUri: string): void {
+    // tslint:disable-next-line no-magic-numbers
+    const protocolEndIndex: number = remoteSolutionUri.indexOf('//') + 2;
+    const protocol: string = remoteSolutionUri.substring(0, protocolEndIndex);
+
+    const uri: string = remoteSolutionUri.substring(protocolEndIndex, remoteSolutionUri.length);
+
+    this.selectProtocol(protocol);
+    this.uriOfRemoteSolutionWithoutProtocol = uri;
+  }
+
+  private _startPollingOfRemoteSolutionHistoryStatus(): void {
+    this._remoteSolutionHistoryStatusIsPolling = true;
+    this._pollRemoteSolutionHistoryStauts();
+  }
+
+  private _pollRemoteSolutionHistoryStauts(): void {
+    this._remoteSolutionHistoryStatusPollingTimer = setTimeout(() => {
+      this._updateRemoteSolutionHistoryStatus();
+
+      if (!this._remoteSolutionHistoryStatusIsPolling) {
+        return;
+      }
+
+      this._startPollingOfRemoteSolutionHistoryStatus();
+    }, environment.processengine.updateRemoteSolutionHistoryIntervalInMs);
+
+  }
+
+  private _stopPollingOfRemoteSolutionHistoryStatus(): void {
+    const noTimerExisting: boolean = this._remoteSolutionHistoryStatusPollingTimer === undefined;
+    if (noTimerExisting) {
+      return;
+    }
+
+    clearTimeout(this._remoteSolutionHistoryStatusPollingTimer);
+
+    this._remoteSolutionHistoryStatusPollingTimer = undefined;
+    this._remoteSolutionHistoryStatusIsPolling = false;
+  }
+
+  private async _updateRemoteSolutionHistoryStatus(): Promise<void> {
+    this.remoteSolutionHistoryWithStatus.forEach(async(remoteSolutionWithStatus: RemoteSolutionUriWithStatus): Promise<void> => {
+      try {
+        const response: Response = await fetch(remoteSolutionWithStatus.uri);
+
+        const data: JSON = await response.json();
+
+        const isResponseFromProcessEngine: boolean = data['name'] === '@process-engine/process_engine_runtime';
+        if (!isResponseFromProcessEngine) {
+          throw new Error('The response was not send by a ProcessEngine.');
+        }
+
+        this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, true);
+      } catch {
+        this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, false);
+      }
+    });
+  }
+
   private async _refreshSolutions(): Promise<void> {
     return this.solutionExplorerList.refreshSolutions();
   }
@@ -268,6 +366,40 @@ export class SolutionExplorerPanel {
     } catch (error) {
       this._notificationService.showNotification(NotificationType.ERROR, error.message);
     }
+  }
+
+  private _loadRemoteSolutionHistory(): Array<string> {
+    const remoteSolutionHistoryFromLocalStorage: string | null = localStorage.getItem('remoteSolutionHistory');
+    const noHistoryExisting: boolean = remoteSolutionHistoryFromLocalStorage === null;
+    const remoteSolutionHistory: Array<string> = noHistoryExisting ? [] : JSON.parse(remoteSolutionHistoryFromLocalStorage);
+
+    return remoteSolutionHistory;
+  }
+
+  private _saveRemoteSolutionHistory(remoteSolutionHistory: Array<string>): void {
+    const remoteSolutionHistoryString: string = JSON.stringify(remoteSolutionHistory);
+
+    localStorage.setItem('remoteSolutionHistory', remoteSolutionHistoryString);
+  }
+
+  private _addSolutionToRemoteSolutionHistory(solutionUri: string): void {
+    this._removeSolutionFromSolutionHistroy(solutionUri);
+
+    const remoteSolutionHistory: Array<string> = this._loadRemoteSolutionHistory();
+
+    remoteSolutionHistory.push(solutionUri);
+
+    this._saveRemoteSolutionHistory(remoteSolutionHistory);
+  }
+
+  private _removeSolutionFromSolutionHistroy(solutionUri: string): void {
+    const remoteSolutionHistory: Array<string> = this._loadRemoteSolutionHistory();
+
+    const uniqueRemoteSolutionHistory: Array<string> = remoteSolutionHistory.filter((remoteSolutionUri: string) => {
+      return remoteSolutionUri !== solutionUri;
+    });
+
+    this._saveRemoteSolutionHistory(uniqueRemoteSolutionHistory);
   }
 
   private async _openDiagramOrDisplayError(uri: string): Promise<void> {
@@ -308,7 +440,13 @@ export class SolutionExplorerPanel {
   }
 
   private _electronOnCreateDiagram = async(_: Event): Promise<void> => {
-    this._createNewDiagram();
+    this._openNewDiagram();
+  }
+
+  private _openNewDiagram(): void {
+    const uri: string = 'about:open-diagrams';
+
+    this.solutionExplorerList.createDiagram(uri);
   }
 
   private _createNewDiagram(): void {
@@ -316,12 +454,11 @@ export class SolutionExplorerPanel {
     const activeSolution: ISolutionEntry = this._solutionService.getSolutionEntryForUri(activeSolutionUri);
 
     const activeSolutionCanCreateDiagrams: boolean = activeSolution !== undefined
-                                                  && !activeSolution.uri.startsWith('http')
-                                                  && activeSolution.canCreateNewDiagramsInSolution;
+                                                  && !activeSolution.uri.startsWith('http');
 
     const uri: string = activeSolutionCanCreateDiagrams
                         ? activeSolutionUri
-                        : path.join(os.homedir(), 'Desktop');
+                        : 'about:open-diagrams';
 
     this.solutionExplorerList.createDiagram(uri);
   }

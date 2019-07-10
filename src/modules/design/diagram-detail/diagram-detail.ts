@@ -55,6 +55,7 @@ export class DiagramDetail {
   public showRemoteSolutionOnDeployModal: boolean = false;
   public remoteSolutions: Array<ISolutionEntry> = [];
   public selectedRemoteSolution: ISolutionEntry;
+  public showDiagramExistingModal: boolean = false;
 
   private _notificationService: NotificationService;
   private _eventAggregator: EventAggregator;
@@ -103,6 +104,7 @@ export class DiagramDetail {
     if (isRunningInElectron) {
       this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
       this._ipcRenderer.on('menubar__start_save_diagram_as', this._electronOnSaveDiagramAs);
+      this._ipcRenderer.on('menubar__start_save_diagram', this._electronOnSaveDiagram);
     }
 
     this._eventAggregator.publish(environment.events.navBar.showTools);
@@ -172,6 +174,7 @@ export class DiagramDetail {
   public detached(): void {
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
     if (isRunningInElectron) {
+      this._ipcRenderer.removeListener('menubar__start_save_diagram', this._electronOnSaveDiagram);
       this._ipcRenderer.removeListener('menubar__start_save_diagram_as', this._electronOnSaveDiagramAs);
     }
 
@@ -214,6 +217,44 @@ export class DiagramDetail {
       return definition.$type === 'bpmn:Process';
     });
     const processModelId: string = processModel.id;
+
+    try {
+      await solutionToDeployTo.service.loadDiagram(processModelId);
+
+      this.showDiagramExistingModal = true;
+
+      const modalResultPromise: Promise<boolean> = new Promise((resolve: Function, reject: Function): boolean | void => {
+        const cancelModal: EventListenerOrEventListenerObject = (): void => {
+          this.showDiagramExistingModal = false;
+          resolve(false);
+
+          document.getElementById('cancelDiagramDeploy').removeEventListener('click', cancelModal);
+          // tslint:disable-next-line: no-use-before-declare
+          document.getElementById('overrideDiagramOnSolution').removeEventListener('click', proceedUpload);
+        };
+
+        const proceedUpload: EventListenerOrEventListenerObject = (): void => {
+          this.showDiagramExistingModal = false;
+          resolve(true);
+
+          document.getElementById('cancelDiagramDeploy').removeEventListener('click', cancelModal);
+          document.getElementById('overrideDiagramOnSolution').removeEventListener('click', proceedUpload);
+        };
+
+        setTimeout(() => {
+          document.getElementById('cancelDiagramDeploy').addEventListener('click', cancelModal, {once: true});
+          document.getElementById('overrideDiagramOnSolution').addEventListener('click', proceedUpload, {once: true});
+        }, 0);
+      });
+
+      const modalResult: boolean = await modalResultPromise;
+      if (!modalResult) {
+        return;
+      }
+
+    } catch {
+      //
+    }
 
     try {
 
@@ -328,8 +369,14 @@ export class DiagramDetail {
    */
   public async saveDiagram(): Promise<void> {
     const savingTargetIsRemoteSolution: boolean = this.activeSolutionEntry.uri.startsWith('http');
-
     if (this.diagramIsInvalid || savingTargetIsRemoteSolution) {
+      return;
+    }
+
+    const diagramIsUnsavedDiagram: boolean = this.activeDiagramUri.startsWith('about:open-diagrams');
+    if (diagramIsUnsavedDiagram) {
+      await this._electronOnSaveDiagramAs();
+
       return;
     }
 
@@ -356,10 +403,27 @@ export class DiagramDetail {
       return;
     }
 
-    const xml: string = await this._getXML();
+    let xml: string = await this._getXML();
 
     if (!xml) {
       return;
+    }
+
+    const diagramIsUnsaved: boolean = this.activeDiagramUri.startsWith('about:open-diagrams');
+    if (diagramIsUnsaved) {
+      const lastIndexOfSlash: number = path.lastIndexOf('/');
+      const lastIndexOfBackSlash: number = path.lastIndexOf('\\');
+      const indexBeforeFilename: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash) + 1;
+
+      const filename: string = path
+                                .slice(indexBeforeFilename, path.length)
+                                .replace('.bpmn', '');
+
+      const temporaryDiagramName: string = this.activeDiagramUri
+                                                  .replace('about:open-diagrams/', '')
+                                                  .replace('.bpmn', '');
+
+      xml = xml.replace(new RegExp(temporaryDiagramName, 'g'), filename);
     }
 
     const diagram: IDiagram = {
@@ -374,6 +438,7 @@ export class DiagramDetail {
       this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
     } catch (error) {
       this._notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
+
       throw error;
     }
 
@@ -381,8 +446,16 @@ export class DiagramDetail {
     this._solutionService.removeOpenDiagramByUri(this.activeDiagram.uri);
     this.bpmnio.saveStateForNewUri = true;
 
-    this.activeDiagram = await this._openDiagramService.openDiagram(path, this.activeSolutionEntry.identity);
-    this._solutionService.addOpenDiagram(this.activeDiagram);
+    try {
+      this.activeDiagram = await this._openDiagramService.openDiagram(path, this.activeSolutionEntry.identity);
+      this._solutionService.addOpenDiagram(this.activeDiagram);
+    } catch {
+      const alreadyOpenedDiagram: IDiagram = await this._openDiagramService.getOpenedDiagramByURI(path);
+
+      await this._openDiagramService.closeDiagram(alreadyOpenedDiagram);
+
+      this.activeDiagram = await this._openDiagramService.openDiagram(path, this.activeSolutionEntry.identity);
+    }
 
     this.xml = this.activeDiagram.xml;
     this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri('about:open-diagrams');
@@ -398,6 +471,10 @@ export class DiagramDetail {
     });
 
     this._notificationService.showNotification(NotificationType.SUCCESS, `File saved!`);
+
+    this._eventAggregator.subscribeOnce('router:navigation:success', () => {
+      this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
+    });
   }
 
   /**
@@ -577,6 +654,11 @@ export class DiagramDetail {
   }
 
   private _electronOnSaveDiagramAs = async(_?: Event): Promise<void> => {
+    const isRemoteSolution: boolean = this.activeDiagramUri.startsWith('http');
+    if (isRemoteSolution) {
+      return;
+    }
+
     this._ipcRenderer.send('open_save-diagram-as_dialog');
 
     this._ipcRenderer.once('save_diagram_as', async(event: Event, savePath: string) => {
@@ -587,6 +669,10 @@ export class DiagramDetail {
 
       await this.saveDiagramAs(savePath);
     });
+  }
+
+  private _electronOnSaveDiagram = async(_?: Event): Promise<void> => {
+    this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
   }
 
   private _handleFormValidateEvents(event: ValidateEvent): void {

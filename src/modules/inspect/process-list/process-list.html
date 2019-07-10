@@ -2,7 +2,7 @@
   <require from="./process-list.css"></require>
   <div class="process-list">
     <div class="process-list-container" id="processListContainer">
-      <template if.bind="correlations && correlations.length > 0">
+      <template if.bind="processInstancesToDisplay && processInstancesToDisplay.length > 0 && requestSuccessful">
         <h3>Processes running</h3>
         <table class="table table-striped table-bordered">
           <tr>
@@ -11,27 +11,25 @@
             <th>Process Model ID</th>
             <th></th>
           </tr>
-          <template repeat.for="correlation of correlations">
-            <tr repeat.for="processInstance of correlation.processInstances" id="processList-${correlation.id}" class.bind="processInstance.state === 'error' ? 'process-list-item-stopped' : 'process-list-item'">
-              <td>${formatDate(processInstance.createdAt)}</td>
-              <td>${correlation.id}</td>
-              <td>
-                <a route-href="route: design; params.bind: { view: 'detail', diagramName: processInstance.processModelId, solutionUri: activeSolutionEntry.uri }" class="process-list-item-modelname">${processInstance.processModelId}</a>
-              </td>
-              <td class="process-list__last-table-cell">
-                <a if.bind="processInstance.state !== 'error'" route-href="route: task-list-processinstance; params.bind: { processInstanceId: processInstance.processInstanceId, solutionUri: activeSolutionEntry.uri }" class="process-list-item-user-tasks btn btn-default">Tasks</a>
-                <a if.bind="processInstance.state !== 'error'" route-href="route: live-execution-tracker; params.bind: { diagramName: processInstance.processModelId, solutionUri: activeSolutionEntry.uri, correlationId: correlation.id, processInstanceId: processInstance.processInstanceId }" class="btn btn-default">Live Execution Tracking</a>
-                <button if.bind="processInstance.state !== 'error'" class="btn btn-default" click.delegate="stopProcessInstance(processInstance.processInstanceId, correlation)">Stop</button>
-              </td>
-            </tr>
-          </template>
+          <tr repeat.for="processInstanceWithCorrelation of processInstancesToDisplay" id="processList-${processInstanceWithCorrelation.correlation.id}" class.bind="processInstanceWithCorrelation.processInstance.state === 'error' ? 'process-list-item-stopped' : 'process-list-item'">
+            <td>${formatDate(processInstanceWithCorrelation.processInstance.createdAt)}</td>
+            <td>${processInstanceWithCorrelation.correlation.id}</td>
+            <td>
+              <a route-href="route: design; params.bind: { view: 'detail', diagramName: processInstanceWithCorrelation.processInstance.processModelId, solutionUri: activeSolutionEntry.uri }" class="process-list-item-modelname">${processInstanceWithCorrelation.processInstance.processModelId}</a>
+            </td>
+            <td class="process-list__last-table-cell">
+              <a if.bind="processInstanceWithCorrelation.processInstance.state !== 'error'" route-href="route: task-list-processinstance; params.bind: { processInstanceId: processInstanceWithCorrelation.processInstance.processInstanceId, solutionUri: activeSolutionEntry.uri }" class="process-list-item-user-tasks btn btn-default">Tasks</a>
+              <a if.bind="processInstanceWithCorrelation.processInstance.state !== 'error'" route-href="route: live-execution-tracker; params.bind: { diagramName: processInstanceWithCorrelation.processInstance.processModelId, solutionUri: activeSolutionEntry.uri, correlationId: processInstanceWithCorrelation.correlation.id, processInstanceId: processInstanceWithCorrelation.processInstance.processInstanceId }" class="btn btn-default">Live Execution Tracking</a>
+              <button if.bind="processInstanceWithCorrelation.processInstance.state !== 'error'" class="btn btn-default" click.delegate="stopProcessInstance(processInstanceWithCorrelation.processInstance.processInstanceId, correlation)">Stop</button>
+            </td>
+          </tr>
         </table>
       </template>
-      <div class="col-md-12 col-xs-12 pagination" show.bind="correlations && correlations.length > 0">
-        <aubs-pagination page-size.bind="pageSize" total-items.bind="totalItems" current-page.bind="currentPage" boundary-links.bind="true">
+      <div class="col-md-12 col-xs-12 pagination" show.bind="processInstancesToDisplay && processInstancesToDisplay.length > 0">
+        <aubs-pagination page-size.bind="pageSize" total-items.bind="totalItems" current-page.bind="currentPage" boundary-links.bind="true" pagination-size.bind="paginationSize">
         </aubs-pagination>
       </div>
-      <template if.bind="requestSuccessful && (!correlations || correlations.length === 0)">
+      <template if.bind="requestSuccessful && (!processInstancesToDisplay || processInstancesToDisplay.length === 0)">
         <h3>No process instances found</h3>
       </template>
       <div show.bind="!requestSuccessful" class="container">

@@ -9,10 +9,10 @@
 
 .solution-entry {
   border-bottom: 2px solid #dcdbdb;
-  padding-top: 2px;
 }
 
 .solution-entry:last-child {
+  margin-bottom: 10px;
   border-bottom: none;
 }
 
@@ -22,6 +22,30 @@
   padding: 2.5px 5px;
   padding-bottom: 2px;
   color: darkgray;
+  cursor: pointer;
+}
+
+.solution-entry__header:hover {
+  background-color: rgba(230, 230, 230, 0.6);
+}
+
+.solution-entry__open-diagrams-header {
+  display: flex;
+  max-height: 26px;
+  padding: 2.5px 5px;
+  padding-bottom: 2px;
+  color: darkgray;
+  cursor: default;
+}
+
+.solution-entry__header button {
+  padding: 0 2px;
+  background: transparent;
+  border: none;
+}
+
+.solution-entry__header button:hover {
+  cursor: default;
 }
 
 .solution-entry__solution-icon {
@@ -37,17 +61,24 @@
 }
 
 .solution-entry__solution-path {
-  flex: 1;
   overflow: hidden;
   margin-left: 10px;
   margin-top: 2px;
+  padding-left: 5px;
   font-size: 12px;
   color: #ccc;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .solution-entry__actions {
+  position: absolute;
+  right: 5px;
   display: none;
+}
+
+.solution-entry__actions_remote-solution {
+  display: none;  
 }
 
 .login-logout-button {
@@ -60,10 +91,34 @@
   .solution-entry__actions {
     display: flex;
   }
+
+  .solution-entry__actions_remote-solution {
+    display: flex;
+    position: absolute;
+    right: 5px;
+  }
 }
 
 .solution-entry:hover .solution-entry__actions {
   display: flex;
+  background-color: rgb(246, 246, 246);
+}
+
+.solution-entry:hover .solution-entry__actions_remote-solution {
+  display: flex;
+  position: absolute;
+  right: 5px;
+}
+
+.solution-entry:hover .solution-entry__header:hover .solution-entry__actions {
+  background-color: rgb(234, 234, 234);
+}
+
+.solution-entry__left-icon_and_name {
+  display: flex;
+  float: left;
+  height: 20px;
+  max-width: 200px;
 }
 
 .solution-entry__actions button {
@@ -74,4 +129,15 @@
 
 .solution-entry__actions button:hover {
   cursor: default;
+}
+
+.solution-entry__collapse-header {
+  max-width: 240px;
+}
+
+.collapse__icon {
+  width: 10px;
+  padding-top: 2px;
+  padding-right: 14px;
+  margin-left: 2px;
 }

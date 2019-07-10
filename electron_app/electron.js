@@ -298,6 +298,10 @@ Main._createMainWindow = function () {
   // history.
   Main._window.loadURL('/');
 
+  electron.ipcMain.on('close_bpmn-studio', (event) => {
+    Main._window.close();
+  });
+
   Main._window.on('closed', (event) => {
     Main._window = null;
   });
@@ -437,6 +441,16 @@ Main._createMainWindow = function () {
         label: "File",
         submenu: [
           {
+            label: "New Diagram",
+            accelerator: "CmdOrCtrl+N",
+            click: () => {
+              Main._window.webContents.send('menubar__start_create_diagram');
+            }
+          },
+          {
+            type: "separator",
+          },
+          {
             label: "Open Diagram",
             accelerator: "CmdOrCtrl+O",
             click: () => {
@@ -451,22 +465,46 @@ Main._createMainWindow = function () {
             },
           },
           {
-            label: "Create Diagram",
-            accelerator: "CmdOrCtrl+N",
+            type: "separator",
+          },
+          {
+            label: "Save Diagram",
+            accelerator: "CmdOrCtrl+S",
             click: () => {
-              Main._window.webContents.send('menubar__start_create_diagram');
-            }
+              Main._window.webContents.send('menubar__start_save_diagram');
+            },
+          },
+          {
+            label: "Save Diagram As...",
+            accelerator: "CmdOrCtrl+Shift+S",
+            click: () => {
+              Main._window.webContents.send('menubar__start_save_diagram_as');
+            },
+          },
+          {
+            label: "Save All Diagrams",
+            accelerator: "CmdOrCtrl+Alt+S",
+            click: () => {
+              Main._window.webContents.send('menubar__start_save_all_diagrams');
+            },
           },
           {
             type: "separator",
           },
           {
-            label: "Save As...",
-            accelerator: "CmdOrCtrl+Shift+S",
+            label: "Close Diagram",
+            accelerator: "CmdOrCtrl+W",
             click: () => {
-              Main._window.webContents.send('menubar__start_save_diagram_as');
-            }
-          }
+              Main._window.webContents.send('menubar__start_close_diagram');
+            },
+          },
+          {
+            label: "Close All Diagrams",
+            accelerator: "CmdOrCtrl+Alt+W",
+            click: () => {
+              Main._window.webContents.send('menubar__start_close_all_diagrams');
+            },
+          },
         ],
       };
     };
@@ -558,15 +596,64 @@ Main._createMainWindow = function () {
       };
     };
 
-    let template = [
-      getApplicationMenu(),
-      getFileMenu(),
-      getEditMenu(),
-      getWindowMenu(),
-      getHelpMenu(),
-    ];
+    const showMenuEntriesWithoutDiagramEntries = () => {
+      let previousEntryIsSeparator = false;
 
-    electron.Menu.setApplicationMenu(electron.Menu.buildFromTemplate(template));
+      const fileMenu = getFileMenu();
+      const filteredFileSubmenu  = fileMenu.submenu.filter((submenuEntry) => {
+        const isSeparator = submenuEntry.type !== undefined && submenuEntry.type === 'separator';
+        if(isSeparator) {
+          // This is used to prevent double separators
+          if(previousEntryIsSeparator) {
+            return false;
+          }
+
+          previousEntryIsSeparator = true;
+          return true;
+        }
+
+        const isSaveButton = submenuEntry.label !== undefined && submenuEntry.label.startsWith('Save')
+        if(isSaveButton) {
+          return false;
+        }
+
+        previousEntryIsSeparator = false;
+        return true;
+      });
+      fileMenu.submenu = filteredFileSubmenu;
+
+      const template = [
+        getApplicationMenu(),
+        fileMenu,
+        getEditMenu(),
+        getWindowMenu(),
+        getHelpMenu(),
+      ];
+
+      electron.Menu.setApplicationMenu(electron.Menu.buildFromTemplate(template));
+    }
+
+    const showAllMenuEntries = () => {
+      const template = [
+        getApplicationMenu(),
+        getFileMenu(),
+        getEditMenu(),
+        getWindowMenu(),
+        getHelpMenu(),
+      ];
+
+      electron.Menu.setApplicationMenu(electron.Menu.buildFromTemplate(template));
+    }
+
+    showMenuEntriesWithoutDiagramEntries();
+
+    electron.ipcMain.on('menu_hide-diagram-entries', () => {
+      showMenuEntriesWithoutDiagramEntries();
+    });
+
+    electron.ipcMain.on('menu_show-all-menu-entries', () => {
+      showAllMenuEntries();
+    })
   }
 }
 

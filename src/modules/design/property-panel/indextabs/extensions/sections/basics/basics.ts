@@ -52,6 +52,8 @@ export class BasicsSection implements ISection {
   }
 
   public addProperty(): void {
+    this._reloadProperties();
+
     const bpmnPropertyProperties: Object = {
       name: '',
       value: '',
@@ -62,7 +64,10 @@ export class BasicsSection implements ISection {
     this.newValues.push('');
 
     const businessObjectHasNoExtensionElements: boolean = this._businessObjInPanel.extensionElements === undefined
-                                                       || this._businessObjInPanel.extensionElements === null;
+                                                       || this._businessObjInPanel.extensionElements === null
+                                                       || this._businessObjInPanel.extensionElements.values === undefined
+                                                       || this._businessObjInPanel.extensionElements.values.length === 0;
+
     if (businessObjectHasNoExtensionElements) {
       this._createExtensionElement();
     }
@@ -104,6 +109,11 @@ export class BasicsSection implements ISection {
         .values
         .splice(index, 1);
 
+    const emptyProperties: boolean = this._propertiesElement.values.length === 0;
+    if (emptyProperties) {
+      this._deletePropertiesElementAndExtensionElements();
+    }
+
     this._reloadProperties();
     this._publishDiagramChange();
   }
@@ -122,8 +132,29 @@ export class BasicsSection implements ISection {
     this._publishDiagramChange();
   }
 
+  private _deletePropertiesElementAndExtensionElements(): void {
+    const indexOfPropertiesElement: number = this._businessObjInPanel.extensionElements.values.findIndex((element: IPropertiesElement) => {
+      if (!element) {
+        return;
+      }
+      return element.$type === 'camunda:Properties';
+    });
+
+    delete this._businessObjInPanel.extensionElements.values[indexOfPropertiesElement];
+
+    // tslint:disable-next-line: no-magic-numbers
+    const emptyExtensionElements: boolean = this._businessObjInPanel.extensionElements.values.length < 2;
+    if (emptyExtensionElements) {
+      delete this._businessObjInPanel.extensionElements;
+    }
+  }
+
   private _checkAndRemoveEmptyProperties(index: number): void {
     const propertyElement: IProperty = this._propertiesElement.values[index];
+    if (!propertyElement) {
+      return;
+    }
+
     const propertyIsEmpty: boolean = propertyElement.value === '' && propertyElement.name === '';
     if (propertyIsEmpty) {
       this.removeProperty(index);
@@ -137,17 +168,21 @@ export class BasicsSection implements ISection {
     this.shouldFocus = false;
 
     const businessObjectHasNoExtensionElements: boolean = this._businessObjInPanel.extensionElements === undefined
-                                                       || this._businessObjInPanel.extensionElements === null;
+                                                       || this._businessObjInPanel.extensionElements === null
+                                                       || this._businessObjInPanel.extensionElements.values === undefined
+                                                       || this._businessObjInPanel.extensionElements.values.length === 0;
 
     if (businessObjectHasNoExtensionElements) {
       return;
     }
 
-    this._propertiesElement = this._getPropertiesElement();
-
     const extensionsPropertiesElement: IPropertiesElement  =
       this._businessObjInPanel.extensionElements.values
         .find((extensionValue: IExtensionElement) => {
+          if (!extensionValue) {
+            return undefined;
+          }
+
           const extensionIsPropertyElement: boolean = extensionValue.$type === 'camunda:Properties'
                                                    && extensionValue.values !== undefined
                                                    && extensionValue.values !== null
@@ -162,6 +197,8 @@ export class BasicsSection implements ISection {
       return;
     }
 
+    this._propertiesElement = extensionsPropertiesElement;
+
     const properties: Array<IProperty> = extensionsPropertiesElement.values;
     for (const property of properties) {
       if (property.$type !== 'camunda:Property') {
@@ -173,27 +210,36 @@ export class BasicsSection implements ISection {
     }
   }
 
-  private _getPropertiesElement(): IPropertiesElement {
+  private _getPropertiesElement(): IPropertiesElement | undefined {
+
+    const businessObjectHasNoExtensionElements: boolean = this._businessObjInPanel.extensionElements === undefined
+                                                       || this._businessObjInPanel.extensionElements === null
+                                                       || this._businessObjInPanel.extensionElements.values === undefined
+                                                       || this._businessObjInPanel.extensionElements.values.length === 0;
+
+    if (businessObjectHasNoExtensionElements) {
+      return undefined;
+    }
 
     const propertiesElement: IPropertiesElement  = this._businessObjInPanel.extensionElements.values.find((extensionValue: IExtensionElement) => {
-      const extensionIsPropertiesElement: boolean = extensionValue.$type === 'camunda:Properties' && extensionValue.values !== undefined;
+      if (!extensionValue) {
+        return undefined;
+      }
+
+      const extensionIsPropertiesElement: boolean = extensionValue.$type === 'camunda:Properties'
+                                                 && extensionValue.values !== undefined
+                                                 && extensionValue.values !== null;
 
       return extensionIsPropertiesElement;
     });
+
     return propertiesElement;
   }
 
   private _createExtensionElement(): void {
-    const bpmnExecutionListenerProperties: Object = {
-      class: '',
-      event: '',
-    };
-    const bpmnExecutionListener: IModdleElement = this._moddle.create('camunda:ExecutionListener', bpmnExecutionListenerProperties);
-
     const extensionValues: Array<IModdleElement> = [];
     const properties: Array<IProperty> = [];
     const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', {values: properties});
-    extensionValues.push(bpmnExecutionListener);
     extensionValues.push(propertiesElement);
 
     const extensionElements: IModdleElement = this._moddle.create('bpmn:ExtensionElements', {values: extensionValues});

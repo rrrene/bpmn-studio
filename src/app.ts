@@ -183,25 +183,28 @@ export class App {
         moduleId: 'modules/config-panel/config-panel',
       },
       {
-        route: ['think', 'think/:view?/diagram/:diagramName?'],
+        route: ['think/:view?/diagram/:diagramName?'],
         title: 'Think',
         name: 'think',
         moduleId: 'modules/think/think',
         nav: 0,
+        href: '',
       },
       {
-        route: ['design', 'design/:view?/diagram/:diagramName?'],
+        route: ['design/:view?/diagram/:diagramName?'],
         title: 'Design',
         name: 'design',
         moduleId: 'modules/design/design',
         nav: 1,
+        href: '',
       },
       {
-        route: ['inspect', 'inspect/:view?/diagram/:diagramName?'],
+        route: ['inspect/:view?/diagram/:diagramName?'],
         title: 'Inspect',
         name: 'inspect',
         moduleId: 'modules/inspect/inspect',
         nav: 2,
+        href: '',
       },
     ]);
 

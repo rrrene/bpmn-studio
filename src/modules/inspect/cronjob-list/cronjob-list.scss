@@ -1,4 +1,4 @@
-.process-list__last-table-cell {
+.cronjob-list__last-table-cell {
   width: 1%;
   white-space: nowrap;
 }
@@ -15,19 +15,10 @@
   margin-top: 100px;
 }
 
-.process-list-container {
+.cronjob-list-container {
   flex: 1;
 }
 
-.process-list {
-  display: flex;
-  align-items: stretch;
-}
-
-.process-list-item-stopped {
-  background-color: #ff00005c !important;
-}
-
-.process-list-item-modelname:hover {
+.cronjob-list-item-modelname:hover {
   color: inherit;
 }

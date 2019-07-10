@@ -102,8 +102,7 @@
         "prepend": [
           "node_modules/bluebird/js/browser/bluebird.core.js",
           "node_modules/aurelia-cli/lib/resources/scripts/configure-bluebird.js",
-          "node_modules/requirejs/require.js",
-          "node_modules/whatwg-fetch/fetch.js"
+          "node_modules/requirejs/require.js"
         ],
         "dependencies": [
           "aurelia-binding",
@@ -156,12 +155,6 @@
             "main": "aurelia-testing",
             "env": "dev"
           },
-          {
-            "name": "aurelia-fetch-client",
-            "main": "aurelia-fetch-client",
-            "path": "../node_modules/aurelia-fetch-client/dist/amd",
-            "resources": []
-          },
           "jquery",
           {
             "name": "bootstrap",
@@ -206,11 +199,6 @@
             "name": "debug",
             "path": "../node_modules/debug",
             "main": "./src/browser"
-          },
-          {
-            "name": "fetch-ponyfill",
-            "main": "build/fetch-browser",
-            "path": "../node_modules/fetch-ponyfill"
           },
           {
             "name": "proxy-polyfill",

@@ -1,10 +1,14 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {bindable, inject, observable} from 'aurelia-framework';
+import {bindable, inject} from 'aurelia-framework';
 
-import {IPropertiesElement, IProperty, IServiceTaskElement} from '@process-engine/bpmn-elements_contracts';
+import {
+  IProperty,
+  IServiceTaskElement,
+} from '@process-engine/bpmn-elements_contracts';
 
 import {IBpmnModdle, IPageModel} from '../../../../../../../../../contracts';
 import environment from '../../../../../../../../../environment';
+import {ServiceTaskService} from '../service-task-service/service-task-service';
 
 @inject(EventAggregator)
 export class ExternalTask {
@@ -15,22 +19,16 @@ export class ExternalTask {
   public selectedPayload: string;
 
   private _eventAggregator: EventAggregator;
-  private _moddle: IBpmnModdle;
+  private _serviceTaskService: ServiceTaskService;
 
   constructor(eventAggregator?: EventAggregator) {
     this._eventAggregator = eventAggregator;
   }
 
-  public attached(): void {
-    this.businessObjInPanel = this.model.elementInPanel.businessObject;
-    this._moddle = this.model.modeler.get('moddle');
-    this.selectedTopic = this.businessObjInPanel.topic;
-    this.selectedPayload = this._getPayloadFromModel();
-  }
-
   public modelChanged(): void {
+    this._serviceTaskService = new ServiceTaskService(this.model);
     this.businessObjInPanel = this.model.elementInPanel.businessObject;
-    this._moddle = this.model.modeler.get('moddle');
+
     this.selectedTopic = this.businessObjInPanel.topic;
     this.selectedPayload = this._getPayloadFromModel();
   }
@@ -48,7 +46,7 @@ export class ExternalTask {
   }
 
   private _getPayloadFromModel(): string | undefined {
-    const payloadProperty: IProperty = this._getProperty('payload');
+    const payloadProperty: IProperty = this._serviceTaskService.getProperty('payload');
 
     const payloadPropertyExists: boolean = payloadProperty !== undefined;
     if (payloadPropertyExists) {
@@ -59,12 +57,12 @@ export class ExternalTask {
   }
 
   private _setPayloadToModel(value: string): void {
-    let payloadProperty: IProperty = this._getProperty('payload');
+    let payloadProperty: IProperty = this._serviceTaskService.getProperty('payload');
 
     const payloadPropertyNotExists: boolean = payloadProperty === undefined;
 
     if (payloadPropertyNotExists) {
-      payloadProperty = this._createProperty('payload');
+      payloadProperty = this._serviceTaskService.createProperty('payload');
     }
 
     payloadProperty.value = value;
@@ -72,41 +70,5 @@ export class ExternalTask {
 
   private _publishDiagramChange(): void {
     this._eventAggregator.publish(environment.events.diagramChange);
-  }
-
-  private _createProperty(propertyName: string): IProperty {
-    const propertiesElement: IPropertiesElement = this._getPropertiesElement();
-
-    const propertyObject: any = {
-      name: propertyName,
-      value: '',
-    };
-
-    const property: IProperty = this._moddle.create('camunda:Property', propertyObject);
-
-    propertiesElement.values.push(property);
-
-    return property;
-  }
-
-  private _getPropertiesElement(): IPropertiesElement {
-    const propertiesElement: IPropertiesElement = this.businessObjInPanel.extensionElements.values.find((element: IPropertiesElement) => {
-      const elementIsCamundaProperties: boolean = element.$type === 'camunda:Properties';
-      const elementContainsValues: boolean = element.values !== undefined;
-
-      return elementIsCamundaProperties && elementContainsValues;
-    });
-
-    return propertiesElement;
-  }
-
-  private _getProperty(propertyName: string): IProperty {
-    const propertiesElement: IPropertiesElement = this._getPropertiesElement();
-
-    const property: IProperty = propertiesElement.values.find((element: IProperty) => {
-      return element.name === propertyName;
-    });
-
-    return property;
   }
 }

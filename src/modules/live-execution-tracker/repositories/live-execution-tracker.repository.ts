@@ -177,8 +177,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     });
   }
 
-  public createCallActivityWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._managementApiClient.onCallActivityWaiting(this._identity, (message: TerminateEndEventReachedMessage): void => {
+  public createActivityReachedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onActivityReached(this._identity, (message: TerminateEndEventReachedMessage): void => {
       const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
       if (eventIsForAnotherProcessInstance) {
         return;
@@ -188,8 +188,8 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     });
   }
 
-  public createCallActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._managementApiClient.onCallActivityFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
+  public createActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._managementApiClient.onActivityFinished(this._identity, (message: TerminateEndEventReachedMessage): void => {
       const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
       if (eventIsForAnotherProcessInstance) {
         return;

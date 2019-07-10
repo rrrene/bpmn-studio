@@ -22,6 +22,7 @@ export default {
     solutionExplorerPollingIntervalInMs: 5000,
     processDefListPollingIntervalInMs: 5000,
     dashboardPollingIntervalInMs: 1500,
+      updateRemoteSolutionHistoryIntervalInMs: 3000,
     routes: {
       processes: `${processEngineRoute}/datastore/ProcessDef`,
       startProcess: `${processEngineRoute}/processengine/start`,
@@ -45,7 +46,7 @@ export default {
       showInspectCorrelationButtons: 'statusbar:inspectcorrelationbuttons',
     },
     configPanel: {
-      processEngineRouteChanged: 'configpanel:processEngineRoute:changed',
+      solutionEntryChanged: 'configpanel:solutionentry:changed',
     },
     navBar: {
       showTools: 'navbar:tools:show',

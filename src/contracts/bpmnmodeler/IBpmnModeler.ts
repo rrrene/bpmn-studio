@@ -11,4 +11,5 @@ export interface IBpmnModeler {
   importXML(xml: string, errorHandler?: (err: Error) => void): void;
   get(object: string): any;
   on(event: string | Array<string>, callback: Function, priority?: number): void;
+  off(event: string | Array<string>, callback: Function): void;
 }

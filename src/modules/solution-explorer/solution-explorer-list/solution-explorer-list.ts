@@ -88,6 +88,15 @@ export class SolutionExplorerList {
     await Promise.all(refreshPromises);
   }
 
+  public toggleSolution(solutionEntry: ISolutionEntry): void {
+    if (solutionEntry.isOpenDiagramService) {
+      return;
+    }
+
+    solutionEntry.hidden = !solutionEntry.hidden;
+    this._solutionService.persistSolutionsInLocalStorage();
+  }
+
   public solutionIsInternalSolution(solution: ISolutionEntry): boolean {
     const solutionIsInternalSolution: boolean = solution.uri === this.internalSolutionUri;
 
@@ -137,25 +146,49 @@ export class SolutionExplorerList {
     }
 
     let processEngineVersion: string;
-    try {
-      await solutionExplorer.openSolution(uri, identity);
+    const internalProcessEngineRoute: string = window.localStorage.getItem('InternalProcessEngineRoute');
+    const uriIsNotInternalProcessEngine: boolean = internalProcessEngineRoute !== uri;
 
-      if (uriIsRemote) {
+    try {
+      if (uriIsRemote && uriIsNotInternalProcessEngine) {
         const response: Response = await fetch(uri);
+
         const responseJSON: object & {version: string} = await response.json();
+
+        const isResponseFromProcessEngine: boolean = responseJSON['name'] === '@process-engine/process_engine_runtime';
+        if (!isResponseFromProcessEngine) {
+          throw new Error('The response was not send by a ProcessEngine.');
+        }
 
         processEngineVersion = responseJSON.version;
       }
-    } catch (error) {
 
+      await solutionExplorer.openSolution(uri, identity);
+    } catch (error) {
       this._solutionService.removeSolutionEntryByUri(uri);
 
-      /**
-       * TODO: The error message only contains 'Failed to fetch' if the connection
-       * failed. A more detailed cause (such as Connection Refused) would
-       * be better. This needs to be implemented in the service or repository.
-       */
-      throw new Error('Failed to receive the list of ProcessModels from the endpoint');
+      const errorIsNoProcessEngine: boolean = error.message === 'The response was not send by a ProcessEngine.'
+                                           || error.message === 'Unexpected token < in JSON at position 0';
+      if (errorIsNoProcessEngine) {
+        throw new Error('There is no processengine running on this uri.');
+      }
+
+      const openSolutionFailedWithFailedToFetch: boolean = error.message === 'Failed to fetch';
+      if (openSolutionFailedWithFailedToFetch) {
+        if (!uriIsNotInternalProcessEngine) {
+          const processEngineHasStarted: string = await this._getProcessEngineVersionFromInternalPE(uri);
+          this.openSolution(uri, insertAtBeginning, identity);
+          return;
+        }
+        /**
+         * TODO: The error message only contains 'Failed to fetch' if the connection
+         * failed. A more detailed cause (such as Connection Refused) would
+         * be better. This needs to be implemented in the service or repository.
+         */
+        throw new Error('Failed to receive the list of ProcessModels from the endpoint');
+      }
+
+      throw error;
     }
 
     const newOpenedSolution: ISolution = await solutionExplorer.loadSolution();
@@ -165,6 +198,10 @@ export class SolutionExplorerList {
 
     if (arrayAlreadyContainedURI) {
       throw new Error('Solution is already opened.');
+    }
+
+    if (!processEngineVersion && !uriIsNotInternalProcessEngine) {
+      processEngineVersion = await this._getProcessEngineVersionFromInternalPE(uri);
     }
 
     this._addSolutionEntry(uri, solutionExplorer, identity, insertAtBeginning, processEngineVersion);
@@ -247,12 +284,24 @@ export class SolutionExplorerList {
    * Starts the creation process of a new diagram inside the given solution
    * entry.
    */
-  public async createDiagram(uri: string): Promise<void> {
+  public async createDiagram(solutionEntryOrUri: any): Promise<void> {
+    const hiddenPropertyExists: boolean = solutionEntryOrUri.hidden !== undefined;
+    if (hiddenPropertyExists && solutionEntryOrUri.hidden) {
+      this.toggleSolution(solutionEntryOrUri);
+    }
+
+    const uri: string = solutionEntryOrUri.uri ? solutionEntryOrUri.uri : solutionEntryOrUri;
+
     let viewModelOfEntry: SolutionExplorerSolution = this.solutionEntryViewModels[uri];
 
     const solutionIsNotOpened: boolean = viewModelOfEntry === undefined || viewModelOfEntry === null;
     if (solutionIsNotOpened) {
-      await this.openSolution(uri);
+      const uriIsOpenDiagrams: boolean = uri.startsWith('about:open-diagrams');
+      if (uriIsOpenDiagrams) {
+        this.openDiagramService.isCreatingDiagram = true;
+      } else {
+        await this.openSolution(uri);
+      }
     }
 
     /**
@@ -265,6 +314,7 @@ export class SolutionExplorerList {
       }
 
       viewModelOfEntry.startCreationOfNewDiagram();
+      this.openDiagramService.isCreatingDiagram = false;
     }, 0);
   }
 
@@ -303,7 +353,7 @@ export class SolutionExplorerList {
    * `openDiagramService._openedDiagrams.length` observed because
    * aurelia cannot see the business rules happening in this._shouldDisplaySolution().
    */
-  @computedFrom('_openedSolutions.length', 'openDiagramService._openedDiagrams.length')
+  @computedFrom('_openedSolutions.length', 'openDiagramService._openedDiagrams.length', 'openDiagramService.isCreatingDiagram')
   public get openedSolutions(): Array<ISolutionEntry> {
     const filteredEntries: Array<ISolutionEntry> = this._openedSolutions
       .filter(this._shouldDisplaySolution);
@@ -324,6 +374,26 @@ export class SolutionExplorerList {
     });
 
     return sortedEntries;
+  }
+
+  private _getProcessEngineVersionFromInternalPE(uri: string): Promise<string> {
+    return new Promise((resolve: Function): void => {
+      const makeRequest: Function = ((): void => {
+        setTimeout(async() => {
+          try {
+            const response: Response = await fetch(uri);
+            const responseJSON: any = await response.json();
+
+            resolve(responseJSON.version);
+          } catch (error) {
+            makeRequest();
+          }
+          // tslint:disable-next-line: no-magic-numbers
+        }, 100);
+      });
+
+      makeRequest();
+    });
   }
 
   private _cleanupSolution(uri: string): void {
@@ -383,24 +453,22 @@ export class SolutionExplorerList {
     return service === this.openDiagramService;
   }
 
-  /**
-   * Wherever to display that solution entry. Some entries are not display if
-   * empty. This method capsules this logic.
-   */
-  private _shouldDisplaySolution(entry: ISolutionEntry): boolean {
-    const service: ISolutionExplorerService = entry.service;
+  private _shouldDisplaySolution: (value: ISolutionEntry, index: number, array: Array<ISolutionEntry>) => boolean =
+    (entry: ISolutionEntry): boolean => {
+      const service: ISolutionExplorerService = entry.service;
 
-    const isOpenDiagramService: boolean = (service as any).getOpenedDiagrams !== undefined;
-    if (isOpenDiagramService) {
-      const openDiagramService: OpenDiagramsSolutionExplorerService = service as OpenDiagramsSolutionExplorerService;
+      const isOpenDiagramService: boolean = (service as any).getOpenedDiagrams !== undefined;
+      if (isOpenDiagramService) {
+        const openDiagramService: OpenDiagramsSolutionExplorerService = service as OpenDiagramsSolutionExplorerService;
 
-      const someDiagramsAreOpened: boolean = openDiagramService.getOpenedDiagrams().length > 0;
+        const someDiagramsAreOpened: boolean = openDiagramService.getOpenedDiagrams().length > 0;
+        const isCreatingDiagram: boolean = this.openDiagramService.isCreatingDiagram;
 
-      return someDiagramsAreOpened;
+        return someDiagramsAreOpened || isCreatingDiagram;
+      }
+
+      return true;
     }
-
-    return true;
-  }
 
   private _getIndexOfSolution(uri: string): number {
     const indexOfSolutionWithURI: number = this._openedSolutions.findIndex((element: ISolutionEntry): boolean => {
@@ -421,6 +489,7 @@ export class SolutionExplorerList {
     const canCloseSolution: boolean = this._canCloseSolution(service, uri);
     const canCreateNewDiagramsInSolution: boolean = this._canCreateNewDiagramsInSolution(service, uri);
     const authority: string = await this._getAuthorityForSolution(uri);
+    const hidden: boolean = this._getHiddenStateForSolutionUri(uri);
 
     const authorityIsUndefined: boolean = authority === undefined;
 
@@ -447,6 +516,7 @@ export class SolutionExplorerList {
       isLoggedIn,
       userName,
       processEngineVersion,
+      hidden,
     };
 
     this._solutionService.addSolutionEntry(entry);
@@ -456,6 +526,17 @@ export class SolutionExplorerList {
     } else {
       this._openedSolutions.push(entry);
     }
+  }
+
+  private _getHiddenStateForSolutionUri(uri: string): boolean {
+    const persistedSolutions: Array<ISolutionEntry> = this._solutionService.getPersistedEntries();
+    const solutionToLoad: ISolutionEntry = persistedSolutions.find((solution: ISolutionEntry) => solution.uri === uri);
+
+    if (!solutionToLoad) {
+      return false;
+    }
+
+    return solutionToLoad.hidden ? solutionToLoad.hidden : false;
   }
 
   private _createIdentityForSolutionExplorer(): IIdentity {

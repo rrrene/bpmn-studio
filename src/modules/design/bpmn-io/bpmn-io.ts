@@ -6,6 +6,7 @@ import {IModdleElement, IProcessRef, IPropertiesElement, IShape} from '@process-
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 import * as bpmnlintConfig from '@process-engine/bpmn-lint_rules';
 
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 import {
   IBpmnModeler,
   IBpmnXmlSaveOptions,
@@ -20,6 +21,7 @@ import {
   IInternalEvent,
   IKeyboard,
   ILinting,
+  ISolutionService,
   IValidateIssue,
   IValidateIssueCategory,
   IValidateResult,
@@ -29,13 +31,15 @@ import {
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 import {OpenDiagramStateService} from '../../../services/solution-explorer-services/OpenDiagramStateService';
+import {PropertyPanel} from '../property-panel/property-panel';
 import {DiagramExportService, DiagramPrintService} from './services/index';
 
 const sideBarRightSize: number = 35;
 const elementRegistryTimeoutMilliseconds: number = 50;
 
-@inject('NotificationService', EventAggregator, 'OpenDiagramStateService')
+@inject('NotificationService', EventAggregator, 'OpenDiagramStateService', 'SolutionService')
 export class BpmnIo {
+  @bindable public propertyPanelViewModel: PropertyPanel;
   public modeler: IBpmnModeler;
   public viewer: IBpmnModeler;
 
@@ -70,6 +74,7 @@ export class BpmnIo {
   private _diagramExportService: IDiagramExportService;
   private _diagramPrintService: IDiagramPrintService;
   private _openDiagramStateService: OpenDiagramStateService;
+  private _solutionService: ISolutionService;
 
   private _tempProcess: IProcessRef;
   private _diagramHasChanges: boolean = false;
@@ -85,10 +90,16 @@ export class BpmnIo {
    */
   public paletteContainer: HTMLDivElement;
 
-  constructor(notificationService: NotificationService, eventAggregator: EventAggregator, openDiagramStateService: OpenDiagramStateService) {
+  constructor(
+    notificationService: NotificationService,
+    eventAggregator: EventAggregator,
+    openDiagramStateService: OpenDiagramStateService,
+    solutionService: ISolutionService,
+  ) {
     this._notificationService = notificationService;
     this._eventAggregator = eventAggregator;
     this._openDiagramStateService = openDiagramStateService;
+    this._solutionService = solutionService;
   }
 
   public created(): void {
@@ -254,8 +265,11 @@ export class BpmnIo {
       document.addEventListener('mouseup', mouseUpFunction);
     });
 
-    document.addEventListener('keydown', this._saveHotkeyEventHandler);
     document.addEventListener('keydown', this._printHotkeyEventHandler);
+
+    if (!this._isRunningInElectron) {
+     document.addEventListener('keydown', this._saveHotkeyEventHandler);
+    }
 
     this._hideOrShowPpForSpaceReasons();
 
@@ -385,8 +399,11 @@ export class BpmnIo {
     this.modeler.detach();
     this.modeler.destroy();
     window.removeEventListener('resize', this._resizeEventHandler);
-    document.removeEventListener('keydown', this._saveHotkeyEventHandler);
     document.removeEventListener('keydown', this._printHotkeyEventHandler);
+
+    if (!this._isRunningInElectron) {
+      document.removeEventListener('keydown', this._saveHotkeyEventHandler);
+    }
 
     for (const subscription of this._subscriptions) {
       subscription.dispose();
@@ -405,7 +422,7 @@ export class BpmnIo {
     this._tempProcess = undefined;
   }
 
-  public async xmlChanged(newValue?: string, oldValue?: string): Promise<void> {
+  public async xmlChanged(newValue: string, oldValue?: string): Promise<void> {
     if (this.diagramHasChanged) {
       this.savedXml = newValue;
 
@@ -426,7 +443,7 @@ export class BpmnIo {
     }
 
     const oldValueExists: boolean = oldValue !== undefined;
-    if (!this.diagramHasChanged && oldValueExists) {
+    if (!this.diagramHasChanged && oldValueExists && !this.solutionIsRemote) {
       await this._saveDiagramState(this.diagramUri);
     }
 
@@ -441,15 +458,25 @@ export class BpmnIo {
     if (!this.solutionIsRemote && previousDiagramExists) {
 
       if (this.saveStateForNewUri) {
-        await this._saveDiagramState(newUri);
         this.saveStateForNewUri = false;
+
+        const previousDiagramWasNoNewDiagram: boolean = !previousUri.startsWith('about:open-diagrams');
+        if (previousDiagramWasNoNewDiagram) {
+          await this._saveDiagramState(newUri);
+        }
       } else {
-        await this._saveDiagramState(previousUri);
+
+        const previousDiagramIsNotDeleted: boolean = this._solutionService
+          .getOpenDiagrams()
+          .some((diagram: IDiagram) => diagram.uri === previousUri);
+
+        if (previousDiagramIsNotDeleted) {
+          await this._saveDiagramState(previousUri);
+        }
       }
     }
 
     this.solutionIsRemote = this.diagramUri.startsWith('http');
-
     if (this.solutionIsRemote) {
       const viewerNotInitialized: boolean = this.viewer === undefined;
       if (viewerNotInitialized) {
@@ -474,9 +501,17 @@ export class BpmnIo {
 
           this.modeler.get('selection').select(modelerShape);
         });
+
+        this.viewer.on('import.done', () => {
+          this._fitDiagramToViewport();
+        });
       }
 
-      this.xmlChanged();
+      const xmlExists: boolean = this.xml !== undefined;
+      if (xmlExists) {
+        this.xmlChanged(this.xml);
+        this.propertyPanelViewModel.selectPreviouslySelectedOrFirstElement();
+      }
 
       setTimeout(() => {
         this.viewer.attachTo(this.canvasModel);
@@ -490,13 +525,18 @@ export class BpmnIo {
       }, 0);
 
     } else {
+      const xmlExists: boolean = this.xml !== undefined;
+      if (xmlExists) {
+        this.xmlChanged(this.xml);
+        this.propertyPanelViewModel.selectPreviouslySelectedOrFirstElement();
+      }
+
       setTimeout(() => {
         this.modeler.attachTo(this.canvasModel);
         this.attachPaletteContainer();
         this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
 
         if (this._bpmnLintButton) {
-
           this._bpmnLintButton.style.display = 'none';
         }
       }, 0);
@@ -627,14 +667,22 @@ export class BpmnIo {
     }
   }
 
+  private get _isRunningInElectron(): boolean {
+    const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
+
+    return isRunningInElectron;
+  }
+
   private async _saveDiagramState(diagramUri: string): Promise<void> {
     const savedXml: string = this.savedXml;
     const modelerCanvas: ICanvas = this.modeler.get('canvas');
 
+    const isUnsavedDiagram: boolean = diagramUri.startsWith('about:open-diagrams');
+
     const selectedElement: Array<IShape> = this.modeler.get('selection')._selectedElements;
     const viewbox: IViewbox  = modelerCanvas.viewbox();
     const xml: string = await this.getXML();
-    const isChanged: boolean = !this._areXmlsIdentical(xml, savedXml);
+    const isChanged: boolean = isUnsavedDiagram ? true : !this._areXmlsIdentical(xml, savedXml);
 
     this._openDiagramStateService.saveDiagramState(diagramUri, xml, viewbox, selectedElement, isChanged);
   }

@@ -76,7 +76,7 @@ export class PropertyPanel {
     });
 
     setTimeout(() => {
-      this._selectPreviouslySelectedOrFirstElement();
+      this.selectPreviouslySelectedOrFirstElement();
     }, 0);
   }
 
@@ -84,10 +84,12 @@ export class PropertyPanel {
     this._currentIndextabTitle = selectedIndextab.title;
   }
 
-  private _selectPreviouslySelectedOrFirstElement(): void {
+  public selectPreviouslySelectedOrFirstElement(): void {
     const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(this.diagramUri);
 
-    const noSelectedElementState: boolean = diagramState === null || diagramState.metaData.selectedElements.length === 0;
+    const noSelectedElementState: boolean = diagramState === null
+                                         || diagramState.metaData.selectedElements === undefined
+                                         || diagramState.metaData.selectedElements.length === 0;
     if (noSelectedElementState) {
       this.setFirstElement();
 
@@ -181,7 +183,7 @@ export class PropertyPanel {
 
     // This is needed to make sure the xml was already imported into the modeler
     setTimeout(() => {
-      this._selectPreviouslySelectedOrFirstElement();
+      this.selectPreviouslySelectedOrFirstElement();
     }, 0);
 
     this._diagramChanged = false;

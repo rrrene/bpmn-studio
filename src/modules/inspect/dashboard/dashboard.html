@@ -2,10 +2,12 @@
   <require from="./dashboard.css"></require>
   <require from="../task-list/task-list"></require>
   <require from="../process-list/process-list"></require>
+  <require from="../cronjob-list/cronjob-list"></require>
 
   <div class="dashboard-container" id="dashboardContainer">
-    <process-list active-solution-entry.bind="activeSolutionEntry" show.bind="showProcessList"></process-list>
-    <task-list active-solution-entry.bind="activeSolutionEntry" show.bind="showTaskList"></task-list>
+    <process-list active-solution-entry.bind="activeSolutionEntry" if.bind="showProcessList"></process-list>
+    <task-list active-solution-entry.bind="activeSolutionEntry" if.bind="showTaskList"></task-list>
+    <cronjob-list active-solution-entry.to-view="activeSolutionEntry" if.bind="showCronjobList"></cronjob-list>
   </div>
 
 </template>

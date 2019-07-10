@@ -116,6 +116,12 @@ export class LiveExecutionTracker {
     // This is needed to make sure the SolutionExplorerService is completely initiated
     setTimeout(async() => {
       this.activeDiagram = await this.activeSolutionEntry.service.loadDiagram(this.processModelId);
+
+      const routeParameterContainsTaskId: boolean = routeParameters.taskId !== undefined;
+      if (routeParameterContainsTaskId) {
+        this.taskId = routeParameters.taskId;
+        this.showDynamicUiModal = true;
+      }
     }, 0);
   }
 
@@ -144,8 +150,12 @@ export class LiveExecutionTracker {
     this._viewerCanvas = this._diagramViewer.get('canvas');
     this._overlays = this._diagramViewer.get('overlays');
 
+    const fitViewportForDiagramViewerOnce: Function = (): void => {
+      this._diagramViewer.off('import.done', fitViewportForDiagramViewerOnce);
+      this._viewerCanvas.zoom('fit-viewport', 'auto');
+    };
+    this._diagramViewer.on('import.done', fitViewportForDiagramViewerOnce);
     this._diagramViewer.attachTo(this.canvasModel);
-    this._viewerCanvas.zoom('fit-viewport', 'auto');
 
     this._diagramViewer.on('element.click', this._elementClickHandler);
 
@@ -173,15 +183,18 @@ export class LiveExecutionTracker {
     const xmlFromModeler: string = await this._liveExecutionTrackerService.exportXmlFromDiagramModeler();
     await this._importXmlIntoDiagramViewer(xmlFromModeler);
 
-    await this._handleElementColorization();
-
     // The version must be later than 8.1.0
     const processEngineSupportsEvents: boolean = this._checkIfProcessEngineSupportsEvents();
-
     if (processEngineSupportsEvents) {
       // Create Backend EventListeners
       this._eventListenerSubscriptions = await this._createBackendEventListeners();
-    } else {
+    }
+
+    await this._handleElementColorization();
+
+    // Use polling if events are not supported
+    const processsEngineDoesNotSupportEvents: boolean = !processEngineSupportsEvents;
+    if (processsEngineDoesNotSupportEvents) {
       this._startPolling();
     }
 
@@ -290,10 +303,10 @@ export class LiveExecutionTracker {
     const majorVersion: number = parseInt(regexResult[1]);
     const minorVersion: number = parseInt(regexResult[2]);
 
-    // The version must be later than 8.3.0
+    // The version must be 8.3.0 or later
     const processEngineSupportsEvents: boolean = majorVersion > 8
                                               || (majorVersion === 8
-                                               && minorVersion >= 4);
+                                               && minorVersion >= 3);
 
     return processEngineSupportsEvents;
   }
@@ -788,10 +801,10 @@ export class LiveExecutionTracker {
       this._liveExecutionTrackerService.createEmptyActivityWaitingEventListener(this.processInstanceId, colorizationCallback);
     const emptyActivityFinishedSubscriptionPromise: Promise<Subscription> =
       this._liveExecutionTrackerService.createEmptyActivityFinishedEventListener(this.processInstanceId, colorizationCallback);
-    const callActivityWaitingSubscriptionPromise: Promise<Subscription> =
-      this._liveExecutionTrackerService.createCallActivityWaitingEventListener(this.processInstanceId, colorizationCallback);
-    const callActivityFinishedSubscriptionPromise: Promise<Subscription> =
-      this._liveExecutionTrackerService.createCallActivityFinishedEventListener(this.processInstanceId, colorizationCallback);
+    const activityReachedSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createActivityReachedEventListener(this.processInstanceId, colorizationCallback);
+    const activityFinishedSubscriptionPromise: Promise<Subscription> =
+      this._liveExecutionTrackerService.createActivityFinishedEventListener(this.processInstanceId, colorizationCallback);
     const boundaryEventTriggeredSubscriptionPromise: Promise<Subscription> =
       this._liveExecutionTrackerService.createBoundaryEventTriggeredEventListener(this.processInstanceId, colorizationCallback);
     const intermediateThrowEventTriggeredSubscriptionPromise: Promise<Subscription> =
@@ -810,8 +823,8 @@ export class LiveExecutionTracker {
                                                                 manualTaskFinishedSubscriptionPromise,
                                                                 emptyActivityWaitingSubscriptionPromise,
                                                                 emptyActivityFinishedSubscriptionPromise,
-                                                                callActivityWaitingSubscriptionPromise,
-                                                                callActivityFinishedSubscriptionPromise,
+                                                                activityReachedSubscriptionPromise,
+                                                                activityFinishedSubscriptionPromise,
                                                                 boundaryEventTriggeredSubscriptionPromise,
                                                                 intermediateThrowEventTriggeredSubscriptionPromise,
                                                                 intermediateCatchEventReachedSubscriptionPromise,

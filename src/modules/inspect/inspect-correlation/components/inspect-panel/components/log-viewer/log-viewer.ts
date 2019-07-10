@@ -5,7 +5,7 @@ import * as clipboard from 'clipboard-polyfill';
 import {DataModels} from '@process-engine/management_api_contracts';
 
 import {ILogSortSettings, ISolutionEntry, LogSortProperty, NotificationType} from '../../../../../../../contracts/index';
-import {DateService} from '../../../../../../../services/date-service/date.service';
+import {getBeautifiedDate} from '../../../../../../../services/date-service/date.service';
 import {NotificationService} from '../../../../../../../services/notification-service/notification.service';
 import {IInspectCorrelationService} from '../../../../contracts';
 
@@ -28,7 +28,10 @@ export class LogViewer {
   private _notificationService: NotificationService;
   private _inspectCorrelationService: IInspectCorrelationService;
 
-  constructor(notificationService: NotificationService, inspectCorrelationService: IInspectCorrelationService) {
+  constructor(
+    notificationService: NotificationService,
+    inspectCorrelationService: IInspectCorrelationService,
+  ) {
     this._notificationService = notificationService;
     this._inspectCorrelationService = inspectCorrelationService;
   }
@@ -54,17 +57,8 @@ export class LogViewer {
     this._notificationService.showNotification(NotificationType.SUCCESS, 'Successfully copied to clipboard.');
   }
 
-  public getDateStringFromTimestamp(time: string): string {
-    const date: Date = new Date(time);
-
-    const dateString: string = new DateService(date)
-                                .year()
-                                .month()
-                                .day()
-                                .hours()
-                                .minutes()
-                                .seconds()
-                                .asFormattedDate();
+  public getDateStringFromTimestamp(timestamp: string): string {
+    const dateString: string = getBeautifiedDate(timestamp);
 
     return dateString;
   }

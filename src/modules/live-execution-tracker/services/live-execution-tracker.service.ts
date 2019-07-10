@@ -95,12 +95,12 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return this._liveExecutionTrackerRepository.createEmptyActivityFinishedEventListener(processInstanceId, callback);
   }
 
-  public createCallActivityWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createCallActivityWaitingEventListener(processInstanceId, callback);
+  public createActivityReachedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._liveExecutionTrackerRepository.createActivityReachedEventListener(processInstanceId, callback);
   }
 
-  public createCallActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createCallActivityFinishedEventListener(processInstanceId, callback);
+  public createActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
+    return this._liveExecutionTrackerRepository.createActivityFinishedEventListener(processInstanceId, callback);
   }
 
   public createBoundaryEventTriggeredEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {

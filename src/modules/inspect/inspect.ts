@@ -32,6 +32,7 @@ export class Inspect {
   private _subscriptions: Array<Subscription>;
   private _solutionService: ISolutionService;
   private _notificationService: NotificationService;
+  private _ipcRenderer: any;
 
   constructor(eventAggregator: EventAggregator,
               solutionService: ISolutionService,
@@ -99,6 +100,21 @@ export class Inspect {
       this.showHeatmap = false;
       this.showInspectCorrelation = true;
     }
+
+    const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
+
+    if (isRunningInElectron) {
+      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+      this._ipcRenderer.on('menubar__start_close_diagram', this._closeBpmnStudio);
+    }
+  }
+
+  public deactivate(): void {
+    const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
+
+    if (isRunningInElectron) {
+      this._ipcRenderer.removeListener('menubar__start_close_diagram', this._closeBpmnStudio);
+    }
   }
 
   public attached(): void {
@@ -144,7 +160,10 @@ export class Inspect {
 
     const solutionIsRemote: boolean = solutionUri.startsWith('http');
     if (solutionIsRemote) {
-      this._eventAggregator.publish(environment.events.configPanel.processEngineRouteChanged, solutionUri);
+      this._eventAggregator.publish(
+        environment.events.configPanel.solutionEntryChanged,
+        this._solutionService.getSolutionEntryForUri(solutionUri),
+      );
     }
 
     const diagramIsSet: boolean = diagramName !== undefined;
@@ -164,4 +183,10 @@ export class Inspect {
     }
   }
 
+  private _closeBpmnStudio: Function = (): void => {
+    const activeDiagramNotSet: boolean = this.activeDiagram === undefined;
+    if (activeDiagramNotSet) {
+      this._ipcRenderer.send('close_bpmn-studio');
+    }
+  }
 }

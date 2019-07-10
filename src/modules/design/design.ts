@@ -22,11 +22,6 @@ export interface IDesignRouteParameters {
   solutionUri?: string;
 }
 
-type IEventListener = {
-  name: string,
-  function: Function,
-};
-
 type DiagramWithSolution = {
   diagram: IDiagram,
   solutionName: string,
@@ -62,7 +57,6 @@ export class Design {
   private _router: Router;
   private _routeView: string;
   private _ipcRenderer: any;
-  private _ipcRendererEventListeners: Array<IEventListener> = [];
 
   constructor(eventAggregator: EventAggregator, solutionService: ISolutionService, router: Router, notificationService: NotificationService) {
     this._eventAggregator = eventAggregator;
@@ -99,6 +93,11 @@ export class Design {
 
     const navigateToAnotherDiagram: boolean = diagramNamesAreDifferent || diagramUrisAreDifferent || routeFromOtherView || solutionIsDifferent;
 
+    const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
+    if (isRunningInElectron) {
+      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+    }
+
     if (solutionIsSet) {
       this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(routeParameters.solutionUri);
 
@@ -110,7 +109,15 @@ export class Design {
 
       const solutionIsRemote: boolean = this.activeSolutionEntry.uri.startsWith('http');
       if (solutionIsRemote) {
-        this._eventAggregator.publish(environment.events.configPanel.processEngineRouteChanged, this.activeSolutionEntry.uri);
+        if (isRunningInElectron) {
+          this._ipcRenderer.send('menu_hide-diagram-entries');
+        }
+
+        this._eventAggregator.publish(environment.events.configPanel.solutionEntryChanged, this.activeSolutionEntry);
+      } else {
+        if (isRunningInElectron) {
+          this._ipcRenderer.send('menu_show-all-menu-entries');
+        }
       }
 
       const isOpenDiagram: boolean = this.activeSolutionEntry.uri === 'about:open-diagrams';
@@ -201,12 +208,22 @@ export class Design {
       }),
     ];
 
+    const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
+    if (isRunningInElectron) {
+      this._ipcRenderer.send('menu_show-all-menu-entries');
+    }
+
     this._eventAggregator.publish(environment.events.statusBar.showDiagramViewButtons);
   }
 
   public detached(): void {
     this._eventAggregator.publish(environment.events.statusBar.hideDiagramViewButtons);
     this._subscriptions.forEach((subscription: Subscription) => subscription.dispose());
+
+    const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
+    if (isRunningInElectron) {
+      this._ipcRenderer.send('menu_hide-diagram-entries');
+    }
   }
 
   public determineActivationStrategy(): string {
@@ -282,10 +299,6 @@ export class Design {
 
   public deactivate(): void {
     this.diagramDetail.deactivate();
-
-    for (const eventListener of this._ipcRendererEventListeners) {
-      this._ipcRenderer.removeListener(eventListener.name, eventListener.function);
-    }
   }
 
   public activeDiagramChanged(newValue: IDiagram, oldValue: IDiagram): void {

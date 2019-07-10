@@ -4,7 +4,7 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 
-import {IDiagramValidationService, ISolutionService} from '../../contracts';
+import {IDiagramState, IDiagramValidationService, ISolutionService} from '../../contracts';
 import {OpenDiagramStateService} from './OpenDiagramStateService';
 import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
 
@@ -22,6 +22,8 @@ import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
 
 @inject('DiagramValidationService', 'SolutionExplorerServiceFactory', 'SolutionService', 'OpenDiagramStateService')
 export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerService {
+
+  public isCreatingDiagram: boolean;
 
   private _validationService: IDiagramValidationService;
   private _solutionExplorerToOpenDiagrams: ISolutionExplorerService;
@@ -52,7 +54,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
    * before.
    */
   public getOpenedDiagramByURI(uri: string): IDiagram | null {
-    const indexOfDiagram: number = this._findOfDiagramWithURI(uri);
+    const indexOfDiagram: number = this._findIndexOfDiagramWithURI(uri);
 
     const diagramWasNotFound: boolean = indexOfDiagram < 0;
     if (diagramWasNotFound) {
@@ -80,13 +82,11 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
   public async openDiagram(uri: string, identity: IIdentity): Promise<IDiagram> {
 
     const uriIsNoBpmnFile: boolean = !uri.endsWith('.bpmn');
-
     if (uriIsNoBpmnFile) {
       throw new Error('File is no BPMN file.');
     }
 
-    const uriAlreadyOpened: boolean = this._findOfDiagramWithURI(uri) >= 0;
-
+    const uriAlreadyOpened: boolean = this._findIndexOfDiagramWithURI(uri) >= 0;
     if (uriAlreadyOpened) {
       throw new Error('This diagram is already opened.');
     }
@@ -96,19 +96,31 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     const indexBeforeFilename: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash);
 
     const filepath: string = uri.substring(0, indexBeforeFilename);
-
-    await this._solutionExplorerToOpenDiagrams.openSolution(filepath, identity);
-
     const filename: string = uri.replace(/^.*[\\\/]/, '');
     const filenameWithoutEnding: string = filename.replace('.bpmn', '');
 
-    const diagram: IDiagram = await this._solutionExplorerToOpenDiagrams.loadDiagram(filenameWithoutEnding, filepath);
+    let diagram: IDiagram;
 
-    await this._validationService
-      .validate(diagram.xml)
-      .isXML()
-      .isBPMN()
-      .throwIfError();
+    const isUnsavedDiagram: boolean = filepath === 'about:open-diagrams';
+    if (isUnsavedDiagram) {
+      const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(uri);
+
+      diagram = {
+        name: filenameWithoutEnding,
+        xml: diagramState.data.xml,
+        uri: uri,
+      };
+    } else {
+      await this._solutionExplorerToOpenDiagrams.openSolution(filepath, identity);
+
+      diagram = await this._solutionExplorerToOpenDiagrams.loadDiagram(filenameWithoutEnding, filepath);
+
+      await this._validationService
+        .validate(diagram.xml)
+        .isXML()
+        .isBPMN()
+        .throwIfError();
+    }
 
     this._openedDiagrams.push(diagram);
 
@@ -116,7 +128,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
   }
 
   public closeDiagram(diagram: IDiagram): Promise<void> {
-    const index: number = this._findOfDiagramWithURI(diagram.uri);
+    const index: number = this._findIndexOfDiagramWithURI(diagram.uri);
 
     this._openedDiagrams.splice(index, 1);
     this._openDiagramStateService.deleteDiagramState(diagram.uri);
@@ -158,7 +170,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     return openedDiagram;
   }
 
-  private _findOfDiagramWithURI(uri: string): number {
+  private _findIndexOfDiagramWithURI(uri: string): number {
     const index: number = this._openedDiagrams
       .findIndex((diagram: IDiagram): boolean => {
         return diagram.uri === uri;

@@ -7,11 +7,19 @@
     <div class="solution-list">
       <div repeat.for="solutionEntry of openedSolutions" class="solution-entry">
 
-        <div class="solution-entry__header" title.bind="solutionEntry.processEngineVersion ? `${solutionEntry.uri} | Version: ${solutionEntry.processEngineVersion}` : solutionEntry.uri">
+        <div class.bind="solutionEntry.uri === 'about:open-diagrams' ? 'solution-entry__open-diagrams-header' : 'solution-entry__header'" title.bind="solutionEntry.processEngineVersion ? `${solutionEntry.uri} | Version: ${solutionEntry.processEngineVersion}` : solutionEntry.uri">
+             
+        <div class="solution-entry__collapse-header" click.delegate="toggleSolution(solutionEntry)">
 
-          <i class="fa ${solutionEntry.fontAwesomeIconClass} solution-entry__solution-icon" title.bind="solutionEntry.fontAwesomeIconClass === 'fa-bolt' ? 'ProcessEngine Disconnected!' : ''"></i>
+          <div class="solution-entry__left-icon_and_name">
 
-          <span class="solution-entry__solution-name">${getSolutionName(solutionEntry.uri)}</span>
+            <i if.bind="solutionEntry.hidden && solutionEntry.uri !== 'about:open-diagrams'" class="fas fa-angle-right collapse__icon"></i>
+            <i if.bind="!solutionEntry.hidden && solutionEntry.uri !== 'about:open-diagrams'" class="fas fa-angle-down collapse__icon"></i>
+  
+            <i class="fa ${solutionEntry.fontAwesomeIconClass} solution-entry__solution-icon" title.bind="solutionEntry.fontAwesomeIconClass === 'fa-bolt' ? 'ProcessEngine Disconnected!' : ''"></i>
+    
+            <span class="solution-entry__solution-name">${getSolutionName(solutionEntry.uri)}</span>
+          </div>
           <div class="solution-entry__solution-path">
             <span
               if.bind="!solutionEntryIsRemote(solutionEntry) && getSolutionName(solutionEntry.uri) !== solutionEntry.uri && solutionEntry.uri !== 'about:open-diagrams'"
@@ -19,8 +27,10 @@
               ${solutionEntry.uri}
             </span>
           </div>
+        </div>
 
-          <div class="solution-entry__actions">
+
+          <div class.bind="solutionEntry.uri.startsWith('http') ? 'solution-entry__actions_remote-solution' : 'solution-entry__actions'">
 
             <button class="button"
               if.bind="solutionIsInternalSolution(solutionEntry)"
@@ -33,7 +43,7 @@
             <button
               class="button"
               if.bind="solutionEntry.canCreateNewDiagramsInSolution"
-              click.delegate="createDiagram(solutionEntry.uri)"
+              click.delegate="createDiagram(solutionEntry)"
               title="Create a new diagram">
 
               <i class="fa fa-file-medical"></i>
@@ -47,23 +57,24 @@
 
               <i class="fa fa-times"></i>
             </button>
+
+            <button class="button login-logout-button"
+              if.bind="solutionEntry.uri.startsWith('http') && !solutionEntry.isLoggedIn"
+              click.delegate="login(solutionEntry)"
+              title="Login to remote solution">
+
+              <i class="fa fa-lock-open"></i>
+            </button>
+
+            <button class="button login-logout-button"
+              if.bind="solutionEntry.isLoggedIn"
+              click.delegate="logout(solutionEntry)"
+              title.bind="`Logout ${solutionEntry.userName}`">
+
+              <i class="fa fa-lock"></i>
+            </button>
           </div>
 
-          <button class="button login-logout-button"
-            if.bind="solutionEntry.uri.startsWith('http') && !solutionEntry.isLoggedIn"
-            click.delegate="login(solutionEntry)"
-            title="Login to remote solution">
-
-            <i class="fa fa-lock-open"></i>
-          </button>
-
-          <button class="button login-logout-button"
-            if.bind="solutionEntry.isLoggedIn"
-            click.delegate="logout(solutionEntry)"
-            title.bind="`Logout ${solutionEntry.userName}`">
-
-            <i class="fa fa-lock"></i>
-          </button>
 
         </div>
 
@@ -71,9 +82,9 @@
           displayed-solution-entry.bind="solutionEntry"
           solution-service.bind="solutionEntry.service"
           open-diagram-service.bind="openDiagramService"
-          solution-is-open-diagrams.bind="solutionEntry.isOpenDiagramService"
           view-model.ref="solutionEntryViewModels[solutionEntry.uri]"
-          font-awesome-icon-class.two-way="solutionEntry.fontAwesomeIconClass">
+          font-awesome-icon-class.two-way="solutionEntry.fontAwesomeIconClass"
+          style.bind="solutionEntry.hidden ? 'display: none;' : 'display: inherit;'">
         </solution-explorer-solution>
       </div>
     </div>

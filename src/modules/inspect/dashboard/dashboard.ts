@@ -12,12 +12,16 @@ import {IManagementApi} from '@process-engine/management_api_contracts';
 import {ISolutionEntry, NotificationType} from '../../../contracts/index';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 
+const versionRegex: RegExp = /(\d+)\.(\d+).(\d+)/;
+
+// tslint:disable: no-magic-numbers
 @inject('ManagementApiClientService', 'NotificationService', Router)
 export class Dashboard {
 
   @bindable() public activeSolutionEntry: ISolutionEntry;
   public showTaskList: boolean = false;
   public showProcessList: boolean = false;
+  public showCronjobList: boolean = false;
 
   private _managementApiService: IManagementApi;
   private _notificationService: NotificationService;
@@ -36,6 +40,7 @@ export class Dashboard {
 
     const hasClaimsForTaskList: boolean = await this._hasClaimsForTaskList(activeSolutionEntry.identity);
     const hasClaimsForProcessList: boolean = await this._hasClaimsForProcessList(activeSolutionEntry.identity);
+    const hasClaimsForCronjobList: boolean = await this._hasClaimsForCronjobList(activeSolutionEntry.identity);
 
     if (!hasClaimsForProcessList && !hasClaimsForTaskList) {
       this._notificationService.showNotification(NotificationType.ERROR, 'You don\'t have the permission to use the dashboard features.');
@@ -46,8 +51,29 @@ export class Dashboard {
 
     this.showTaskList = hasClaimsForTaskList;
     this.showProcessList = hasClaimsForProcessList;
+    this.showCronjobList = hasClaimsForCronjobList && this._processEngineSupportsCronjob();
 
     return true;
+  }
+
+  private _processEngineSupportsCronjob(): boolean {
+    const processEngineVersion: string = this.activeSolutionEntry.processEngineVersion;
+
+    const noProcessEngineVersionSet: boolean = processEngineVersion === undefined;
+    if (noProcessEngineVersionSet) {
+      return false;
+    }
+
+    const regexResult: RegExpExecArray = versionRegex.exec(processEngineVersion);
+    const majorVersion: number = parseInt(regexResult[1]);
+    const minorVersion: number = parseInt(regexResult[2]);
+
+    // The version must be 8.4.0 or later
+    const processEngineSupportsEvents: boolean = majorVersion > 8
+                                              || (majorVersion === 8
+                                               && minorVersion >= 4);
+
+    return processEngineSupportsEvents;
   }
 
   private async _hasClaimsForTaskList(identity: IIdentity): Promise<boolean> {
@@ -74,6 +100,23 @@ export class Dashboard {
     try {
 
       await this._managementApiService.getActiveCorrelations(identity);
+
+    } catch (error) {
+      const errorIsForbiddenError: boolean = isError(error, ForbiddenError);
+      const errorIsUnauthorizedError: boolean = isError(error, UnauthorizedError);
+
+      if (errorIsForbiddenError || errorIsUnauthorizedError) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private async _hasClaimsForCronjobList(identity: IIdentity): Promise<boolean> {
+    try {
+
+      await this._managementApiService.getAllActiveCronjobs(identity);
 
     } catch (error) {
       const errorIsForbiddenError: boolean = isError(error, ForbiddenError);
