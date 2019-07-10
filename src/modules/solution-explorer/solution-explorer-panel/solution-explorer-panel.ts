@@ -70,10 +70,10 @@ export class SolutionExplorerPanel {
     try {
       if (internalSolutionWasPersisted) {
         // Only open the internal solution with the persisted identity when it as persisted.
-        await this.solutionExplorerList.openSolution(uriOfProcessEngine, true, persistedInternalSolution.identity);
+        this.solutionExplorerList.openSolution(uriOfProcessEngine, true, persistedInternalSolution.identity);
       } else {
         // Otherwise just open it without an identity.
-        await this.solutionExplorerList.openSolution(uriOfProcessEngine);
+        this.solutionExplorerList.openSolution(uriOfProcessEngine);
       }
     } catch {
       return;
