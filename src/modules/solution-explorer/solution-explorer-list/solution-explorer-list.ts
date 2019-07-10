@@ -146,8 +146,11 @@ export class SolutionExplorerList {
     }
 
     let processEngineVersion: string;
+    const internalProcessEngineRoute: string = window.localStorage.getItem('InternalProcessEngineRoute');
+    const uriIsNotInternalProcessEngine: boolean = internalProcessEngineRoute !== uri;
+
     try {
-      if (uriIsRemote) {
+      if (uriIsRemote && uriIsNotInternalProcessEngine) {
         const response: Response = await fetch(uri);
 
         const responseJSON: object & {version: string} = await response.json();
@@ -190,6 +193,10 @@ export class SolutionExplorerList {
 
     if (arrayAlreadyContainedURI) {
       throw new Error('Solution is already opened.');
+    }
+
+    if (!processEngineVersion && !uriIsNotInternalProcessEngine) {
+      processEngineVersion = await this._getProcessEngineVersionFromInternalPE(uri);
     }
 
     this._addSolutionEntry(uri, solutionExplorer, identity, insertAtBeginning, processEngineVersion);
@@ -362,6 +369,26 @@ export class SolutionExplorerList {
     });
 
     return sortedEntries;
+  }
+
+  private _getProcessEngineVersionFromInternalPE(uri: string): Promise<string> {
+    return new Promise((resolve: Function): void => {
+      const makeRequest: Function = ((): void => {
+        setTimeout(async() => {
+          try {
+            const response: Response = await fetch(uri);
+            const responseJSON: object & {version: string} = await response.json();
+
+            resolve(responseJSON.version);
+          } catch (error) {
+            makeRequest();
+          }
+          // tslint:disable-next-line: no-magic-numbers
+        }, 10);
+      });
+
+      makeRequest();
+    });
   }
 
   private _cleanupSolution(uri: string): void {
