@@ -394,7 +394,7 @@ export class SolutionExplorerList {
             makeRequest();
           }
           // tslint:disable-next-line: no-magic-numbers
-        }, 10);
+        }, 100);
       });
 
       makeRequest();
