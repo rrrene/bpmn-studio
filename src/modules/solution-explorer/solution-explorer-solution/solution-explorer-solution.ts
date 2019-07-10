@@ -642,8 +642,7 @@ export class SolutionExplorerSolution {
 
   private _waitForNavigation(): Promise<void> {
     return new Promise((resolve: Function): void => {
-      const subscription: Subscription = this._eventAggregator.subscribe('router:navigation:success', () => {
-        subscription.dispose();
+      this._eventAggregator.subscribeOnce('router:navigation:success', () => {
 
         resolve();
       });
