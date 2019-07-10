@@ -234,7 +234,7 @@ export class SolutionExplorerSolution {
       const messageBody: string = 'Deleting of opened diagrams is currently not supported. Please switch to another diagram and try again.';
       const message: string = `${messageTitle}\n${messageBody}`;
 
-      this._notificationService.showNotification(NotificationType.INFO, message);
+      this._notificationService.showNotification(NotificationType.INFO, message, {toastClass: 'toast-not-allowed-renaming-or-deleting'});
 
       return;
     }
@@ -336,7 +336,7 @@ export class SolutionExplorerSolution {
       const messageBody: string = 'Renaming of opened diagrams is currently not supported. Please switch to another diagram and try again.';
       const message: string = `${messageTitle}\n${messageBody}`;
 
-      this._notificationService.showNotification(NotificationType.INFO, message);
+      this._notificationService.showNotification(NotificationType.INFO, message, {toastClass: 'toast-not-allowed-renaming-or-deleting'});
 
       return;
     }
