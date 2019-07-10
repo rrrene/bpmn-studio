@@ -66,12 +66,17 @@ export class SolutionExplorerPanel {
 
     const persistedInternalSolution: ISolutionEntry = this._solutionService.getSolutionEntryForUri(uriOfProcessEngine);
     const internalSolutionWasPersisted: boolean = persistedInternalSolution !== undefined;
-    if (internalSolutionWasPersisted) {
-      // Only open the internal solution with the persisted identity when it as persisted.
-      await this.solutionExplorerList.openSolution(uriOfProcessEngine, true, persistedInternalSolution.identity);
-    } else {
-      // Otherwise just open it without an identity.
-      await this.solutionExplorerList.openSolution(uriOfProcessEngine);
+
+    try {
+      if (internalSolutionWasPersisted) {
+        // Only open the internal solution with the persisted identity when it as persisted.
+        await this.solutionExplorerList.openSolution(uriOfProcessEngine, true, persistedInternalSolution.identity);
+      } else {
+        // Otherwise just open it without an identity.
+        await this.solutionExplorerList.openSolution(uriOfProcessEngine);
+      }
+    } catch {
+      return;
     }
 
     // Open the previously opened solutions.
