@@ -6,7 +6,7 @@
 import {inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
-import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 
 import {IEventFunction, ISolutionService, NotificationType} from '../../../../contracts/index';
@@ -101,7 +101,11 @@ export class DeleteDiagramModal {
       .getOpenedDiagrams()
       .find((diagram: IDiagram, index: number) => index === searchIndex);
 
-    const activeSolution: ISolution = await this._solutionExplorerService.loadSolution();
+    const lastIndexOfSlash: number = diagramToNavigateTo.uri.lastIndexOf('/');
+    const lastIndexOfBackSlash: number = diagramToNavigateTo.uri.lastIndexOf('\\');
+    const indexBeforeFilename: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash);
+    const activeSolutionUri: string = diagramToNavigateTo.uri.substring(0, indexBeforeFilename);
+
     const diagramIsDeployed: boolean = this.diagram.uri.startsWith('http');
 
     if (diagramIsDeployed || !diagramToNavigateTo) {
@@ -110,7 +114,7 @@ export class DeleteDiagramModal {
       this._router.navigateToRoute('design', {
         diagramName: diagramToNavigateTo.name,
         diagramUri: diagramToNavigateTo.uri,
-        solutionUri: activeSolution.uri,
+        solutionUri: activeSolutionUri,
         view: this._router.currentInstruction.params.view,
       });
     }
