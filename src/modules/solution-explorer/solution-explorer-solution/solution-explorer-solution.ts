@@ -308,7 +308,6 @@ export class SolutionExplorerSolution {
 
     const closedDiagramWasActiveDiagram: boolean = this.activeDiagramUri === diagram.uri;
     if (closedDiagramWasActiveDiagram) {
-
       return new Promise<void>((resolve: Function): void => {
         const subscription: Subscription = this._eventAggregator.subscribe('router:navigation:success', () => {
           this._closeDiagram(diagram);
@@ -732,7 +731,6 @@ export class SolutionExplorerSolution {
       diagramUri: diagram.uri,
       solutionUri: this.displayedSolutionEntry.uri,
     });
-
   }
 
   private _createIdentityForSolutionExplorer(): IIdentity {
