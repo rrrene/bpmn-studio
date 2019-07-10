@@ -95,11 +95,11 @@ export class DeleteDiagramModal {
       .getOpenedDiagrams()
       .findIndex((diagram: IDiagram) => diagram.uri === this.diagram.uri);
 
-    const searchIndex: number = diagramIndex === 0 ? diagramIndex + 1 : diagramIndex - 1;
+    const previousOrNextDiagramIndex: number = diagramIndex === 0 ? diagramIndex + 1 : diagramIndex - 1;
 
     const diagramToNavigateTo: IDiagram = this._openDiagramService
       .getOpenedDiagrams()
-      .find((diagram: IDiagram, index: number) => index === searchIndex);
+      .find((diagram: IDiagram, index: number) => index === previousOrNextDiagramIndex);
 
     const lastIndexOfSlash: number = diagramToNavigateTo.uri.lastIndexOf('/');
     const lastIndexOfBackSlash: number = diagramToNavigateTo.uri.lastIndexOf('\\');
