@@ -550,17 +550,6 @@ export class SolutionExplorerSolution {
       return this.activeDiagram.uri;
     }
 
-    /**
-     * Then we check if the THIS solution is active by extra checking the uri
-     * of the diaragm with the uri of the active solution. That wouldn't work
-     * for the "Open Diagram"-Solution right now, since the uri of that solution
-     * is "Open Diagrams" and therefore would never be active with this check.
-     */
-    const solutionIsNotActive: boolean = !this.activeDiagram.uri.includes(solutionUri);
-    if (solutionIsNotActive) {
-      return;
-    }
-
     return this.activeDiagram.uri;
   }
 
