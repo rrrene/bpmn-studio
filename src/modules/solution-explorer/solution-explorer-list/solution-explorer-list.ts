@@ -175,6 +175,16 @@ export class SolutionExplorerList {
 
       const errorIsFailedToFetch: boolean = error.message === 'Failed to fetch';
       if (errorIsFailedToFetch) {
+
+         /**
+         * If opening the solution has failed with a 'Failed to fetch' the solution has not been added yet
+         * so we must open it again when it is started. The version indicates when that has been done.
+         */
+        if (!uriIsNotInternalProcessEngine) {
+          const processEngineHasStarted: string = await this._getProcessEngineVersionFromInternalPE(uri);
+          this.openSolution(uri, insertAtBeginning, identity);
+          return;
+        }
         /**
          * TODO: The error message only contains 'Failed to fetch' if the connection
          * failed. A more detailed cause (such as Connection Refused) would
