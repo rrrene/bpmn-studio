@@ -92,7 +92,7 @@
   "dependencies": {
     "@essential-projects/errors_ts": "^1.5.0",
     "@fortawesome/fontawesome-free": "^5.9.0",
-    "@process-engine/bpmn-js-custom-bundle": "2.6.3-87540947-b5",
+    "@process-engine/bpmn-js-custom-bundle": "2.7.0",
     "@process-engine/bpmn-lint_rules": "1.6.2",
     "@process-engine/management_api_client": "5.4.0",
     "@process-engine/process_engine_runtime": "release~v8.4.0",
