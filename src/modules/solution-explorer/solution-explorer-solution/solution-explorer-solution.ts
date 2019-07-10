@@ -624,7 +624,8 @@ export class SolutionExplorerSolution {
         saveDiagram = closeModalResult === CloseModalResult.Save;
       }
 
-      if (saveDiagram) {
+      const diagramIsNewDiagram: boolean = currentDiagram.uri.startsWith('about:open-diagrams');
+      if (saveDiagram && diagramIsNewDiagram) {
         await this._waitForNavigation();
       }
 
