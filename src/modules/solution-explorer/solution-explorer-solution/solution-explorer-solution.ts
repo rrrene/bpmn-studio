@@ -595,7 +595,7 @@ export class SolutionExplorerSolution {
   }
 
   private async _closeMultipleDiagrams(diagrams: Array<IDiagram>): Promise<void> {
-    const diagramsIsEmpty: boolean = diagrams === undefined || diagrams.length < 1;
+    const diagramsIsEmpty: boolean = diagrams === undefined || diagrams.length === 0;
     if (diagramsIsEmpty) {
       return;
     }
@@ -606,7 +606,7 @@ export class SolutionExplorerSolution {
 
     for (let index: number = 0; index < amountOfDiagrams; index++) {
       const nextDiagramIndex: number = index + 1;
-      const isLastDiagram: boolean = nextDiagramIndex >= amountOfDiagrams;
+      const isLastDiagram: boolean = nextDiagramIndex === amountOfDiagrams;
 
       const currentDiagram: IDiagram = diagrams[index];
       const nextDiagram: IDiagram = isLastDiagram ? undefined : diagrams[nextDiagramIndex];
