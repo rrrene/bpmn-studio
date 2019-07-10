@@ -12,6 +12,9 @@ import {IManagementApi} from '@process-engine/management_api_contracts';
 import {ISolutionEntry, NotificationType} from '../../../contracts/index';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 
+const versionRegex: RegExp = /(\d+)\.(\d+).(\d+)/;
+
+// tslint:disable: no-magic-numbers
 @inject('ManagementApiClientService', 'NotificationService', Router)
 export class Dashboard {
 
@@ -48,9 +51,29 @@ export class Dashboard {
 
     this.showTaskList = hasClaimsForTaskList;
     this.showProcessList = hasClaimsForProcessList;
-    this.showCronjobList = hasClaimsForCronjobList;
+    this.showCronjobList = hasClaimsForCronjobList && this._processEngineSupportsCronjob();
 
     return true;
+  }
+
+  private _processEngineSupportsCronjob(): boolean {
+    const processEngineVersion: string = this.activeSolutionEntry.processEngineVersion;
+
+    const noProcessEngineVersionSet: boolean = processEngineVersion === undefined;
+    if (noProcessEngineVersionSet) {
+      return false;
+    }
+
+    const regexResult: RegExpExecArray = versionRegex.exec(processEngineVersion);
+    const majorVersion: number = parseInt(regexResult[1]);
+    const minorVersion: number = parseInt(regexResult[2]);
+
+    // The version must be 8.4.0 or later
+    const processEngineSupportsEvents: boolean = majorVersion > 8
+                                              || (majorVersion === 8
+                                               && minorVersion >= 4);
+
+    return processEngineSupportsEvents;
   }
 
   private async _hasClaimsForTaskList(identity: IIdentity): Promise<boolean> {
