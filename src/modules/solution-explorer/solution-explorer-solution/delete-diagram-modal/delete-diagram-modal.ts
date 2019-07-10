@@ -33,7 +33,7 @@ export class DeleteDiagramModal {
     router: Router,
     openDiagramService: OpenDiagramsSolutionExplorerService,
     solutionService: ISolutionService,
-    ) {
+  ) {
     this._notificationService = notificationService;
     this._openDiagramStateService = openDiagramStateService;
     this._router = router;

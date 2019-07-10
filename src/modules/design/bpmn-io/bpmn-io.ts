@@ -95,7 +95,7 @@ export class BpmnIo {
     eventAggregator: EventAggregator,
     openDiagramStateService: OpenDiagramStateService,
     solutionService: ISolutionService,
-    ) {
+  ) {
     this._notificationService = notificationService;
     this._eventAggregator = eventAggregator;
     this._openDiagramStateService = openDiagramStateService;
@@ -470,10 +470,10 @@ export class BpmnIo {
           .getOpenDiagrams()
           .some((diagram: IDiagram) => {
             return diagram.uri === previousUri;
-        });
+          });
 
         if (previousDiagramIsNotDeleted) {
-         await this._saveDiagramState(previousUri);
+          await this._saveDiagramState(previousUri);
         }
       }
     }
