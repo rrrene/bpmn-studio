@@ -202,7 +202,7 @@ export class TaskList {
         const userTaskList: DataModels.UserTasks.UserTaskList = await this._managementApiService
           .getUserTasksForProcessModel(this.activeSolutionEntry.identity, processModel.id);
 
-        const userTasksAndProcessModels: Array<Task> = this.mapToInternalTask(userTaskList.userTasks, processModel);
+        const userTasksAndProcessModels: Array<Task> = this.mapToInternalTask(userTaskList.userTasks, processModel, TaskType.UserTask);
 
         return userTasksAndProcessModels;
       });
@@ -212,7 +212,7 @@ export class TaskList {
         const manualTaskList: DataModels.ManualTasks.ManualTaskList =
           await this._managementApiService.getManualTasksForProcessModel(this.activeSolutionEntry.identity, processModel.id);
 
-        const manualTasksAndProcessModels: Array<Task> = this.mapToInternalTask(manualTaskList.manualTasks, processModel);
+        const manualTasksAndProcessModels: Array<Task> = this.mapToInternalTask(manualTaskList.manualTasks, processModel, TaskType.ManualTask);
 
         return manualTasksAndProcessModels;
       });
@@ -223,7 +223,7 @@ export class TaskList {
           await this._managementApiService.getEmptyActivitiesForProcessModel(this.activeSolutionEntry.identity, processModel.id);
 
         const emptyActivitiesAndProcessModels: Array<Task> =
-          this.mapToInternalTask(emptyActivityList.emptyActivities, processModel);
+          this.mapToInternalTask(emptyActivityList.emptyActivities, processModel, TaskType.EmptyActivity);
 
         return emptyActivitiesAndProcessModels;
       });
@@ -257,9 +257,10 @@ export class TaskList {
     const emptyActivityList: DataModels.EmptyActivities.EmptyActivityList =
       await this._managementApiService.getEmptyActivitiesForProcessModel(this.activeSolutionEntry.identity, processModelId);
 
-    const userTasksAndProcessModels: Array<Task> = this.mapToInternalTask(userTaskList.userTasks, processModel);
-    const manualTasksAndProcessModels: Array<Task> = this.mapToInternalTask(manualTaskList.manualTasks, processModel);
-    const emptyActivitiesAndProcessModels: Array<Task> = this.mapToInternalTask(emptyActivityList.emptyActivities, processModel);
+    const userTasksAndProcessModels: Array<Task> = this.mapToInternalTask(userTaskList.userTasks, processModel, TaskType.UserTask);
+    const manualTasksAndProcessModels: Array<Task> = this.mapToInternalTask(manualTaskList.manualTasks, processModel, TaskType.ManualTask);
+    const emptyActivitiesAndProcessModels: Array<Task> =
+      this.mapToInternalTask(emptyActivityList.emptyActivities, processModel, TaskType.EmptyActivity);
 
     return [].concat(userTasksAndProcessModels, manualTasksAndProcessModels, emptyActivitiesAndProcessModels);
   }
@@ -293,13 +294,13 @@ export class TaskList {
       await this._managementApiService.getProcessModelById(this.activeSolutionEntry.identity, correlationProcessInstanceId);
 
     const userTasksAndProcessModels: Array<Task> =
-      this.mapToInternalTask(userTaskList.userTasks, processModelOfCorrelation);
+      this.mapToInternalTask(userTaskList.userTasks, processModelOfCorrelation, TaskType.UserTask);
 
     const manualTasksAndProcessModels: Array<Task> =
-      this.mapToInternalTask(manualTaskList.manualTasks, processModelOfCorrelation);
+      this.mapToInternalTask(manualTaskList.manualTasks, processModelOfCorrelation, TaskType.ManualTask);
 
     const emptyActivitiesAndProcessModels: Array<Task> =
-      this.mapToInternalTask(emptyActivityList.emptyActivities, processModelOfCorrelation);
+      this.mapToInternalTask(emptyActivityList.emptyActivities, processModelOfCorrelation, TaskType.EmptyActivity);
 
     return [].concat(userTasksAndProcessModels, manualTasksAndProcessModels, emptyActivitiesAndProcessModels);
   }
@@ -320,9 +321,10 @@ export class TaskList {
         ._managementApiService
         .getProcessModelByProcessInstanceId(this.activeSolutionEntry.identity, processInstanceId);
 
-    const userTasksAndProcessModels: Array<Task> = this.mapToInternalTask(userTaskList.userTasks, processModel);
-    const manualTasksAndProcessModels: Array<Task> = this.mapToInternalTask(manualTaskList.manualTasks, processModel);
-    const emptyActivitiesAndProcessModels: Array<Task> = this.mapToInternalTask(emptyActivityList.emptyActivities, processModel);
+    const userTasksAndProcessModels: Array<Task> = this.mapToInternalTask(userTaskList.userTasks, processModel, TaskType.UserTask);
+    const manualTasksAndProcessModels: Array<Task> = this.mapToInternalTask(manualTaskList.manualTasks, processModel, TaskType.ManualTask);
+    const emptyActivitiesAndProcessModels: Array<Task> =
+      this.mapToInternalTask(emptyActivityList.emptyActivities, processModel, TaskType.EmptyActivity);
 
     return [].concat(userTasksAndProcessModels, manualTasksAndProcessModels, emptyActivitiesAndProcessModels);
   }
@@ -330,20 +332,23 @@ export class TaskList {
   private mapToInternalTask(
     userTaskList: Array<TaskSource>,
     processModel: DataModels.ProcessModels.ProcessModel,
+    targetType: TaskType,
   ): Array<Task> {
 
     const userTasksAndProcessModels: Array<Task> = userTaskList
-      .map((userTask: TaskSource): Task => {
+      .map((sourceTask: TaskSource): Task => {
         return {
           processModel: processModel,
-          correlationId: userTask.correlationId,
-          id: userTask.id,
-          flowNodeInstanceId: userTask.flowNodeInstanceId,
-          processInstanceId: userTask.processInstanceId,
-          processModelId: userTask.processModelId,
-          name: userTask.name,
-          taskType: TaskType.UserTask,
-        }
+          correlationId: sourceTask.correlationId,
+          id: sourceTask.id,
+          flowNodeInstanceId: sourceTask.flowNodeInstanceId,
+          processInstanceId: sourceTask.processInstanceId,
+          processModelId: sourceTask.processModelId,
+          name: sourceTask.name,
+          // NOTE: Can't use instanceof or typeof, because the tasks were received as a plain JSON that do not have any type infos.
+          // TODO: Add type mapping to the repository.
+          taskType: targetType,
+        };
       });
 
     return userTasksAndProcessModels;
