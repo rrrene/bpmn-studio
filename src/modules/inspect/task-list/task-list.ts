@@ -20,6 +20,12 @@ interface ITaskListRouteParameters {
   correlationId?: string;
 }
 
+enum TaskType {
+  UserTask = 'UserTask',
+  ManualTask = 'ManualTask',
+  EmptyActivity = 'EmptyActivity',
+}
+
 type Task = {
   id: string;
   flowNodeInstanceId?: string;
@@ -27,6 +33,7 @@ type Task = {
   correlationId: string;
   processModelId: string;
   processInstanceId: string;
+  taskType: TaskType;
   processModel: DataModels.ProcessModels.ProcessModel;
 };
 
@@ -332,6 +339,7 @@ export class TaskList {
         processInstanceId: userTask.processInstanceId,
         processModelId: userTask.processModelId,
         name: userTask.name,
+        taskType: TaskType.UserTask,
       }));
 
     return userTasksAndProcessModels;
@@ -351,6 +359,7 @@ export class TaskList {
         processInstanceId: manualTask.processInstanceId,
         processModelId: manualTask.processModelId,
         name: manualTask.name,
+        taskType: TaskType.ManualTask,
       }));
 
     return manualTasksAndProcessModels;
@@ -370,6 +379,7 @@ export class TaskList {
         processInstanceId: emptyActivity.processInstanceId,
         processModelId: emptyActivity.processModelId,
         name: emptyActivity.name,
+        taskType: TaskType.EmptyActivity,
       }));
 
     return emptyActivitiesAndProcessModels;
