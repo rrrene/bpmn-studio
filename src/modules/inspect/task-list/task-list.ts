@@ -20,14 +20,15 @@ interface ITaskListRouteParameters {
   correlationId?: string;
 }
 
-type ProcessModelAnnotation = {processModel: DataModels.ProcessModels.ProcessModel};
-type ManualTaskWithProcessModel = DataModels.ManualTasks.ManualTask & ProcessModelAnnotation;
-type UserTaskWithProcessModel = DataModels.UserTasks.UserTask & ProcessModelAnnotation;
-type EmptyActivityWithProcessModel = DataModels.EmptyActivities.EmptyActivity & ProcessModelAnnotation;
-
-type Task = ManualTaskWithProcessModel
-          | UserTaskWithProcessModel
-          | EmptyActivityWithProcessModel;
+type Task = {
+  id: string;
+  flowNodeInstanceId?: string;
+  name: string;
+  correlationId: string;
+  processModelId: string;
+  processInstanceId: string;
+  processModel: DataModels.ProcessModels.ProcessModel;
+};
 
 @inject(EventAggregator, 'ManagementApiClientService', Router, 'NotificationService', 'SolutionService')
 export class TaskList {
@@ -331,8 +332,6 @@ export class TaskList {
         processInstanceId: userTask.processInstanceId,
         processModelId: userTask.processModelId,
         name: userTask.name,
-        tokenPayload: userTask.tokenPayload,
-        data: userTask.data,
       }));
 
     return userTasksAndProcessModels;
@@ -352,7 +351,6 @@ export class TaskList {
         processInstanceId: manualTask.processInstanceId,
         processModelId: manualTask.processModelId,
         name: manualTask.name,
-        tokenPayload: manualTask.tokenPayload,
       }));
 
     return manualTasksAndProcessModels;
@@ -372,7 +370,6 @@ export class TaskList {
         processInstanceId: emptyActivity.processInstanceId,
         processModelId: emptyActivity.processModelId,
         name: emptyActivity.name,
-        tokenPayload: emptyActivity.tokenPayload,
       }));
 
     return emptyActivitiesAndProcessModels;
