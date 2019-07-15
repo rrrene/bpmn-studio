@@ -7,6 +7,7 @@
         <tr>
           <th>Correlation ID</th>
           <th>Process Model ID</th>
+          <th>Task Type</th>
           <th>Task ID</th>
           <th></th>
         </tr>
@@ -18,6 +19,9 @@
             <a route-href="route: design; params.bind: { diagramName: entry.processModelId,
                                           solutionUri: activeSolutionEntry.uri, view: 'detail' }"
                class="task-list-item-modelname">${entry.processModelId}</a>
+          </td>
+          <td>
+            <a>${entry.taskType}</a>
           </td>
           <td>${entry.id}</td>
           <td class="task-list__last-table-cell">
