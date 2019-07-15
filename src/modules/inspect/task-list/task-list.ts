@@ -20,6 +20,8 @@ interface ITaskListRouteParameters {
   correlationId?: string;
 }
 
+type TaskSource = DataModels.EmptyActivities.EmptyActivity | DataModels.ManualTasks.ManualTask | DataModels.UserTasks.UserTask;
+
 enum TaskType {
   UserTask = 'UserTask',
   ManualTask = 'ManualTask',
@@ -200,7 +202,7 @@ export class TaskList {
         const userTaskList: DataModels.UserTasks.UserTaskList = await this._managementApiService
           .getUserTasksForProcessModel(this.activeSolutionEntry.identity, processModel.id);
 
-        const userTasksAndProcessModels: Array<Task> = this._addProcessModelToUserTasks(userTaskList, processModel);
+        const userTasksAndProcessModels: Array<Task> = this.mapToInternalTask(userTaskList.userTasks, processModel);
 
         return userTasksAndProcessModels;
       });
@@ -210,7 +212,7 @@ export class TaskList {
         const manualTaskList: DataModels.ManualTasks.ManualTaskList =
           await this._managementApiService.getManualTasksForProcessModel(this.activeSolutionEntry.identity, processModel.id);
 
-        const manualTasksAndProcessModels: Array<Task> = this._addProcessModelToManualTasks(manualTaskList, processModel);
+        const manualTasksAndProcessModels: Array<Task> = this.mapToInternalTask(manualTaskList.manualTasks, processModel);
 
         return manualTasksAndProcessModels;
       });
@@ -221,7 +223,7 @@ export class TaskList {
           await this._managementApiService.getEmptyActivitiesForProcessModel(this.activeSolutionEntry.identity, processModel.id);
 
         const emptyActivitiesAndProcessModels: Array<Task> =
-          this._addProcessModelToEmptyActivity(emptyActivityList, processModel);
+          this.mapToInternalTask(emptyActivityList.emptyActivities, processModel);
 
         return emptyActivitiesAndProcessModels;
       });
@@ -255,9 +257,9 @@ export class TaskList {
     const emptyActivityList: DataModels.EmptyActivities.EmptyActivityList =
       await this._managementApiService.getEmptyActivitiesForProcessModel(this.activeSolutionEntry.identity, processModelId);
 
-    const userTasksAndProcessModels: Array<Task> = this._addProcessModelToUserTasks(userTaskList, processModel);
-    const manualTasksAndProcessModels: Array<Task> = this._addProcessModelToManualTasks(manualTaskList, processModel);
-    const emptyActivitiesAndProcessModels: Array<Task> = this._addProcessModelToEmptyActivity(emptyActivityList, processModel);
+    const userTasksAndProcessModels: Array<Task> = this.mapToInternalTask(userTaskList.userTasks, processModel);
+    const manualTasksAndProcessModels: Array<Task> = this.mapToInternalTask(manualTaskList.manualTasks, processModel);
+    const emptyActivitiesAndProcessModels: Array<Task> = this.mapToInternalTask(emptyActivityList.emptyActivities, processModel);
 
     return [].concat(userTasksAndProcessModels, manualTasksAndProcessModels, emptyActivitiesAndProcessModels);
   }
@@ -291,13 +293,13 @@ export class TaskList {
       await this._managementApiService.getProcessModelById(this.activeSolutionEntry.identity, correlationProcessInstanceId);
 
     const userTasksAndProcessModels: Array<Task> =
-      this._addProcessModelToUserTasks(userTaskList, processModelOfCorrelation);
+      this.mapToInternalTask(userTaskList.userTasks, processModelOfCorrelation);
 
     const manualTasksAndProcessModels: Array<Task> =
-      this._addProcessModelToManualTasks(manualTaskList, processModelOfCorrelation);
+      this.mapToInternalTask(manualTaskList.manualTasks, processModelOfCorrelation);
 
     const emptyActivitiesAndProcessModels: Array<Task> =
-      this._addProcessModelToEmptyActivity(emptyActivityList, processModelOfCorrelation);
+      this.mapToInternalTask(emptyActivityList.emptyActivities, processModelOfCorrelation);
 
     return [].concat(userTasksAndProcessModels, manualTasksAndProcessModels, emptyActivitiesAndProcessModels);
   }
@@ -318,71 +320,33 @@ export class TaskList {
         ._managementApiService
         .getProcessModelByProcessInstanceId(this.activeSolutionEntry.identity, processInstanceId);
 
-    const userTasksAndProcessModels: Array<Task> = this._addProcessModelToUserTasks(userTaskList, processModel);
-    const manualTasksAndProcessModels: Array<Task> = this._addProcessModelToManualTasks(manualTaskList, processModel);
-    const emptyActivitiesAndProcessModels: Array<Task> = this._addProcessModelToEmptyActivity(emptyActivityList, processModel);
+    const userTasksAndProcessModels: Array<Task> = this.mapToInternalTask(userTaskList.userTasks, processModel);
+    const manualTasksAndProcessModels: Array<Task> = this.mapToInternalTask(manualTaskList.manualTasks, processModel);
+    const emptyActivitiesAndProcessModels: Array<Task> = this.mapToInternalTask(emptyActivityList.emptyActivities, processModel);
 
     return [].concat(userTasksAndProcessModels, manualTasksAndProcessModels, emptyActivitiesAndProcessModels);
   }
 
-  private _addProcessModelToUserTasks(
-    userTaskList: DataModels.UserTasks.UserTaskList,
+  private mapToInternalTask(
+    userTaskList: Array<TaskSource>,
     processModel: DataModels.ProcessModels.ProcessModel,
   ): Array<Task> {
 
-    const userTasksAndProcessModels: Array<Task> = userTaskList.userTasks
-      .map((userTask: DataModels.UserTasks.UserTask): Task => ({
-        processModel: processModel,
-        correlationId: userTask.correlationId,
-        id: userTask.id,
-        flowNodeInstanceId: userTask.flowNodeInstanceId,
-        processInstanceId: userTask.processInstanceId,
-        processModelId: userTask.processModelId,
-        name: userTask.name,
-        taskType: TaskType.UserTask,
-      }));
+    const userTasksAndProcessModels: Array<Task> = userTaskList
+      .map((userTask: TaskSource): Task => {
+        return {
+          processModel: processModel,
+          correlationId: userTask.correlationId,
+          id: userTask.id,
+          flowNodeInstanceId: userTask.flowNodeInstanceId,
+          processInstanceId: userTask.processInstanceId,
+          processModelId: userTask.processModelId,
+          name: userTask.name,
+          taskType: TaskType.UserTask,
+        }
+      });
 
     return userTasksAndProcessModels;
-  }
-
-  private _addProcessModelToManualTasks(
-    manualTaskList: DataModels.ManualTasks.ManualTaskList,
-    processModel: DataModels.ProcessModels.ProcessModel,
-  ): Array<Task> {
-
-    const manualTasksAndProcessModels: Array<Task> = manualTaskList.manualTasks
-      .map((manualTask: DataModels.ManualTasks.ManualTask): Task => ({
-        processModel: processModel,
-        correlationId: manualTask.correlationId,
-        id: manualTask.id,
-        flowNodeInstanceId: manualTask.flowNodeInstanceId,
-        processInstanceId: manualTask.processInstanceId,
-        processModelId: manualTask.processModelId,
-        name: manualTask.name,
-        taskType: TaskType.ManualTask,
-      }));
-
-    return manualTasksAndProcessModels;
-  }
-
-  private _addProcessModelToEmptyActivity(
-    emptyActivityList: DataModels.EmptyActivities.EmptyActivityList,
-    processModel: DataModels.ProcessModels.ProcessModel,
-  ): Array<Task> {
-
-    const emptyActivitiesAndProcessModels: Array<Task> = emptyActivityList.emptyActivities
-      .map((emptyActivity: DataModels.EmptyActivities.EmptyActivity): Task => ({
-        processModel: processModel,
-        correlationId: emptyActivity.correlationId,
-        id: emptyActivity.id,
-        flowNodeInstanceId: emptyActivity.flowNodeInstanceId,
-        processInstanceId: emptyActivity.processInstanceId,
-        processModelId: emptyActivity.processModelId,
-        name: emptyActivity.name,
-        taskType: TaskType.EmptyActivity,
-      }));
-
-    return emptyActivitiesAndProcessModels;
   }
 
   public async updateTasks(): Promise<void> {
