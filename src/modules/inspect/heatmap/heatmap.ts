@@ -1,7 +1,7 @@
 import {bindable, inject} from 'aurelia-framework';
 
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
-import {FlowNodeRuntimeInformation} from '@process-engine/kpi_api_contracts';
+import {DataModels} from '@process-engine/management_api_contracts';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
 import {
@@ -87,7 +87,7 @@ export class Heatmap {
 
     const associations: Array<IFlowNodeAssociation> = await this._heatmapService.getFlowNodeAssociations(elementRegistry);
 
-    const flowNodeRuntimeInformation: Array<FlowNodeRuntimeInformation> = await this
+    const flowNodeRuntimeInformation: Array<DataModels.Kpi.FlowNodeRuntimeInformation> = await this
       ._heatmapService
       .getRuntimeInformationForProcessModel(this.activeDiagram.id);
 

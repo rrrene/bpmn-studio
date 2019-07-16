@@ -1,7 +1,6 @@
 import {inject} from 'aurelia-framework';
 
 import {IIdentity} from '@essential-projects/iam_contracts';
-import {ActiveToken, FlowNodeRuntimeInformation} from '@process-engine/kpi_api_contracts';
 import {ManagementApiClientService} from '@process-engine/management_api_client';
 import {DataModels} from '@process-engine/management_api_contracts';
 
@@ -15,7 +14,7 @@ export class HeatmapMockRepository implements IHeatmapRepository {
   private _authenticationService: IAuthenticationService;
   private _identity: IIdentity;
 
-  private _mockDataForHeatmapSampleProcess: Array<FlowNodeRuntimeInformation> = [
+  private _mockDataForHeatmapSampleProcess: Array<DataModels.Kpi.FlowNodeRuntimeInformation> = [
     /** 3 Tasks */
     {
       processModelId: 'heatmap_sample',
@@ -141,7 +140,7 @@ export class HeatmapMockRepository implements IHeatmapRepository {
     // },
   ];
 
-  private _mockDataForActiveTokens: Array<ActiveToken> = [
+  private _mockDataForActiveTokens: Array<DataModels.Kpi.ActiveToken> = [
     {
       processInstanceId: 'test',
       processModelId: 'heatmap_sample',
@@ -1791,15 +1790,15 @@ export class HeatmapMockRepository implements IHeatmapRepository {
     this._identity = identity;
   }
 
-  public getRuntimeInformationForProcessModel(processModelId: string): Promise<Array<FlowNodeRuntimeInformation>> {
+  public getRuntimeInformationForProcessModel(processModelId: string): Promise<Array<DataModels.Kpi.FlowNodeRuntimeInformation>> {
     return new Promise ((resolve: Function, reject: Function): void => {
       resolve(this._mockDataForHeatmapSampleProcess);
     });
   }
 
-  public getActiveTokensForFlowNode(flowNodeId: string): Promise<Array<ActiveToken>> {
+  public getActiveTokensForFlowNode(flowNodeId: string): Promise<Array<DataModels.Kpi.ActiveToken>> {
     return new Promise ((resolve: Function, reject: Function): void => {
-      const newArray: Array<ActiveToken> = this._mockDataForActiveTokens.filter((element: ActiveToken) => {
+      const newArray: Array<DataModels.Kpi.ActiveToken> = this._mockDataForActiveTokens.filter((element: DataModels.Kpi.ActiveToken) => {
         const elementIs: boolean = element.flowNodeId === flowNodeId;
         return elementIs;
       });
