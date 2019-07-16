@@ -28,7 +28,7 @@ enum TaskType {
   EmptyActivity = 'EmptyActivity',
 }
 
-type Task = {
+type TaskListEntry = {
   id: string;
   flowNodeInstanceId?: string;
   name: string;
@@ -59,9 +59,9 @@ export class TaskList {
   private _solutionService: ISolutionService;
 
   private _subscriptions: Array<Subscription>;
-  private _tasks: Array<Task>;
+  private _tasks: Array<TaskListEntry>;
   private _pollingTimeout: NodeJS.Timer | number;
-  private _getTasks: () => Promise<Array<Task>>;
+  private _getTasks: () => Promise<Array<TaskListEntry>>;
   private _isAttached: boolean = false;
 
   constructor(eventAggregator: EventAggregator,
@@ -87,15 +87,15 @@ export class TaskList {
     const hasProcessInstanceId: boolean = processInstanceId !== undefined;
 
     if (hasDiagramName) {
-      this._getTasks = (): Promise<Array<Task>> => {
+      this._getTasks = (): Promise<Array<TaskListEntry>> => {
         return this._getTasksForProcessModel(diagramName);
       };
     } else if (hasCorrelationId) {
-      this._getTasks = (): Promise<Array<Task>> => {
+      this._getTasks = (): Promise<Array<TaskListEntry>> => {
         return this._getTasksForCorrelation(correlationId);
       };
     } else if (hasProcessInstanceId) {
-      this._getTasks = (): Promise<Array<Task>> => {
+      this._getTasks = (): Promise<Array<TaskListEntry>> => {
         return this._getTasksForProcessInstanceId(processInstanceId);
       };
     } else {
@@ -158,7 +158,7 @@ export class TaskList {
     this._router.navigateBack();
   }
 
-  public continueTask(taskWithProcessModel: Task): void {
+  public continueTask(taskWithProcessModel: TaskListEntry): void {
     const {correlationId, id, processInstanceId} = taskWithProcessModel;
 
     const tasksProcessModelId: string = taskWithProcessModel.processModelId;
@@ -178,11 +178,11 @@ export class TaskList {
     });
   }
 
-  public get shownTasks(): Array<Task> {
+  public get shownTasks(): Array<TaskListEntry> {
     return this.tasks.slice((this.currentPage - 1) * this.pageSize, this.pageSize * this.currentPage);
   }
 
-  public get tasks(): Array<Task> {
+  public get tasks(): Array<TaskListEntry> {
     const noTasksExisitng: boolean = this._tasks === undefined;
     if (noTasksExisitng) {
       return [];
@@ -191,57 +191,57 @@ export class TaskList {
     return this._tasks;
   }
 
-  private async _getAllTasks(): Promise<Array<Task>> {
+  private async _getAllTasks(): Promise<Array<TaskListEntry>> {
 
     const allProcessModels: DataModels.ProcessModels.ProcessModelList = await this._managementApiService
       .getProcessModels(this.activeSolutionEntry.identity);
 
     // TODO (ph): This will create 1 + n http reqeusts, where n is the number of process models in the processengine.
-    const promisesForAllUserTasks: Array<Promise<Array<Task>>> = allProcessModels.processModels
-      .map(async(processModel: DataModels.ProcessModels.ProcessModel): Promise<Array<Task>> => {
+    const promisesForAllUserTasks: Array<Promise<Array<TaskListEntry>>> = allProcessModels.processModels
+      .map(async(processModel: DataModels.ProcessModels.ProcessModel): Promise<Array<TaskListEntry>> => {
         const userTaskList: DataModels.UserTasks.UserTaskList = await this._managementApiService
           .getUserTasksForProcessModel(this.activeSolutionEntry.identity, processModel.id);
 
-        const userTasksAndProcessModels: Array<Task> = this.mapToInternalTask(userTaskList.userTasks, processModel, TaskType.UserTask);
+        const userTasksAndProcessModels: Array<TaskListEntry> = this.mapToInternalTask(userTaskList.userTasks, processModel, TaskType.UserTask);
 
         return userTasksAndProcessModels;
       });
 
-    const promisesForAllManualTasks: Array<Promise<Array<Task>>> = allProcessModels.processModels
-      .map(async(processModel: DataModels.ProcessModels.ProcessModel): Promise<Array<Task>> => {
+    const promisesForAllManualTasks: Array<Promise<Array<TaskListEntry>>> = allProcessModels.processModels
+      .map(async(processModel: DataModels.ProcessModels.ProcessModel): Promise<Array<TaskListEntry>> => {
         const manualTaskList: DataModels.ManualTasks.ManualTaskList =
           await this._managementApiService.getManualTasksForProcessModel(this.activeSolutionEntry.identity, processModel.id);
 
-        const manualTasksAndProcessModels: Array<Task> = this.mapToInternalTask(manualTaskList.manualTasks, processModel, TaskType.ManualTask);
+        const manualTasksAndProcessModels: Array<TaskListEntry> = this.mapToInternalTask(manualTaskList.manualTasks, processModel, TaskType.ManualTask);
 
         return manualTasksAndProcessModels;
       });
 
-    const promisesForAllEmptyActivities: Array<Promise<Array<Task>>> = allProcessModels.processModels
-      .map(async(processModel: DataModels.ProcessModels.ProcessModel): Promise<Array<Task>> => {
+    const promisesForAllEmptyActivities: Array<Promise<Array<TaskListEntry>>> = allProcessModels.processModels
+      .map(async(processModel: DataModels.ProcessModels.ProcessModel): Promise<Array<TaskListEntry>> => {
         const emptyActivityList: DataModels.EmptyActivities.EmptyActivityList =
           await this._managementApiService.getEmptyActivitiesForProcessModel(this.activeSolutionEntry.identity, processModel.id);
 
-        const emptyActivitiesAndProcessModels: Array<Task> =
+        const emptyActivitiesAndProcessModels: Array<TaskListEntry> =
           this.mapToInternalTask(emptyActivityList.emptyActivities, processModel, TaskType.EmptyActivity);
 
         return emptyActivitiesAndProcessModels;
       });
     // Concatenate the Promises for requesting UserTasks and requesting ManualTasks.
-    const promisesForAllTasksForAllProcessModels: Array<Task> = []
+    const promisesForAllTasksForAllProcessModels: Array<TaskListEntry> = []
       .concat(promisesForAllUserTasks, promisesForAllManualTasks, promisesForAllEmptyActivities);
 
     // Await all promises.
-    const allTasksForAllProcessModels: Array<Task> =
+    const allTasksForAllProcessModels: Array<TaskListEntry> =
       await Promise.all(promisesForAllTasksForAllProcessModels);
 
     // Flatten all results.
-    const allTasks: Array<Task> = [].concat(...allTasksForAllProcessModels);
+    const allTasks: Array<TaskListEntry> = [].concat(...allTasksForAllProcessModels);
 
     return allTasks;
   }
 
-  private async _getTasksForProcessModel(processModelId: string): Promise<Array<Task>> {
+  private async _getTasksForProcessModel(processModelId: string): Promise<Array<TaskListEntry>> {
 
     const processModel: DataModels.ProcessModels.ProcessModel = await
       this
@@ -257,15 +257,15 @@ export class TaskList {
     const emptyActivityList: DataModels.EmptyActivities.EmptyActivityList =
       await this._managementApiService.getEmptyActivitiesForProcessModel(this.activeSolutionEntry.identity, processModelId);
 
-    const userTasksAndProcessModels: Array<Task> = this.mapToInternalTask(userTaskList.userTasks, processModel, TaskType.UserTask);
-    const manualTasksAndProcessModels: Array<Task> = this.mapToInternalTask(manualTaskList.manualTasks, processModel, TaskType.ManualTask);
-    const emptyActivitiesAndProcessModels: Array<Task> =
+    const userTasksAndProcessModels: Array<TaskListEntry> = this.mapToInternalTask(userTaskList.userTasks, processModel, TaskType.UserTask);
+    const manualTasksAndProcessModels: Array<TaskListEntry> = this.mapToInternalTask(manualTaskList.manualTasks, processModel, TaskType.ManualTask);
+    const emptyActivitiesAndProcessModels: Array<TaskListEntry> =
       this.mapToInternalTask(emptyActivityList.emptyActivities, processModel, TaskType.EmptyActivity);
 
     return [].concat(userTasksAndProcessModels, manualTasksAndProcessModels, emptyActivitiesAndProcessModels);
   }
 
-  private async _getTasksForCorrelation(correlationId: string): Promise<Array<Task>> {
+  private async _getTasksForCorrelation(correlationId: string): Promise<Array<TaskListEntry>> {
 
     const runningCorrelations: Array<DataModels.Correlations.Correlation> =
       await this._managementApiService.getActiveCorrelations(this.activeSolutionEntry.identity);
@@ -293,19 +293,19 @@ export class TaskList {
     const processModelOfCorrelation: DataModels.ProcessModels.ProcessModel =
       await this._managementApiService.getProcessModelById(this.activeSolutionEntry.identity, correlationProcessInstanceId);
 
-    const userTasksAndProcessModels: Array<Task> =
+    const userTasksAndProcessModels: Array<TaskListEntry> =
       this.mapToInternalTask(userTaskList.userTasks, processModelOfCorrelation, TaskType.UserTask);
 
-    const manualTasksAndProcessModels: Array<Task> =
+    const manualTasksAndProcessModels: Array<TaskListEntry> =
       this.mapToInternalTask(manualTaskList.manualTasks, processModelOfCorrelation, TaskType.ManualTask);
 
-    const emptyActivitiesAndProcessModels: Array<Task> =
+    const emptyActivitiesAndProcessModels: Array<TaskListEntry> =
       this.mapToInternalTask(emptyActivityList.emptyActivities, processModelOfCorrelation, TaskType.EmptyActivity);
 
     return [].concat(userTasksAndProcessModels, manualTasksAndProcessModels, emptyActivitiesAndProcessModels);
   }
 
-  private async _getTasksForProcessInstanceId(processInstanceId: string): Promise<Array<Task>> {
+  private async _getTasksForProcessInstanceId(processInstanceId: string): Promise<Array<TaskListEntry>> {
 
     const userTaskList: DataModels.UserTasks.UserTaskList =
       await this._managementApiService.getUserTasksForProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
@@ -321,9 +321,9 @@ export class TaskList {
         ._managementApiService
         .getProcessModelByProcessInstanceId(this.activeSolutionEntry.identity, processInstanceId);
 
-    const userTasksAndProcessModels: Array<Task> = this.mapToInternalTask(userTaskList.userTasks, processModel, TaskType.UserTask);
-    const manualTasksAndProcessModels: Array<Task> = this.mapToInternalTask(manualTaskList.manualTasks, processModel, TaskType.ManualTask);
-    const emptyActivitiesAndProcessModels: Array<Task> =
+    const userTasksAndProcessModels: Array<TaskListEntry> = this.mapToInternalTask(userTaskList.userTasks, processModel, TaskType.UserTask);
+    const manualTasksAndProcessModels: Array<TaskListEntry> = this.mapToInternalTask(manualTaskList.manualTasks, processModel, TaskType.ManualTask);
+    const emptyActivitiesAndProcessModels: Array<TaskListEntry> =
       this.mapToInternalTask(emptyActivityList.emptyActivities, processModel, TaskType.EmptyActivity);
 
     return [].concat(userTasksAndProcessModels, manualTasksAndProcessModels, emptyActivitiesAndProcessModels);
@@ -333,10 +333,10 @@ export class TaskList {
     userTaskList: Array<TaskSource>,
     processModel: DataModels.ProcessModels.ProcessModel,
     targetType: TaskType,
-  ): Array<Task> {
+  ): Array<TaskListEntry> {
 
-    const userTasksAndProcessModels: Array<Task> = userTaskList
-      .map((sourceTask: TaskSource): Task => {
+    const userTasksAndProcessModels: Array<TaskListEntry> = userTaskList
+      .map((sourceTask: TaskSource): TaskListEntry => {
         return {
           processModel: processModel,
           correlationId: sourceTask.correlationId,
