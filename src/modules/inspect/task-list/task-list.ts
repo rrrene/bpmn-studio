@@ -212,7 +212,8 @@ export class TaskList {
         const manualTaskList: DataModels.ManualTasks.ManualTaskList =
           await this._managementApiService.getManualTasksForProcessModel(this.activeSolutionEntry.identity, processModel.id);
 
-        const manualTasksAndProcessModels: Array<TaskListEntry> = this.mapToInternalTask(manualTaskList.manualTasks, processModel, TaskType.ManualTask);
+        const manualTasksAndProcessModels: Array<TaskListEntry> =
+          this.mapToInternalTask(manualTaskList.manualTasks, processModel, TaskType.ManualTask);
 
         return manualTasksAndProcessModels;
       });
