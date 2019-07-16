@@ -13,7 +13,7 @@
         </tr>
         <tr repeat.for="entry of shownTasks" class="task-list-item" id="taskList-${entry.processModelId}">
           <td>
-            <a>${entry.correlationId}</a>
+            ${entry.correlationId}
           </td>
           <td>
             <a route-href="route: design; params.bind: { diagramName: entry.processModelId,
@@ -21,7 +21,7 @@
                class="task-list-item-modelname">${entry.processModelId}</a>
           </td>
           <td>
-            <a>${entry.taskType}</a>
+            ${entry.taskType}
           </td>
           <td>${entry.id}</td>
           <td class="task-list__last-table-cell">
