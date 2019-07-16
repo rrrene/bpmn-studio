@@ -76,6 +76,19 @@ export class TaskList {
     this._solutionService = solutionService;
   }
 
+  public get shownTasks(): Array<TaskListEntry> {
+    return this.tasks.slice((this.currentPage - 1) * this.pageSize, this.pageSize * this.currentPage);
+  }
+
+  public get tasks(): Array<TaskListEntry> {
+    const noTasksExisitng: boolean = this._tasks === undefined;
+    if (noTasksExisitng) {
+      return [];
+    }
+
+    return this._tasks;
+  }
+
   public initializeTaskList(routeParameters: ITaskListRouteParameters): void {
     const diagramName: string = routeParameters.diagramName;
     const correlationId: string = routeParameters.correlationId;
@@ -157,19 +170,6 @@ export class TaskList {
       processInstanceId: processInstanceId,
       taskId: id,
     });
-  }
-
-  public get shownTasks(): Array<TaskListEntry> {
-    return this.tasks.slice((this.currentPage - 1) * this.pageSize, this.pageSize * this.currentPage);
-  }
-
-  public get tasks(): Array<TaskListEntry> {
-    const noTasksExisitng: boolean = this._tasks === undefined;
-    if (noTasksExisitng) {
-      return [];
-    }
-
-    return this._tasks;
   }
 
   private _startPolling(): void {
