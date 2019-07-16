@@ -134,16 +134,6 @@ export class TaskList {
     this._startPolling();
   }
 
-  private _startPolling(): void {
-    this._pollingTimeout = setTimeout(async() => {
-      await this._updateTasks();
-
-      if (this ._isAttached) {
-        this._startPolling();
-      }
-    }, environment.processengine.dashboardPollingIntervalInMs);
-  }
-
   public detached(): void {
     this._isAttached = false;
     clearTimeout(this._pollingTimeout as NodeJS.Timer);
@@ -180,6 +170,16 @@ export class TaskList {
     }
 
     return this._tasks;
+  }
+
+  private _startPolling(): void {
+    this._pollingTimeout = setTimeout(async() => {
+      await this._updateTasks();
+
+      if (this ._isAttached) {
+        this._startPolling();
+      }
+    }, environment.processengine.dashboardPollingIntervalInMs);
   }
 
   private async _getAllTasks(): Promise<Array<TaskListEntry>> {
