@@ -7,17 +7,21 @@
         <tr>
           <th>Correlation ID</th>
           <th>Process Model ID</th>
+          <th>Task Type</th>
           <th>Task ID</th>
           <th></th>
         </tr>
         <tr repeat.for="entry of shownTasks" class="task-list-item" id="taskList-${entry.processModelId}">
           <td>
-            <a>${entry.correlationId}</a>
+            ${entry.correlationId}
           </td>
           <td>
             <a route-href="route: design; params.bind: { diagramName: entry.processModelId,
                                           solutionUri: activeSolutionEntry.uri, view: 'detail' }"
                class="task-list-item-modelname">${entry.processModelId}</a>
+          </td>
+          <td>
+            ${entry.taskType}
           </td>
           <td>${entry.id}</td>
           <td class="task-list__last-table-cell">
@@ -27,7 +31,7 @@
       </table>
       <div class="col-md-12 col-xs-12 pagination">
         <aubs-pagination page-size.bind="pageSize" total-items.bind="totalItems" current-page.bind="currentPage"
-          boundary-links.bind="true" click.delegate="updateTasks()" pagination-size.bind="paginationSize">
+          boundary-links.bind="true" click.delegate="_updateTasks()" pagination-size.bind="paginationSize">
         </aubs-pagination>
       </div>
     </div>
