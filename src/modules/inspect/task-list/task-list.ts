@@ -320,7 +320,7 @@ export class TaskList {
     return mappedTasks;
   }
 
-  public async _updateTasks(): Promise<void> {
+  private async _updateTasks(): Promise<void> {
     try {
       this._tasks = await this._getTasks();
       this.requestSuccessful = true;
