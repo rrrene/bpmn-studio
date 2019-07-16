@@ -311,8 +311,8 @@ export class TaskList {
           processInstanceId: sourceTask.processInstanceId,
           processModelId: sourceTask.processModelId,
           name: sourceTask.name,
-          // NOTE: Can't use instanceof or typeof, because the tasks were received as a plain JSON that do not have any type infos.
-          // TODO: Add type mapping to the repository.
+          // NOTE: Can't use instanceof or typeof, because the tasks were received as a plain JSON that does not have any type infos.
+          // TODO: Add type mapping to the Management API Client.
           taskType: targetType,
         };
       });
