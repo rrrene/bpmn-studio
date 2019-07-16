@@ -60,15 +60,14 @@ export class TaskList {
   private _subscriptions: Array<Subscription>;
   private _tasks: Array<TaskListEntry>;
   private _pollingTimeout: NodeJS.Timer | number;
-  private getTasks: () => Promise<Array<TaskListEntry>>;
+  private _getTasks: () => Promise<Array<TaskListEntry>>;
   private _isAttached: boolean = false;
 
-  constructor(
-    eventAggregator: EventAggregator,
-    managementApiService: IManagementApi,
-    router: Router,
-    notificationService: NotificationService,
-    solutionService: ISolutionService,
+  constructor(eventAggregator: EventAggregator,
+              managementApiService: IManagementApi,
+              router: Router,
+              notificationService: NotificationService,
+              solutionService: ISolutionService,
   ) {
     this._eventAggregator = eventAggregator;
     this._managementApiService = managementApiService;
@@ -87,26 +86,26 @@ export class TaskList {
     const hasProcessInstanceId: boolean = processInstanceId !== undefined;
 
     if (hasDiagramName) {
-      this.getTasks = (): Promise<Array<TaskListEntry>> => {
-        return this.getTasksForProcessModel(diagramName);
+      this._getTasks = (): Promise<Array<TaskListEntry>> => {
+        return this._getTasksForProcessModel(diagramName);
       };
     } else if (hasCorrelationId) {
-      this.getTasks = (): Promise<Array<TaskListEntry>> => {
-        return this.getTasksForCorrelation(correlationId);
+      this._getTasks = (): Promise<Array<TaskListEntry>> => {
+        return this._getTasksForCorrelation(correlationId);
       };
     } else if (hasProcessInstanceId) {
-      this.getTasks = (): Promise<Array<TaskListEntry>> => {
-        return this.getTasksForProcessInstanceId(processInstanceId);
+      this._getTasks = (): Promise<Array<TaskListEntry>> => {
+        return this._getTasksForProcessInstanceId(processInstanceId);
       };
     } else {
-      this.getTasks = this.getAllTasks;
+      this._getTasks = this._getAllTasks;
     }
   }
 
   public async attached(): Promise<void> {
     this._isAttached = true;
 
-    const getTasksIsUndefined: boolean = this.getTasks === undefined;
+    const getTasksIsUndefined: boolean = this._getTasks === undefined;
 
     this._activeSolutionUri = this._router.currentInstruction.queryParams.solutionUri;
 
@@ -119,7 +118,7 @@ export class TaskList {
     this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(this._activeSolutionUri);
 
     if (getTasksIsUndefined) {
-      this.getTasks = this.getAllTasks;
+      this._getTasks = this._getAllTasks;
     }
 
     this._subscriptions = [
@@ -132,15 +131,15 @@ export class TaskList {
     ];
 
     await this.updateTasks();
-    this.startPolling();
+    this._startPolling();
   }
 
-  private startPolling(): void {
+  private _startPolling(): void {
     this._pollingTimeout = setTimeout(async() => {
       await this.updateTasks();
 
       if (this ._isAttached) {
-        this.startPolling();
+        this._startPolling();
       }
     }, environment.processengine.dashboardPollingIntervalInMs);
   }
@@ -183,7 +182,7 @@ export class TaskList {
     return this._tasks;
   }
 
-  private async getAllTasks(): Promise<Array<TaskListEntry>> {
+  private async _getAllTasks(): Promise<Array<TaskListEntry>> {
 
     const allProcessModels: DataModels.ProcessModels.ProcessModelList = await this._managementApiService
       .getProcessModels(this.activeSolutionEntry.identity);
@@ -212,7 +211,6 @@ export class TaskList {
 
         return this.mapToInternalTask(emptyActivityList.emptyActivities, TaskType.EmptyActivity);
       });
-
     // Concatenate the Promises for requesting UserTasks and requesting ManualTasks.
     const promisesForAllTasksForAllProcessModels: Array<TaskListEntry> = []
       .concat(promisesForAllUserTasks, promisesForAllManualTasks, promisesForAllEmptyActivities);
@@ -227,7 +225,7 @@ export class TaskList {
     return allTasks;
   }
 
-  private async getTasksForProcessModel(processModelId: string): Promise<Array<TaskListEntry>> {
+  private async _getTasksForProcessModel(processModelId: string): Promise<Array<TaskListEntry>> {
 
     const userTaskList: DataModels.UserTasks.UserTaskList =
       await this._managementApiService.getUserTasksForProcessModel(this.activeSolutionEntry.identity, processModelId);
@@ -245,7 +243,7 @@ export class TaskList {
     return [].concat(userTasks, manualTasks, emptyActivities);
   }
 
-  private async getTasksForCorrelation(correlationId: string): Promise<Array<TaskListEntry>> {
+  private async _getTasksForCorrelation(correlationId: string): Promise<Array<TaskListEntry>> {
 
     const runningCorrelations: Array<DataModels.Correlations.Correlation> =
       await this._managementApiService.getActiveCorrelations(this.activeSolutionEntry.identity);
@@ -280,7 +278,7 @@ export class TaskList {
     return [].concat(userTasks, manualTasks, emptyActivities);
   }
 
-  private async getTasksForProcessInstanceId(processInstanceId: string): Promise<Array<TaskListEntry>> {
+  private async _getTasksForProcessInstanceId(processInstanceId: string): Promise<Array<TaskListEntry>> {
 
     const userTaskList: DataModels.UserTasks.UserTaskList =
       await this._managementApiService.getUserTasksForProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
@@ -324,7 +322,7 @@ export class TaskList {
 
   public async updateTasks(): Promise<void> {
     try {
-      this._tasks = await this.getTasks();
+      this._tasks = await this._getTasks();
       this.requestSuccessful = true;
     } catch (error) {
 
