@@ -1,7 +1,6 @@
-import {IHttpClient, IRequestOptions, IResponse} from '@essential-projects/http_contracts';
+import { IHttpClient, IRequestOptions, IResponse } from '@essential-projects/http_contracts';
 
 export class HttpClientProxy implements IHttpClient {
-
   private _proxiedHttpClient: IHttpClient;
   private _urlPrefix: string;
 
@@ -37,5 +36,4 @@ export class HttpClientProxy implements IHttpClient {
 
     return this._proxiedHttpClient.delete(prefixedUrl, options);
   }
-
 }

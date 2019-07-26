@@ -1,5 +1,5 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {bindable, inject} from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { bindable, inject } from 'aurelia-framework';
 
 import {
   IEventElement,
@@ -8,26 +8,20 @@ import {
   IPropertiesElement,
   IProperty,
   IShape,
-  ITimerEventElement,
+  ITimerEventElement
 } from '@process-engine/bpmn-elements_contracts';
 
-import {
-  IBpmnModdle,
-  ILinting,
-  IPageModel,
-  ISection,
-} from '../../../../../../../contracts';
+import { IBpmnModdle, ILinting, IPageModel, ISection } from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
 enum TimerType {
   Date,
   Duration,
-  Cycle,
+  Cycle
 }
 
 @inject(EventAggregator)
 export class TimerEventSection implements ISection {
-
   public path: string = '/sections/timer-event/timer-event';
   public canHandleElement: boolean = false;
   public timerElement: IModdleElement;
@@ -67,37 +61,36 @@ export class TimerEventSection implements ISection {
 
     const eventElement: IEventElement = element.businessObject as IEventElement;
 
-    const elementIsTimerEvent: boolean = eventElement.eventDefinitions !== undefined
-                                      && eventElement.eventDefinitions[0] !== undefined
-                                      && eventElement.eventDefinitions[0].$type === 'bpmn:TimerEventDefinition';
+    const elementIsTimerEvent: boolean =
+      eventElement.eventDefinitions !== undefined &&
+      eventElement.eventDefinitions[0] !== undefined &&
+      eventElement.eventDefinitions[0].$type === 'bpmn:TimerEventDefinition';
 
     return elementIsTimerEvent;
   }
 
   public updateTimerType(): void {
     const moddleElement: IModdleElement = this._moddle.create('bpmn:FormalExpression', {
-                                            body: this.timerElement.body,
-                                          });
+      body: this.timerElement.body
+    });
 
     let timerTypeObject: Object;
 
     switch (this.timerType) {
       case TimerType.Date: {
         timerTypeObject = {
-          timeDate: moddleElement,
+          timeDate: moddleElement
         };
         break;
       }
       case TimerType.Duration: {
         timerTypeObject = {
-          timeDuration: moddleElement,
+          timeDuration: moddleElement
         };
         break;
       }
       case TimerType.Cycle: {
-        timerTypeObject = this.isTimerStartEvent
-          ? {timeCycle: moddleElement}
-          : {};
+        timerTypeObject = this.isTimerStartEvent ? { timeCycle: moddleElement } : {};
         break;
       }
       default: {
@@ -132,9 +125,7 @@ export class TimerEventSection implements ISection {
   }
 
   private _init(): void {
-
     if (this.isTimerStartEvent) {
-
       const extensionElementDoesNotExist: boolean = this._businessObjInPanel.extensionElements === undefined;
       if (extensionElementDoesNotExist) {
         this._createExtensionElement();
@@ -156,7 +147,7 @@ export class TimerEventSection implements ISection {
       }
     }
 
-    const {timeDate, timeDuration, timeCycle} = this._businessObjInPanel.eventDefinitions[0];
+    const { timeDate, timeDuration, timeCycle } = this._businessObjInPanel.eventDefinitions[0];
 
     if (timeCycle !== undefined && this.isTimerStartEvent) {
       this.timerType = TimerType.Cycle;
@@ -175,10 +166,10 @@ export class TimerEventSection implements ISection {
   }
 
   private _getTimerElement(): IModdleElement {
-    const {timeDuration, timeDate, timeCycle} = this._businessObjInPanel.eventDefinitions[0];
+    const { timeDuration, timeDate, timeCycle } = this._businessObjInPanel.eventDefinitions[0];
 
     if (timeDuration !== undefined) {
-       return timeDuration;
+      return timeDuration;
     }
     if (timeDate !== undefined) {
       return timeDate;
@@ -188,7 +179,7 @@ export class TimerEventSection implements ISection {
       return timeCycle;
     }
 
-    const timerEventDefinition: IModdleElement = this._moddle.create('bpmn:FormalExpression', {body: ''});
+    const timerEventDefinition: IModdleElement = this._moddle.create('bpmn:FormalExpression', { body: '' });
     return timerEventDefinition;
   }
 
@@ -205,7 +196,9 @@ export class TimerEventSection implements ISection {
   private _createExtensionElement(): void {
     const extensionValues: Array<IModdleElement> = [];
 
-    const extensionElements: IModdleElement = this._moddle.create('bpmn:ExtensionElements', {values: extensionValues});
+    const extensionElements: IModdleElement = this._moddle.create('bpmn:ExtensionElements', {
+      values: extensionValues
+    });
     this._businessObjInPanel.extensionElements = extensionElements;
   }
 
@@ -213,7 +206,7 @@ export class TimerEventSection implements ISection {
     const extensionElement: IExtensionElement = this._businessObjInPanel.extensionElements;
 
     const properties: Array<IProperty> = [];
-    const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', {values: properties});
+    const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', { values: properties });
 
     extensionElement.values.push(propertiesElement);
   }
@@ -223,7 +216,7 @@ export class TimerEventSection implements ISection {
 
     const propertyObject: object = {
       name: propertyName,
-      value: '',
+      value: ''
     };
 
     const property: IProperty = this._moddle.create('camunda:Property', propertyObject);
@@ -242,11 +235,12 @@ export class TimerEventSection implements ISection {
   }
 
   private _getPropertiesElement(): IPropertiesElement {
-    const propertiesElement: IPropertiesElement = this._businessObjInPanel.extensionElements.values.find((element: IPropertiesElement) => {
-      return element.$type === 'camunda:Properties' && element.values !== undefined;
-    });
+    const propertiesElement: IPropertiesElement = this._businessObjInPanel.extensionElements.values.find(
+      (element: IPropertiesElement) => {
+        return element.$type === 'camunda:Properties' && element.values !== undefined;
+      }
+    );
 
     return propertiesElement;
   }
-
 }

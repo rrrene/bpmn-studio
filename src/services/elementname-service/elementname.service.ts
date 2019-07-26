@@ -1,7 +1,5 @@
 export class ElementNameService {
-
   public getHumanReadableType(elementType: string): string {
-
     const elementTypeWithoutBPMN: string = elementType.replace('bpmn:', '');
     const humanReadableElementType: string = elementTypeWithoutBPMN.replace(/([A-Z])/g, ' $1').trim();
 
@@ -9,7 +7,7 @@ export class ElementNameService {
   }
 
   public getHumanReadableName(elementName: string): string {
-    const elementNameIsEmpty: boolean = (elementName === undefined || elementName === '');
+    const elementNameIsEmpty: boolean = elementName === undefined || elementName === '';
 
     if (elementNameIsEmpty) {
       return '';

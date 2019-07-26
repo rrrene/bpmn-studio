@@ -1,8 +1,8 @@
-import {bindable, inject} from 'aurelia-framework';
+import { bindable, inject } from 'aurelia-framework';
 
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
-import {DataModels} from '@process-engine/management_api_contracts';
-import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+import { DataModels } from '@process-engine/management_api_contracts';
+import { IDiagram } from '@process-engine/solutionexplorer.contracts';
 
 import {
   IBpmnModeler,
@@ -10,10 +10,10 @@ import {
   IElementRegistry,
   IOverlayManager,
   ISolutionEntry,
-  IViewbox,
+  IViewbox
 } from '../../../contracts/index';
 
-import {IFlowNodeAssociation, IHeatmapService} from './contracts';
+import { IFlowNodeAssociation, IHeatmapService } from './contracts';
 
 @inject('HeatmapService')
 export class Heatmap {
@@ -34,14 +34,14 @@ export class Heatmap {
   }
 
   public activeDiagramChanged(): void {
-
     const attachedViewer: Element = document.getElementsByClassName('bjs-container')[0];
 
-    const viewerContainerIsAttached: boolean = this.viewerContainer !== undefined
-                                            && this.viewerContainer !== null
-                                            && this.viewerContainer.childElementCount > 1
-                                            && attachedViewer !== undefined
-                                            && attachedViewer !== null;
+    const viewerContainerIsAttached: boolean =
+      this.viewerContainer !== undefined &&
+      this.viewerContainer !== null &&
+      this.viewerContainer.childElementCount > 1 &&
+      attachedViewer !== undefined &&
+      attachedViewer !== null;
 
     if (viewerContainerIsAttached) {
       this.viewerContainer.removeChild(attachedViewer);
@@ -57,7 +57,6 @@ export class Heatmap {
   }
 
   public async initialize(): Promise<void> {
-
     const noActiveDiagram: boolean = this.activeDiagram === undefined;
     if (noActiveDiagram) {
       return;
@@ -70,13 +69,13 @@ export class Heatmap {
 
     this._modeler = new bundle.modeler({
       moddleExtensions: {
-        camunda: bundle.camundaModdleDescriptor,
-      },
+        camunda: bundle.camundaModdleDescriptor
+      }
     });
 
     await this._pushXmlToBpmnModeler(this.activeDiagram.xml, this._modeler);
 
-    const elementRegistry: IElementRegistry  = this._modeler.get('elementRegistry');
+    const elementRegistry: IElementRegistry = this._modeler.get('elementRegistry');
     /*
      * TODO: Refactoring opportunity; HeatmapService could use a fluent API; This is how it would look like:
      * this._heatmapService
@@ -85,21 +84,22 @@ export class Heatmap {
      *   .getColoredXML(this._modeler) // <- associations, flowNodeRuntimeInformation
      */
 
-    const associations: Array<IFlowNodeAssociation> = await this._heatmapService.getFlowNodeAssociations(elementRegistry);
+    const associations: Array<IFlowNodeAssociation> = await this._heatmapService.getFlowNodeAssociations(
+      elementRegistry
+    );
 
-    const flowNodeRuntimeInformation: Array<DataModels.Kpi.FlowNodeRuntimeInformation> = await this
-      ._heatmapService
-      .getRuntimeInformationForProcessModel(this.activeDiagram.id);
+    const flowNodeRuntimeInformation: Array<
+      DataModels.Kpi.FlowNodeRuntimeInformation
+    > = await this._heatmapService.getRuntimeInformationForProcessModel(this.activeDiagram.id);
 
-    const xml: string = await this._heatmapService.getColoredXML(associations, flowNodeRuntimeInformation, this._modeler);
+    const xml: string = await this._heatmapService.getColoredXML(
+      associations,
+      flowNodeRuntimeInformation,
+      this._modeler
+    );
 
     this._viewer = new bundle.viewer({
-      additionalModules:
-      [
-        bundle.ZoomScrollModule,
-        bundle.MoveCanvasModule,
-        bundle.MiniMap,
-      ],
+      additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule, bundle.MiniMap]
     });
 
     await this._pushXmlToBpmnModeler(xml, this._viewer);
@@ -108,7 +108,7 @@ export class Heatmap {
 
     this._heatmapService.addOverlays(overlays, elementRegistry, this.activeDiagram.id);
 
-    const containerIsPresent: boolean =  this.viewerContainer !== null;
+    const containerIsPresent: boolean = this.viewerContainer !== null;
     if (containerIsPresent) {
       this._viewer.attachTo(this.viewerContainer);
     }
@@ -130,12 +130,11 @@ export class Heatmap {
 
   private _fitDiagramToViewport(): void {
     const canvas: ICanvas = this._viewer.get('canvas');
-    const viewbox: IViewbox  = canvas.viewbox();
+    const viewbox: IViewbox = canvas.viewbox();
     const diagramIsVisible: boolean = viewbox.height > 0 && viewbox.width > 0;
 
     if (diagramIsVisible) {
       canvas.zoom('fit-viewport', 'auto');
     }
   }
-
 }

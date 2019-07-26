@@ -1,8 +1,8 @@
-import {inject} from 'aurelia-framework';
-import {activationStrategy} from 'aurelia-router';
+import { inject } from 'aurelia-framework';
+import { activationStrategy } from 'aurelia-router';
 
-import {ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
-import {NotificationService} from '../../services/notification-service/notification.service';
+import { ISolutionEntry, ISolutionService, NotificationType } from '../../contracts/index';
+import { NotificationService } from '../../services/notification-service/notification.service';
 
 export interface IThinkRouteParameters {
   view?: string;
@@ -34,8 +34,8 @@ export class Think {
     this._diagramSelected = routeParameters.diagramName !== undefined;
 
     const solutionUri: string = solutionUriIsSet
-                              ? routeParameters.solutionUri
-                              : window.localStorage.getItem('InternalProcessEngineRoute');
+      ? routeParameters.solutionUri
+      : window.localStorage.getItem('InternalProcessEngineRoute');
 
     this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(solutionUri);
 
@@ -46,7 +46,10 @@ export class Think {
       return false;
     }
 
-    await this.activeSolutionEntry.service.openSolution(this.activeSolutionEntry.uri, this.activeSolutionEntry.identity);
+    await this.activeSolutionEntry.service.openSolution(
+      this.activeSolutionEntry.uri,
+      this.activeSolutionEntry.identity
+    );
 
     return true;
   }
@@ -71,13 +74,12 @@ export class Think {
   }
 
   public determineActivationStrategy(): string {
-     return activationStrategy.replace;
+    return activationStrategy.replace;
   }
 
   private _closeBpmnStudio: Function = (): void => {
-
     if (!this._diagramSelected) {
       this._ipcRenderer.send('close_bpmn-studio');
     }
-  }
+  };
 }

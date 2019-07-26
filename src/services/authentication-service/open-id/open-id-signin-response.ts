@@ -4,7 +4,7 @@
 // tslint:disable:variable-name
 // tslint:disable:no-magic-numbers
 
-import {UrlUtility} from './open-id-url-utility';
+import { UrlUtility } from './open-id-url-utility';
 
 const OidcScope: string = 'openid';
 
@@ -22,7 +22,6 @@ export class SigninResponse {
   public expires_at: number;
 
   constructor(url: string) {
-
     const values: any = UrlUtility.parseUrlFragment(url, '#');
 
     this.error = values.error;

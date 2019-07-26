@@ -37,12 +37,12 @@ export class UrlUtility {
 
     let counter: number = 0;
     // tslint:disable-next-line:no-conditional-assignment
-    while (m = regex.exec(url)) {
+    while ((m = regex.exec(url))) {
       params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
 
       if (counter++ > 50) {
         return {
-          error: 'Response exceeded expected number of parameters',
+          error: 'Response exceeded expected number of parameters'
         };
       }
     }

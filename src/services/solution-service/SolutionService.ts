@@ -1,9 +1,9 @@
-import {inject} from 'aurelia-framework';
+import { inject } from 'aurelia-framework';
 
-import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+import { IDiagram } from '@process-engine/solutionexplorer.contracts';
 
-import {ISolutionEntry, ISolutionService} from '../../contracts';
-import {SolutionExplorerServiceFactory} from '../solution-explorer-services/SolutionExplorerServiceFactory';
+import { ISolutionEntry, ISolutionService } from '../../contracts';
+import { SolutionExplorerServiceFactory } from '../solution-explorer-services/SolutionExplorerServiceFactory';
 
 @inject('SolutionExplorerServiceFactory')
 export class SolutionService implements ISolutionService {
@@ -23,7 +23,7 @@ export class SolutionService implements ISolutionService {
       return;
     }
 
-    openedSolutions.forEach(async(solution: ISolutionEntry) => {
+    openedSolutions.forEach(async (solution: ISolutionEntry) => {
       const solutionIsRemote: boolean = solution.uri.startsWith('http');
 
       solution.service = solutionIsRemote
@@ -40,7 +40,6 @@ export class SolutionService implements ISolutionService {
    */
 
   public addSolutionEntry(solutionEntry: ISolutionEntry): void {
-
     const solutionWithSameUri: ISolutionEntry = this._allSolutionEntries.find((entry: ISolutionEntry) => {
       const entryHasSameUri: boolean = entry.uri === solutionEntry.uri;
 
@@ -100,7 +99,9 @@ export class SolutionService implements ISolutionService {
    */
 
   public addOpenDiagram(diagramToAdd: IDiagram): void {
-    const indexOfDiagram: number = this._persistedOpenDiagrams.findIndex((diagram: IDiagram) => diagram.uri === diagramToAdd.uri);
+    const indexOfDiagram: number = this._persistedOpenDiagrams.findIndex(
+      (diagram: IDiagram) => diagram.uri === diagramToAdd.uri
+    );
     const diagramIsPersisted: boolean = indexOfDiagram >= 0;
 
     if (diagramIsPersisted) {
@@ -153,7 +154,6 @@ export class SolutionService implements ISolutionService {
   }
 
   private _persistOpenDiagramsInLocalStorage(): void {
-
     window.localStorage.setItem('OpenDiagrams', JSON.stringify(this._persistedOpenDiagrams));
   }
 }

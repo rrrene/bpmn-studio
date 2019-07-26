@@ -1,7 +1,7 @@
-import {IIdentity} from '@essential-projects/iam_contracts';
+import { IIdentity } from '@essential-projects/iam_contracts';
 
-import {ILoginResult} from './ILoginResult';
-import {IUserIdentity} from './IUserIdentity';
+import { ILoginResult } from './ILoginResult';
+import { IUserIdentity } from './IUserIdentity';
 
 export interface IAuthenticationService {
   login(authority: string): Promise<ILoginResult>;

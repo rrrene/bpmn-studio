@@ -1,9 +1,8 @@
-import {browser, by, element, ElementArrayFinder, ElementFinder, ExpectedConditions} from 'protractor';
+import { browser, by, element, ElementArrayFinder, ElementFinder, ExpectedConditions } from 'protractor';
 
-import {By} from 'selenium-webdriver';
+import { By } from 'selenium-webdriver';
 
 export class XmlView {
-
   public url: string;
   public urlWithoutQueryParams: string;
 

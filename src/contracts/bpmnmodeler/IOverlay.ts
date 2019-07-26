@@ -1,6 +1,6 @@
-import {IShape} from '@process-engine/bpmn-elements_contracts';
+import { IShape } from '@process-engine/bpmn-elements_contracts';
 
-import {IOverlayPosition} from './IOverlayPosition';
+import { IOverlayPosition } from './IOverlayPosition';
 
 export interface IOverlay {
   element: IShape;

@@ -1,11 +1,11 @@
-import {bindable, inject} from 'aurelia-framework';
+import { bindable, inject } from 'aurelia-framework';
 
-import {IShape} from '@process-engine/bpmn-elements_contracts';
+import { IShape } from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
-import {DataModels} from '@process-engine/management_api_contracts';
-import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+import { DataModels } from '@process-engine/management_api_contracts';
+import { IDiagram } from '@process-engine/solutionexplorer.contracts';
 
-import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
 import {
   defaultBpmnColors,
   IBpmnModeler,
@@ -16,11 +16,11 @@ import {
   IElementRegistry,
   IEvent,
   IModeling,
-  NotificationType,
+  NotificationType
 } from '../../../../../contracts/index';
 import environment from '../../../../../environment';
-import {NotificationService} from '../../../../../services/notification-service/notification.service';
-import {DiagramExportService} from '../../../../design/bpmn-io/services/index';
+import { NotificationService } from '../../../../../services/notification-service/notification.service';
+import { DiagramExportService } from '../../../../design/bpmn-io/services/index';
 
 @inject('NotificationService', EventAggregator)
 export class DiagramViewer {
@@ -51,11 +51,7 @@ export class DiagramViewer {
   public attached(): void {
     this._diagramModeler = new bundle.modeler();
     this._diagramViewer = new bundle.viewer({
-      additionalModules:
-      [
-        bundle.ZoomScrollModule,
-        bundle.MoveCanvasModule,
-      ],
+      additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule]
     });
 
     this._modeling = this._diagramModeler.get('modeling');
@@ -63,14 +59,14 @@ export class DiagramViewer {
 
     this._diagramViewer.attachTo(this.canvasModel);
 
-    this._diagramViewer.on('element.click', async(event: IEvent) => {
+    this._diagramViewer.on('element.click', async (event: IEvent) => {
       await this._colorizeSelection(event.element);
 
       this.selectedFlowNode = event.element;
     });
 
     this._subscriptions = [
-      this._eventAggregator.subscribe(`${environment.events.inspect.exportDiagramAs}:BPMN`, async() => {
+      this._eventAggregator.subscribe(`${environment.events.inspect.exportDiagramAs}:BPMN`, async () => {
         try {
           const exportName: string = `${this.activeDiagram.name}.bpmn`;
           await this._diagramExportService
@@ -78,11 +74,14 @@ export class DiagramViewer {
             .asBpmn()
             .export(exportName);
         } catch (error) {
-          this._notificationService.showNotification(NotificationType.ERROR, 'An error occurred while preparing the diagram for exporting');
+          this._notificationService.showNotification(
+            NotificationType.ERROR,
+            'An error occurred while preparing the diagram for exporting'
+          );
         }
       }),
 
-      this._eventAggregator.subscribe(`${environment.events.inspect.exportDiagramAs}:SVG`, async() => {
+      this._eventAggregator.subscribe(`${environment.events.inspect.exportDiagramAs}:SVG`, async () => {
         try {
           const exportName: string = `${this.activeDiagram.name}.svg`;
           await this._diagramExportService
@@ -90,11 +89,14 @@ export class DiagramViewer {
             .asSVG()
             .export(exportName);
         } catch (error) {
-          this._notificationService.showNotification(NotificationType.ERROR, 'An error occurred while preparing the diagram for exporting');
+          this._notificationService.showNotification(
+            NotificationType.ERROR,
+            'An error occurred while preparing the diagram for exporting'
+          );
         }
       }),
 
-      this._eventAggregator.subscribe(`${environment.events.inspect.exportDiagramAs}:PNG`, async() => {
+      this._eventAggregator.subscribe(`${environment.events.inspect.exportDiagramAs}:PNG`, async () => {
         try {
           const exportName: string = `${this.activeDiagram.name}.png`;
           await this._diagramExportService
@@ -102,11 +104,14 @@ export class DiagramViewer {
             .asPNG()
             .export(exportName);
         } catch (error) {
-          this._notificationService.showNotification(NotificationType.ERROR, 'An error occurred while preparing the diagram for exporting');
+          this._notificationService.showNotification(
+            NotificationType.ERROR,
+            'An error occurred while preparing the diagram for exporting'
+          );
         }
       }),
 
-      this._eventAggregator.subscribe(`${environment.events.inspect.exportDiagramAs}:JPEG`, async() => {
+      this._eventAggregator.subscribe(`${environment.events.inspect.exportDiagramAs}:JPEG`, async () => {
         try {
           const exportName: string = `${this.activeDiagram.name}.jpeg`;
           await this._diagramExportService
@@ -114,20 +119,24 @@ export class DiagramViewer {
             .asJPEG()
             .export(exportName);
         } catch (error) {
-          this._notificationService.showNotification(NotificationType.ERROR, 'An error occurred while preparing the diagram for exporting');
+          this._notificationService.showNotification(
+            NotificationType.ERROR,
+            'An error occurred while preparing the diagram for exporting'
+          );
         }
-      }),
+      })
     ];
   }
 
   public detached(): void {
     const bjsContainer: Element = this.canvasModel.getElementsByClassName('bjs-container')[0];
 
-    const bjsContainerIsExisting: boolean = this.canvasModel !== undefined
-                                            && this.canvasModel !== null
-                                            && this.canvasModel.childElementCount > 1
-                                            && bjsContainer !== undefined
-                                            && bjsContainer !== null;
+    const bjsContainerIsExisting: boolean =
+      this.canvasModel !== undefined &&
+      this.canvasModel !== null &&
+      this.canvasModel.childElementCount > 1 &&
+      bjsContainer !== undefined &&
+      bjsContainer !== null;
 
     if (bjsContainerIsExisting) {
       this.canvasModel.removeChild(bjsContainer);
@@ -239,22 +248,23 @@ export class DiagramViewer {
 
     this._modeling.setColor(elementsWithColor, {
       stroke: defaultBpmnColors.none.border,
-      fill: defaultBpmnColors.none.fill,
+      fill: defaultBpmnColors.none.fill
     });
   }
 
   private _colorElement(element: IShape, color: IColorPickerColor): void {
     this._modeling.setColor(element, {
       stroke: color.border,
-      fill: color.fill,
+      fill: color.fill
     });
   }
 
   private async _importXml(modeler: IBpmnModeler, xml: string): Promise<void> {
-    const xmlIsNotLoaded: boolean = (xml === undefined || xml === null);
+    const xmlIsNotLoaded: boolean = xml === undefined || xml === null;
 
     if (xmlIsNotLoaded) {
-      const notificationMessage: string = 'The xml could not be loaded. Please try to reopen the Inspect Correlation View.';
+      const notificationMessage: string =
+        'The xml could not be loaded. Please try to reopen the Inspect Correlation View.';
       this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
 
       return;
@@ -275,12 +285,12 @@ export class DiagramViewer {
   }
 
   private async _getXmlFromModeler(): Promise<string> {
-    const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void =>  {
+    const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
       const xmlSaveOptions: IBpmnXmlSaveOptions = {
-        format: true,
+        format: true
       };
 
-      this._diagramModeler.saveXML(xmlSaveOptions, async(saveXmlError: Error, xml: string) => {
+      this._diagramModeler.saveXML(xmlSaveOptions, async (saveXmlError: Error, xml: string) => {
         if (saveXmlError) {
           reject(saveXmlError);
 

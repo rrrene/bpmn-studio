@@ -1,13 +1,13 @@
-import {IShape} from '@process-engine/bpmn-elements_contracts';
-import {IViewbox} from '../index';
+import { IShape } from '@process-engine/bpmn-elements_contracts';
+import { IViewbox } from '../index';
 
 export interface IDiagramState {
   data: {
-    xml: string,
+    xml: string;
   };
   metaData: {
-    location: IViewbox,
-    selectedElements: Array<IShape>,
-    isChanged: boolean,
+    location: IViewbox;
+    selectedElements: Array<IShape>;
+    isChanged: boolean;
   };
 }

@@ -1,14 +1,20 @@
-import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {bindable, computedFrom, inject} from 'aurelia-framework';
-import {Router} from 'aurelia-router';
-import {domEventDispatch} from 'dom-event-dispatch';
+import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
+import { bindable, computedFrom, inject } from 'aurelia-framework';
+import { Router } from 'aurelia-router';
+import { domEventDispatch } from 'dom-event-dispatch';
 
-import {IIdentity} from '@essential-projects/iam_contracts';
-import {DataModels} from '@process-engine/management_api_contracts';
+import { IIdentity } from '@essential-projects/iam_contracts';
+import { DataModels } from '@process-engine/management_api_contracts';
 
-import {AuthenticationStateEvent, IDynamicUiService, ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
-import {NotificationService} from '../../services/notification-service/notification.service';
-import {DynamicUiWrapper} from '../dynamic-ui-wrapper/dynamic-ui-wrapper';
+import {
+  AuthenticationStateEvent,
+  IDynamicUiService,
+  ISolutionEntry,
+  ISolutionService,
+  NotificationType
+} from '../../contracts/index';
+import { NotificationService } from '../../services/notification-service/notification.service';
+import { DynamicUiWrapper } from '../dynamic-ui-wrapper/dynamic-ui-wrapper';
 
 interface RouteParameters {
   diagramName: string;
@@ -20,7 +26,6 @@ interface RouteParameters {
 
 @inject(EventAggregator, 'DynamicUiService', Router, 'NotificationService', 'SolutionService', Element)
 export class TaskDynamicUi {
-
   public dynamicUiWrapper: DynamicUiWrapper;
 
   @bindable() public correlationId: string;
@@ -43,13 +48,14 @@ export class TaskDynamicUi {
   private _element: Element;
   private _identity: IIdentity;
 
-  constructor(eventAggregator: EventAggregator,
-              dynamicUiService: IDynamicUiService,
-              router: Router,
-              notificationService: NotificationService,
-              solutionService: ISolutionService,
-              element: Element) {
-
+  constructor(
+    eventAggregator: EventAggregator,
+    dynamicUiService: IDynamicUiService,
+    router: Router,
+    notificationService: NotificationService,
+    solutionService: ISolutionService,
+    element: Element
+  ) {
     this._eventAggregator = eventAggregator;
     this._dynamicUiService = dynamicUiService;
     this._router = router;
@@ -83,7 +89,7 @@ export class TaskDynamicUi {
       }),
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
         this.getTask();
-      }),
+      })
     ];
 
     this.dynamicUiWrapper.onButtonClick = (action: string): void => {
@@ -137,7 +143,8 @@ export class TaskDynamicUi {
   @computedFrom('_userTask', '_manualTask')
   public get taskName(): string {
     const nonWhiteSpaceRegex: RegExp = /\S/;
-    const task: DataModels.UserTasks.UserTask | DataModels.ManualTasks.ManualTask = this._userTask === undefined ? this._manualTask : this._userTask;
+    const task: DataModels.UserTasks.UserTask | DataModels.ManualTasks.ManualTask =
+      this._userTask === undefined ? this._manualTask : this._userTask;
 
     const noTaskIsSet: boolean = task === undefined;
     if (noTaskIsSet) {
@@ -145,9 +152,7 @@ export class TaskDynamicUi {
     }
 
     const taskNameIsSet: boolean = nonWhiteSpaceRegex.test(task.name);
-    const taskDisplayName: string = taskNameIsSet
-      ? task.name
-      : task.id;
+    const taskDisplayName: string = taskNameIsSet ? task.name : task.id;
 
     return taskDisplayName;
   }
@@ -159,24 +164,24 @@ export class TaskDynamicUi {
 
   private _finishTask(action: string): void {
     if (this.isModal) {
-      domEventDispatch.dispatchEvent(this._element, 'close-modal', {bubbles: true});
+      domEventDispatch.dispatchEvent(this._element, 'close-modal', { bubbles: true });
       this.clearTasks();
 
       return;
     }
 
-    const task: DataModels.UserTasks.UserTask | DataModels.ManualTasks.ManualTask = this._userTask === undefined ? this._manualTask : this._userTask;
+    const task: DataModels.UserTasks.UserTask | DataModels.ManualTasks.ManualTask =
+      this._userTask === undefined ? this._manualTask : this._userTask;
 
     this._router.navigateToRoute('live-execution-tracker', {
       diagramName: this._activeDiagramName,
       solutionUri: this._activeSolutionUri,
       correlationId: task.correlationId,
-      processInstanceId: this.processInstanceId,
+      processInstanceId: this.processInstanceId
     });
   }
 
   private async getTask(): Promise<void> {
-
     try {
       const processInstanceIdNotGiven: boolean = this.processInstanceId === undefined;
 
@@ -184,16 +189,14 @@ export class TaskDynamicUi {
         throw Error(`Invalid ProcessInstance ID: ${this.processInstanceId}`);
       }
 
-      this.userTask = await this._dynamicUiService
-                                  .getUserTask(this._identity, this.processInstanceId, this.taskId);
+      this.userTask = await this._dynamicUiService.getUserTask(this._identity, this.processInstanceId, this.taskId);
 
       const userTaskFound: boolean = this._userTask !== undefined;
       if (userTaskFound) {
         return;
       }
 
-      this.manualTask = await this._dynamicUiService
-                                    .getManualTask(this._identity, this.processInstanceId, this.taskId);
+      this.manualTask = await this._dynamicUiService.getManualTask(this._identity, this.processInstanceId, this.taskId);
 
       const manualTaskFound: boolean = this._manualTask !== undefined;
       if (manualTaskFound) {

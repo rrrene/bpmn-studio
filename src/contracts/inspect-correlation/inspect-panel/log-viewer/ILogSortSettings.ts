@@ -1,4 +1,4 @@
-import {LogSortProperty} from './index';
+import { LogSortProperty } from './index';
 
 export interface ILogSortSettings {
   ascending: boolean;

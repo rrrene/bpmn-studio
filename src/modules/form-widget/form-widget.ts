@@ -1,11 +1,10 @@
-import {DataModels} from '@process-engine/management_api_contracts';
-import {bindable, inject} from 'aurelia-framework';
-import {NotificationType} from '../../contracts/index';
-import {NotificationService} from '../../services/notification-service/notification.service';
+import { DataModels } from '@process-engine/management_api_contracts';
+import { bindable, inject } from 'aurelia-framework';
+import { NotificationType } from '../../contracts/index';
+import { NotificationService } from '../../services/notification-service/notification.service';
 
 @inject('NotificationService')
 export class FormWidget {
-
   @bindable()
   public userTaskConfig: DataModels.UserTasks.UserTaskConfig;
   private _notificationService: NotificationService;
@@ -26,8 +25,9 @@ export class FormWidget {
         return 'number';
       default:
         const notSupportedType: string = field.type !== undefined ? field.type : 'Custom Type';
-        const errorMessage: string = `Not supported form field type: ${notSupportedType}.`
-                                   + `</br>Please change the form field type with id "${field.id}".`;
+        const errorMessage: string =
+          `Not supported form field type: ${notSupportedType}.` +
+          `</br>Please change the form field type with id "${field.id}".`;
 
         this._notificationService.showNotification(NotificationType.ERROR, errorMessage);
         return null;

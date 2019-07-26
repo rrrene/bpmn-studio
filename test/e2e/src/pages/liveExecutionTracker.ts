@@ -1,9 +1,8 @@
-import {browser, by, element, ElementArrayFinder, ElementFinder, ExpectedConditions} from 'protractor';
+import { browser, by, element, ElementArrayFinder, ElementFinder, ExpectedConditions } from 'protractor';
 
-import {By} from 'selenium-webdriver';
+import { By } from 'selenium-webdriver';
 
 export class LiveExecutionTracker {
-
   public url: string;
 
   private _liveExecutionTrackerContainerId: string = 'liveExecutionTrackerContainer';
@@ -16,7 +15,10 @@ export class LiveExecutionTracker {
   public async show(): Promise<void> {
     await browser.get(this.url);
 
-    await browser.wait(ExpectedConditions.visibilityOf(this._liveExecutionTrackerContainer), browser.params.defaultTimeoutMS);
+    await browser.wait(
+      ExpectedConditions.visibilityOf(this._liveExecutionTrackerContainer),
+      browser.params.defaultTimeoutMS
+    );
   }
 
   public async getVisibilityOfLiveExecutionTrackerContainer(): Promise<boolean> {

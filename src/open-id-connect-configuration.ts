@@ -1,5 +1,5 @@
-import {OpenIdConnectConfiguration} from 'aurelia-open-id-connect';
-import {WebStorageStateStore} from 'oidc-client';
+import { OpenIdConnectConfiguration } from 'aurelia-open-id-connect';
+import { WebStorageStateStore } from 'oidc-client';
 import environment from './environment';
 
 export const oidcConfig: OpenIdConnectConfiguration = {
@@ -24,7 +24,7 @@ export const oidcConfig: OpenIdConnectConfiguration = {
     silent_redirect_uri: `${environment.appHost}/signin-oidc`,
     userStore: new WebStorageStateStore({
       prefix: 'oidc',
-      store: window.localStorage,
-    }),
-  },
+      store: window.localStorage
+    })
+  }
 };

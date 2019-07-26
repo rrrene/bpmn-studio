@@ -1,5 +1,5 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
 
 import environment from '../../environment';
 
@@ -25,7 +25,6 @@ export class StartPage {
       this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
       this._ipcRenderer.on('menubar__start_close_diagram', this._closeBpmnStudio);
     }
-
   }
 
   public deactivate(): void {
@@ -48,5 +47,5 @@ export class StartPage {
 
   private _closeBpmnStudio: Function = (): void => {
     this._ipcRenderer.send('close_bpmn-studio');
-  }
+  };
 }

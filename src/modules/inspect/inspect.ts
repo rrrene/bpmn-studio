@@ -1,13 +1,13 @@
-import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {bindable, inject} from 'aurelia-framework';
-import {activationStrategy} from 'aurelia-router';
+import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
+import { bindable, inject } from 'aurelia-framework';
+import { activationStrategy } from 'aurelia-router';
 
-import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+import { IDiagram } from '@process-engine/solutionexplorer.contracts';
 
-import {ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
+import { ISolutionEntry, ISolutionService, NotificationType } from '../../contracts/index';
 import environment from '../../environment';
-import {NotificationService} from '../../services/notification-service/notification.service';
-import {Dashboard} from './dashboard/dashboard';
+import { NotificationService } from '../../services/notification-service/notification.service';
+import { Dashboard } from './dashboard/dashboard';
 
 interface IInspectRouteParameters {
   view?: string;
@@ -17,7 +17,6 @@ interface IInspectRouteParameters {
 
 @inject(EventAggregator, 'SolutionService', 'NotificationService')
 export class Inspect {
-
   @bindable() public showDashboard: boolean = true;
   @bindable() public activeDiagram: IDiagram;
   @bindable() public activeSolutionEntry: ISolutionEntry;
@@ -34,9 +33,11 @@ export class Inspect {
   private _notificationService: NotificationService;
   private _ipcRenderer: any;
 
-  constructor(eventAggregator: EventAggregator,
-              solutionService: ISolutionService,
-              notificationService: NotificationService) {
+  constructor(
+    eventAggregator: EventAggregator,
+    solutionService: ISolutionService,
+    notificationService: NotificationService
+  ) {
     this._eventAggregator = eventAggregator;
     this._solutionService = solutionService;
     this._notificationService = notificationService;
@@ -44,12 +45,12 @@ export class Inspect {
 
   public determineActivationStrategy(): string {
     return activationStrategy.invokeLifecycle;
- }
+  }
 
   public canActivate(routeParameters: IInspectRouteParameters): boolean {
     const solutionUri: string = routeParameters.solutionUri
-                              ? routeParameters.solutionUri
-                              : window.localStorage.getItem('InternalProcessEngineRoute');
+      ? routeParameters.solutionUri
+      : window.localStorage.getItem('InternalProcessEngineRoute');
 
     this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(solutionUri);
 
@@ -125,9 +126,12 @@ export class Inspect {
     }
 
     this._subscriptions = [
-      this._eventAggregator.subscribe(environment.events.inspect.shouldDisableTokenViewerButton, (tokenViewerButtonDisabled: boolean) => {
-        this.tokenViewerButtonDisabled = tokenViewerButtonDisabled;
-      }),
+      this._eventAggregator.subscribe(
+        environment.events.inspect.shouldDisableTokenViewerButton,
+        (tokenViewerButtonDisabled: boolean) => {
+          this.tokenViewerButtonDisabled = tokenViewerButtonDisabled;
+        }
+      )
     ];
   }
 
@@ -156,19 +160,21 @@ export class Inspect {
     }
 
     this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(solutionUri);
-    await this.activeSolutionEntry.service.openSolution(this.activeSolutionEntry.uri, this.activeSolutionEntry.identity);
+    await this.activeSolutionEntry.service.openSolution(
+      this.activeSolutionEntry.uri,
+      this.activeSolutionEntry.identity
+    );
 
     const solutionIsRemote: boolean = solutionUri.startsWith('http');
     if (solutionIsRemote) {
       this._eventAggregator.publish(
         environment.events.configPanel.solutionEntryChanged,
-        this._solutionService.getSolutionEntryForUri(solutionUri),
+        this._solutionService.getSolutionEntryForUri(solutionUri)
       );
     }
 
     const diagramIsSet: boolean = diagramName !== undefined;
     if (diagramIsSet) {
-
       const activeSolutionIsOpenSolution: boolean = solutionUri === 'about:open-diagrams';
       if (activeSolutionIsOpenSolution) {
         const persistedDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();
@@ -177,7 +183,6 @@ export class Inspect {
           return diagram.name === diagramName;
         });
       } else {
-
         this.activeDiagram = await this.activeSolutionEntry.service.loadDiagram(diagramName);
       }
     }
@@ -188,5 +193,5 @@ export class Inspect {
     if (activeDiagramNotSet) {
       this._ipcRenderer.send('close_bpmn-studio');
     }
-  }
+  };
 }

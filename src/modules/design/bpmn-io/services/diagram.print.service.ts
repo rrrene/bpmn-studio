@@ -1,9 +1,8 @@
-import {IDiagramPrintService} from '../../../../contracts';
+import { IDiagramPrintService } from '../../../../contracts';
 
 import * as print from 'print-js';
 
 export class DiagramPrintService implements IDiagramPrintService {
-
   private _svg: string;
 
   constructor(svg?: string) {
@@ -30,9 +29,9 @@ export class DiagramPrintService implements IDiagramPrintService {
 
     const png: string = await this._generateImageFromSVG('png', svgToPrint);
 
-    const printOptions: {printable: string, type?: string} = {
-        printable: png,
-        type: 'image',
+    const printOptions: { printable: string; type?: string } = {
+      printable: png,
+      type: 'image'
     };
 
     print.default(printOptions);
@@ -65,7 +64,7 @@ export class DiagramPrintService implements IDiagramPrintService {
      * TODO: Figure out, how to obtain the desired format of the print before
      * printing. In the current implementation, I assume that we print to a
      * DIN A4 Paper, which has a diagonal size of 14.17 inches.
-    */
+     */
     const dinA4DiagonalSizeInch: number = 14.17;
     const pixelRatio: number = this._calculatePixelRatioForDPI(svgWidth, svgHeight, targetDPI, dinA4DiagonalSizeInch);
 
@@ -93,8 +92,12 @@ export class DiagramPrintService implements IDiagramPrintService {
    * @param targetDPI DPI of the output.
    * @param diagonalSize Diagonal Size of the printed document.
    */
-  private _calculatePixelRatioForDPI(svgWidth: number, svgHeight: number, targetDPI: number, diagonalSize: number): number {
-
+  private _calculatePixelRatioForDPI(
+    svgWidth: number,
+    svgHeight: number,
+    targetDPI: number,
+    diagonalSize: number
+  ): number {
     // tslint:disable:no-magic-numbers
     const svgWidthSquared: number = Math.pow(svgWidth, 2);
     const svgHeightSquared: number = Math.pow(svgHeight, 2);
@@ -120,26 +123,26 @@ export class DiagramPrintService implements IDiagramPrintService {
     svgContent: string,
     canvas: HTMLCanvasElement,
     context: CanvasRenderingContext2D,
-    encoding: string): Promise<string> {
-
+    encoding: string
+  ): Promise<string> {
     const imageElement: HTMLImageElement = document.createElement('img');
 
-   /*
-    * This makes sure, that the base64 encoded SVG does not contain any
-    * escaped html characters (such as &lt; instead of <).
-    *
-    * TODO: The unescape Method is marked as deprecated.
-    * See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/unescape
-    *
-    * The problem is, that the replacement method decodeURI does not work in this case
-    * (it behaves kinda different in some situations).
-    * Event the MDN use the unescape method to solve this kind of problem:
-    * https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/btoa#Unicode_strings
-    *
-    * There is an npm packet that implements the original unescape function.
-    * Maybe we can use this to make sure that this won't cause any
-    * problems in the future.
-    */
+    /*
+     * This makes sure, that the base64 encoded SVG does not contain any
+     * escaped html characters (such as &lt; instead of <).
+     *
+     * TODO: The unescape Method is marked as deprecated.
+     * See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/unescape
+     *
+     * The problem is, that the replacement method decodeURI does not work in this case
+     * (it behaves kinda different in some situations).
+     * Event the MDN use the unescape method to solve this kind of problem:
+     * https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/btoa#Unicode_strings
+     *
+     * There is an npm packet that implements the original unescape function.
+     * Maybe we can use this to make sure that this won't cause any
+     * problems in the future.
+     */
     const encodedSVG: string = btoa(unescape(encodeURIComponent(svgContent)));
     imageElement.setAttribute('src', `data:image/svg+xml;base64, ${encodedSVG}`);
 

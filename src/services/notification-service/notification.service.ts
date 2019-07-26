@@ -1,11 +1,10 @@
-import {inject} from 'aurelia-dependency-injection';
-import {EventAggregator} from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-dependency-injection';
+import { EventAggregator } from 'aurelia-event-aggregator';
 import toastr from 'toastr';
-import {INotification, NotificationType} from '../../contracts/index';
+import { INotification, NotificationType } from '../../contracts/index';
 
 @inject(EventAggregator)
 export class NotificationService {
-
   private _eventAggregator: EventAggregator;
   private _toastrInstance: Toastr;
   private _savedNotifications: Array<INotification> = [];
@@ -29,7 +28,7 @@ export class NotificationService {
       type: type,
       message: message,
       nonDisappearing: false,
-      options: options,
+      options: options
     };
     this._queueOrDisplay(notification);
   }
@@ -46,7 +45,7 @@ export class NotificationService {
       type: type,
       message: message,
       nonDisappearing: true,
-      options: options,
+      options: options
     };
     this._queueOrDisplay(notification);
   }
@@ -64,7 +63,7 @@ export class NotificationService {
     this._toastrInstance = toastrInstance;
 
     this._toastrInstance.options = {
-      positionClass: 'toast-bottom-left',
+      positionClass: 'toast-bottom-left'
     };
 
     this._initializeToastr();
@@ -105,7 +104,7 @@ export class NotificationService {
         closeButton: true,
         closeOnHover: false,
         timeOut: -1,
-        ...notification.options,
+        ...notification.options
       };
     }
     return notification.options;

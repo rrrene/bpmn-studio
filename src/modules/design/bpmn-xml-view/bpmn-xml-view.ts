@@ -1,12 +1,11 @@
-import {bindingMode} from 'aurelia-binding';
-import {bindable} from 'aurelia-framework';
+import { bindingMode } from 'aurelia-binding';
+import { bindable } from 'aurelia-framework';
 import * as hljs from 'highlight.js';
 import 'highlightjs-line-numbers.js';
 
 const highlightEngine: hljs = hljs as hljs;
 
 export class BpmnXmlView {
-
   public codeElement: HTMLElement;
   @bindable() public xml: string;
   @bindable({ defaultBindingMode: bindingMode.oneWay }) public newXML: string;
@@ -14,10 +13,10 @@ export class BpmnXmlView {
 
   public async attached(): Promise<void> {
     highlightEngine.configure({
-      languages: ['xml'],
+      languages: ['xml']
     });
 
-    setTimeout(async() => {
+    setTimeout(async () => {
       if (this.codeElement) {
         await this.highlight();
       }
@@ -40,5 +39,4 @@ export class BpmnXmlView {
       this.highlighted = true;
     }, 0);
   }
-
 }

@@ -1,1 +1,1 @@
-export {IDynamicUiService} from './IDynamicUiService';
+export { IDynamicUiService } from './IDynamicUiService';

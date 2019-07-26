@@ -3,7 +3,6 @@
  * written to.
  */
 export class DiagramTrashFolderService {
-
   private _diagramTrashFolder: string | null = null;
 
   /**

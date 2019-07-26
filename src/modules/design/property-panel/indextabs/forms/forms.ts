@@ -1,7 +1,7 @@
-import {IShape} from '@process-engine/bpmn-elements_contracts';
+import { IShape } from '@process-engine/bpmn-elements_contracts';
 
-import {IBpmnModeler, IIndextab, IPageModel, ISection} from '../../../../../contracts';
-import {BasicsSection} from './sections/basics/basics';
+import { IBpmnModeler, IIndextab, IPageModel, ISection } from '../../../../../contracts';
+import { BasicsSection } from './sections/basics/basics';
 
 export class Forms implements IIndextab {
   public title: string = 'Forms';
@@ -35,5 +35,4 @@ export class Forms implements IIndextab {
       return section.canHandleElement;
     });
   }
-
 }

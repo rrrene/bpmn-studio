@@ -1,13 +1,12 @@
-import {inject} from 'aurelia-framework';
+import { inject } from 'aurelia-framework';
 
-import {IIdentity} from '@essential-projects/iam_contracts';
-import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
+import { IIdentity } from '@essential-projects/iam_contracts';
+import { DataModels, IManagementApi } from '@process-engine/management_api_contracts';
 
-import {ITokenViewerRepository} from '../contracts';
+import { ITokenViewerRepository } from '../contracts';
 
 @inject('ManagementApiClientService')
 export class TokenViewerRepository implements ITokenViewerRepository {
-
   private managementApiService: IManagementApi;
 
   constructor(managementApiService: IManagementApi) {
@@ -18,18 +17,16 @@ export class TokenViewerRepository implements ITokenViewerRepository {
     processModelId: string,
     correlationId: string,
     flowNodeId: string,
-    identity: IIdentity,
+    identity: IIdentity
   ): Promise<Array<DataModels.TokenHistory.TokenHistoryEntry>> {
-
     return this.managementApiService.getTokensForFlowNode(identity, correlationId, processModelId, flowNodeId);
   }
 
   public async getTokenForFlowNodeByProcessInstanceId(
     processInstanceId: string,
     flowNodeId: string,
-    identity: IIdentity,
+    identity: IIdentity
   ): Promise<DataModels.TokenHistory.TokenHistoryGroup> {
-
     return this.managementApiService.getTokensForFlowNodeByProcessInstanceId(identity, processInstanceId, flowNodeId);
   }
 }

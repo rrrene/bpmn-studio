@@ -1,5 +1,5 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
 
 import {
   IError,
@@ -7,7 +7,7 @@ import {
   IErrorEventElement,
   IEventElement,
   IModdleElement,
-  IShape,
+  IShape
 } from '@process-engine/bpmn-elements_contracts';
 
 import {
@@ -16,14 +16,13 @@ import {
   IElementRegistry,
   ILinting,
   IPageModel,
-  ISection,
+  ISection
 } from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
-import {GeneralService} from '../../service/general.service';
+import { GeneralService } from '../../service/general.service';
 
 @inject(GeneralService, EventAggregator)
 export class ErrorEventSection implements ISection {
-
   public path: string = '/sections/error-event/error-event';
   public canHandleElement: boolean = false;
   public errors: Array<IError>;
@@ -106,17 +105,16 @@ export class ErrorEventSection implements ISection {
   }
 
   public async addError(): Promise<void> {
-
-    const bpmnErrorObject: {id: string, name: string} = {
+    const bpmnErrorObject: { id: string; name: string } = {
       id: `Error_${this._generalService.generateRandomId()}`,
-      name: 'Error Name',
+      name: 'Error Name'
     };
     const bpmnError: IError = this._moddle.create('bpmn:Error', bpmnErrorObject);
 
     this._modeler._definitions.rootElements.push(bpmnError);
 
     this._moddle.toXML(this._modeler._definitions, (toXMLError: Error, xmlStrUpdated: string) => {
-      this._modeler.importXML(xmlStrUpdated, async(importXMLError: Error) => {
+      this._modeler.importXML(xmlStrUpdated, async (importXMLError: Error) => {
         await this._refreshErrors();
         await this._setBusinessObject();
         this.selectedId = bpmnError.id;
@@ -156,9 +154,10 @@ export class ErrorEventSection implements ISection {
 
   private _init(): void {
     const eventDefinitions: Array<IErrorEventDefinition> = this._businessObjInPanel.eventDefinitions;
-    const businessObjecthasNoErrorEvents: boolean = eventDefinitions === undefined
-                                                 || eventDefinitions === null
-                                                 || eventDefinitions[0].$type !== 'bpmn:ErrorEventDefinition';
+    const businessObjecthasNoErrorEvents: boolean =
+      eventDefinitions === undefined ||
+      eventDefinitions === null ||
+      eventDefinitions[0].$type !== 'bpmn:ErrorEventDefinition';
 
     if (businessObjecthasNoErrorEvents) {
       return;
@@ -183,7 +182,6 @@ export class ErrorEventSection implements ISection {
       this.selectedError = this.errors.find((error: IError) => {
         return error.id === this.selectedId;
       });
-
     } else {
       this.selectedError = null;
       this.selectedId = null;
@@ -208,17 +206,18 @@ export class ErrorEventSection implements ISection {
 
     const eventElement: IEventElement = element.businessObject as IEventElement;
 
-    const elementIsErrorEvent: boolean = eventElement.eventDefinitions !== undefined
-                                      && eventElement.eventDefinitions[0] !== undefined
-                                      && eventElement.eventDefinitions[0].$type === 'bpmn:ErrorEventDefinition';
+    const elementIsErrorEvent: boolean =
+      eventElement.eventDefinitions !== undefined &&
+      eventElement.eventDefinitions[0] !== undefined &&
+      eventElement.eventDefinitions[0].$type === 'bpmn:ErrorEventDefinition';
 
     return elementIsErrorEvent;
   }
 
   private _elementIsEndEvent(element: IShape): boolean {
-    return element !== undefined
-        && element.businessObject !== undefined
-        && element.businessObject.$type === 'bpmn:EndEvent';
+    return (
+      element !== undefined && element.businessObject !== undefined && element.businessObject.$type === 'bpmn:EndEvent'
+    );
   }
 
   private _getErrors(): Array<IError> {

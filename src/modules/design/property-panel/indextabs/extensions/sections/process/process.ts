@@ -1,15 +1,15 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
 
 import {
   IExtensionElement,
   IModdleElement,
   IPropertiesElement,
   IProperty,
-  IShape,
+  IShape
 } from '@process-engine/bpmn-elements_contracts';
 
-import {IBpmnModdle, IPageModel} from '../../../../../../../contracts';
+import { IBpmnModdle, IPageModel } from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
 @inject(EventAggregator)
@@ -51,15 +51,16 @@ export class ProcessSection {
   public addProperty(): void {
     const bpmnPropertyProperties: Object = {
       name: '',
-      value: '',
+      value: ''
     };
     const bpmnProperty: IProperty = this._moddle.create('camunda:Property', bpmnPropertyProperties);
 
     this.newNames.push('');
     this.newValues.push('');
 
-    const businessObjectHasNoExtensionElements: boolean = this._businessObjInPanel.processRef.extensionElements === undefined
-                                                       || this._businessObjInPanel.processRef.extensionElements === null;
+    const businessObjectHasNoExtensionElements: boolean =
+      this._businessObjInPanel.processRef.extensionElements === undefined ||
+      this._businessObjInPanel.processRef.extensionElements === null;
     if (businessObjectHasNoExtensionElements) {
       this._createExtensionElement();
     }
@@ -88,13 +89,9 @@ export class ProcessSection {
     const propertyIsLast: boolean = this._propertiesElement.values.length === 1;
 
     if (propertyIsLast) {
-      this._businessObjInPanel
-        .processRef
-        .extensionElements = undefined;
+      this._businessObjInPanel.processRef.extensionElements = undefined;
     } else {
-      this._propertiesElement
-        .values
-        .splice(index, 1);
+      this._propertiesElement.values.splice(index, 1);
     }
 
     this._reloadProperties();
@@ -142,8 +139,9 @@ export class ProcessSection {
     this.newValues = [];
     this.shouldFocus = false;
 
-    const businessObjectHasNoExtensionElements: boolean = this._businessObjInPanel.processRef.extensionElements === undefined
-                                                       || this._businessObjInPanel.processRef.extensionElements === null;
+    const businessObjectHasNoExtensionElements: boolean =
+      this._businessObjInPanel.processRef.extensionElements === undefined ||
+      this._businessObjInPanel.processRef.extensionElements === null;
 
     if (businessObjectHasNoExtensionElements) {
       return;
@@ -151,16 +149,17 @@ export class ProcessSection {
 
     this._propertiesElement = this._getPropertiesElement();
 
-    const extensionsPropertiesElement: IPropertiesElement  =
-      this._businessObjInPanel.processRef.extensionElements.values
-        .find((extensionValue: IExtensionElement) => {
-          const extensionIsPropertyElement: boolean = extensionValue.$type === 'camunda:Properties'
-                                                   && extensionValue.values !== undefined
-                                                   && extensionValue.values !== null
-                                                   && extensionValue.values.length !== 0;
+    const extensionsPropertiesElement: IPropertiesElement = this._businessObjInPanel.processRef.extensionElements.values.find(
+      (extensionValue: IExtensionElement) => {
+        const extensionIsPropertyElement: boolean =
+          extensionValue.$type === 'camunda:Properties' &&
+          extensionValue.values !== undefined &&
+          extensionValue.values !== null &&
+          extensionValue.values.length !== 0;
 
-          return extensionIsPropertyElement;
-        });
+        return extensionIsPropertyElement;
+      }
+    );
 
     const extensionElementHasNoPropertyElement: boolean = extensionsPropertiesElement === undefined;
 
@@ -179,20 +178,16 @@ export class ProcessSection {
       this.newValues.push(property.value);
       this.properties.push(property);
     }
-
   }
 
   private _getPropertiesElement(): IPropertiesElement {
-
-    const propertiesElement: IPropertiesElement  = this._businessObjInPanel
-      .processRef
-      .extensionElements
-      .values
-      .find((extensionValue: IExtensionElement) => {
+    const propertiesElement: IPropertiesElement = this._businessObjInPanel.processRef.extensionElements.values.find(
+      (extensionValue: IExtensionElement) => {
         const extensionIsPropertiesElement: boolean = extensionValue.$type === 'camunda:Properties';
 
         return extensionIsPropertiesElement;
-      });
+      }
+    );
 
     return propertiesElement;
   }
@@ -200,29 +195,33 @@ export class ProcessSection {
   private _createExtensionElement(): void {
     const bpmnExecutionListenerProperties: Object = {
       class: '',
-      event: '',
+      event: ''
     };
-    const bpmnExecutionListener: IModdleElement = this._moddle.create('camunda:ExecutionListener', bpmnExecutionListenerProperties);
+    const bpmnExecutionListener: IModdleElement = this._moddle.create(
+      'camunda:ExecutionListener',
+      bpmnExecutionListenerProperties
+    );
 
     const extensionValues: Array<IModdleElement> = [];
-    const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', {values: []});
+    const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', { values: [] });
 
     extensionValues.push(bpmnExecutionListener);
     extensionValues.push(propertiesElement);
 
-    const extensionElements: IModdleElement = this._moddle.create('bpmn:ExtensionElements', {values: extensionValues});
+    const extensionElements: IModdleElement = this._moddle.create('bpmn:ExtensionElements', {
+      values: extensionValues
+    });
     this._businessObjInPanel.processRef.extensionElements = extensionElements;
   }
 
   private _createEmptyCamundaProperties(): void {
-    const addPropertiesElement: ((element: IPropertiesElement) => number) = (element: IPropertiesElement): number =>
-      this._businessObjInPanel.processRef.extensionElements.values
-      .push(element);
+    const addPropertiesElement: (element: IPropertiesElement) => number = (element: IPropertiesElement): number =>
+      this._businessObjInPanel.processRef.extensionElements.values.push(element);
 
     const emptyProperties: Array<IProperty> = [];
 
-    const createCamundaProperties: (() => IPropertiesElement) = (): IPropertiesElement => this._moddle
-      .create('camunda:Properties', {values: emptyProperties});
+    const createCamundaProperties: () => IPropertiesElement = (): IPropertiesElement =>
+      this._moddle.create('camunda:Properties', { values: emptyProperties });
 
     addPropertiesElement(createCamundaProperties());
   }
@@ -230,5 +229,4 @@ export class ProcessSection {
   private _publishDiagramChange(): void {
     this._eventAggregator.publish(environment.events.diagramChange);
   }
-
 }

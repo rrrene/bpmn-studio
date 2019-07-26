@@ -1,9 +1,8 @@
-import {IXmlConvertService} from '../../../../contracts/index';
-import {IExportService} from '../../../../contracts/index';
-import {ExportService} from './export.service';
+import { IXmlConvertService } from '../../../../contracts/index';
+import { IExportService } from '../../../../contracts/index';
+import { ExportService } from './export.service';
 
 export class DiagramXmlConverter implements IXmlConvertService {
-
   private _xmlContent: string;
   private _enqueuedPromises: Array<Promise<string>> = [];
 
@@ -23,7 +22,7 @@ export class DiagramXmlConverter implements IXmlConvertService {
   /**
    * Formats the current loaded xml.
    */
-  private _bpmnExporter = async(): Promise<string> => {
+  private _bpmnExporter = async (): Promise<string> => {
     return Promise.resolve(this._xmlContent);
-  }
+  };
 }

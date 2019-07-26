@@ -1,38 +1,28 @@
 // tslint:disable no-use-before-declare
-import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {
-  bindable,
-  computedFrom,
-  inject,
-  NewInstance,
-} from 'aurelia-framework';
-import {Router} from 'aurelia-router';
-import {
-  ControllerValidateResult,
-  ValidateResult,
-  ValidationController,
-  ValidationRules,
-} from 'aurelia-validation';
+import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
+import { bindable, computedFrom, inject, NewInstance } from 'aurelia-framework';
+import { Router } from 'aurelia-router';
+import { ControllerValidateResult, ValidateResult, ValidationController, ValidationRules } from 'aurelia-validation';
 
-import {ForbiddenError, isError, UnauthorizedError} from '@essential-projects/errors_ts';
-import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
-import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
-import {join} from 'path';
+import { ForbiddenError, isError, UnauthorizedError } from '@essential-projects/errors_ts';
+import { IDiagram, ISolution } from '@process-engine/solutionexplorer.contracts';
+import { ISolutionExplorerService } from '@process-engine/solutionexplorer.service.contracts';
+import { join } from 'path';
 
-import {IIdentity} from '@essential-projects/iam_contracts';
+import { IIdentity } from '@essential-projects/iam_contracts';
 import {
   IDiagramCreationService,
   IDiagramState,
   IDiagramStateList,
   ISolutionEntry,
   ISolutionService,
-  NotificationType,
+  NotificationType
 } from '../../../contracts/index';
 import environment from '../../../environment';
-import {NotificationService} from '../../../services/notification-service/notification.service';
-import {OpenDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
-import {OpenDiagramStateService} from '../../../services/solution-explorer-services/OpenDiagramStateService';
-import {DeleteDiagramModal} from './delete-diagram-modal/delete-diagram-modal';
+import { NotificationService } from '../../../services/notification-service/notification.service';
+import { OpenDiagramsSolutionExplorerService } from '../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
+import { OpenDiagramStateService } from '../../../services/solution-explorer-services/OpenDiagramStateService';
+import { DeleteDiagramModal } from './delete-diagram-modal/delete-diagram-modal';
 
 const ENTER_KEY: string = 'Enter';
 const ESCAPE_KEY: string = 'Escape';
@@ -42,7 +32,7 @@ type DiagramSorter = (firstElement: IDiagram, secondElement: IDiagram) => number
 enum CloseModalResult {
   Cancel = 0,
   Save = 1,
-  Delete = 2,
+  Delete = 2
 }
 
 interface IDiagramNameInputState {
@@ -60,10 +50,9 @@ interface IDiagramCreationState extends IDiagramNameInputState {
   'DiagramCreationService',
   'NotificationService',
   'SolutionService',
-  'OpenDiagramStateService',
+  'OpenDiagramStateService'
 )
 export class SolutionExplorerSolution {
-
   public activeDiagram: IDiagram;
   public showCloseModal: boolean = false;
 
@@ -81,20 +70,16 @@ export class SolutionExplorerSolution {
   private _openedSolution: ISolution;
   private _diagramCreationState: IDiagramCreationState = {
     currentDiagramInputValue: undefined,
-    isCreateDiagramInputShown: false,
+    isCreateDiagramInputShown: false
   };
   private _diagramRenamingState: IDiagramNameInputState = {
-    currentDiagramInputValue: undefined,
+    currentDiagramInputValue: undefined
   };
   private _refreshTimeoutTask: NodeJS.Timer | number;
 
-  private _diagramValidationRegExpList: Array<RegExp> =  [
-    /^[a-z0-9]/i,
-    /^[._ -]/i,
-    /^[äöüß]/i,
-  ];
+  private _diagramValidationRegExpList: Array<RegExp> = [/^[a-z0-9]/i, /^[._ -]/i, /^[äöüß]/i];
 
-  private _currentlyRenamingDiagram: IDiagram | null = null;
+  private _currentlyRenamingDiagram: IDiagram | null = null;
   private _isAttached: boolean = false;
 
   // Fields below are bound from the html view.
@@ -123,7 +108,7 @@ export class SolutionExplorerSolution {
     diagramCreationService: IDiagramCreationService,
     notificationService: NotificationService,
     solutionService: ISolutionService,
-    openDiagramStateService: OpenDiagramStateService,
+    openDiagramStateService: OpenDiagramStateService
   ) {
     this._router = router;
     this._eventAggregator = eventAggregator;
@@ -147,14 +132,16 @@ export class SolutionExplorerSolution {
     this._subscriptions = [
       this._eventAggregator.subscribe('router:navigation:success', () => {
         this._updateSolutionExplorer();
-      }),
+      })
     ];
 
     if (this.displayedSolutionEntry.isOpenDiagramService) {
-      const updateSubscription: Subscription =
-        this._eventAggregator.subscribe(environment.events.solutionExplorer.updateOpenDiagrams, (): void => {
+      const updateSubscription: Subscription = this._eventAggregator.subscribe(
+        environment.events.solutionExplorer.updateOpenDiagrams,
+        (): void => {
           this.updateSolution();
-        });
+        }
+      );
 
       this._subscriptions.push(updateSubscription);
 
@@ -176,18 +163,17 @@ export class SolutionExplorerSolution {
       this.processEngineRunning = true;
       this._setValidationRules();
 
-      setTimeout(async() => {
+      setTimeout(async () => {
         await this.updateSolution();
         this._startPolling();
       }, 0);
-
     }
   }
 
   public waitForProcessEngine(): Promise<boolean> {
     return new Promise((resolve: Function, reject: Function): void => {
-      const makeRequest: Function = ((): void => {
-        setTimeout(async() => {
+      const makeRequest: Function = (): void => {
+        setTimeout(async () => {
           try {
             const response: Response = await fetch(this.displayedSolutionEntry.uri);
             this.processEngineRunning = true;
@@ -199,7 +185,7 @@ export class SolutionExplorerSolution {
           }
           // tslint:disable-next-line: no-magic-numbers
         }, 10);
-      });
+      };
 
       makeRequest();
     });
@@ -216,7 +202,7 @@ export class SolutionExplorerSolution {
       this._resetDiagramCreation();
     }
 
-    if (this._isCurrentlyRenamingDiagram) {
+    if (this._isCurrentlyRenamingDiagram) {
       this._resetDiagramRenaming();
     }
 
@@ -262,10 +248,11 @@ export class SolutionExplorerSolution {
       this._openedSolution = await this.solutionService.loadSolution();
 
       const updatedDiagramList: Array<IDiagram> = this.displayedSolutionEntry.isOpenDiagramService
-                                                  ? this._openedSolution.diagrams
-                                                  : this._openedSolution.diagrams.sort(this._diagramSorter);
+        ? this._openedSolution.diagrams
+        : this._openedSolution.diagrams.sort(this._diagramSorter);
 
-      const diagramsOfSolutionChanged: boolean = this._sortedDiagramsOfSolutions.toString() !== updatedDiagramList.toString();
+      const diagramsOfSolutionChanged: boolean =
+        this._sortedDiagramsOfSolutions.toString() !== updatedDiagramList.toString();
       if (diagramsOfSolutionChanged) {
         this._refreshDisplayedDiagrams();
       }
@@ -277,7 +264,10 @@ export class SolutionExplorerSolution {
       if (isError(error, UnauthorizedError)) {
         this._notificationService.showNotification(NotificationType.ERROR, 'You need to login to list process models.');
       } else if (isError(error, ForbiddenError)) {
-        this._notificationService.showNotification(NotificationType.ERROR, 'You don\'t have the required permissions to list process models.');
+        this._notificationService.showNotification(
+          NotificationType.ERROR,
+          "You don't have the required permissions to list process models."
+        );
       } else {
         this._openedSolution.diagrams = undefined;
         this.fontAwesomeIconClass = 'fa-bolt';
@@ -328,10 +318,13 @@ export class SolutionExplorerSolution {
 
     if (await this._isDiagramDetailViewOfDiagramOpen(diagram.uri)) {
       const messageTitle: string = '<h4 class="toast-message__headline">Not supported while opened.</h4>';
-      const messageBody: string = 'Renaming of opened diagrams is currently not supported. Please switch to another diagram and try again.';
+      const messageBody: string =
+        'Renaming of opened diagrams is currently not supported. Please switch to another diagram and try again.';
       const message: string = `${messageTitle}\n${messageBody}`;
 
-      this._notificationService.showNotification(NotificationType.INFO, message, {toastClass: 'toast-not-allowed-renaming-or-deleting'});
+      this._notificationService.showNotification(NotificationType.INFO, message, {
+        toastClass: 'toast-not-allowed-renaming-or-deleting'
+      });
 
       return;
     }
@@ -400,8 +393,11 @@ export class SolutionExplorerSolution {
       diagramNumber++;
     }
 
-    const duplicatedDiagram: IDiagram =
-      await this._diagramCreationService.createNewDiagram(this.displayedSolutionEntry.uri, newName, this._diagramInContextMenu.xml);
+    const duplicatedDiagram: IDiagram = await this._diagramCreationService.createNewDiagram(
+      this.displayedSolutionEntry.uri,
+      newName,
+      this._diagramInContextMenu.xml
+    );
 
     await this.solutionService.saveDiagram(duplicatedDiagram, duplicatedDiagram.uri);
     await this.updateSolution();
@@ -472,13 +468,14 @@ export class SolutionExplorerSolution {
   }
 
   public canRenameDiagram(): boolean {
-    return !this.displayedSolutionEntry.isOpenDiagramService
-            && this._openedSolution
-            && !this._isUriFromRemoteSolution(this._openedSolution.uri);
+    return (
+      !this.displayedSolutionEntry.isOpenDiagramService &&
+      this._openedSolution &&
+      !this._isUriFromRemoteSolution(this._openedSolution.uri)
+    );
   }
 
   public get diagramChangedStateMap(): Map<string, boolean> {
-
     const isChangedMap: Map<string, boolean> = new Map<string, boolean>();
 
     this.openedDiagrams.forEach((diagram: IDiagram): void => {
@@ -562,9 +559,11 @@ export class SolutionExplorerSolution {
     const diagramIsFromLocalSolution: boolean = !this._isUriFromRemoteSolution(diagram.uri);
 
     if (diagramIsFromLocalSolution) {
-      const diagramIsNotYetOpened: boolean = !this.openDiagramService.getOpenedDiagrams().some((openedDiagram: IDiagram): boolean => {
-        return openedDiagram.uri === diagram.uri;
-      });
+      const diagramIsNotYetOpened: boolean = !this.openDiagramService
+        .getOpenedDiagrams()
+        .some((openedDiagram: IDiagram): boolean => {
+          return openedDiagram.uri === diagram.uri;
+        });
 
       if (diagramIsNotYetOpened) {
         await this.openDiagramService.openDiagramFromSolution(diagram.uri, this._createIdentityForSolutionExplorer());
@@ -586,13 +585,13 @@ export class SolutionExplorerSolution {
     } else {
       this.closeDiagram(this.activeDiagram);
     }
-  }
+  };
 
-  private _closeAllDiagramsEventFunction: Function = async(): Promise<void> => {
+  private _closeAllDiagramsEventFunction: Function = async (): Promise<void> => {
     const currentlyOpenDiagrams: Array<IDiagram> = [...this.openedDiagrams];
 
     await this._closeMultipleDiagrams(currentlyOpenDiagrams);
-  }
+  };
 
   private async _closeMultipleDiagrams(diagrams: Array<IDiagram>): Promise<void> {
     const diagramsIsEmpty: boolean = diagrams === undefined || diagrams.length === 0;
@@ -644,7 +643,6 @@ export class SolutionExplorerSolution {
   private _waitForNavigation(): Promise<void> {
     return new Promise((resolve: Function): void => {
       this._eventAggregator.subscribeOnce('router:navigation:success', () => {
-
         resolve();
       });
     });
@@ -653,7 +651,6 @@ export class SolutionExplorerSolution {
   private _navigateToStartPage(): Promise<void> {
     return new Promise((resolve: Function): void => {
       this._eventAggregator.subscribeOnce('router:navigation:success', () => {
-
         resolve();
       });
 
@@ -671,7 +668,7 @@ export class SolutionExplorerSolution {
         view: this._designView,
         diagramName: diagram.name,
         diagramUri: diagram.uri,
-        solutionUri: this.displayedSolutionEntry.uri,
+        solutionUri: this.displayedSolutionEntry.uri
       });
     });
   }
@@ -688,15 +685,14 @@ export class SolutionExplorerSolution {
 
   private _saveAllDiagramsEventFunction: Function = (): void => {
     this._saveAllUnsavedDiagrams();
-  }
+  };
 
   private _startPolling(): void {
     if (this.displayedSolutionEntry.isOpenDiagramService) {
       return;
     }
 
-    this._refreshTimeoutTask = setTimeout(async() =>  {
-
+    this._refreshTimeoutTask = setTimeout(async () => {
       await this.updateSolution();
 
       if (this._isAttached) {
@@ -709,8 +705,8 @@ export class SolutionExplorerSolution {
   private async _navigateToDetailView(diagram: IDiagram): Promise<void> {
     const diagramIsNoRemoteDiagram: boolean = !this._isUriFromRemoteSolution(diagram.uri);
     if (diagramIsNoRemoteDiagram) {
-      const viewIsHeatmapOrInspectCorrelation: boolean = this._inspectView === 'inspect-correlation'
-                                                      || this._inspectView === 'heatmap';
+      const viewIsHeatmapOrInspectCorrelation: boolean =
+        this._inspectView === 'inspect-correlation' || this._inspectView === 'heatmap';
 
       if (viewIsHeatmapOrInspectCorrelation) {
         this._inspectView = 'dashboard';
@@ -720,8 +716,10 @@ export class SolutionExplorerSolution {
 
       const activeRouteIsInspect: boolean = this._diagramRoute === 'inspect';
       if (activeRouteIsInspect) {
-        this._notificationService.showNotification(NotificationType.INFO,
-          'There are currently no runtime information about this process available.');
+        this._notificationService.showNotification(
+          NotificationType.INFO,
+          'There are currently no runtime information about this process available.'
+        );
       }
     }
 
@@ -729,17 +727,16 @@ export class SolutionExplorerSolution {
       view: this._inspectView ? this._inspectView : this._designView,
       diagramName: diagram.name,
       diagramUri: diagram.uri,
-      solutionUri: this.displayedSolutionEntry.uri,
+      solutionUri: this.displayedSolutionEntry.uri
     });
   }
 
   private _createIdentityForSolutionExplorer(): IIdentity {
-
     const accessToken: string = this._createDummyAccessToken();
     // TODO: Get the identity from the IdentityService of `@process-engine/iam`
     const identity: IIdentity = {
       token: accessToken,
-      userId: '', // Provided by the IdentityService.
+      userId: '' // Provided by the IdentityService.
     };
 
     return identity;
@@ -754,7 +751,7 @@ export class SolutionExplorerSolution {
 
   private get _diagramSorter(): DiagramSorter {
     const sortOptions: Intl.CollatorOptions = {
-      caseFirst: 'lower',
+      caseFirst: 'lower'
     };
 
     const sorter: DiagramSorter = (firstElement: IDiagram, secondElement: IDiagram): number => {
@@ -768,7 +765,8 @@ export class SolutionExplorerSolution {
     const diagramStateList: IDiagramStateList = this._openDiagramStateService.loadDiagramStateForAllDiagrams();
 
     for (const diagramStateListEntry of diagramStateList) {
-      const isActiveDiagram: boolean = this.activeDiagram !== undefined && this.activeDiagram.uri === diagramStateListEntry.uri;
+      const isActiveDiagram: boolean =
+        this.activeDiagram !== undefined && this.activeDiagram.uri === diagramStateListEntry.uri;
       if (isActiveDiagram) {
         this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
 
@@ -792,18 +790,22 @@ export class SolutionExplorerSolution {
 
   private _refreshDisplayedDiagrams(): void {
     this._sortedDiagramsOfSolutions = this.displayedSolutionEntry.isOpenDiagramService
-                                      ? this._openedSolution.diagrams
-                                      : this._openedSolution.diagrams.sort(this._diagramSorter);
+      ? this._openedSolution.diagrams
+      : this._openedSolution.diagrams.sort(this._diagramSorter);
   }
 
   private async _closeDiagram(diagramToClose: IDiagram): Promise<void> {
-    const openDiagramService: OpenDiagramsSolutionExplorerService = this.solutionService as OpenDiagramsSolutionExplorerService;
+    const openDiagramService: OpenDiagramsSolutionExplorerService = this
+      .solutionService as OpenDiagramsSolutionExplorerService;
     await openDiagramService.closeDiagram(diagramToClose);
 
     this._globalSolutionService.removeOpenDiagramByUri(diagramToClose.uri);
   }
 
-  private async _showCloseDiagramModal(diagramToSave: IDiagram, shouldNavigate: boolean = true): Promise<CloseModalResult> {
+  private async _showCloseDiagramModal(
+    diagramToSave: IDiagram,
+    shouldNavigate: boolean = true
+  ): Promise<CloseModalResult> {
     const previousLocation: string = (this._router.history as any).previousLocation;
 
     const diagramToSaveIsNotActiveDiagram: boolean = diagramToSave.uri !== this.activeDiagramUri;
@@ -811,62 +813,64 @@ export class SolutionExplorerSolution {
       await this._navigateToDiagram(diagramToSave);
     }
 
-    const modalResult: Promise<CloseModalResult> = new Promise((resolve: Function, reject: Function): CloseModalResult | void => {
-      const dontSaveFunction: EventListenerOrEventListenerObject = async(): Promise<void> => {
-        this.showCloseModal = false;
+    const modalResult: Promise<CloseModalResult> = new Promise(
+      (resolve: Function, reject: Function): CloseModalResult | void => {
+        const dontSaveFunction: EventListenerOrEventListenerObject = async (): Promise<void> => {
+          this.showCloseModal = false;
 
-        document.getElementById('dontSaveButtonCloseView').removeEventListener('click', dontSaveFunction);
-        document.getElementById('saveButtonCloseView').removeEventListener('click', saveFunction);
-        document.getElementById('cancelButtonCloseView').removeEventListener('click', cancelFunction);
+          document.getElementById('dontSaveButtonCloseView').removeEventListener('click', dontSaveFunction);
+          document.getElementById('saveButtonCloseView').removeEventListener('click', saveFunction);
+          document.getElementById('cancelButtonCloseView').removeEventListener('click', cancelFunction);
 
-        if (diagramToSaveIsNotActiveDiagram && shouldNavigate) {
-          await this._navigateBack();
-        }
-
-        resolve(CloseModalResult.Delete);
-      };
-
-      const saveFunction: EventListenerOrEventListenerObject = async(): Promise<void> => {
-        this._eventAggregator.subscribeOnce(environment.events.navBar.diagramChangesResolved, async() => {
-          if (shouldNavigate) {
-            await this._waitForNavigation();
-
-            this._router.navigate(previousLocation);
+          if (diagramToSaveIsNotActiveDiagram && shouldNavigate) {
+            await this._navigateBack();
           }
 
-          resolve(CloseModalResult.Save);
-        });
+          resolve(CloseModalResult.Delete);
+        };
 
-        this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
+        const saveFunction: EventListenerOrEventListenerObject = async (): Promise<void> => {
+          this._eventAggregator.subscribeOnce(environment.events.navBar.diagramChangesResolved, async () => {
+            if (shouldNavigate) {
+              await this._waitForNavigation();
 
-        this.showCloseModal = false;
+              this._router.navigate(previousLocation);
+            }
 
-        document.getElementById('dontSaveButtonCloseView').removeEventListener('click', dontSaveFunction);
-        document.getElementById('saveButtonCloseView').removeEventListener('click', saveFunction);
-        document.getElementById('cancelButtonCloseView').removeEventListener('click', cancelFunction);
-      };
+            resolve(CloseModalResult.Save);
+          });
 
-      const cancelFunction: EventListenerOrEventListenerObject = async(): Promise<void> => {
-        this.showCloseModal = false;
+          this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
 
-        document.getElementById('dontSaveButtonCloseView').removeEventListener('click', dontSaveFunction);
-        document.getElementById('saveButtonCloseView').removeEventListener('click', saveFunction);
-        document.getElementById('cancelButtonCloseView').removeEventListener('click', cancelFunction);
+          this.showCloseModal = false;
 
-        if (diagramToSaveIsNotActiveDiagram && shouldNavigate) {
-          await this._navigateBack();
-        }
+          document.getElementById('dontSaveButtonCloseView').removeEventListener('click', dontSaveFunction);
+          document.getElementById('saveButtonCloseView').removeEventListener('click', saveFunction);
+          document.getElementById('cancelButtonCloseView').removeEventListener('click', cancelFunction);
+        };
 
-        resolve(CloseModalResult.Cancel);
-      };
+        const cancelFunction: EventListenerOrEventListenerObject = async (): Promise<void> => {
+          this.showCloseModal = false;
 
-      // register onClick handler
-      document.getElementById('dontSaveButtonCloseView').addEventListener('click', dontSaveFunction);
-      document.getElementById('saveButtonCloseView').addEventListener('click', saveFunction);
-      document.getElementById('cancelButtonCloseView').addEventListener('click', cancelFunction);
+          document.getElementById('dontSaveButtonCloseView').removeEventListener('click', dontSaveFunction);
+          document.getElementById('saveButtonCloseView').removeEventListener('click', saveFunction);
+          document.getElementById('cancelButtonCloseView').removeEventListener('click', cancelFunction);
 
-      this.showCloseModal = true;
-    });
+          if (diagramToSaveIsNotActiveDiagram && shouldNavigate) {
+            await this._navigateBack();
+          }
+
+          resolve(CloseModalResult.Cancel);
+        };
+
+        // register onClick handler
+        document.getElementById('dontSaveButtonCloseView').addEventListener('click', dontSaveFunction);
+        document.getElementById('saveButtonCloseView').addEventListener('click', saveFunction);
+        document.getElementById('cancelButtonCloseView').addEventListener('click', cancelFunction);
+
+        this.showCloseModal = true;
+      }
+    );
 
     return modalResult;
   }
@@ -937,12 +941,12 @@ export class SolutionExplorerSolution {
    * of a diagram name.
    */
   private _getInvalidCharacterErrorMessage(invalidCharacters: Array<string>): string {
-
     // This filters all duplicate invalid characters so that the list contains each character only once.
-    const filteredInvalidCharacters: Array<string> =
-      invalidCharacters.filter((current: string, index: number): boolean => {
+    const filteredInvalidCharacters: Array<string> = invalidCharacters.filter(
+      (current: string, index: number): boolean => {
         return invalidCharacters.indexOf(current) === index;
-      });
+      }
+    );
 
     const messagePrefix: string = 'Your diagram contains at least one invalid-character: ';
 
@@ -973,8 +977,10 @@ export class SolutionExplorerSolution {
       await this.updateSolution();
     }
 
-    const createdDiagram: IDiagram = await this._diagramCreationService
-      .createNewDiagram(this._openedSolution.uri, `Untitled-${newDiagramIndex}`);
+    const createdDiagram: IDiagram = await this._diagramCreationService.createNewDiagram(
+      this._openedSolution.uri,
+      `Untitled-${newDiagramIndex}`
+    );
 
     this._openDiagramStateService.saveDiagramState(createdDiagram.uri, createdDiagram.xml, undefined, undefined, true);
 
@@ -992,7 +998,7 @@ export class SolutionExplorerSolution {
    * The listener will try to finish the diagram creation if the user clicks
    * on another element then the input.
    */
-  private _onCreateNewDiagramClickEvent = async(event: MouseEvent): Promise<void> => {
+  private _onCreateNewDiagramClickEvent = async (event: MouseEvent): Promise<void> => {
     const inputWasClicked: boolean = event.target === this.createNewDiagramInput;
     if (inputWasClicked) {
       return;
@@ -1004,10 +1010,13 @@ export class SolutionExplorerSolution {
     }
 
     await this._openDiagramAndUpdateSolution(emptyDiagram);
-  }
+  };
 
   private async _openDiagramAndUpdateSolution(createdDiagram: IDiagram): Promise<void> {
-    await this.openDiagramService.openDiagramFromSolution(createdDiagram.uri, this._createIdentityForSolutionExplorer());
+    await this.openDiagramService.openDiagramFromSolution(
+      createdDiagram.uri,
+      this._createIdentityForSolutionExplorer()
+    );
 
     await this.updateSolution();
     this._resetDiagramCreation();
@@ -1021,22 +1030,20 @@ export class SolutionExplorerSolution {
    * The listener will try to finish the diagram creation if the user presses
    * the enter key. It will abort the creation if the escape key is pressed.
    */
-  private _onCreateNewDiagramKeyupEvent = async(event: KeyboardEvent): Promise<void> => {
+  private _onCreateNewDiagramKeyupEvent = async (event: KeyboardEvent): Promise<void> => {
     const pressedKey: string = event.key;
 
     if (pressedKey === ENTER_KEY) {
-
       const emptyDiagram: IDiagram = await this._finishDiagramCreation();
       if (emptyDiagram === undefined) {
         return;
       }
 
       await this._openDiagramAndUpdateSolution(emptyDiagram);
-
     } else if (pressedKey === ESCAPE_KEY) {
       this._resetDiagramCreation();
     }
-  }
+  };
 
   /**
    * The event listener used to handle mouse clicks during the diagram
@@ -1046,13 +1053,13 @@ export class SolutionExplorerSolution {
    * on another element then the input. It will abort if there are any
    * validation errors.
    */
-  private _onRenameDiagramClickEvent = async(event: MouseEvent): Promise<void> => {
+  private _onRenameDiagramClickEvent = async (event: MouseEvent): Promise<void> => {
     const inputWasClicked: boolean = event.target === this._renameDiagramInput;
     if (inputWasClicked) {
       return;
     }
 
-    const inputWasNotValid: boolean = !await this._finishDiagramRenaming(true);
+    const inputWasNotValid: boolean = !(await this._finishDiagramRenaming(true));
     if (inputWasNotValid) {
       this._resetDiagramRenaming();
 
@@ -1064,7 +1071,7 @@ export class SolutionExplorerSolution {
     });
 
     this._resetDiagramRenaming();
-  }
+  };
 
   /**
    * The event listener used to handle keyboard events during the diagram
@@ -1074,14 +1081,14 @@ export class SolutionExplorerSolution {
    * the enter key. It will abort the creation if the escape key is pressed. It
    * will not abort the diagram renaming, if there are validation errors.
    */
-  private _onRenameDiagramKeyupEvent = async(event: KeyboardEvent): Promise<void> => {
+  private _onRenameDiagramKeyupEvent = async (event: KeyboardEvent): Promise<void> => {
     const pressedKey: string = event.key;
 
     const enterWasPressed: boolean = pressedKey === ENTER_KEY;
     const escapeWasPressed: boolean = pressedKey === ESCAPE_KEY;
 
     if (enterWasPressed) {
-      const inputWasNotValid: boolean = !await this._finishDiagramRenaming(false);
+      const inputWasNotValid: boolean = !(await this._finishDiagramRenaming(false));
       if (inputWasNotValid) {
         return;
       }
@@ -1090,11 +1097,10 @@ export class SolutionExplorerSolution {
         this._refreshDisplayedDiagrams();
       });
       this._resetDiagramRenaming();
-
     } else if (escapeWasPressed) {
       this._resetDiagramRenaming();
     }
-  }
+  };
 
   /**
    * Checks, if the input contains any non empty values.
@@ -1104,9 +1110,7 @@ export class SolutionExplorerSolution {
   private _hasNonEmptyValue(input: HTMLInputElement): boolean {
     const inputValue: string = input.value;
 
-    const inputHasValue: boolean = inputValue !== undefined
-                                && inputValue !== null
-                                && inputValue !== '';
+    const inputHasValue: boolean = inputValue !== undefined && inputValue !== null && inputValue !== '';
 
     return inputHasValue;
   }
@@ -1123,9 +1127,8 @@ export class SolutionExplorerSolution {
    */
   private async _finishDiagramRenaming(silent: boolean): Promise<boolean> {
     const validationResult: ControllerValidateResult = await this._validationController.validate();
-    const inputWasNotValid: boolean = !validationResult.valid
-                                      || (this._validationController.errors
-                                          && this._validationController.errors.length > 0);
+    const inputWasNotValid: boolean =
+      !validationResult.valid || (this._validationController.errors && this._validationController.errors.length > 0);
 
     if (inputWasNotValid) {
       if (!silent) {
@@ -1137,13 +1140,17 @@ export class SolutionExplorerSolution {
       return false;
     }
 
-    const filenameWasNotChanged: boolean = this._currentlyRenamingDiagram.name === this._diagramRenamingState.currentDiagramInputValue;
+    const filenameWasNotChanged: boolean =
+      this._currentlyRenamingDiagram.name === this._diagramRenamingState.currentDiagramInputValue;
     if (filenameWasNotChanged) {
       return true;
     }
 
     try {
-      await this.solutionService.renameDiagram(this._currentlyRenamingDiagram, this._diagramRenamingState.currentDiagramInputValue);
+      await this.solutionService.renameDiagram(
+        this._currentlyRenamingDiagram,
+        this._diagramRenamingState.currentDiagramInputValue
+      );
     } catch (error) {
       this._notificationService.showNotification(NotificationType.WARNING, error.message);
 
@@ -1171,9 +1178,8 @@ export class SolutionExplorerSolution {
 
     const validationResult: ControllerValidateResult = await this._validationController.validate();
 
-    const inputWasNotValid: boolean = !validationResult.valid
-                                      || (this._validationController.errors
-                                          && this._validationController.errors.length > 0);
+    const inputWasNotValid: boolean =
+      !validationResult.valid || (this._validationController.errors && this._validationController.errors.length > 0);
 
     if (inputWasNotValid) {
       const message: string = 'Please resolve all errors first.';
@@ -1182,8 +1188,10 @@ export class SolutionExplorerSolution {
       return;
     }
 
-    const emptyDiagram: IDiagram = await this._diagramCreationService
-      .createNewDiagram(this._openedSolution.uri, this._diagramCreationState.currentDiagramInputValue);
+    const emptyDiagram: IDiagram = await this._diagramCreationService.createNewDiagram(
+      this._openedSolution.uri,
+      this._diagramCreationState.currentDiagramInputValue
+    );
 
     try {
       await this.solutionService.saveDiagram(emptyDiagram, emptyDiagram.uri);
@@ -1232,7 +1240,7 @@ export class SolutionExplorerSolution {
     ValidationRules.off(this._diagramCreationState);
   }
 
-  private _findURIObject<T extends {uri: string}>(objects: Array<T> , targetURI: string): T {
+  private _findURIObject<T extends { uri: string }>(objects: Array<T>, targetURI: string): T {
     const foundObject: T = objects.find((object: T): boolean => {
       return object.uri.toLowerCase() === targetURI.toLowerCase();
     });
@@ -1256,9 +1264,7 @@ export class SolutionExplorerSolution {
     const diagramUri: string = this._router.currentInstruction.queryParams.diagramUri;
 
     const routeName: string = this._router.currentInstruction.config.name;
-    const routeNameNeedsUpdate: boolean = routeName === 'design'
-                                        || routeName === 'inspect'
-                                        || routeName === 'think';
+    const routeNameNeedsUpdate: boolean = routeName === 'design' || routeName === 'inspect' || routeName === 'think';
     if (routeNameNeedsUpdate) {
       this._diagramRoute = routeName;
       this._inspectView = this._router.currentInstruction.params.view;
@@ -1270,10 +1276,8 @@ export class SolutionExplorerSolution {
       try {
         const activeSolution: ISolution = await this.solutionService.loadSolution();
         this.activeDiagram = activeSolution.diagrams.find((diagram: IDiagram) => {
-          return diagram.name === diagramName
-              && (diagram.uri === diagramUri || diagramUri === undefined);
+          return diagram.name === diagramName && (diagram.uri === diagramUri || diagramUri === undefined);
         });
-
       } catch {
         // Do nothing
       }
@@ -1281,16 +1285,13 @@ export class SolutionExplorerSolution {
   }
 
   private _setValidationRules(): void {
-    ValidationRules
-      .ensure((state: IDiagramNameInputState) => state.currentDiagramInputValue)
+    ValidationRules.ensure((state: IDiagramNameInputState) => state.currentDiagramInputValue)
       .required()
       .withMessage('Diagram name cannot be blank.')
       .satisfies((input: string) => {
         const inputIsNotEmpty: boolean = input !== undefined;
 
-        const inputAsCharArray: Array<string> = inputIsNotEmpty
-                                              ? input.split('')
-                                              : [];
+        const inputAsCharArray: Array<string> = inputIsNotEmpty ? input.split('') : [];
 
         const diagramNamePassesNameChecks: boolean = inputAsCharArray.every((letter: string) => {
           // tslint:disable-next-line:typedef
@@ -1305,9 +1306,7 @@ export class SolutionExplorerSolution {
       .satisfies((input: string) => {
         const inputIsNotEmpty: boolean = input !== undefined;
 
-        const diagramDoesNotStartWithWhitespace: boolean = inputIsNotEmpty
-                                                         ? !/^\s/.test(input)
-                                                         : true;
+        const diagramDoesNotStartWithWhitespace: boolean = inputIsNotEmpty ? !/^\s/.test(input) : true;
 
         return diagramDoesNotStartWithWhitespace;
       })
@@ -1315,18 +1314,15 @@ export class SolutionExplorerSolution {
       .satisfies((input: string) => {
         const inputIsNotEmpty: boolean = input !== undefined;
 
-        const diagramDoesNotEndWithWhitespace: boolean = inputIsNotEmpty
-                                                       ? !/\s+$/.test(input)
-                                                       : true;
+        const diagramDoesNotEndWithWhitespace: boolean = inputIsNotEmpty ? !/\s+$/.test(input) : true;
 
         return diagramDoesNotEndWithWhitespace;
       })
       .withMessage('The diagram name cannot end with a whitespace character.')
       .then()
-      .satisfies(async(input: string) => {
-
-        const diagramNameIsUnchanged: boolean = this._isCurrentlyRenamingDiagram
-                                             && this._currentlyRenamingDiagram.name.toLowerCase() === input.toLowerCase();
+      .satisfies(async (input: string) => {
+        const diagramNameIsUnchanged: boolean =
+          this._isCurrentlyRenamingDiagram && this._currentlyRenamingDiagram.name.toLowerCase() === input.toLowerCase();
 
         if (diagramNameIsUnchanged) {
           return true;
@@ -1345,8 +1341,8 @@ export class SolutionExplorerSolution {
           expectedDiagramUri = join(this._openedSolution.uri, `${input}.bpmn`);
         }
 
-        const diagramWithUriDoesNotExist: boolean = this.
-          _findURIObject(this._openedSolution.diagrams, expectedDiagramUri) === undefined;
+        const diagramWithUriDoesNotExist: boolean =
+          this._findURIObject(this._openedSolution.diagrams, expectedDiagramUri) === undefined;
         return diagramWithUriDoesNotExist;
       })
       .withMessage('A diagram with that name already exists.')

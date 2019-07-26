@@ -1,13 +1,12 @@
-import {browser} from 'protractor';
+import { browser } from 'protractor';
 
-import {DiagramWithUserTask} from './diagrams/diagramWithUserTask';
-import {DiagramDetail} from './pages/diagramDetail';
-import {DynamicUi} from './pages/dynamicUi';
-import {RouterView} from './pages/routerView';
-import {TaskList} from './pages/taskList';
+import { DiagramWithUserTask } from './diagrams/diagramWithUserTask';
+import { DiagramDetail } from './pages/diagramDetail';
+import { DynamicUi } from './pages/dynamicUi';
+import { RouterView } from './pages/routerView';
+import { TaskList } from './pages/taskList';
 
 describe('Task List', () => {
-
   let taskList: TaskList;
   let diagram: DiagramWithUserTask;
   let routerView: RouterView;
@@ -16,7 +15,7 @@ describe('Task List', () => {
 
   const applicationUrl: string = browser.params.aureliaUrl;
 
-  beforeAll(async() => {
+  beforeAll(async () => {
     taskList = new TaskList(applicationUrl);
     diagram = new DiagramWithUserTask();
     routerView = new RouterView();
@@ -27,22 +26,22 @@ describe('Task List', () => {
     await diagram.startProcess();
   });
 
-  afterAll(async() => {
+  afterAll(async () => {
     await diagram.deleteDiagram();
   });
 
-  beforeEach(async() => {
+  beforeEach(async () => {
     await routerView.show();
     await taskList.show();
   });
 
-  it('should show the user task of the started process.', async() => {
+  it('should show the user task of the started process.', async () => {
     const visibilityOfListEntry: boolean = await taskList.getVisibilityOfListEntry(diagram.name);
 
     expect(visibilityOfListEntry).toBeTruthy();
   });
 
-  it('should navigate to the `detail view`, after clicking on the corresponding link in the table.', async() => {
+  it('should navigate to the `detail view`, after clicking on the corresponding link in the table.', async () => {
     await taskList.clickOnDesignLink(diagram.name);
 
     const currentBrowserUrl: string = await browser.getCurrentUrl();
@@ -54,7 +53,7 @@ describe('Task List', () => {
     expect(visbilityOfDiagramDetailContainer).toBeTruthy();
   });
 
-  it('should be able to continue the user task with a click on the `continue` button.', async() => {
+  it('should be able to continue the user task with a click on the `continue` button.', async () => {
     await taskList.clickOnContinueButton(diagram.name);
 
     const currentBrowserUrl: string = await browser.getCurrentUrl();
@@ -64,5 +63,4 @@ describe('Task List', () => {
 
     expect(visbilityOfDynamicUiWrapper).toBeTruthy();
   });
-
 });

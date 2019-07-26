@@ -1,6 +1,6 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
-import {ValidateEvent, ValidationController, ValidationRules} from 'aurelia-validation';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
+import { ValidateEvent, ValidationController, ValidationRules } from 'aurelia-validation';
 
 import {
   IEnumValue,
@@ -8,16 +8,10 @@ import {
   IForm,
   IFormElement,
   IModdleElement,
-  IShape,
+  IShape
 } from '@process-engine/bpmn-elements_contracts';
 
-import {
-  IBpmnModdle,
-  IBpmnModeler,
-  IElementRegistry,
-  IPageModel,
-  ISection,
-} from '../../../../../../../contracts';
+import { IBpmnModdle, IBpmnModeler, IElementRegistry, IPageModel, ISection } from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
 enum FormfieldTypes {
@@ -27,12 +21,11 @@ enum FormfieldTypes {
   boolean = 'boolean',
   date = 'date',
   enum = 'enum',
-  custom_type = 'custom type',
+  custom_type = 'custom type'
 }
 
 @inject(ValidationController, EventAggregator)
 export class BasicsSection implements ISection {
-
   public path: string = '/sections/basics/basics';
   public canHandleElement: boolean = true;
   public validationError: boolean = false;
@@ -85,9 +78,7 @@ export class BasicsSection implements ISection {
   }
 
   public isSuitableForElement(element: IShape): boolean {
-
-    const elementHasNoBusinessObject: boolean = element.businessObject === undefined
-                                             || element.businessObject === null;
+    const elementHasNoBusinessObject: boolean = element.businessObject === undefined || element.businessObject === null;
 
     if (elementHasNoBusinessObject) {
       return false;
@@ -97,9 +88,9 @@ export class BasicsSection implements ISection {
   }
 
   public addEnumValue(): void {
-    const enumValue: {id: string, value: string} = {
+    const enumValue: { id: string; value: string } = {
       id: `Value_${this._generateRandomId()}`,
-      value: '',
+      value: ''
     };
     const bpmnValue: IEnumValue = this._bpmnModdle.create('camunda:Value', enumValue);
 
@@ -144,11 +135,10 @@ export class BasicsSection implements ISection {
   }
 
   public async addForm(): Promise<void> {
-
-    const bpmnFormObject: IForm =  {
+    const bpmnFormObject: IForm = {
       id: `Form_${this._generateRandomId()}`,
       label: '',
-      defaultValue: '',
+      defaultValue: ''
     };
     const bpmnForm: IForm = this._bpmnModdle.create('camunda:FormField', bpmnFormObject);
 
@@ -194,9 +184,7 @@ export class BasicsSection implements ISection {
     this.isFormSelected = true;
 
     const selectedFormHasType: boolean = this.selectedForm.type !== undefined;
-    this.selectedType = selectedFormHasType
-                    ? this._getTypeAndHandleCustomType(this.selectedForm.type)
-                    : null;
+    this.selectedType = selectedFormHasType ? this._getTypeAndHandleCustomType(this.selectedForm.type) : null;
 
     this._selectedIndex = this._getSelectedIndex();
 
@@ -211,17 +199,14 @@ export class BasicsSection implements ISection {
      * If the user selected a custom type, find out what type the user provided.
      */
     const type: string = ((): string => {
-      const selectedTypeIsNotCustomType: boolean =
-        this.selectedType !== FormfieldTypes.custom_type;
+      const selectedTypeIsNotCustomType: boolean = this.selectedType !== FormfieldTypes.custom_type;
 
       if (selectedTypeIsNotCustomType) {
         return this.selectedType;
       }
 
       const customTypeIsDefined: boolean = this.customType !== undefined;
-      return customTypeIsDefined
-                  ? this.customType
-                  : '';
+      return customTypeIsDefined ? this.customType : '';
     })();
 
     this._formElement.fields[this._selectedIndex].type = type;
@@ -253,7 +238,7 @@ export class BasicsSection implements ISection {
     const bpmnFormFieldObject: IForm = {
       id: `Form_${this._generateRandomId()}`,
       label: '',
-      defaultValue: '',
+      defaultValue: ''
     };
     const bpmnForm: IForm = this._bpmnModdle.create('camunda:FormField', bpmnFormFieldObject);
 
@@ -291,18 +276,14 @@ export class BasicsSection implements ISection {
 
   private _reloadEnumValues(): void {
     const formIsNotEnum: boolean = this.selectedForm.type !== FormfieldTypes.enum;
-    const noValuesInEnum: boolean = this.selectedForm.values === undefined
-                                 || this.selectedForm.values.length === 0;
+    const noValuesInEnum: boolean = this.selectedForm.values === undefined || this.selectedForm.values.length === 0;
 
     if (formIsNotEnum) {
       return;
     }
 
     if (noValuesInEnum) {
-      this
-        ._formElement
-        .fields[this._selectedIndex]
-        .values = [];
+      this._formElement.fields[this._selectedIndex].values = [];
     }
 
     /*
@@ -334,11 +315,12 @@ export class BasicsSection implements ISection {
   private _reloadForms(): void {
     this.forms = [];
 
-    const noFormFieldsExist: boolean = this._formElement === undefined
-                                    || this._formElement === null
-                                    || this._formElement.fields === undefined
-                                    || this._formElement.fields === null
-                                    || this._formElement.fields.length === 0;
+    const noFormFieldsExist: boolean =
+      this._formElement === undefined ||
+      this._formElement === null ||
+      this._formElement.fields === undefined ||
+      this._formElement.fields === null ||
+      this._formElement.fields.length === 0;
 
     if (noFormFieldsExist) {
       return;
@@ -352,14 +334,15 @@ export class BasicsSection implements ISection {
   }
 
   private _getTypeAndHandleCustomType(type: string): string {
-    const typeIsRegularType: boolean = type === FormfieldTypes.string
-                                    || type === FormfieldTypes.long
-                                    || type === FormfieldTypes.number
-                                    || type === FormfieldTypes.boolean
-                                    || type === FormfieldTypes.date
-                                    || type === FormfieldTypes.enum
-                                    || type === FormfieldTypes.custom_type
-                                    || type === null;
+    const typeIsRegularType: boolean =
+      type === FormfieldTypes.string ||
+      type === FormfieldTypes.long ||
+      type === FormfieldTypes.number ||
+      type === FormfieldTypes.boolean ||
+      type === FormfieldTypes.date ||
+      type === FormfieldTypes.enum ||
+      type === FormfieldTypes.custom_type ||
+      type === null;
 
     if (typeIsRegularType) {
       this.customType = '';
@@ -379,8 +362,8 @@ export class BasicsSection implements ISection {
   }
 
   private _getOrCreateFormElement(): IModdleElement {
-    const elementHasNoExtensionsElement: boolean = this.businessObjInPanel.extensionElements === undefined
-                                                || this.businessObjInPanel.extensionElements === null;
+    const elementHasNoExtensionsElement: boolean =
+      this.businessObjInPanel.extensionElements === undefined || this.businessObjInPanel.extensionElements === null;
 
     if (elementHasNoExtensionsElement) {
       this._createExtensionElement();
@@ -405,17 +388,17 @@ export class BasicsSection implements ISection {
   private _createExtensionElement(): void {
     const values: Array<IFormElement> = [];
     const fields: Array<IForm> = [];
-    const formData: IFormElement = this._bpmnModdle.create('camunda:FormData', {fields: fields});
+    const formData: IFormElement = this._bpmnModdle.create('camunda:FormData', { fields: fields });
     values.push(formData);
 
     this.businessObjInPanel.formKey = 'Form Key';
-    const extensionElements: IModdleElement = this._bpmnModdle.create('bpmn:ExtensionElements', {values: values});
+    const extensionElements: IModdleElement = this._bpmnModdle.create('bpmn:ExtensionElements', { values: values });
     this.businessObjInPanel.extensionElements = extensionElements;
   }
 
   private _createEmptyFormData(): void {
     const fields: Array<IModdleElement> = [];
-    const extensionFormElement: IModdleElement = this._bpmnModdle.create('camunda:FormData', {fields: fields});
+    const extensionFormElement: IModdleElement = this._bpmnModdle.create('camunda:FormData', { fields: fields });
     this.businessObjInPanel.extensionElements.values.push(extensionFormElement);
   }
 
@@ -451,9 +434,7 @@ export class BasicsSection implements ISection {
   }
 
   private _hasFormSameIdAsSelected(forms: Array<IForm>): boolean {
-
     const unselectedFormWithSameId: IForm = forms.find((form: IForm) => {
-
       const formHasSameIdAsSelectedForm: boolean = form.id === this.selectedForm.id;
       const formIsNotSelectedForm: boolean = form !== this.selectedForm;
 
@@ -500,8 +481,7 @@ export class BasicsSection implements ISection {
 
     const selectedTypeIsBoolean: boolean = this.selectedType === FormfieldTypes.boolean;
     if (selectedTypeIsBoolean) {
-      this.booleanDefaultValue = this.selectedForm.defaultValue === 'true'
-                              || this.selectedForm.defaultValue === '1';
+      this.booleanDefaultValue = this.selectedForm.defaultValue === 'true' || this.selectedForm.defaultValue === '1';
     }
 
     return formsWithId;
@@ -515,8 +495,7 @@ export class BasicsSection implements ISection {
   }
 
   private _setValidationRules(): void {
-    ValidationRules
-      .ensure((form: IForm) => form.id)
+    ValidationRules.ensure((form: IForm) => form.id)
       .displayName('formId')
       .required()
       .withMessage('ID cannot be blank.')

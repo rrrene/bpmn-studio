@@ -1,4 +1,4 @@
-import {IOverlayPosition} from './IOverlayPosition';
+import { IOverlayPosition } from './IOverlayPosition';
 
 export interface IOverlayDescriptor {
   position: IOverlayPosition;

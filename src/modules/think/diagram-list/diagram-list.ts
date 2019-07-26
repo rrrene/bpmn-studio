@@ -1,15 +1,14 @@
-import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {bindable, inject} from 'aurelia-framework';
-import {Router} from 'aurelia-router';
+import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
+import { bindable, inject } from 'aurelia-framework';
+import { Router } from 'aurelia-router';
 
-import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
+import { IDiagram, ISolution } from '@process-engine/solutionexplorer.contracts';
 
-import {AuthenticationStateEvent, ISolutionEntry} from '../../../contracts/index';
+import { AuthenticationStateEvent, ISolutionEntry } from '../../../contracts/index';
 import environment from '../../../environment';
 
 @inject(EventAggregator, Router)
 export class DiagramList {
-
   public allDiagrams: Array<IDiagram>;
   @bindable() public activeSolutionEntry: ISolutionEntry;
 
@@ -19,8 +18,7 @@ export class DiagramList {
   private _pollingTimeout: NodeJS.Timer | number;
   private _isAttached: boolean = false;
 
-  constructor(eventAggregator: EventAggregator,
-              router: Router) {
+  constructor(eventAggregator: EventAggregator, router: Router) {
     this._eventAggregator = eventAggregator;
     this._router = router;
   }
@@ -37,7 +35,7 @@ export class DiagramList {
       }),
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
         this._updateDiagramList();
-      }),
+      })
     ];
   }
 
@@ -52,7 +50,7 @@ export class DiagramList {
   }
 
   private _startPolling(): void {
-    this._pollingTimeout = setTimeout(async() => {
+    this._pollingTimeout = setTimeout(async () => {
       await this._updateDiagramList();
 
       if (this._isAttached) {
@@ -62,11 +60,10 @@ export class DiagramList {
   }
 
   public showDetails(diagramName: string): void {
-
     this._router.navigateToRoute('design', {
       diagramName: diagramName,
       solutionUri: this.activeSolutionEntry.uri,
-      view: 'detail',
+      view: 'detail'
     });
   }
 

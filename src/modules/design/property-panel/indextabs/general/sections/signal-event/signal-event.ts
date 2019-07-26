@@ -1,5 +1,5 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
 
 import {
   IEventElement,
@@ -7,7 +7,7 @@ import {
   IShape,
   ISignal,
   ISignalEventDefinition,
-  ISignalEventElement,
+  ISignalEventElement
 } from '@process-engine/bpmn-elements_contracts';
 
 import {
@@ -16,14 +16,13 @@ import {
   IElementRegistry,
   ILinting,
   IPageModel,
-  ISection,
+  ISection
 } from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
-import {GeneralService} from '../../service/general.service';
+import { GeneralService } from '../../service/general.service';
 
 @inject(GeneralService, EventAggregator)
 export class SignalEventSection implements ISection {
-
   public path: string = '/sections/signal-event/signal-event';
   public canHandleElement: boolean = false;
   public signals: Array<ISignal>;
@@ -80,7 +79,6 @@ export class SignalEventSection implements ISection {
     if (this._linter.lintingActive()) {
       this._linter.update();
     }
-
   }
 
   public updateName(): void {
@@ -95,16 +93,16 @@ export class SignalEventSection implements ISection {
   }
 
   public addSignal(): void {
-    const bpmnSignalProperty: {id: string, name: string} = {
+    const bpmnSignalProperty: { id: string; name: string } = {
       id: `Signal_${this._generalService.generateRandomId()}`,
-      name: 'Signal Name',
+      name: 'Signal Name'
     };
     const bpmnSignal: ISignal = this._moddle.create('bpmn:Signal', bpmnSignalProperty);
 
     this._modeler._definitions.rootElements.push(bpmnSignal);
 
     this._moddle.toXML(this._modeler._definitions.rootElements, (toXMLError: Error, xmlStrUpdated: string) => {
-      this._modeler.importXML(xmlStrUpdated, async(importXMLError: Error) => {
+      this._modeler.importXML(xmlStrUpdated, async (importXMLError: Error) => {
         await this._refreshSignals();
         await this._setBusinessObj();
         this.selectedId = bpmnSignal.id;
@@ -150,18 +148,20 @@ export class SignalEventSection implements ISection {
 
     const eventElement: IEventElement = element.businessObject as IEventElement;
 
-    const elementIsSignalEvent: boolean = eventElement.eventDefinitions !== undefined
-                                       && eventElement.eventDefinitions[0] !== undefined
-                                       && eventElement.eventDefinitions[0].$type === 'bpmn:SignalEventDefinition';
+    const elementIsSignalEvent: boolean =
+      eventElement.eventDefinitions !== undefined &&
+      eventElement.eventDefinitions[0] !== undefined &&
+      eventElement.eventDefinitions[0].$type === 'bpmn:SignalEventDefinition';
 
     return elementIsSignalEvent;
   }
 
   private _init(): void {
     const eventDefinitions: Array<ISignalEventDefinition> = this._businessObjInPanel.eventDefinitions;
-    const businessObjectHasNoSignalEvents: boolean = eventDefinitions === undefined
-                                                  || eventDefinitions === null
-                                                  || eventDefinitions[0].$type !== 'bpmn:SignalEventDefinition';
+    const businessObjectHasNoSignalEvents: boolean =
+      eventDefinitions === undefined ||
+      eventDefinitions === null ||
+      eventDefinitions[0].$type !== 'bpmn:SignalEventDefinition';
     if (businessObjectHasNoSignalEvents) {
       return;
     }
@@ -185,7 +185,6 @@ export class SignalEventSection implements ISection {
       this.selectedSignal = this.signals.find((signal: ISignal) => {
         return signal.id === this.selectedId;
       });
-
     } else {
       this.selectedSignal = null;
       this.selectedId = null;
@@ -215,9 +214,9 @@ export class SignalEventSection implements ISection {
   }
 
   private _setBusinessObj(): void {
-      const elementRegistry: IElementRegistry = this._modeler.get('elementRegistry');
-      const elementInPanel: IShape = elementRegistry.get(this._businessObjInPanel.id);
-      this._businessObjInPanel = elementInPanel.businessObject as ISignalEventElement;
+    const elementRegistry: IElementRegistry = this._modeler.get('elementRegistry');
+    const elementInPanel: IShape = elementRegistry.get(this._businessObjInPanel.id);
+    this._businessObjInPanel = elementInPanel.businessObject as ISignalEventElement;
   }
 
   private _publishDiagramChange(): void {

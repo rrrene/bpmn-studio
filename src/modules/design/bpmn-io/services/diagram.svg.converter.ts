@@ -1,5 +1,5 @@
-import {IExportService, ISvgConvertService} from '../../../../contracts/index';
-import {ExportService} from './export.service';
+import { IExportService, ISvgConvertService } from '../../../../contracts/index';
+import { ExportService } from './export.service';
 
 export class DiagramSvgConverter implements ISvgConvertService {
   private _enqueuedPromises: Array<Promise<string>> = [];
@@ -41,16 +41,16 @@ export class DiagramSvgConverter implements ISvgConvertService {
   /**
    * Exports the current diagram as a PNG image.
    */
-  private _pngExporter = async(): Promise<string> => {
+  private _pngExporter = async (): Promise<string> => {
     return this._generateImageFromSVG('png', this._svgContent);
-  }
+  };
 
   /**
    * Exports the current diagram as a jpeg image.
    */
-  private _jpegExporter = async(): Promise<string> => {
+  private _jpegExporter = async (): Promise<string> => {
     return this._generateImageFromSVG('jpeg', this._svgContent);
-  }
+  };
 
   /**
    * Converts the given xml into an image. The returning value is a DataURL that
@@ -75,7 +75,7 @@ export class DiagramSvgConverter implements ISvgConvertService {
      * TODO: Figure out, how to obtain the desired format of the print before
      * printing. In the current implementation, I assume that we print to a
      * DIN A4 Paper, which has a diagonal size of 14.17 inches.
-    */
+     */
     const dinA4DiagonalSizeInch: number = 14.17;
     const pixelRatio: number = this._calculatePixelRatioForDPI(svgWidth, svgHeight, targetDPI, dinA4DiagonalSizeInch);
 
@@ -105,8 +105,12 @@ export class DiagramSvgConverter implements ISvgConvertService {
    * @returns The needed pixel ratio for the current dimensions to achieve the
    * desired DPI.
    */
-  private _calculatePixelRatioForDPI(svgWidth: number, svgHeight: number, targetDPI: number, diagonalSize: number): number {
-
+  private _calculatePixelRatioForDPI(
+    svgWidth: number,
+    svgHeight: number,
+    targetDPI: number,
+    diagonalSize: number
+  ): number {
     const square: Function = (num: number): number => num * num;
 
     const svgWidthSquared: number = square(svgWidth);
@@ -133,26 +137,26 @@ export class DiagramSvgConverter implements ISvgConvertService {
     svgContent: string,
     canvas: HTMLCanvasElement,
     context: CanvasRenderingContext2D,
-    encoding: string): Promise<string> {
-
+    encoding: string
+  ): Promise<string> {
     const imageElement: HTMLImageElement = document.createElement('img');
 
-   /*
-    * This makes sure, that the base64 encoded SVG does not contain any
-    * escaped html characters (such as &lt; instead of <).
-    *
-    * TODO: The unescape Method is marked as deprecated.
-    * See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/unescape
-    *
-    * The problem is, that the replacement method decodeURI does not work in this case
-    * (it behaves kinda different in some situations).
-    * Event the MDN use the unescape method to solve this kind of problem:
-    * https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/btoa#Unicode_strings
-    *
-    * There is an npm packet that implements the original unescape function.
-    * Maybe we can use this to make sure that this won't cause any
-    * problems in the future.
-    */
+    /*
+     * This makes sure, that the base64 encoded SVG does not contain any
+     * escaped html characters (such as &lt; instead of <).
+     *
+     * TODO: The unescape Method is marked as deprecated.
+     * See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/unescape
+     *
+     * The problem is, that the replacement method decodeURI does not work in this case
+     * (it behaves kinda different in some situations).
+     * Event the MDN use the unescape method to solve this kind of problem:
+     * https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/btoa#Unicode_strings
+     *
+     * There is an npm packet that implements the original unescape function.
+     * Maybe we can use this to make sure that this won't cause any
+     * problems in the future.
+     */
     const encodedSVG: string = btoa(unescape(encodeURIComponent(svgContent)));
     imageElement.setAttribute('src', `data:image/svg+xml;base64, ${encodedSVG}`);
 
@@ -170,5 +174,4 @@ export class DiagramSvgConverter implements ISvgConvertService {
 
     return loadImagePromise;
   }
-
 }

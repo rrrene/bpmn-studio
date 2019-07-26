@@ -1,2 +1,2 @@
 export * from './constants';
-export {INotification} from './INotification';
+export { INotification } from './INotification';

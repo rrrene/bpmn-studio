@@ -1,12 +1,12 @@
-import {bindable, computedFrom, inject} from 'aurelia-framework';
+import { bindable, computedFrom, inject } from 'aurelia-framework';
 
-import {ManagementApiClientService} from '@process-engine/management_api_client';
-import {DataModels} from '@process-engine/management_api_contracts';
+import { ManagementApiClientService } from '@process-engine/management_api_client';
+import { DataModels } from '@process-engine/management_api_contracts';
 
-import {ISolutionEntry, NotificationType} from '../../../contracts/index';
+import { ISolutionEntry, NotificationType } from '../../../contracts/index';
 import environment from '../../../environment';
-import {getBeautifiedDate} from '../../../services/date-service/date.service';
-import {NotificationService} from '../../../services/notification-service/notification.service';
+import { getBeautifiedDate } from '../../../services/date-service/date.service';
+import { NotificationService } from '../../../services/notification-service/notification.service';
 
 @inject('ManagementApiClientService', 'NotificationService')
 export class CronjobList {
@@ -52,12 +52,11 @@ export class CronjobList {
 
   public get cronjobsToDisplay(): Array<DataModels.Cronjobs.CronjobConfiguration> {
     const firstCronjobIndex: number = (this.currentPage - 1) * this.pageSize;
-    const lastCronjobIndex: number = (this.pageSize * this.currentPage);
+    const lastCronjobIndex: number = this.pageSize * this.currentPage;
 
-    const cronjobsToDisplay: Array<DataModels.Cronjobs.CronjobConfiguration> =
-      [...this._cronjobs]
-        .sort(this._sortCronjobs)
-        .slice(firstCronjobIndex, lastCronjobIndex);
+    const cronjobsToDisplay: Array<DataModels.Cronjobs.CronjobConfiguration> = [...this._cronjobs]
+      .sort(this._sortCronjobs)
+      .slice(firstCronjobIndex, lastCronjobIndex);
 
     return cronjobsToDisplay;
   }
@@ -66,7 +65,7 @@ export class CronjobList {
     const beautifiedDate: string = getBeautifiedDate(date);
 
     return beautifiedDate;
-}
+  }
 
   public async updateCronjobs(): Promise<void> {
     try {
@@ -74,13 +73,16 @@ export class CronjobList {
 
       this.requestSuccessful = true;
     } catch (error) {
-      this._notificationService.showNotification(NotificationType.ERROR, `Error receiving process list: ${error.message}`);
+      this._notificationService.showNotification(
+        NotificationType.ERROR,
+        `Error receiving process list: ${error.message}`
+      );
       this.requestSuccessful = false;
     }
   }
 
   private _startPolling(): void {
-    this._pollingTimeout = setTimeout(async() => {
+    this._pollingTimeout = setTimeout(async () => {
       await this.updateCronjobs();
 
       if (this._isAttached) {
@@ -95,7 +97,7 @@ export class CronjobList {
 
   private _sortCronjobs(
     firstCronjob: DataModels.Cronjobs.CronjobConfiguration,
-    secondCronjob: DataModels.Cronjobs.CronjobConfiguration,
+    secondCronjob: DataModels.Cronjobs.CronjobConfiguration
   ): number {
     return firstCronjob.nextExecution.getTime() - secondCronjob.nextExecution.getTime();
   }

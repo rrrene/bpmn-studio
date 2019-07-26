@@ -1,6 +1,6 @@
-import {IShape} from '@process-engine/bpmn-elements_contracts';
+import { IShape } from '@process-engine/bpmn-elements_contracts';
 
-import {ISection} from './ISection';
+import { ISection } from './ISection';
 
 export interface IIndextab {
   title: string;

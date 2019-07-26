@@ -1,9 +1,8 @@
-import {browser, by, element, ElementFinder, ExpectedConditions} from 'protractor';
+import { browser, by, element, ElementFinder, ExpectedConditions } from 'protractor';
 
-import {By} from 'selenium-webdriver';
+import { By } from 'selenium-webdriver';
 
 export class DiagramList {
-
   public url: string;
 
   private _diagramListContainerTag: string = 'diagram-list';

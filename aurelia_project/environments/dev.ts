@@ -7,29 +7,27 @@ const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
 export default {
   debug: true,
   testing: true,
-  appHost: isRunningInElectron
-    ? electronHost
-    : `http://${window.location.host}`,
+  appHost: isRunningInElectron ? electronHost : `http://${window.location.host}`,
   processlist: {
-    pageLimit: 10,
+    pageLimit: 10
   },
   openIdConnect: {
     authority: 'http://localhost:5000',
-    defaultAuthority: 'http://localhost:5000',
+    defaultAuthority: 'http://localhost:5000'
   },
   processengine: {
     liveExecutionTrackerPollingIntervalInMs: 1000,
     solutionExplorerPollingIntervalInMs: 5000,
     processDefListPollingIntervalInMs: 5000,
     dashboardPollingIntervalInMs: 1500,
-      updateRemoteSolutionHistoryIntervalInMs: 3000,
+    updateRemoteSolutionHistoryIntervalInMs: 3000,
     routes: {
       processes: `${processEngineRoute}/datastore/ProcessDef`,
       startProcess: `${processEngineRoute}/processengine/start`,
       iam: `${processEngineRoute}/iam`,
       userTasks: `${processEngineRoute}/datastore/UserTask`,
-      importBPMN: `${processEngineRoute}/processengine/create_bpmn_from_xml`,
-    },
+      importBPMN: `${processEngineRoute}/processengine/create_bpmn_from_xml`
+    }
   },
   events: {
     differsFromOriginal: 'differsFromOriginal',
@@ -37,16 +35,16 @@ export default {
     startPage: {
       openLocalSolution: 'startpage:openlocalsolution',
       openDiagram: 'startpage:openDiagram',
-      createDiagram: 'startpage:createDiagram',
+      createDiagram: 'startpage:createDiagram'
     },
     statusBar: {
       showDiagramViewButtons: 'statusbar:diagramviewbuttons:show',
       hideDiagramViewButtons: 'statusbar:diagramviewbuttons:hide',
       setXmlIdentifier: 'statusbar:xmlIdentifier',
-      showInspectCorrelationButtons: 'statusbar:inspectcorrelationbuttons',
+      showInspectCorrelationButtons: 'statusbar:inspectcorrelationbuttons'
     },
     configPanel: {
-      solutionEntryChanged: 'configpanel:solutionentry:changed',
+      solutionEntryChanged: 'configpanel:solutionentry:changed'
     },
     navBar: {
       showTools: 'navbar:tools:show',
@@ -60,7 +58,7 @@ export default {
       toggleHeatmapView: 'navbar:tools:inspectButtons:toggleHeatmapView',
       toggleInspectCorrelationView: 'navbar:tools:inspectButtons:toggleInspectCorrelationView',
       diagramChangesResolved: 'navbar:diagram:changesResolved',
-      updateActiveSolutionAndDiagram: 'navbar:activeSolution:diagram:update',
+      updateActiveSolutionAndDiagram: 'navbar:activeSolution:diagram:update'
     },
     diagramDetail: {
       onDiagramDeployed: 'diagramdetail:diagram:ondeployed',
@@ -71,7 +69,7 @@ export default {
       startProcess: 'diagramdetail:process:start',
       startProcessWithOptions: 'diagramdetail:process:startWithOptions',
       toggleXMLView: 'design:xmlview:toggle',
-      uploadProcess: 'diagramdetail:process:upload',
+      uploadProcess: 'diagramdetail:process:upload'
     },
     bpmnio: {
       toggleXMLView: 'design:xmlview:toggle',
@@ -80,33 +78,33 @@ export default {
       togglePropertyPanel: 'design:propertypanel:toggle',
       propertyPanelActive: 'design:propertypanel:active',
       bindKeyboard: 'design:keyboard:bind',
-      unbindKeyboard: 'design:keyboard:unbind',
+      unbindKeyboard: 'design:keyboard:unbind'
     },
     diffView: {
       changeDiffMode: 'diffview:diffmode:change',
       toggleChangeList: 'diffview:changelist:toggle',
-      setDiffDestination: 'diffview:diffDestination:set',
+      setDiffDestination: 'diffview:diffDestination:set'
     },
     diagramChange: 'diagram:change',
     processSolutionPanel: {
-      toggleProcessSolutionExplorer: 'processSolutionPanel:processsolutionexplorer:toggle',
+      toggleProcessSolutionExplorer: 'processSolutionPanel:processsolutionexplorer:toggle'
     },
     inspect: {
       shouldDisableTokenViewerButton: 'inspect:tokenViewerButton:disable',
-      exportDiagramAs: 'inspect:diagram:exportas',
+      exportDiagramAs: 'inspect:diagram:exportas'
     },
     inspectCorrelation: {
       showInspectPanel: 'inspectCorrelation:inspectPanel:show',
       showTokenViewer: 'inspectCorrelation:tokenViewer:show',
-      showLogViewer: 'inpsectCorrelation:logViewer:show',
+      showLogViewer: 'inpsectCorrelation:logViewer:show'
     },
     solutionExplorer: {
-      updateOpenDiagrams: 'solutioneExplorer:openDiagrams:update',
-    },
+      updateOpenDiagrams: 'solutioneExplorer:openDiagrams:update'
+    }
   },
   baseRoute: processEngineRoute,
   propertyPanel: {
-    defaultWidth: 250,
+    defaultWidth: 250
   },
   colorPickerSettings: {
     preferredFormat: 'hex',
@@ -117,6 +115,6 @@ export default {
     showInput: true,
     allowEmpty: true,
     showButtons: false,
-    containerClassName: 'colorpicker-container',
-  },
+    containerClassName: 'colorpicker-container'
+  }
 };

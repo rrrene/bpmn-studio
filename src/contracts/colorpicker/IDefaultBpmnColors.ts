@@ -1,4 +1,4 @@
-import {IColorPickerColor} from './index';
+import { IColorPickerColor } from './index';
 
 export interface IDefaultBpmnColors {
   red: IColorPickerColor;

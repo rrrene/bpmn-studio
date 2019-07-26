@@ -1,4 +1,4 @@
-import {build as buildCLI, CLIOptions} from 'aurelia-cli';
+import { build as buildCLI, CLIOptions } from 'aurelia-cli';
 import * as gulp from 'gulp';
 import * as project from '../aurelia.json';
 import copyFiles from './copy-files';
@@ -9,20 +9,17 @@ import watch from './watch';
 
 const build: any = gulp.series(
   readProjectConfiguration,
-  gulp.parallel(
-    transpile,
-    processMarkup,
-    processCSS,
-    copyFiles),
-  writeBundles);
+  gulp.parallel(transpile, processMarkup, processCSS, copyFiles),
+  writeBundles
+);
 
 let main: any;
 
 if (CLIOptions.taskName() === 'build' && CLIOptions.hasFlag('watch')) {
-  main = gulp.series(
-    build,
-    (done: Function) => { watch(); done(); },
-  );
+  main = gulp.series(build, (done: Function) => {
+    watch();
+    done();
+  });
 } else {
   main = build;
 }

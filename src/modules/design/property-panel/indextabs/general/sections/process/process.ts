@@ -1,14 +1,13 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
 
-import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
+import { IModdleElement, IShape } from '@process-engine/bpmn-elements_contracts';
 
-import {IPageModel, ISection} from '../../../../../../../contracts';
+import { IPageModel, ISection } from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
 @inject(EventAggregator)
 export class ProcessSection implements ISection {
-
   public path: string = '/sections/process/process';
   public canHandleElement: boolean = false;
   public businessObjInPanel: any;

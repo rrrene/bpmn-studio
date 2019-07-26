@@ -1,8 +1,8 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
-import {ValidateEvent, ValidationController, ValidationRules} from 'aurelia-validation';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
+import { ValidateEvent, ValidationController, ValidationRules } from 'aurelia-validation';
 
-import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
+import { IModdleElement, IShape } from '@process-engine/bpmn-elements_contracts';
 
 import {
   IBpmnModdle,
@@ -10,13 +10,12 @@ import {
   IElementRegistry,
   IModeling,
   IPageModel,
-  ISection,
+  ISection
 } from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
 @inject(ValidationController, EventAggregator)
 export class BasicsSection implements ISection {
-
   public path: string = '/sections/basics/basics';
   public canHandleElement: boolean = true;
   public businessObjInPanel: IModdleElement;
@@ -80,11 +79,11 @@ export class BasicsSection implements ISection {
   public updateDocumentation(): void {
     this._elementInPanel.documentation = [];
 
-    const documentationPropertyObject: Object = {text: this.elementDocumentation};
+    const documentationPropertyObject: Object = { text: this.elementDocumentation };
     const documentation: IModdleElement = this._bpmnModdle.create('bpmn:Documentation', documentationPropertyObject);
     this._elementInPanel.documentation.push(documentation);
 
-    const elementInPanelDocumentation: Object = {documentation: this._elementInPanel.documentation};
+    const elementInPanelDocumentation: Object = { documentation: this._elementInPanel.documentation };
     this._modeling.updateProperties(this._elementInPanel, elementInPanelDocumentation);
     this._publishDiagramChange();
   }
@@ -102,7 +101,7 @@ export class BasicsSection implements ISection {
       return;
     }
 
-    const updateProperty: Object = {id: this.businessObjInPanel.id};
+    const updateProperty: Object = { id: this.businessObjInPanel.id };
     this._modeling.updateProperties(this._elementInPanel, updateProperty);
     this._publishDiagramChange();
   }
@@ -114,9 +113,10 @@ export class BasicsSection implements ISection {
 
     this.elementType = this._humanizeElementType(this.businessObjInPanel.$type);
 
-    const documentationExists: boolean = this.businessObjInPanel.documentation !== undefined
-                                      && this.businessObjInPanel.documentation !== null
-                                      && this.businessObjInPanel.documentation.length > 0;
+    const documentationExists: boolean =
+      this.businessObjInPanel.documentation !== undefined &&
+      this.businessObjInPanel.documentation !== null &&
+      this.businessObjInPanel.documentation.length > 0;
 
     if (documentationExists) {
       this.elementDocumentation = this.businessObjInPanel.documentation[0].text;
@@ -185,14 +185,13 @@ export class BasicsSection implements ISection {
   }
 
   private _setValidationRules(): void {
-    ValidationRules
-      .ensure((businessObject: IModdleElement) => businessObject.id)
+    ValidationRules.ensure((businessObject: IModdleElement) => businessObject.id)
       .displayName('elementId')
       .required()
-        .withMessage('ID cannot be blank.')
+      .withMessage('ID cannot be blank.')
       .then()
       .satisfies((id: string) => this._formIdIsUnique(id) && this._isProcessIdUnique(id))
-        .withMessage('ID already exists.')
+      .withMessage('ID already exists.')
       .on(this.businessObjInPanel);
   }
 

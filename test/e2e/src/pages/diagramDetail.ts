@@ -1,9 +1,8 @@
-import {browser, by, element, ElementArrayFinder, ElementFinder, ExpectedConditions} from 'protractor';
+import { browser, by, element, ElementArrayFinder, ElementFinder, ExpectedConditions } from 'protractor';
 
-import {By} from 'selenium-webdriver';
+import { By } from 'selenium-webdriver';
 
 export class DiagramDetail {
-
   public url: string;
 
   private _diagramDetailContainerId: string = 'diagramDetailContainer';
@@ -49,7 +48,7 @@ export class DiagramDetail {
   }
 
   private get _bpmnIoContainer(): ElementFinder {
-    const bpmnIoContainerByTag: By =  by.tagName(this._bpmnioContainerTag);
+    const bpmnIoContainerByTag: By = by.tagName(this._bpmnioContainerTag);
 
     return element(bpmnIoContainerByTag);
   }

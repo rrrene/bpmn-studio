@@ -7,10 +7,10 @@
  * we intercept the redirect request in the implementation.
  */
 
-module.exports =  {
+module.exports = {
   clientId: 'bpmn_studio',
   redirectUri: 'http://localhost:9000/signin-oidc',
   logoutRedirectUri: 'http://localhost:9000/signout-oidc',
   responseType: 'id_token token',
-  scope: 'openid profile test_resource',
-}
+  scope: 'openid profile test_resource'
+};

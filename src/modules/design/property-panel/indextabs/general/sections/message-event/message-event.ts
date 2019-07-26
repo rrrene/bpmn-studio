@@ -1,5 +1,5 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
 
 import {
   IEventElement,
@@ -7,7 +7,7 @@ import {
   IMessageEventDefinition,
   IMessageEventElement,
   IModdleElement,
-  IShape,
+  IShape
 } from '@process-engine/bpmn-elements_contracts';
 
 import {
@@ -16,15 +16,14 @@ import {
   IElementRegistry,
   ILinting,
   IPageModel,
-  ISection,
+  ISection
 } from '../../../../../../../contracts';
 
 import environment from '../../../../../../../environment';
-import {GeneralService} from '../../service/general.service';
+import { GeneralService } from '../../service/general.service';
 
 @inject(GeneralService, EventAggregator)
 export class MessageEventSection implements ISection {
-
   public path: string = '/sections/message-event/message-event';
   public canHandleElement: boolean = false;
   public messages: Array<IMessage>;
@@ -64,7 +63,8 @@ export class MessageEventSection implements ISection {
       return message.id === this.selectedId;
     });
 
-    const messageEventDefinition: IMessageEventDefinition = this._businessObjInPanel.eventDefinitions[0] as IMessageEventDefinition;
+    const messageEventDefinition: IMessageEventDefinition = this._businessObjInPanel
+      .eventDefinitions[0] as IMessageEventDefinition;
     messageEventDefinition.messageRef = this.selectedMessage;
     this._publishDiagramChange();
 
@@ -86,16 +86,16 @@ export class MessageEventSection implements ISection {
   }
 
   public addMessage(): void {
-    const bpmnMessageProperty: {id: string, name: string} = {
+    const bpmnMessageProperty: { id: string; name: string } = {
       id: `Message_${this._generalService.generateRandomId()}`,
-      name: 'Message Name',
+      name: 'Message Name'
     };
     const bpmnMessage: IMessage = this._moddle.create('bpmn:Message', bpmnMessageProperty);
 
     this._modeler._definitions.rootElements.push(bpmnMessage);
 
     this._moddle.toXML(this._modeler._definitions.rootElements, (toXMLError: Error, xmlStrUpdated: string) => {
-      this._modeler.importXML(xmlStrUpdated, async(importXMLError: Error) => {
+      this._modeler.importXML(xmlStrUpdated, async (importXMLError: Error) => {
         await this._refreshMessages();
         await this._setBusinessObj();
 
@@ -141,18 +141,20 @@ export class MessageEventSection implements ISection {
 
     const eventElement: IEventElement = element.businessObject as IEventElement;
 
-    const elementIsMessageEvent: boolean = eventElement.eventDefinitions !== undefined
-                                        && eventElement.eventDefinitions[0] !== undefined
-                                        && eventElement.eventDefinitions[0].$type === 'bpmn:MessageEventDefinition';
+    const elementIsMessageEvent: boolean =
+      eventElement.eventDefinitions !== undefined &&
+      eventElement.eventDefinitions[0] !== undefined &&
+      eventElement.eventDefinitions[0].$type === 'bpmn:MessageEventDefinition';
 
     return elementIsMessageEvent;
   }
 
   private _init(): void {
     const eventDefinitions: Array<IMessageEventDefinition> = this._businessObjInPanel.eventDefinitions;
-    const businessObjectHasNoMessageEvents: boolean = eventDefinitions === undefined
-                                                   || eventDefinitions === null
-                                                   || eventDefinitions[0].$type !== 'bpmn:MessageEventDefinition';
+    const businessObjectHasNoMessageEvents: boolean =
+      eventDefinitions === undefined ||
+      eventDefinitions === null ||
+      eventDefinitions[0].$type !== 'bpmn:MessageEventDefinition';
     if (businessObjectHasNoMessageEvents) {
       return;
     }
@@ -176,7 +178,6 @@ export class MessageEventSection implements ISection {
       this.selectedMessage = this.messages.find((message: IMessage) => {
         return message.id === this.selectedId;
       });
-
     } else {
       this.selectedMessage = undefined;
       this.selectedId = undefined;

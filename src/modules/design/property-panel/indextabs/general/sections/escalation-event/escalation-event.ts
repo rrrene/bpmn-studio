@@ -1,5 +1,5 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
 
 import {
   IEscalation,
@@ -7,23 +7,16 @@ import {
   IEscalationEventElement,
   IEventElement,
   IModdleElement,
-  IShape,
+  IShape
 } from '@process-engine/bpmn-elements_contracts';
 
-import {
-  IBpmnModdle,
-  IBpmnModeler,
-  IElementRegistry,
-  IPageModel,
-  ISection,
-} from '../../../../../../../contracts';
+import { IBpmnModdle, IBpmnModeler, IElementRegistry, IPageModel, ISection } from '../../../../../../../contracts';
 
 import environment from '../../../../../../../environment';
-import {GeneralService} from '../../service/general.service';
+import { GeneralService } from '../../service/general.service';
 
 @inject(GeneralService, EventAggregator)
 export class EscalationEventSection implements ISection {
-
   public path: string = '/sections/escalation-event/escalation-event';
   public canHandleElement: boolean = false;
   public escalations: Array<IEscalation>;
@@ -63,7 +56,7 @@ export class EscalationEventSection implements ISection {
 
   public updateEscalation(): void {
     if (this.selectedId === undefined || this.selectedId === null) {
-      this.selectedEscalation =  null;
+      this.selectedEscalation = null;
 
       return;
     }
@@ -98,16 +91,16 @@ export class EscalationEventSection implements ISection {
   }
 
   public addEscalation(): void {
-    const bpmnEscalationProperty: {id: string, name: string} = {
+    const bpmnEscalationProperty: { id: string; name: string } = {
       id: `Escalation_${this._generalService.generateRandomId()}`,
-      name: 'Escalation Name',
+      name: 'Escalation Name'
     };
     const bpmnEscalation: IEscalation = this._moddle.create('bpmn:Escalation', bpmnEscalationProperty);
 
     this._modeler._definitions.rootElements.push(bpmnEscalation);
 
     this._moddle.toXML(this._modeler._definitions.rootElements, (toXMLError: Error, xmlStrUpdated: string) => {
-      this._modeler.importXML(xmlStrUpdated, async(importXMLError: Error) => {
+      this._modeler.importXML(xmlStrUpdated, async (importXMLError: Error) => {
         await this._refreshEscalations();
         await this._setBusinessObject();
         this.selectedId = bpmnEscalation.id;
@@ -163,24 +156,28 @@ export class EscalationEventSection implements ISection {
 
     const eventElement: IEventElement = element.businessObject as IEventElement;
 
-    const elementIsEscalationEvent: boolean = eventElement.eventDefinitions !== undefined
-                                           && eventElement.eventDefinitions[0] !== undefined
-                                           && eventElement.eventDefinitions[0].$type === 'bpmn:EscalationEventDefinition';
+    const elementIsEscalationEvent: boolean =
+      eventElement.eventDefinitions !== undefined &&
+      eventElement.eventDefinitions[0] !== undefined &&
+      eventElement.eventDefinitions[0].$type === 'bpmn:EscalationEventDefinition';
 
     return elementIsEscalationEvent;
   }
 
   private _elementIsBoundaryEvent(element: IShape): boolean {
-    return element !== undefined
-        && element.businessObject !== undefined
-        && element.businessObject.$type === 'bpmn:BoundaryEvent';
+    return (
+      element !== undefined &&
+      element.businessObject !== undefined &&
+      element.businessObject.$type === 'bpmn:BoundaryEvent'
+    );
   }
 
   private _init(): void {
     const eventDefinitions: Array<IEscalationEventDefinition> = this._businessObjInPanel.eventDefinitions;
-    const businessObjectHasNoEscalationEvents: boolean = eventDefinitions === undefined
-                                                      || eventDefinitions === null
-                                                      || eventDefinitions[0].$type !== 'bpmn:EscalationEventDefinition';
+    const businessObjectHasNoEscalationEvents: boolean =
+      eventDefinitions === undefined ||
+      eventDefinitions === null ||
+      eventDefinitions[0].$type !== 'bpmn:EscalationEventDefinition';
 
     if (businessObjectHasNoEscalationEvents) {
       return;
@@ -205,7 +202,6 @@ export class EscalationEventSection implements ISection {
       this.selectedEscalation = this.escalations.find((escalation: IEscalation) => {
         return escalation.id === this.selectedId;
       });
-
     } else {
       this.selectedEscalation = null;
       this.selectedId = null;

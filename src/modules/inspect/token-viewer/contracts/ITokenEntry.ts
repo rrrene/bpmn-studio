@@ -1,4 +1,4 @@
-import {IPayloadEntry} from './index';
+import { IPayloadEntry } from './index';
 
 export interface ITokenEntry {
   entryNr: number;

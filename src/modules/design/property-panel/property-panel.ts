@@ -1,6 +1,6 @@
-import {bindable, inject} from 'aurelia-framework';
+import { bindable, inject } from 'aurelia-framework';
 
-import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
+import { IModdleElement, IShape } from '@process-engine/bpmn-elements_contracts';
 
 import {
   IBpmnModdle,
@@ -10,17 +10,16 @@ import {
   IElementRegistry,
   IEvent,
   IEventBus,
-  IIndextab,
+  IIndextab
 } from '../../../contracts';
-import {Extensions} from './indextabs/extensions/extensions';
-import {Forms} from './indextabs/forms/forms';
-import {General} from './indextabs/general/general';
+import { Extensions } from './indextabs/extensions/extensions';
+import { Forms } from './indextabs/forms/forms';
+import { General } from './indextabs/general/general';
 
-import {OpenDiagramStateService} from '../../../services/solution-explorer-services/OpenDiagramStateService';
+import { OpenDiagramStateService } from '../../../services/solution-explorer-services/OpenDiagramStateService';
 
 @inject('OpenDiagramStateService')
 export class PropertyPanel {
-
   @bindable() public modeler: IBpmnModeler;
   @bindable() public xml: string;
   @bindable() public diagramUri: string;
@@ -46,11 +45,7 @@ export class PropertyPanel {
     this._moddle = this.modeler.get('moddle');
     this._eventBus = this.modeler.get('eventBus');
 
-    this.indextabs = [
-      this.generalIndextab,
-      this.formsIndextab,
-      this.extensionsIndextab,
-    ];
+    this.indextabs = [this.generalIndextab, this.formsIndextab, this.extensionsIndextab];
 
     this.updateIndexTabsSuitability();
     this.checkIndexTabSuitability();
@@ -87,9 +82,10 @@ export class PropertyPanel {
   public selectPreviouslySelectedOrFirstElement(): void {
     const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(this.diagramUri);
 
-    const noSelectedElementState: boolean = diagramState === null
-                                         || diagramState.metaData.selectedElements === undefined
-                                         || diagramState.metaData.selectedElements.length === 0;
+    const noSelectedElementState: boolean =
+      diagramState === null ||
+      diagramState.metaData.selectedElements === undefined ||
+      diagramState.metaData.selectedElements.length === 0;
     if (noSelectedElementState) {
       this.setFirstElement();
 
@@ -104,7 +100,7 @@ export class PropertyPanel {
   private setFirstElement(): void {
     let firstElement: IModdleElement;
 
-    this._moddle.fromXML(this.xml, ((err: Error, definitions: IDefinition): void => {
+    this._moddle.fromXML(this.xml, (err: Error, definitions: IDefinition): void => {
       const process: IModdleElement = definitions.rootElements.find((element: IModdleElement) => {
         return element.$type === 'bpmn:Process';
       });
@@ -112,7 +108,7 @@ export class PropertyPanel {
       const processHasFlowElements: boolean = process.flowElements !== undefined && process.flowElements !== null;
 
       if (processHasFlowElements) {
-        firstElement = process.flowElements.find((element: IModdleElement ) => {
+        firstElement = process.flowElements.find((element: IModdleElement) => {
           return element.$type === 'bpmn:StartEvent';
         });
 
@@ -128,7 +124,7 @@ export class PropertyPanel {
       }
 
       this._selectElementById(firstElement.id);
-    }));
+    });
   }
 
   private _selectElementById(elementId: string): void {

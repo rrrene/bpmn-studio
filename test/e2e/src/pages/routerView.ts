@@ -1,9 +1,8 @@
-import {browser, by, element, ElementFinder, ExpectedConditions} from 'protractor';
+import { browser, by, element, ElementFinder, ExpectedConditions } from 'protractor';
 
-import {By} from 'selenium-webdriver';
+import { By } from 'selenium-webdriver';
 
 export class RouterView {
-
   private _routerViewTagName: string = 'router-view';
 
   public async show(): Promise<void> {
@@ -17,5 +16,4 @@ export class RouterView {
 
     return element(routerViewByTagName);
   }
-
 }

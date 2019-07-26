@@ -2,17 +2,17 @@
 /**
  * We are disabling this rule here because we need this kind of statement in the
  * functions used in the promise of the modal.
-*/
-import {inject} from 'aurelia-framework';
-import {Router} from 'aurelia-router';
+ */
+import { inject } from 'aurelia-framework';
+import { Router } from 'aurelia-router';
 
-import {IDiagram} from '@process-engine/solutionexplorer.contracts';
-import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
+import { IDiagram } from '@process-engine/solutionexplorer.contracts';
+import { ISolutionExplorerService } from '@process-engine/solutionexplorer.service.contracts';
 
-import {IEventFunction, ISolutionService, NotificationType} from '../../../../contracts/index';
-import {NotificationService} from '../../../../services/notification-service/notification.service';
-import {OpenDiagramsSolutionExplorerService} from '../../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
-import {OpenDiagramStateService} from '../../../../services/solution-explorer-services/OpenDiagramStateService';
+import { IEventFunction, ISolutionService, NotificationType } from '../../../../contracts/index';
+import { NotificationService } from '../../../../services/notification-service/notification.service';
+import { OpenDiagramsSolutionExplorerService } from '../../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
+import { OpenDiagramStateService } from '../../../../services/solution-explorer-services/OpenDiagramStateService';
 
 @inject('NotificationService', 'OpenDiagramStateService', Router, 'OpenDiagramService', 'SolutionService')
 export class DeleteDiagramModal {
@@ -32,7 +32,7 @@ export class DeleteDiagramModal {
     openDiagramStateService: OpenDiagramStateService,
     router: Router,
     openDiagramService: OpenDiagramsSolutionExplorerService,
-    solutionService: ISolutionService,
+    solutionService: ISolutionService
   ) {
     this._notificationService = notificationService;
     this._openDiagramStateService = openDiagramStateService;
@@ -57,7 +57,7 @@ export class DeleteDiagramModal {
         document.getElementById('deleteDiagramButton').removeEventListener('click', proceedDeletion);
       };
 
-      const proceedDeletion: IEventFunction = async(): Promise<void> => {
+      const proceedDeletion: IEventFunction = async (): Promise<void> => {
         await this._deleteDiagram();
 
         resolve(true);
@@ -67,8 +67,8 @@ export class DeleteDiagramModal {
       };
 
       setTimeout(() => {
-        document.getElementById('cancelDeleteDiagramButton').addEventListener('click', cancelDeletion, {once: true});
-        document.getElementById('deleteDiagramButton').addEventListener('click', proceedDeletion, {once: true});
+        document.getElementById('cancelDeleteDiagramButton').addEventListener('click', cancelDeletion, { once: true });
+        document.getElementById('deleteDiagramButton').addEventListener('click', proceedDeletion, { once: true });
       }, 0);
     });
 
@@ -94,18 +94,16 @@ export class DeleteDiagramModal {
     const openDiagramServiceIsAvailable: boolean = typeof this._openDiagramService !== 'string';
 
     const diagramIndex: number = openDiagramServiceIsAvailable
-                               ? this._openDiagramService
-                                  .getOpenedDiagrams()
-                                  .findIndex((diagram: IDiagram) => diagram.uri === this.diagram.uri)
-                               : undefined;
+      ? this._openDiagramService.getOpenedDiagrams().findIndex((diagram: IDiagram) => diagram.uri === this.diagram.uri)
+      : undefined;
 
     const previousOrNextDiagramIndex: number = diagramIndex === 0 ? diagramIndex + 1 : diagramIndex - 1;
 
     const diagramToNavigateTo: IDiagram = openDiagramServiceIsAvailable
-                                        ? this._openDiagramService
-                                            .getOpenedDiagrams()
-                                            .find((diagram: IDiagram, index: number) => index === previousOrNextDiagramIndex)
-                                        : undefined;
+      ? this._openDiagramService
+          .getOpenedDiagrams()
+          .find((diagram: IDiagram, index: number) => index === previousOrNextDiagramIndex)
+      : undefined;
 
     const diagramIsDeployed: boolean = this.diagram.uri.startsWith('http');
 
@@ -121,7 +119,7 @@ export class DeleteDiagramModal {
         diagramName: diagramToNavigateTo.name,
         diagramUri: diagramToNavigateTo.uri,
         solutionUri: activeSolutionUri,
-        view: this._router.currentInstruction.params.view,
+        view: this._router.currentInstruction.params.view
       });
     }
 

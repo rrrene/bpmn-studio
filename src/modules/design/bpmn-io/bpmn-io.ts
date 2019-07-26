@@ -1,12 +1,11 @@
+import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
+import { bindable, bindingMode, inject, observable } from 'aurelia-framework';
 
-import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {bindable, bindingMode, inject, observable} from 'aurelia-framework';
-
-import {IModdleElement, IProcessRef, IPropertiesElement, IShape} from '@process-engine/bpmn-elements_contracts';
+import { IModdleElement, IProcessRef, IPropertiesElement, IShape } from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 import * as bpmnlintConfig from '@process-engine/bpmn-lint_rules';
 
-import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+import { IDiagram } from '@process-engine/solutionexplorer.contracts';
 import {
   IBpmnModeler,
   IBpmnXmlSaveOptions,
@@ -26,13 +25,13 @@ import {
   IValidateIssueCategory,
   IValidateResult,
   IViewbox,
-  NotificationType,
+  NotificationType
 } from '../../../contracts/index';
 import environment from '../../../environment';
-import {NotificationService} from '../../../services/notification-service/notification.service';
-import {OpenDiagramStateService} from '../../../services/solution-explorer-services/OpenDiagramStateService';
-import {PropertyPanel} from '../property-panel/property-panel';
-import {DiagramExportService, DiagramPrintService} from './services/index';
+import { NotificationService } from '../../../services/notification-service/notification.service';
+import { OpenDiagramStateService } from '../../../services/solution-explorer-services/OpenDiagramStateService';
+import { PropertyPanel } from '../property-panel/property-panel';
+import { DiagramExportService, DiagramPrintService } from './services/index';
 
 const sideBarRightSize: number = 35;
 const elementRegistryTimeoutMilliseconds: number = 50;
@@ -46,9 +45,9 @@ export class BpmnIo {
   public resizeButton: HTMLButtonElement;
   public canvasModel: HTMLDivElement;
   public propertyPanel: HTMLElement;
-  @bindable({changeHandler: 'diagramChanged'}) public diagramUri: string;
-  @bindable({defaultBindingMode: bindingMode.twoWay}) public xml: string;
-  @bindable({changeHandler: 'nameChanged'}) public name: string;
+  @bindable({ changeHandler: 'diagramChanged' }) public diagramUri: string;
+  @bindable({ defaultBindingMode: bindingMode.twoWay }) public xml: string;
+  @bindable({ changeHandler: 'nameChanged' }) public name: string;
   @observable public propertyPanelWidth: number;
   public showLinter: boolean;
   public solutionIsRemote: boolean = false;
@@ -94,7 +93,7 @@ export class BpmnIo {
     notificationService: NotificationService,
     eventAggregator: EventAggregator,
     openDiagramStateService: OpenDiagramStateService,
-    solutionService: ISolutionService,
+    solutionService: ISolutionService
   ) {
     this._notificationService = notificationService;
     this._eventAggregator = eventAggregator;
@@ -109,17 +108,17 @@ export class BpmnIo {
         bundle.ZoomScrollModule,
         bundle.MoveCanvasModule,
         bundle.resizeAllModule,
-        bundle.lintModule,
+        bundle.lintModule
       ],
       linting: {
-        bpmnlint: bpmnlintConfig,
+        bpmnlint: bpmnlintConfig
       },
       moddleExtensions: {
-        camunda: bundle.camundaModdleDescriptor,
+        camunda: bundle.camundaModdleDescriptor
       },
       keyboard: {
-        bindTo: document,
-      },
+        bindTo: document
+      }
     });
 
     this._linting = this.modeler.get('linting');
@@ -129,8 +128,10 @@ export class BpmnIo {
      * message to the user.
      */
     this.modeler.on('elements.paste.rejected', () => {
-      this._notificationService
-        .showNotification(NotificationType.INFO, 'In order to paste an element you have to place your cursor outside of the element.');
+      this._notificationService.showNotification(
+        NotificationType.INFO,
+        'In order to paste an element you have to place your cursor outside of the element.'
+      );
     });
 
     this._addRemoveWithBackspaceKeyboardListener();
@@ -141,13 +142,17 @@ export class BpmnIo {
      */
     const handlerPriority: number = 1000;
 
-    this.modeler.on('commandStack.changed', async() => {
-      if (!this.solutionIsRemote) {
-        this._eventAggregator.publish(environment.events.diagramChange);
-      }
+    this.modeler.on(
+      'commandStack.changed',
+      async () => {
+        if (!this.solutionIsRemote) {
+          this._eventAggregator.publish(environment.events.diagramChange);
+        }
 
-      this.xml = await this.getXML();
-    }, handlerPriority);
+        this.xml = await this.getXML();
+      },
+      handlerPriority
+    );
 
     this.modeler.on('contextPad.create', (event: IInternalEvent) => {
       if (this.solutionIsRemote) {
@@ -167,7 +172,6 @@ export class BpmnIo {
 
     this.modeler.on(['shape.added', 'shape.removed'], (event: IInternalEvent) => {
       if (!this.solutionIsRemote) {
-
         const shapeIsParticipant: boolean = event.element.type === 'bpmn:Participant';
 
         if (shapeIsParticipant) {
@@ -176,14 +180,18 @@ export class BpmnIo {
       }
     });
 
-    this.modeler.on('import.done', async() => {
-      this._fitDiagramToViewport();
+    this.modeler.on(
+      'import.done',
+      async () => {
+        this._fitDiagramToViewport();
 
-      if (!this.solutionIsRemote) {
-        await this._validateDiagram();
-        this._linting.update();
-      }
-    }, 1);
+        if (!this.solutionIsRemote) {
+          await this._validateDiagram();
+          this._linting.update();
+        }
+      },
+      1
+    );
 
     this.modeler.on('shape.remove', (event: IInternalEvent) => {
       if (!this.solutionIsRemote) {
@@ -218,10 +226,9 @@ export class BpmnIo {
 
       await this._importXmlIntoModeler(diagramState.data.xml);
     } else {
-
       const xmlIsNotEmpty: boolean = this.xml !== undefined && this.xml !== null;
       if (xmlIsNotEmpty) {
-        this.modeler.importXML(this.xml, async(err: Error) => {
+        this.modeler.importXML(this.xml, async (err: Error) => {
           this.savedXml = await this.getXML();
         });
       }
@@ -268,7 +275,7 @@ export class BpmnIo {
     document.addEventListener('keydown', this._printHotkeyEventHandler);
 
     if (!this._isRunningInElectron) {
-     document.addEventListener('keydown', this._saveHotkeyEventHandler);
+      document.addEventListener('keydown', this._saveHotkeyEventHandler);
     }
 
     this._hideOrShowPpForSpaceReasons();
@@ -278,7 +285,7 @@ export class BpmnIo {
         this._hideOrShowPpForSpaceReasons();
       }),
 
-      this._eventAggregator.subscribe(`${environment.events.diagramDetail.exportDiagramAs}:BPMN`, async() => {
+      this._eventAggregator.subscribe(`${environment.events.diagramDetail.exportDiagramAs}:BPMN`, async () => {
         try {
           const exportName: string = `${this.name}.bpmn`;
           const xmlToExport: string = await this.getXML();
@@ -288,11 +295,14 @@ export class BpmnIo {
             .asBpmn()
             .export(exportName);
         } catch {
-          this._notificationService.showNotification(NotificationType.ERROR, 'An error occurred while preparing the diagram for exporting');
+          this._notificationService.showNotification(
+            NotificationType.ERROR,
+            'An error occurred while preparing the diagram for exporting'
+          );
         }
       }),
 
-      this._eventAggregator.subscribe(`${environment.events.diagramDetail.exportDiagramAs}:SVG`, async() => {
+      this._eventAggregator.subscribe(`${environment.events.diagramDetail.exportDiagramAs}:SVG`, async () => {
         try {
           const exportName: string = `${this.name}.svg`;
           await this._diagramExportService
@@ -300,11 +310,14 @@ export class BpmnIo {
             .asSVG()
             .export(exportName);
         } catch (error) {
-          this._notificationService.showNotification(NotificationType.ERROR, 'An error occurred while preparing the diagram for exporting');
+          this._notificationService.showNotification(
+            NotificationType.ERROR,
+            'An error occurred while preparing the diagram for exporting'
+          );
         }
       }),
 
-      this._eventAggregator.subscribe(`${environment.events.diagramDetail.exportDiagramAs}:PNG`, async() => {
+      this._eventAggregator.subscribe(`${environment.events.diagramDetail.exportDiagramAs}:PNG`, async () => {
         try {
           const exportName: string = `${this.name}.png`;
           await this._diagramExportService
@@ -312,34 +325,40 @@ export class BpmnIo {
             .asPNG()
             .export(exportName);
         } catch (error) {
-          this._notificationService.showNotification(NotificationType.ERROR, 'An error occurred while preparing the diagram for exporting');
+          this._notificationService.showNotification(
+            NotificationType.ERROR,
+            'An error occurred while preparing the diagram for exporting'
+          );
         }
       }),
 
-      this._eventAggregator.subscribe(`${environment.events.diagramDetail.exportDiagramAs}:JPEG`, async() => {
+      this._eventAggregator.subscribe(`${environment.events.diagramDetail.exportDiagramAs}:JPEG`, async () => {
         try {
           const exportName: string = `${this.name}.jpeg`;
           await this._diagramExportService
-          .loadSVG(await this.getSVG())
-          .asJPEG()
-          .export(exportName);
+            .loadSVG(await this.getSVG())
+            .asJPEG()
+            .export(exportName);
         } catch (error) {
-          this._notificationService.showNotification(NotificationType.ERROR, 'An error occurred while preparing the diagram for exporting');
+          this._notificationService.showNotification(
+            NotificationType.ERROR,
+            'An error occurred while preparing the diagram for exporting'
+          );
         }
       }),
 
-      this._eventAggregator.subscribe(`${environment.events.diagramDetail.printDiagram}`, async() => {
+      this._eventAggregator.subscribe(`${environment.events.diagramDetail.printDiagram}`, async () => {
         await this._printHandler();
       }),
 
-      this._eventAggregator.subscribe(environment.events.diagramDetail.saveDiagram, async() => {
+      this._eventAggregator.subscribe(environment.events.diagramDetail.saveDiagram, async () => {
         this.savedXml = await this.getXML();
         this._diagramHasChanges = false;
 
         await this._saveDiagramState(this.diagramUri);
       }),
 
-      this._eventAggregator.subscribe(environment.events.diagramChange, async() => {
+      this._eventAggregator.subscribe(environment.events.diagramChange, async () => {
         this.xml = await this.getXML();
 
         const diagramIsChanged: boolean = !this._areXmlsIdentical(this.xml, this.savedXml);
@@ -375,8 +394,8 @@ export class BpmnIo {
       }),
 
       this._eventAggregator.subscribe(environment.events.differsFromOriginal, (changes: boolean) => {
-       this._diagramHasChanges = changes;
-      }),
+        this._diagramHasChanges = changes;
+      })
     ];
 
     const previousPropertyPanelWidth: string = window.localStorage.getItem('propertyPanelWidth');
@@ -385,9 +404,10 @@ export class BpmnIo {
      * Update the property panel width;
      * if no previous width was found, take the configured one.
      */
-    this.propertyPanelWidth = (previousPropertyPanelWidth !== undefined) ?
-                              parseInt(previousPropertyPanelWidth) :
-                              environment.propertyPanel.defaultWidth;
+    this.propertyPanelWidth =
+      previousPropertyPanelWidth !== undefined
+        ? parseInt(previousPropertyPanelWidth)
+        : environment.propertyPanel.defaultWidth;
 
     const propertyPanelHideState: string = window.localStorage.getItem('propertyPanelHideState');
     const wasPropertyPanelVisible: boolean = propertyPanelHideState === null || propertyPanelHideState === 'show';
@@ -456,7 +476,6 @@ export class BpmnIo {
 
     const previousDiagramExists: boolean = previousUri !== undefined;
     if (!this.solutionIsRemote && previousDiagramExists) {
-
       if (this.saveStateForNewUri) {
         this.saveStateForNewUri = false;
 
@@ -465,7 +484,6 @@ export class BpmnIo {
           await this._saveDiagramState(newUri);
         }
       } else {
-
         const previousDiagramIsNotDeleted: boolean = this._solutionService
           .getOpenDiagrams()
           .some((diagram: IDiagram) => diagram.uri === previousUri);
@@ -481,12 +499,7 @@ export class BpmnIo {
       const viewerNotInitialized: boolean = this.viewer === undefined;
       if (viewerNotInitialized) {
         this.viewer = new bundle.viewer({
-          additionalModules:
-          [
-            bundle.ZoomScrollModule,
-            bundle.MoveCanvasModule,
-            bundle.MiniMap,
-          ],
+          additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule, bundle.MiniMap]
         });
 
         this.viewer.on('selection.changed', (event: IEvent) => {
@@ -523,7 +536,6 @@ export class BpmnIo {
 
         this._linting.deactivateLinting();
       }, 0);
-
     } else {
       const xmlExists: boolean = this.xml !== undefined;
       if (xmlExists) {
@@ -607,7 +619,10 @@ export class BpmnIo {
   public _togglePanel(): void {
     if (this._propertyPanelShouldOpen) {
       if (this._propertyPanelHasNoSpace) {
-        this._notificationService.showNotification(NotificationType.ERROR, 'There is not enough space for the property panel!');
+        this._notificationService.showNotification(
+          NotificationType.ERROR,
+          'There is not enough space for the property panel!'
+        );
         return;
       }
 
@@ -617,7 +632,6 @@ export class BpmnIo {
       this._propertyPanelShouldOpen = false;
       window.localStorage.setItem('propertyPanelHideState', 'show');
     } else {
-
       document.getElementById('toggleButtonPropertyPanel').classList.remove('design-layout__tool--active');
       this.showPropertyPanel = false;
       this._eventAggregator.publish(environment.events.bpmnio.propertyPanelActive, false);
@@ -635,7 +649,7 @@ export class BpmnIo {
   public async getXML(): Promise<string> {
     const returnPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
       const xmlSaveOptions: IBpmnXmlSaveOptions = {
-        format: true,
+        format: true
       };
 
       this.modeler.saveXML(xmlSaveOptions, (error: Error, result: string) => {
@@ -680,7 +694,7 @@ export class BpmnIo {
     const isUnsavedDiagram: boolean = diagramUri.startsWith('about:open-diagrams');
 
     const selectedElement: Array<IShape> = this.modeler.get('selection')._selectedElements;
-    const viewbox: IViewbox  = modelerCanvas.viewbox();
+    const viewbox: IViewbox = modelerCanvas.viewbox();
     const xml: string = await this.getXML();
     const isChanged: boolean = isUnsavedDiagram ? true : !this._areXmlsIdentical(xml, savedXml);
 
@@ -689,9 +703,9 @@ export class BpmnIo {
 
   private _areXmlsIdentical(firstXml: string, secondXml: string): boolean {
     /*
-    * This Regex removes all newlines and spaces to make sure that both xml
-    * are not formatted.
-    */
+     * This Regex removes all newlines and spaces to make sure that both xml
+     * are not formatted.
+     */
     const whitespaceAndNewLineRegex: RegExp = /\r?\n|\r|\s/g;
 
     const unformattedXml: string = firstXml.replace(whitespaceAndNewLineRegex, '');
@@ -717,12 +731,12 @@ export class BpmnIo {
 
   private _fitDiagramToViewport(): void {
     const modelerCanvas: ICanvas = this.modeler.get('canvas');
-    const modelerViewbox: IViewbox  = modelerCanvas.viewbox();
+    const modelerViewbox: IViewbox = modelerCanvas.viewbox();
     const modelerDiagramIsVisible: boolean = modelerViewbox.height > 0 && modelerViewbox.width > 0;
 
     if (this.solutionIsRemote) {
       const viewerCanvas: ICanvas = this.viewer.get('canvas');
-      const viewerViewbox: IViewbox  = viewerCanvas.viewbox();
+      const viewerViewbox: IViewbox = viewerCanvas.viewbox();
       const viewerDiagramIsVisible: boolean = viewerViewbox.height > 0 && viewerViewbox.width > 0;
 
       if (viewerDiagramIsVisible) {
@@ -742,8 +756,7 @@ export class BpmnIo {
       return field.$type === 'camunda:FormData';
     });
 
-    const noFieldsSpecified: boolean = formDataObject.fields === undefined
-                                    || formDataObject.fields === null;
+    const noFieldsSpecified: boolean = formDataObject.fields === undefined || formDataObject.fields === null;
     if (noFieldsSpecified) {
       return;
     }
@@ -781,7 +794,6 @@ export class BpmnIo {
           participant.businessObject.processRef.isExecutable = this._tempProcess.isExecutable;
         });
       }
-
     }, elementRegistryTimeoutMilliseconds);
 
     return event;
@@ -827,7 +839,7 @@ export class BpmnIo {
     const mousePosition: number = event.clientX;
 
     this._setNewPropertyPanelWidthFromMousePosition(mousePosition);
-  }
+  };
 
   private _hideOrShowPpForSpaceReasons(): void {
     const minModelerWidthForPropertyPanel: number = this.minCanvasWidth + this.minPropertyPanelWidth;
@@ -853,7 +865,10 @@ export class BpmnIo {
       const svgToPrint: string = await this.getSVG();
       this._diagramPrintService.printDiagram(svgToPrint);
     } catch (error) {
-      this._notificationService.showNotification(NotificationType.ERROR, `An error while trying to print the diagram occurred.`);
+      this._notificationService.showNotification(
+        NotificationType.ERROR,
+        `An error while trying to print the diagram occurred.`
+      );
     }
   }
 
@@ -867,7 +882,7 @@ export class BpmnIo {
    * @param event Passed key event.
    * @return void
    */
-  private _saveHotkeyEventHandler = (event: KeyboardEvent): void  => {
+  private _saveHotkeyEventHandler = (event: KeyboardEvent): void => {
     // On macOS the 'common control key' is the meta instead of the control key. So on a mac we need to find
     // out, if the meta key instead of the control key is pressed.
     const currentPlatformIsMac: boolean = this._checkIfCurrentPlatformIsMac();
@@ -875,11 +890,11 @@ export class BpmnIo {
     const shiftKeyIsPressed: boolean = event.shiftKey;
 
     /*
-    * If both keys (meta and s) are pressed, save the diagram.
-    * A diagram is saved, by throwing a saveDiagram event.
-    *
-    * @see environment.events.diagramDetail.saveDiagram
-    */
+     * If both keys (meta and s) are pressed, save the diagram.
+     * A diagram is saved, by throwing a saveDiagram event.
+     *
+     * @see environment.events.diagramDetail.saveDiagram
+     */
     const sKeyIsPressed: boolean = event.key === 's';
     const userWantsToSave: boolean = metaKeyIsPressed && sKeyIsPressed && !shiftKeyIsPressed;
     const userWantsToSaveAs: boolean = metaKeyIsPressed && sKeyIsPressed && shiftKeyIsPressed;
@@ -896,7 +911,7 @@ export class BpmnIo {
       this._eventAggregator.publish(environment.events.diagramDetail.saveDiagramAs);
       return;
     }
-  }
+  };
 
   /**
    * On macOS it is typically to remove elements with the backspace instead
@@ -916,14 +931,14 @@ export class BpmnIo {
 
     // tslint:disable-next-line:typedef
     const removeSelectedElements = (key: IInternalEvent, modifiers: KeyboardEvent): boolean => {
-        const backspaceWasPressed: boolean = key.keyEvent.keyCode === backSpaceKeyCode;
+      const backspaceWasPressed: boolean = key.keyEvent.keyCode === backSpaceKeyCode;
 
-        if (backspaceWasPressed) {
-          editorActions.trigger('removeSelection');
+      if (backspaceWasPressed) {
+        editorActions.trigger('removeSelection');
 
-          return true;
-        }
-      };
+        return true;
+      }
+    };
 
     keyboard.addListener(removeSelectedElements);
   }
@@ -938,7 +953,7 @@ export class BpmnIo {
    * @param event Passed key event.
    * @return void
    */
-  private _printHotkeyEventHandler = (event: KeyboardEvent): void  => {
+  private _printHotkeyEventHandler = (event: KeyboardEvent): void => {
     // On macOS the 'common control key' is the meta instead of the control key. So on a mac we need to find
     // out, if the meta key instead of the control key is pressed.
     const currentPlatformIsMac: boolean = this._checkIfCurrentPlatformIsMac();
@@ -962,7 +977,7 @@ export class BpmnIo {
         this._diagramPrintService.printDiagram(svg);
       });
     }
-  }
+  };
 
   /**
    * Checks, if the current platform is a macOS.
@@ -975,7 +990,7 @@ export class BpmnIo {
     const currentPlatformIsMac: boolean = macRegex.test(currentPlatform);
 
     return currentPlatformIsMac;
-  }
+  };
 
   private async getSVG(): Promise<string> {
     const returnPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {

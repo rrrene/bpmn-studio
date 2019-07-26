@@ -1,6 +1,6 @@
-import {browser, by, element, ElementFinder, ExpectedConditions} from 'protractor';
+import { browser, by, element, ElementFinder, ExpectedConditions } from 'protractor';
 
-import {By} from 'selenium-webdriver';
+import { By } from 'selenium-webdriver';
 
 export class NavBar {
   private _navBarContainerId: string = 'navBarContainer';
@@ -20,22 +20,18 @@ export class NavBar {
   }
 
   public async getVisibilityOfLeftContainer(): Promise<boolean> {
-
     return this._leftNavBarContainer.isDisplayed();
   }
 
   public async getVisibilityOfCenterContainer(): Promise<boolean> {
-
     return this._centerNavBarContainer.isDisplayed();
   }
 
   public async getVisibilityOfRightContainer(): Promise<boolean> {
-
     return this._rightNavBarContainer.isDisplayed();
   }
 
   public async getVisibilityOfSolutionExplorerButton(): Promise<boolean> {
-
     return this._solutionExplorerButton.isDisplayed();
   }
 
@@ -47,27 +43,22 @@ export class NavBar {
   }
 
   public async clickOnSolutionExplorerButton(): Promise<void> {
-
     return this._solutionExplorerButton.click();
   }
 
   public async getVisibilityOfThinkButton(): Promise<boolean> {
-
     return this._thinkButton.isDisplayed();
   }
 
   public async getVisibilityOfDesignButton(): Promise<boolean> {
-
     return this._designButton.isDisplayed();
   }
 
   public async getVisibilityOfInspectButton(): Promise<boolean> {
-
     return this._inspectButton.isDisplayed();
   }
 
   public async clickOnInspectButton(): Promise<void> {
-
     return this._inspectButton.click();
   }
 
@@ -118,5 +109,4 @@ export class NavBar {
 
     return element(inspectButtonById);
   }
-
 }

@@ -1,8 +1,8 @@
-import {IShape} from '@process-engine/bpmn-elements_contracts';
+import { IShape } from '@process-engine/bpmn-elements_contracts';
 
-import {IIndextab, ISection} from '../../../../../contracts';
-import {BasicsSection} from './sections/basics/basics';
-import {ProcessSection} from './sections/process/process';
+import { IIndextab, ISection } from '../../../../../contracts';
+import { BasicsSection } from './sections/basics/basics';
+import { ProcessSection } from './sections/process/process';
 
 export class Extensions implements IIndextab {
   public title: string = 'Extensions';
@@ -15,14 +15,10 @@ export class Extensions implements IIndextab {
   private _processSection: ISection = new ProcessSection();
 
   constructor() {
-    this.sections = [
-      this._basicsSection,
-      this._processSection,
-    ];
+    this.sections = [this._basicsSection, this._processSection];
   }
 
   public isSuitableForElement(element: IShape): boolean {
-
     if (!element) {
       return false;
     }

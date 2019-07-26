@@ -4,5 +4,5 @@ export enum CorrelationListSortProperty {
   State = 'state',
   User = 'user',
   CorrelationId = 'correlationId',
-  ProcessInstanceId = 'processInstanceId',
+  ProcessInstanceId = 'processInstanceId'
 }

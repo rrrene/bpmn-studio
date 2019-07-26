@@ -1,6 +1,6 @@
-import {browser, by, element, ElementFinder, ExpectedConditions} from 'protractor';
+import { browser, by, element, ElementFinder, ExpectedConditions } from 'protractor';
 
-import {By} from 'selenium-webdriver';
+import { By } from 'selenium-webdriver';
 
 export class TaskList {
   public url: string;
@@ -81,7 +81,9 @@ export class TaskList {
     const listEntryById: By = by.id(listEntryId);
     const diagramLinkByTag: By = by.className(this._diagramLinkClassName);
 
-    return element(listEntryById).all(diagramLinkByTag).first();
+    return element(listEntryById)
+      .all(diagramLinkByTag)
+      .first();
   }
 
   private _getContinueButton(diagramName: string): ElementFinder {
@@ -89,7 +91,8 @@ export class TaskList {
     const listEntryById: By = by.id(listEntryId);
     const diagramLinkByTag: By = by.className(this._continueButtonClassName);
 
-    return element(listEntryById).all(diagramLinkByTag).first();
+    return element(listEntryById)
+      .all(diagramLinkByTag)
+      .first();
   }
-
 }

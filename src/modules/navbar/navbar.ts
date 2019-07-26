@@ -1,15 +1,14 @@
-import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {computedFrom, inject} from 'aurelia-framework';
-import {NavModel, Router} from 'aurelia-router';
+import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
+import { computedFrom, inject } from 'aurelia-framework';
+import { NavModel, Router } from 'aurelia-router';
 
-import {IDiagram} from '@process-engine/solutionexplorer.contracts';
-import {ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
+import { IDiagram } from '@process-engine/solutionexplorer.contracts';
+import { ISolutionEntry, ISolutionService, NotificationType } from '../../contracts/index';
 import environment from '../../environment';
-import {NotificationService} from '../../services/notification-service/notification.service';
+import { NotificationService } from '../../services/notification-service/notification.service';
 
 @inject(Router, EventAggregator, 'NotificationService', 'SolutionService')
 export class NavBar {
-
   public activeSolutionEntry: ISolutionEntry;
   public activeDiagram: IDiagram;
 
@@ -43,7 +42,12 @@ export class NavBar {
   private _notificationService: NotificationService;
   private _solutionService: ISolutionService;
 
-  constructor(router: Router, eventAggregator: EventAggregator, notificationService: NotificationService, solutionService: ISolutionService) {
+  constructor(
+    router: Router,
+    eventAggregator: EventAggregator,
+    notificationService: NotificationService,
+    solutionService: ISolutionService
+  ) {
     this.router = router;
     this._eventAggregator = eventAggregator;
     this._notificationService = notificationService;
@@ -108,7 +112,7 @@ export class NavBar {
         this.disableHeatmapButton = false;
         this.disableDashboardButton = false;
         this.disableInspectCorrelationButton = true;
-      }),
+      })
     ];
   }
 
@@ -147,7 +151,10 @@ export class NavBar {
       case 'design':
         const noActiveDiagram: boolean = this.activeDiagram === undefined;
         if (noActiveDiagram) {
-          this._notificationService.showNotification(NotificationType.INFO, 'In order to open the designer, you have to select a diagram first!');
+          this._notificationService.showNotification(
+            NotificationType.INFO,
+            'In order to open the designer, you have to select a diagram first!'
+          );
 
           return;
         }
@@ -208,7 +215,7 @@ export class NavBar {
     this.router.navigateToRoute(route, {
       diagramName: this.activeDiagram ? this.activeDiagram.name : undefined,
       solutionUri: this.activeSolutionEntry ? this.activeSolutionEntry.uri : undefined,
-      view: view,
+      view: view
     });
   }
 
@@ -226,14 +233,13 @@ export class NavBar {
   }
 
   public printDiagram(): void {
-
     this._eventAggregator.publish(environment.events.diagramDetail.printDiagram);
   }
 
   public exportDiagram(exportAs: string): void {
     const eventToPublish: string = this.showExportOnInspectCorrelation
-                                 ? environment.events.inspect.exportDiagramAs
-                                 : environment.events.diagramDetail.exportDiagramAs;
+      ? environment.events.inspect.exportDiagramAs
+      : environment.events.diagramDetail.exportDiagramAs;
 
     this._eventAggregator.publish(`${eventToPublish}:${exportAs}`);
   }
@@ -304,7 +310,8 @@ export class NavBar {
   private _updateNavbarTools(): void {
     const activeRoute: string = this.router.currentInstruction.config.name;
 
-    const activeSolutionIsRemoteSolution: boolean = this.activeSolutionEntry.uri.startsWith('http') && this.activeDiagram !== undefined;
+    const activeSolutionIsRemoteSolution: boolean =
+      this.activeSolutionEntry.uri.startsWith('http') && this.activeDiagram !== undefined;
     const activeRouteIsDiagramDetail: boolean = activeRoute === 'design';
     const activeRouteIsInspect: boolean = activeRoute === 'inspect';
     const activeRouteIsLET: boolean = activeRoute === 'live-execution-tracker';
@@ -316,7 +323,6 @@ export class NavBar {
       this.showTools = true;
       this.showInspectTools = false;
       this.showExportOnInspectCorrelation = false;
-
     } else if (activeRouteIsInspect) {
       const inspectView: string = this.router.currentInstruction.params.view;
       const inspectViewIsDashboard: boolean = inspectView === 'dashboard';
@@ -343,15 +349,13 @@ export class NavBar {
       this.showInspectTools = false;
       this.showExportOnInspectCorrelation = false;
     }
-
   }
 
   private async _updateNavbar(): Promise<void> {
-
     const solutionUriFromNavigation: string = this.router.currentInstruction.queryParams.solutionUri;
     const noSolutionUriSpecified: boolean = solutionUriFromNavigation === undefined;
 
-    const solutionUri: string = (noSolutionUriSpecified)
+    const solutionUri: string = noSolutionUriSpecified
       ? window.localStorage.getItem('InternalProcessEngineRoute')
       : solutionUriFromNavigation;
 
@@ -369,7 +373,6 @@ export class NavBar {
     const diagramIsSet: boolean = diagramName !== undefined;
 
     if (solutionIsSet && diagramIsSet) {
-
       const activeSolutionIsOpenDiagramSolution: boolean = solutionUri === 'about:open-diagrams';
       if (activeSolutionIsOpenDiagramSolution) {
         const persistedDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();
@@ -378,10 +381,9 @@ export class NavBar {
           return diagram.name === diagramName;
         });
       } else {
-
-        this.activeDiagram = await this.activeSolutionEntry
-          .service
-          .loadDiagram(this.router.currentInstruction.params.diagramName);
+        this.activeDiagram = await this.activeSolutionEntry.service.loadDiagram(
+          this.router.currentInstruction.params.diagramName
+        );
       }
 
       const diagramNotFound: boolean = this.activeDiagram === undefined;
@@ -399,7 +401,6 @@ export class NavBar {
     if (routeNameIsStartPage) {
       this._resetNavbar();
     }
-
   }
 
   private _resetNavbar(): void {
@@ -422,5 +423,5 @@ export class NavBar {
     const isFullscreen: boolean = !window.screenTop && !window.screenY;
 
     this.showLeftMarginInNavbar = isMac && !isFullscreen;
-  }
+  };
 }

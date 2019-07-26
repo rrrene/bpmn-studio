@@ -1,18 +1,17 @@
-import {browser} from 'protractor';
+import { browser } from 'protractor';
 
-import {DiagramWithUserTask} from './diagrams/diagramWithUserTask';
-import {Dashboard} from './pages/dashboard';
-import {RouterView} from './pages/routerView';
+import { DiagramWithUserTask } from './diagrams/diagramWithUserTask';
+import { Dashboard } from './pages/dashboard';
+import { RouterView } from './pages/routerView';
 
 describe('Dashboard', () => {
-
   let dashboard: Dashboard;
   let diagram: DiagramWithUserTask;
   let routerView: RouterView;
 
   const applicationUrl: string = browser.params.aureliaUrl;
 
-  beforeAll(async() => {
+  beforeAll(async () => {
     dashboard = new Dashboard(applicationUrl);
     diagram = new DiagramWithUserTask();
     routerView = new RouterView();
@@ -24,8 +23,7 @@ describe('Dashboard', () => {
     await dashboard.show();
   });
 
-  afterAll(async() => {
-
+  afterAll(async () => {
     await diagram.deleteDiagram();
   });
 

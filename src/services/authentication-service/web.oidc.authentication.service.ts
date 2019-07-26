@@ -1,21 +1,26 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
-import {OpenIdConnect} from 'aurelia-open-id-connect';
-import {Router} from 'aurelia-router';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
+import { OpenIdConnect } from 'aurelia-open-id-connect';
+import { Router } from 'aurelia-router';
 
-import {IIdentity} from '@essential-projects/iam_contracts';
-import {User} from 'oidc-client';
+import { IIdentity } from '@essential-projects/iam_contracts';
+import { User } from 'oidc-client';
 
-import {AuthenticationStateEvent, IAuthenticationService, ILoginResult, IUserIdentity, NotificationType} from '../../contracts/index';
-import {oidcConfig} from '../../open-id-connect-configuration';
-import {NotificationService} from './../../services/notification-service/notification.service';
+import {
+  AuthenticationStateEvent,
+  IAuthenticationService,
+  ILoginResult,
+  IUserIdentity,
+  NotificationType
+} from '../../contracts/index';
+import { oidcConfig } from '../../open-id-connect-configuration';
+import { NotificationService } from './../../services/notification-service/notification.service';
 
 const UNAUTHORIZED_STATUS_CODE: number = 401;
 const IDENTITY_SERVER_AVAILABLE_SUCCESS_STATUS_CODE: number = 200;
 
 @inject(EventAggregator, 'NotificationService', OpenIdConnect, Router)
 export class WebOidcAuthenticationService implements IAuthenticationService {
-
   private _eventAggregator: EventAggregator;
   /**
    * We have to use any here since it is the only way to access the private members
@@ -25,9 +30,11 @@ export class WebOidcAuthenticationService implements IAuthenticationService {
   private _openIdConnect: OpenIdConnect | any;
   private _notificationService: NotificationService;
 
-  constructor(eventAggregator: EventAggregator,
-              notificationService: NotificationService,
-              openIdConnect: OpenIdConnect) {
+  constructor(
+    eventAggregator: EventAggregator,
+    notificationService: NotificationService,
+    openIdConnect: OpenIdConnect
+  ) {
     this._eventAggregator = eventAggregator;
     this._notificationService = notificationService;
     this._openIdConnect = openIdConnect;
@@ -64,7 +71,7 @@ export class WebOidcAuthenticationService implements IAuthenticationService {
       identity: await this.getUserIdentity(authority),
       accessToken: await this._getAccessToken(authority),
       // The idToken is provided by the oidc service when making requests and therefore not set here.
-      idToken: '',
+      idToken: ''
     };
 
     return loginResult;
@@ -79,7 +86,6 @@ export class WebOidcAuthenticationService implements IAuthenticationService {
 
     await this._setAuthority(authority);
     await this._openIdConnect.logout();
-
   }
 
   public async getUserIdentity(authority: string): Promise<IUserIdentity | null> {
@@ -99,8 +105,8 @@ export class WebOidcAuthenticationService implements IAuthenticationService {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
+        Authorization: `Bearer ${accessToken}`
+      }
     });
 
     const response: Response = await fetch(request);
@@ -119,15 +125,14 @@ export class WebOidcAuthenticationService implements IAuthenticationService {
       referrer: 'no-referrer',
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-      },
+        'Content-Type': 'application/json'
+      }
     });
 
     let response: Response;
 
     try {
-
-     response = await fetch(request);
+      response = await fetch(request);
     } catch (error) {
       if (error.message === 'Failed to fetch') {
         return false;
@@ -166,9 +171,7 @@ export class WebOidcAuthenticationService implements IAuthenticationService {
 
     const userIsNotLoggedIn: boolean = user === undefined || user === null;
 
-    return userIsNotLoggedIn
-          ? this._getDummyAccessToken()
-          : user.access_token;
+    return userIsNotLoggedIn ? this._getDummyAccessToken() : user.access_token;
   }
 
   private _formAuthority(authority: string): string {

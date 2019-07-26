@@ -1,4 +1,4 @@
-import {IValidateIssueCategory} from './IValidateIssueCategory';
+import { IValidateIssueCategory } from './IValidateIssueCategory';
 
 export interface IValidateIssue {
   category: IValidateIssueCategory;

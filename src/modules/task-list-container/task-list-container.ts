@@ -1,13 +1,13 @@
-import {inject} from 'aurelia-framework';
-import {Router} from 'aurelia-router';
+import { inject } from 'aurelia-framework';
+import { Router } from 'aurelia-router';
 
-import {ForbiddenError, isError, UnauthorizedError} from '@essential-projects/errors_ts';
-import {IManagementApi} from '@process-engine/management_api_contracts';
+import { ForbiddenError, isError, UnauthorizedError } from '@essential-projects/errors_ts';
+import { IManagementApi } from '@process-engine/management_api_contracts';
 
-import {IIdentity} from '@essential-projects/iam_contracts';
-import {ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
-import {NotificationService} from '../../services/notification-service/notification.service';
-import {TaskList} from '../inspect/task-list/task-list';
+import { IIdentity } from '@essential-projects/iam_contracts';
+import { ISolutionEntry, ISolutionService, NotificationType } from '../../contracts/index';
+import { NotificationService } from '../../services/notification-service/notification.service';
+import { TaskList } from '../inspect/task-list/task-list';
 
 interface ITaskListRouteParameters {
   processModelId?: string;
@@ -17,7 +17,6 @@ interface ITaskListRouteParameters {
 
 @inject('NotificationService', Router, 'ManagementApiClientService', 'SolutionService')
 export class TaskListContainer {
-
   public showTaskList: boolean = false;
   public taskList: TaskList;
 
@@ -31,7 +30,7 @@ export class TaskListContainer {
     notificationService: NotificationService,
     router: Router,
     managementApiService: IManagementApi,
-    solutionService: ISolutionService,
+    solutionService: ISolutionService
   ) {
     this._notificationService = notificationService;
     this._router = router;
@@ -40,21 +39,25 @@ export class TaskListContainer {
   }
 
   public async canActivate(): Promise<boolean> {
-    const solutionUriIsSet: boolean = this._router.currentInstruction !== null
-                                   && this._router.currentInstruction !== undefined
-                                   && this._router.currentInstruction.queryParams.solutionUri !== null
-                                   && this._router.currentInstruction.queryParams.solutionUri !== undefined;
+    const solutionUriIsSet: boolean =
+      this._router.currentInstruction !== null &&
+      this._router.currentInstruction !== undefined &&
+      this._router.currentInstruction.queryParams.solutionUri !== null &&
+      this._router.currentInstruction.queryParams.solutionUri !== undefined;
 
     const activeSolutionUri: string = solutionUriIsSet
-                                    ? this._router.currentInstruction.queryParams.solutionUri
-                                    : window.localStorage.getItem('InternalProcessEngineRoute');
+      ? this._router.currentInstruction.queryParams.solutionUri
+      : window.localStorage.getItem('InternalProcessEngineRoute');
 
     const activeSolutionEntry: ISolutionEntry = this._solutionService.getSolutionEntryForUri(activeSolutionUri);
 
     const hasNoClaimsForTaskList: boolean = !(await this._hasClaimsForTaskList(activeSolutionEntry.identity));
 
     if (hasNoClaimsForTaskList) {
-      this._notificationService.showNotification(NotificationType.ERROR, 'You don\'t have the permission to use the inspect features.');
+      this._notificationService.showNotification(
+        NotificationType.ERROR,
+        "You don't have the permission to use the inspect features."
+      );
       this._router.navigateToRoute('start-page');
 
       return false;
@@ -80,12 +83,11 @@ export class TaskListContainer {
 
       await this._managementApiService.getProcessModels(identity);
       await this._managementApiService.getActiveCorrelations(identity);
-
     } catch (error) {
       const errorIsForbiddenError: boolean = isError(error, ForbiddenError);
       const errorIsUnauthorizedError: boolean = isError(error, UnauthorizedError);
 
-      if (errorIsForbiddenError || errorIsUnauthorizedError) {
+      if (errorIsForbiddenError || errorIsUnauthorizedError) {
         return false;
       }
     }

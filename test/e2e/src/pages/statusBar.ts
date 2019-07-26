@@ -1,6 +1,6 @@
-import {browser, by, element, ElementFinder, ExpectedConditions} from 'protractor';
+import { browser, by, element, ElementFinder, ExpectedConditions } from 'protractor';
 
-import {By} from 'selenium-webdriver';
+import { By } from 'selenium-webdriver';
 
 export class StatusBar {
   private _statusBarTag: string = 'status-bar';
@@ -27,71 +27,58 @@ export class StatusBar {
   }
 
   public async getVisibilityOfLeftContainer(): Promise<boolean> {
-
     return this._leftStatusBarContainer.isDisplayed();
   }
 
   public async getVisibilityOfCenterContainer(): Promise<boolean> {
-
     return this._centerStatusBarContainer.isDisplayed();
   }
 
   public async getVisibilityOfRightContainer(): Promise<boolean> {
-
     return this._rightStatusBarContainer.isDisplayed();
   }
 
   // General Design Buttons
 
   public async getVisibilityOfEnableXmlViewButton(): Promise<boolean> {
-
     return this._enableXmlViewButton.isDisplayed();
   }
 
   public async clickOnEnableXmlViewButton(): Promise<void> {
-
     return this._enableXmlViewButton.click();
   }
 
   public async getVisibilityOfDisableXmlViewButton(): Promise<boolean> {
-
     return this._disableXmlViewButton.isDisplayed();
   }
 
   public async clickOnDisableXmlViewButton(): Promise<void> {
-
     return this._disableXmlViewButton.click();
   }
 
   public async getVisibilityOfEnableDiffViewButton(): Promise<boolean> {
-
     return this._enableDiffViewButton.isDisplayed();
   }
 
   public async clickOnEnableDiffViewButton(): Promise<void> {
-
     return this._enableDiffViewButton.click();
   }
 
   public async getVisibilityOfDisableDiffViewButton(): Promise<boolean> {
-
     return this._disableDiffViewButton.isDisplayed();
   }
 
   public async clickOnDisableDiffViewButton(): Promise<void> {
-
     return this._disableDiffViewButton.click();
   }
 
   // Diff View Buttons
 
   public async getVisibilityOfNewVsOldButton(): Promise<boolean> {
-
     return this._newVsOldButton.isDisplayed();
   }
 
   public async clickOnNewVsOldButton(): Promise<void> {
-
     return this._newVsOldButton.click();
   }
 
@@ -103,12 +90,10 @@ export class StatusBar {
   }
 
   public async getVisibilityOfOldVsNewButton(): Promise<boolean> {
-
     return this._oldVsNewButton.isDisplayed();
   }
 
   public async clickOnOldVsNewButton(): Promise<void> {
-
     return this._oldVsNewButton.click();
   }
 
@@ -120,12 +105,10 @@ export class StatusBar {
   }
 
   public async getVisibilityOfChangeLogButton(): Promise<boolean> {
-
     return this._changeLogButton.isDisplayed();
   }
 
   public async clickOnChangeLogButton(): Promise<void> {
-
     return this._changeLogButton.click();
   }
 

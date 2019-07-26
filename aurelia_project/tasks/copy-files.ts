@@ -14,13 +14,16 @@ export default function copyFiles(done: Function): void {
   const instruction: object = getNormalizedInstruction();
   const files: Array<string> = Object.keys(instruction);
 
-  return gulp.src(files)
+  return gulp
+    .src(files)
     .pipe(changedInPlace({ firstPass: true }))
-    .pipe(gulp.dest((x: any) => {
-      const filePath: string = prepareFilePath(x.path);
-      const key: any = files.find((f: any) => minimatch(filePath, f));
-      return instruction[key];
-    }));
+    .pipe(
+      gulp.dest((x: any) => {
+        const filePath: string = prepareFilePath(x.path);
+        const key: any = files.find((f: any) => minimatch(filePath, f));
+        return instruction[key];
+      })
+    );
 }
 
 function getNormalizedInstruction(): object {

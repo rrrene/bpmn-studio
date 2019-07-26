@@ -1,4 +1,4 @@
-import {IChangeListEntry} from './IChangeListEntry';
+import { IChangeListEntry } from './IChangeListEntry';
 
 export interface IDiffChangeListData {
   added: Array<IChangeListEntry>;

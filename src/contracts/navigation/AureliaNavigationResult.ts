@@ -1,4 +1,4 @@
-import {NavigationInstruction} from 'aurelia-router';
+import { NavigationInstruction } from 'aurelia-router';
 
 /**
  * This interface serves as a type when subscribing to the aurelia router events.

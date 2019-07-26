@@ -1,13 +1,12 @@
-import {bindable, inject} from 'aurelia-framework';
+import { bindable, inject } from 'aurelia-framework';
 
-import {DataModels} from '@process-engine/management_api_contracts';
+import { DataModels } from '@process-engine/management_api_contracts';
 
-import {NotificationType} from '../../contracts/index';
-import {NotificationService} from '../../services/notification-service/notification.service';
+import { NotificationType } from '../../contracts/index';
+import { NotificationService } from '../../services/notification-service/notification.service';
 
 @inject('NotificationService')
 export class ConfirmWidget {
-
   @bindable()
   public userTaskConfig: DataModels.UserTasks.UserTaskConfig;
   public formFields: Array<DataModels.UserTasks.UserTaskFormField>;
@@ -24,7 +23,8 @@ export class ConfirmWidget {
     const userTaskHasNoBooleanFormField: boolean = firstBooleanFormField === undefined;
 
     if (userTaskHasNoBooleanFormField) {
-      const errorMessage: string = 'Confirm UserTasks must have a form field of type boolean that should get confirmed.';
+      const errorMessage: string =
+        'Confirm UserTasks must have a form field of type boolean that should get confirmed.';
 
       this._notificationService.showNotification(NotificationType.ERROR, errorMessage);
     }
@@ -46,15 +46,18 @@ export class ConfirmWidget {
         return 'number';
       default:
         const notSupportedType: string = field.type !== undefined ? field.type : 'Custom Type';
-        const errorMessage: string = `Not supported form field type: ${notSupportedType}.`
-                                   + `</br>Please change the form field type with id "${field.id}".`;
+        const errorMessage: string =
+          `Not supported form field type: ${notSupportedType}.` +
+          `</br>Please change the form field type with id "${field.id}".`;
 
         this._notificationService.showNotification(NotificationType.ERROR, errorMessage);
         return null;
     }
   }
 
-  private _getAllOtherFormFields(formField: DataModels.UserTasks.UserTaskFormField): Array<DataModels.UserTasks.UserTaskFormField> {
+  private _getAllOtherFormFields(
+    formField: DataModels.UserTasks.UserTaskFormField
+  ): Array<DataModels.UserTasks.UserTaskFormField> {
     const booleanFormFieldIndex: number = this.userTaskConfig.formFields.indexOf(formField);
 
     const otherFormFields: Array<DataModels.UserTasks.UserTaskFormField> = this.userTaskConfig.formFields.slice();

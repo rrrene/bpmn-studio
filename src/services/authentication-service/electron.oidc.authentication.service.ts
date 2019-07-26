@@ -1,34 +1,33 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
 
-import {IIdentity} from '@essential-projects/iam_contracts';
+import { IIdentity } from '@essential-projects/iam_contracts';
 
-import {AuthenticationStateEvent,
-        IAuthenticationService,
-        ILoginResult,
-        ITokenObject,
-        IUserIdentity,
-        NotificationType} from '../../contracts/index';
+import {
+  AuthenticationStateEvent,
+  IAuthenticationService,
+  ILoginResult,
+  ITokenObject,
+  IUserIdentity,
+  NotificationType
+} from '../../contracts/index';
 
-import {NotificationService} from '../../services/notification-service/notification.service';
+import { NotificationService } from '../../services/notification-service/notification.service';
 
 const UNAUTHORIZED_STATUS_CODE: number = 401;
 const IDENTITY_SERVER_AVAILABLE_SUCCESS_STATUS_CODE: number = 200;
 
 @inject(EventAggregator, 'NotificationService')
 export class ElectronOidcAuthenticationService implements IAuthenticationService {
-
   private _eventAggregator: EventAggregator;
   private _notificationService: NotificationService;
 
-  constructor(eventAggregator: EventAggregator,
-              notificationService: NotificationService) {
+  constructor(eventAggregator: EventAggregator, notificationService: NotificationService) {
     this._eventAggregator = eventAggregator;
     this._notificationService = notificationService;
   }
 
   public async isLoggedIn(authority: string, identity: IIdentity): Promise<boolean> {
-
     authority = this._formAuthority(authority);
 
     let userIdentity: IUserIdentity;
@@ -36,7 +35,6 @@ export class ElectronOidcAuthenticationService implements IAuthenticationService
     try {
       userIdentity = await this.getUserIdentity(authority, identity);
     } catch (error) {
-
       return false;
     }
 
@@ -46,53 +44,51 @@ export class ElectronOidcAuthenticationService implements IAuthenticationService
   }
 
   public async login(authority: string): Promise<ILoginResult> {
-
     authority = this._formAuthority(authority);
 
     const identityServerIsNotReachable: boolean = !(await this._isAuthorityReachable(authority));
 
     if (identityServerIsNotReachable) {
-
       return;
     }
 
-    const loginResultPromise: Promise<ILoginResult> = new Promise(async(resolve: Function, reject: Function): Promise<void> => {
+    const loginResultPromise: Promise<ILoginResult> = new Promise(
+      async (resolve: Function, reject: Function): Promise<void> => {
+        const ipcRenderer: any = (window as any).nodeRequire('electron').ipcRenderer;
 
-      const ipcRenderer: any = (window as any).nodeRequire('electron').ipcRenderer;
+        ipcRenderer.on('oidc-login-reply', async (event: any, tokenObject: ITokenObject) => {
+          const iamIdentity: IIdentity = {
+            token: tokenObject.accessToken,
+            userId: tokenObject.idToken
+          };
+          const identity: IUserIdentity = await this.getUserIdentity(authority, iamIdentity);
 
-      ipcRenderer.on('oidc-login-reply', async(event: any, tokenObject: ITokenObject) => {
-        const iamIdentity: IIdentity = {
-          token: tokenObject.accessToken,
-          userId: tokenObject.idToken,
-        };
-        const identity: IUserIdentity = await this.getUserIdentity(authority, iamIdentity);
+          const loginResult: ILoginResult = {
+            identity: identity,
+            accessToken: tokenObject.accessToken,
+            idToken: tokenObject.idToken
+          };
 
-        const loginResult: ILoginResult = {
-          identity: identity,
-          accessToken: tokenObject.accessToken,
-          idToken: tokenObject.idToken,
-        };
+          this._eventAggregator.publish(AuthenticationStateEvent.LOGIN);
 
-        this._eventAggregator.publish(AuthenticationStateEvent.LOGIN);
+          ipcRenderer.removeAllListeners('oidc-login-reply');
 
-        ipcRenderer.removeAllListeners('oidc-login-reply');
+          resolve(loginResult);
+        });
 
-        resolve(loginResult);
-      });
-
-      ipcRenderer.send('oidc-login', authority);
-    });
+        ipcRenderer.send('oidc-login', authority);
+      }
+    );
 
     return loginResultPromise;
   }
 
   public async logout(authority: string, identity: IIdentity): Promise<void> {
-
     authority = this._formAuthority(authority);
 
     const ipcRenderer: any = (window as any).nodeRequire('electron').ipcRenderer;
 
-    ipcRenderer.on('oidc-logout-reply', async(event: any, logoutWasSuccessful: boolean) => {
+    ipcRenderer.on('oidc-logout-reply', async (event: any, logoutWasSuccessful: boolean) => {
       if (logoutWasSuccessful) {
         this._eventAggregator.publish(AuthenticationStateEvent.LOGOUT);
       }
@@ -102,7 +98,6 @@ export class ElectronOidcAuthenticationService implements IAuthenticationService
   }
 
   public async getUserIdentity(authority: string, identity: IIdentity): Promise<IUserIdentity | null> {
-
     authority = this._formAuthority(authority);
 
     const userInfoRequest: Request = new Request(`${authority}connect/userinfo`, {
@@ -112,8 +107,8 @@ export class ElectronOidcAuthenticationService implements IAuthenticationService
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${identity.token}`,
-      },
+        Authorization: `Bearer ${identity.token}`
+      }
     });
 
     const userInfoResponse: Response = await fetch(userInfoRequest);
@@ -133,24 +128,21 @@ export class ElectronOidcAuthenticationService implements IAuthenticationService
       referrer: 'no-referrer',
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-      },
+        'Content-Type': 'application/json'
+      }
     });
 
     let configResponse: Response;
 
     try {
-
-     configResponse = await fetch(configRequest);
+      configResponse = await fetch(configRequest);
     } catch (error) {
-
       const identityServerWasOffline: boolean = error.message === 'Failed to fetch';
       if (identityServerWasOffline) {
         this._notificationService.showNotification(NotificationType.ERROR, 'IdentityServer is offline.');
 
         return false;
       }
-
     }
 
     const identityServerWasAvailable: boolean = configResponse.status === IDENTITY_SERVER_AVAILABLE_SUCCESS_STATUS_CODE;

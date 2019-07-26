@@ -1,13 +1,12 @@
-import {browser} from 'protractor';
+import { browser } from 'protractor';
 
-import {SimpleDiagram} from './diagrams/simpleDiagram';
-import {DiagramDetail} from './pages/diagramDetail';
-import {RouterView} from './pages/routerView';
-import {StatusBar} from './pages/statusBar';
-import {XmlView} from './pages/xmlView';
+import { SimpleDiagram } from './diagrams/simpleDiagram';
+import { DiagramDetail } from './pages/diagramDetail';
+import { RouterView } from './pages/routerView';
+import { StatusBar } from './pages/statusBar';
+import { XmlView } from './pages/xmlView';
 
 describe('XML view', () => {
-
   let routerView: RouterView;
   let diagram: SimpleDiagram;
   let statusBar: StatusBar;
@@ -16,7 +15,7 @@ describe('XML view', () => {
 
   const applicationUrl: string = browser.params.aureliaUrl;
 
-  beforeAll(async() => {
+  beforeAll(async () => {
     routerView = new RouterView();
     diagram = new SimpleDiagram();
     statusBar = new StatusBar();
@@ -26,23 +25,22 @@ describe('XML view', () => {
     await diagram.deployDiagram();
   });
 
-  afterAll(async() => {
-
+  afterAll(async () => {
     await diagram.deleteDiagram();
   });
 
-  beforeEach(async() => {
+  beforeEach(async () => {
     await routerView.show();
     await diagramDetail.show();
   });
 
-  it('should contain `Show XML` button in status bar.', async() => {
+  it('should contain `Show XML` button in status bar.', async () => {
     const statusBarXMLViewButtonIsDisplayed: boolean = await statusBar.getVisibilityOfEnableXmlViewButton();
 
     expect(statusBarXMLViewButtonIsDisplayed).toBeTruthy();
   });
 
-  it('should open the `xml view`, when clicking on the `Show XML` button.', async() => {
+  it('should open the `xml view`, when clicking on the `Show XML` button.', async () => {
     await statusBar.clickOnEnableXmlViewButton();
 
     const currentBrowserUrl: string = await browser.getCurrentUrl();
@@ -54,7 +52,7 @@ describe('XML view', () => {
     expect(visibilityOfXmlViewContainer).toBeTruthy();
   });
 
-  it('should show the XML code block.', async() => {
+  it('should show the XML code block.', async () => {
     await xmlView.show();
 
     const visbilityOfXMLCodeBlock: boolean = await xmlView.getVisbilityOfXMLCodeBlock();
@@ -62,18 +60,15 @@ describe('XML view', () => {
     expect(visbilityOfXMLCodeBlock).toBeTruthy();
   });
 
-  it('should show line numbers.', async() => {
-
+  it('should show line numbers.', async () => {
     const visbilityOfLineNumbers: boolean = await xmlView.getVisbilityOfLineNumbers();
 
     expect(visbilityOfLineNumbers).toBeTruthy();
   });
 
-  it('should show code lines.', async() => {
-
+  it('should show code lines.', async () => {
     const visiblityOfCodeLines: boolean = await xmlView.getVisbilityOfCodeLines();
 
     expect(visiblityOfCodeLines).toBeTruthy();
   });
-
 });

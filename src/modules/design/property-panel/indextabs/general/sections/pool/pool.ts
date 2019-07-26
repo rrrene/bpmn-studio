@@ -1,15 +1,14 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {bindable, inject} from 'aurelia-framework';
-import {ValidateEvent, ValidationController, ValidationRules} from 'aurelia-validation';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { bindable, inject } from 'aurelia-framework';
+import { ValidateEvent, ValidationController, ValidationRules } from 'aurelia-validation';
 
-import {IModdleElement, IPoolElement, IShape} from '@process-engine/bpmn-elements_contracts';
+import { IModdleElement, IPoolElement, IShape } from '@process-engine/bpmn-elements_contracts';
 
-import {IBpmnModeler, IElementRegistry, IPageModel, ISection} from '../../../../../../../contracts';
+import { IBpmnModeler, IElementRegistry, IPageModel, ISection } from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
 @inject(ValidationController, EventAggregator)
 export class PoolSection implements ISection {
-
   public path: string = '/sections/pool/pool';
   public canHandleElement: boolean = false;
   public validationController: ValidationController;
@@ -87,9 +86,11 @@ export class PoolSection implements ISection {
   }
 
   private _elementIsParticipant(element: IShape): boolean {
-    return element !== undefined
-        && element.businessObject !== undefined
-        && element.businessObject.$type === 'bpmn:Participant';
+    return (
+      element !== undefined &&
+      element.businessObject !== undefined &&
+      element.businessObject.$type === 'bpmn:Participant'
+    );
   }
 
   private _validateId(event: ValidateEvent): void {
@@ -113,8 +114,8 @@ export class PoolSection implements ISection {
 
   private _formIdIsUnique(id: string): boolean {
     const elementRegistry: IElementRegistry = this._modeler.get('elementRegistry');
-    const elementsWithSameId: Array<IShape> =  elementRegistry.filter((element: IShape) => {
-        return element.businessObject.id === this.businessObjInPanel.processRef.id;
+    const elementsWithSameId: Array<IShape> = elementRegistry.filter((element: IShape) => {
+      return element.businessObject.id === this.businessObjInPanel.processRef.id;
     });
 
     return elementsWithSameId.length === 0;
@@ -133,13 +134,13 @@ export class PoolSection implements ISection {
 
   private _setValidationRules(): void {
     ValidationRules.ensure((businessObject: IModdleElement) => businessObject.id)
-    .displayName('processId')
-    .required()
-    .withMessage('Process-ID cannot be blank.')
-    .then()
-    .satisfies((id: string) => this._formIdIsUnique(id) && this._isProcessIdUnique(id))
-    .withMessage('Process-ID already exists.')
-    .on(this.businessObjInPanel.processRef);
+      .displayName('processId')
+      .required()
+      .withMessage('Process-ID cannot be blank.')
+      .then()
+      .satisfies((id: string) => this._formIdIsUnique(id) && this._isProcessIdUnique(id))
+      .withMessage('Process-ID already exists.')
+      .on(this.businessObjInPanel.processRef);
   }
 
   private _persistModalOptionToLocalStorage(): void {

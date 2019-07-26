@@ -1,17 +1,16 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
-import {Router} from 'aurelia-router';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
+import { Router } from 'aurelia-router';
 
-import {ICallActivityElement, IShape} from '@process-engine/bpmn-elements_contracts';
-import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+import { ICallActivityElement, IShape } from '@process-engine/bpmn-elements_contracts';
+import { IDiagram } from '@process-engine/solutionexplorer.contracts';
 
-import {IPageModel, ISection} from '../../../../../../../contracts';
+import { IPageModel, ISection } from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
-import {GeneralService} from '../../service/general.service';
+import { GeneralService } from '../../service/general.service';
 
 @inject(GeneralService, Router, EventAggregator)
 export class CallActivitySection implements ISection {
-
   public path: string = '/sections/call-activity/call-activity';
   public canHandleElement: boolean = false;
   public allDiagrams: Array<IDiagram>;
@@ -39,9 +38,10 @@ export class CallActivitySection implements ISection {
   }
 
   public isSuitableForElement(element: IShape): boolean {
-    const elementIsCallActivity: boolean = element !== undefined
-                                        && element.businessObject !== undefined
-                                        && element.businessObject.$type === 'bpmn:CallActivity';
+    const elementIsCallActivity: boolean =
+      element !== undefined &&
+      element.businessObject !== undefined &&
+      element.businessObject.$type === 'bpmn:CallActivity';
 
     return elementIsCallActivity;
   }
@@ -50,7 +50,7 @@ export class CallActivitySection implements ISection {
     this._router.navigateToRoute('design', {
       diagramName: this.selectedDiagramId,
       solutionUri: this._activeSolutionUri,
-      view: 'detail',
+      view: 'detail'
     });
   }
 

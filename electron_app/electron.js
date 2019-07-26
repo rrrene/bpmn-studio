@@ -1,6 +1,6 @@
 const electron = require('electron');
 
-const {ipcMain, dialog, app} = electron;
+const { ipcMain, dialog, app } = electron;
 
 const autoUpdater = require('electron-updater').autoUpdater;
 const CancellationToken = require('electron-updater').CancellationToken;
@@ -29,8 +29,7 @@ let fileOpenMainEvent;
 
 Main._window = null;
 
-
-Main.execute = function () {
+Main.execute = function() {
   /**
    * Makes this application a Single Instance Application.
    */
@@ -45,7 +44,7 @@ Main.execute = function () {
 
   if (hasSingleInstanceLock) {
     Main._initializeApplication();
-    
+
     Main._startInternalProcessEngine();
 
     app.on('second-instance', (event, argv, workingDirectory) => {
@@ -63,10 +62,10 @@ Main.execute = function () {
         const filePath = argv[1];
         Main._bringExistingInstanceToForeground();
 
-        answerOpenFileEvent(filePath)
+        answerOpenFileEvent(filePath);
       }
 
-      const argumentContainsRedirect = argumentIsSignInRedirect || argumentIsSignOutRedirect
+      const argumentContainsRedirect = argumentIsSignInRedirect || argumentIsSignOutRedirect;
       if (argumentContainsRedirect) {
         const redirectUrl = argv[1];
 
@@ -77,15 +76,13 @@ Main.execute = function () {
           Main._window.webContents.send('deep-linking-request', redirectUrl);
         });
       }
-    })
+    });
   } else {
     app.quit();
   }
-}
+};
 
-
-Main._initializeApplication = function () {
-
+Main._initializeApplication = function() {
   app.on('ready', () => {
     Main._createMainWindow();
   });
@@ -104,10 +101,9 @@ Main._initializeApplication = function () {
   initializeOidc();
 
   function initializeAutoUpdater() {
-
     const prereleaseRegex = /\d+\.\d+\.\d+-pre-b\d+/;
 
-    electron.ipcMain.on('app_ready', async(appReadyEvent) => {
+    electron.ipcMain.on('app_ready', async (appReadyEvent) => {
       autoUpdater.autoDownload = false;
 
       const currentVersion = electron.app.getVersion();
@@ -115,7 +111,7 @@ Main._initializeApplication = function () {
       autoUpdater.allowPrerelease = currentVersionIsPrerelease;
 
       const updateCheckResult = await autoUpdater.checkForUpdates();
-      const noUpdateAvailable = updateCheckResult.updateInfo.version === currentVersion
+      const noUpdateAvailable = updateCheckResult.updateInfo.version === currentVersion;
       if (noUpdateAvailable) {
         return;
       }
@@ -154,10 +150,12 @@ Main._initializeApplication = function () {
             height: 600,
             title: `Release Notes ${updateCheckResult.updateInfo.version}`,
             minWidth: 600,
-            minHeight: 600,
-          })
+            minHeight: 600
+          });
 
-          releaseNotesWindow.loadURL(`https://github.com/process-engine/bpmn-studio/releases/tag/v${updateCheckResult.updateInfo.version}`);
+          releaseNotesWindow.loadURL(
+            `https://github.com/process-engine/bpmn-studio/releases/tag/v${updateCheckResult.updateInfo.version}`
+          );
         });
       });
 
@@ -171,7 +169,6 @@ Main._initializeApplication = function () {
 
       autoUpdater.checkForUpdates();
     });
-
   }
 
   /**
@@ -185,29 +182,33 @@ Main._initializeApplication = function () {
       autoHideMenuBar: true,
       webPreferences: {
         nodeIntegration: true,
-        nodeIntegrationInWorker: true,
+        nodeIntegrationInWorker: true
       }
     };
 
     const electronOidcInstance = electronOidc(oidcConfig, windowParams);
 
     ipcMain.on('oidc-login', (event, authorityUrl) => {
-      electronOidcInstance.getTokenObject(authorityUrl)
-        .then(token => {
+      electronOidcInstance.getTokenObject(authorityUrl).then(
+        (token) => {
           event.sender.send('oidc-login-reply', token);
-        }, err => {
+        },
+        (err) => {
           console.log('Error while getting token', err);
-        });
+        }
+      );
     });
 
     ipcMain.on('oidc-logout', (event, tokenObject, authorityUrl) => {
-      electronOidcInstance.logout(tokenObject, authorityUrl)
-        .then(logoutWasSuccessful => {
+      electronOidcInstance.logout(tokenObject, authorityUrl).then(
+        (logoutWasSuccessful) => {
           event.sender.send('oidc-logout-reply', logoutWasSuccessful);
-        }, err => {
+        },
+        (err) => {
           console.log('Error while logging out', err);
-        });
-    })
+        }
+      );
+    });
   }
 
   function initializeFileOpenFeature() {
@@ -224,17 +225,13 @@ Main._initializeApplication = function () {
 
       // for non-windows
       app.on('open-file', (event, path) => {
-        filePath = isInitialized
-                   ? undefined
-                   : path;
+        filePath = isInitialized ? undefined : path;
 
         if (isInitialized) {
           answerOpenFileEvent(path);
         }
       });
-
     });
-
 
     /**
      * Wait for the "waiting"-event signalling the app has started and the
@@ -261,23 +258,19 @@ Main._initializeApplication = function () {
 
       event.returnValue = {
         path: filePath,
-        content: fs.readFileSync(filePath, 'utf8'),
-      }
+        content: fs.readFileSync(filePath, 'utf8')
+      };
       filePath = undefined;
       app.focus();
-
     });
-
   }
-
-}
+};
 
 function answerOpenFileEvent(filePath) {
   this.fileOpenMainEvent.sender.send('double-click-on-file', filePath);
 }
 
-Main._createMainWindow = function () {
-
+Main._createMainWindow = function() {
   console.log('create window called');
 
   setElectronMenubar();
@@ -285,7 +278,7 @@ Main._createMainWindow = function () {
   Main._window = new electron.BrowserWindow({
     width: 1300,
     height: 800,
-    title: "BPMN-Studio",
+    title: 'BPMN-Studio',
     minWidth: 1300,
     minHeight: 800,
     icon: path.join(__dirname, '../build/icon.png'), // only for windows
@@ -351,8 +344,8 @@ Main._createMainWindow = function () {
       const filePath = dialog.showSaveDialog({
         filters: [
           {
-            name: "BPMN",
-            extensions: ["bpmn", "xml"]
+            name: 'BPMN',
+            extensions: ['bpmn', 'xml']
           },
           {
             name: 'All Files',
@@ -370,12 +363,12 @@ Main._createMainWindow = function () {
       const openedFile = dialog.showOpenDialog({
         filters: [
           {
-            name: "BPMN",
-            extensions: ["bpmn", "xml"]
+            name: 'BPMN',
+            extensions: ['bpmn', 'xml']
           },
           {
-            name: "XML",
-            extensions: ["bpmn", "xml"]
+            name: 'XML',
+            extensions: ['bpmn', 'xml']
           },
           {
             name: 'All Files',
@@ -391,10 +384,7 @@ Main._createMainWindow = function () {
   function setOpenSolutions() {
     electron.ipcMain.on('open_solution', (event) => {
       const openedFile = dialog.showOpenDialog({
-        properties: [
-          'openDirectory',
-          'createDirectory'
-        ]
+        properties: ['openDirectory', 'createDirectory']
       });
 
       event.sender.send('import_opened_solution', openedFile);
@@ -402,175 +392,178 @@ Main._createMainWindow = function () {
   }
 
   function setElectronMenubar() {
-
     const copyrightYear = new Date().getFullYear();
 
     const getApplicationMenu = () => {
       return {
-        label: "BPMN-Studio",
-        submenu: [{
-            label: "About BPMN-Studio",
+        label: 'BPMN-Studio',
+        submenu: [
+          {
+            label: 'About BPMN-Studio',
             click: () =>
-            openAboutWindow({
-              icon_path: isDev ? path.join(__dirname, '..', 'build/icon.png') : path.join(__dirname, '../../../build/icon.png'),
-              product_name: 'BPMN-Studio',
-              bug_report_url: 'https://github.com/process-engine/bpmn-studio/issues/new',
-              homepage: 'www.process-engine.io',
-              copyright: `Copyright © ${copyrightYear} process-engine`,
-              win_options: {
-                minimizable: false,
-                maximizable: false,
-                resizable: false,
-              },
-              package_json_dir: __dirname,
-            }),
+              openAboutWindow({
+                icon_path: isDev
+                  ? path.join(__dirname, '..', 'build/icon.png')
+                  : path.join(__dirname, '../../../build/icon.png'),
+                product_name: 'BPMN-Studio',
+                bug_report_url: 'https://github.com/process-engine/bpmn-studio/issues/new',
+                homepage: 'www.process-engine.io',
+                copyright: `Copyright © ${copyrightYear} process-engine`,
+                win_options: {
+                  minimizable: false,
+                  maximizable: false,
+                  resizable: false
+                },
+                package_json_dir: __dirname
+              })
           },
           {
-            type: "separator",
+            type: 'separator'
           },
           {
-            label: "Quit",
-            role: "quit",
-          },
-        ],
+            label: 'Quit',
+            role: 'quit'
+          }
+        ]
       };
     };
 
     const getFileMenu = () => {
       return {
-        label: "File",
+        label: 'File',
         submenu: [
           {
-            label: "New Diagram",
-            accelerator: "CmdOrCtrl+N",
+            label: 'New Diagram',
+            accelerator: 'CmdOrCtrl+N',
             click: () => {
               Main._window.webContents.send('menubar__start_create_diagram');
             }
           },
           {
-            type: "separator",
+            type: 'separator'
           },
           {
-            label: "Open Diagram",
-            accelerator: "CmdOrCtrl+O",
+            label: 'Open Diagram',
+            accelerator: 'CmdOrCtrl+O',
             click: () => {
               Main._window.webContents.send('menubar__start_opening_diagram');
-            },
+            }
           },
           {
-            label: "Open Solution",
-            accelerator: "CmdOrCtrl+Shift+O",
+            label: 'Open Solution',
+            accelerator: 'CmdOrCtrl+Shift+O',
             click: () => {
               Main._window.webContents.send('menubar__start_opening_solution');
-            },
+            }
           },
           {
-            type: "separator",
+            type: 'separator'
           },
           {
-            label: "Save Diagram",
-            accelerator: "CmdOrCtrl+S",
+            label: 'Save Diagram',
+            accelerator: 'CmdOrCtrl+S',
             click: () => {
               Main._window.webContents.send('menubar__start_save_diagram');
-            },
+            }
           },
           {
-            label: "Save Diagram As...",
-            accelerator: "CmdOrCtrl+Shift+S",
+            label: 'Save Diagram As...',
+            accelerator: 'CmdOrCtrl+Shift+S',
             click: () => {
               Main._window.webContents.send('menubar__start_save_diagram_as');
-            },
+            }
           },
           {
-            label: "Save All Diagrams",
-            accelerator: "CmdOrCtrl+Alt+S",
+            label: 'Save All Diagrams',
+            accelerator: 'CmdOrCtrl+Alt+S',
             click: () => {
               Main._window.webContents.send('menubar__start_save_all_diagrams');
-            },
+            }
           },
           {
-            type: "separator",
+            type: 'separator'
           },
           {
-            label: "Close Diagram",
-            accelerator: "CmdOrCtrl+W",
+            label: 'Close Diagram',
+            accelerator: 'CmdOrCtrl+W',
             click: () => {
               Main._window.webContents.send('menubar__start_close_diagram');
-            },
+            }
           },
           {
-            label: "Close All Diagrams",
-            accelerator: "CmdOrCtrl+Alt+W",
+            label: 'Close All Diagrams',
+            accelerator: 'CmdOrCtrl+Alt+W',
             click: () => {
               Main._window.webContents.send('menubar__start_close_all_diagrams');
-            },
-          },
-        ],
+            }
+          }
+        ]
       };
     };
 
     const getEditMenu = () => {
       return {
-        label: "Edit",
-        submenu: [{
-            label: "Undo",
-            accelerator: "CmdOrCtrl+Z",
-            selector: "undo:",
+        label: 'Edit',
+        submenu: [
+          {
+            label: 'Undo',
+            accelerator: 'CmdOrCtrl+Z',
+            selector: 'undo:'
           },
           {
-            label: "Redo",
-            accelerator: "CmdOrCtrl+Shift+Z",
-            selector: "redo:",
+            label: 'Redo',
+            accelerator: 'CmdOrCtrl+Shift+Z',
+            selector: 'redo:'
           },
           {
-            type: "separator",
+            type: 'separator'
           },
           {
-            label: "Cut",
-            accelerator: "CmdOrCtrl+X",
-            selector: "cut:",
+            label: 'Cut',
+            accelerator: 'CmdOrCtrl+X',
+            selector: 'cut:'
           },
           {
-            label: "Copy",
-            accelerator: "CmdOrCtrl+C",
-            selector: "copy:",
+            label: 'Copy',
+            accelerator: 'CmdOrCtrl+C',
+            selector: 'copy:'
           },
           {
-            label: "Paste",
-            accelerator: "CmdOrCtrl+V",
-            selector: "paste:",
+            label: 'Paste',
+            accelerator: 'CmdOrCtrl+V',
+            selector: 'paste:'
           },
           {
-            label: "Select All",
-            accelerator: "CmdOrCtrl+A",
-            selector: "selectAll:",
-          },
-        ],
+            label: 'Select All',
+            accelerator: 'CmdOrCtrl+A',
+            selector: 'selectAll:'
+          }
+        ]
       };
     };
 
     const getWindowMenu = () => {
       const windowMenu = {
-        label: "Window",
-        submenu: [],
+        label: 'Window',
+        submenu: []
       };
 
       windowMenu.submenu.push({
-        role: "minimize",
+        role: 'minimize'
       });
       windowMenu.submenu.push({
-        role: "close",
+        role: 'close'
       });
       windowMenu.submenu.push({
-        type: "separator",
-      });
-
-      windowMenu.submenu.push({
-        role: "reload",
+        type: 'separator'
       });
 
       windowMenu.submenu.push({
-        role: "toggledevtools",
+        role: 'reload'
+      });
+
+      windowMenu.submenu.push({
+        role: 'toggledevtools'
       });
 
       return windowMenu;
@@ -578,21 +571,24 @@ Main._createMainWindow = function () {
 
     const getHelpMenu = () => {
       return {
-        label: "Help",
-        submenu: [{
-          label: "Documentation",
-          click: () => {
-            const documentation_url = 'https://www.process-engine.io/documentation/';
-            electron.shell.openExternal(documentation_url);
-          }
-        }, {
-          label: "Release Notes for Current Version",
+        label: 'Help',
+        submenu: [
+          {
+            label: 'Documentation',
+            click: () => {
+              const documentation_url = 'https://www.process-engine.io/documentation/';
+              electron.shell.openExternal(documentation_url);
+            }
+          },
+          {
+            label: 'Release Notes for Current Version',
             click: () => {
               const currentVersion = electron.app.getVersion();
-              const currentReleaseNotesUrl = `https://github.com/process-engine/bpmn-studio/releases/tag/v${currentVersion}`
+              const currentReleaseNotesUrl = `https://github.com/process-engine/bpmn-studio/releases/tag/v${currentVersion}`;
               electron.shell.openExternal(currentReleaseNotesUrl);
             }
-        }]
+          }
+        ]
       };
     };
 
@@ -600,11 +596,11 @@ Main._createMainWindow = function () {
       let previousEntryIsSeparator = false;
 
       const fileMenu = getFileMenu();
-      const filteredFileSubmenu  = fileMenu.submenu.filter((submenuEntry) => {
+      const filteredFileSubmenu = fileMenu.submenu.filter((submenuEntry) => {
         const isSeparator = submenuEntry.type !== undefined && submenuEntry.type === 'separator';
-        if(isSeparator) {
+        if (isSeparator) {
           // This is used to prevent double separators
-          if(previousEntryIsSeparator) {
+          if (previousEntryIsSeparator) {
             return false;
           }
 
@@ -612,8 +608,8 @@ Main._createMainWindow = function () {
           return true;
         }
 
-        const isSaveButton = submenuEntry.label !== undefined && submenuEntry.label.startsWith('Save')
-        if(isSaveButton) {
+        const isSaveButton = submenuEntry.label !== undefined && submenuEntry.label.startsWith('Save');
+        if (isSaveButton) {
           return false;
         }
 
@@ -622,28 +618,16 @@ Main._createMainWindow = function () {
       });
       fileMenu.submenu = filteredFileSubmenu;
 
-      const template = [
-        getApplicationMenu(),
-        fileMenu,
-        getEditMenu(),
-        getWindowMenu(),
-        getHelpMenu(),
-      ];
+      const template = [getApplicationMenu(), fileMenu, getEditMenu(), getWindowMenu(), getHelpMenu()];
 
       electron.Menu.setApplicationMenu(electron.Menu.buildFromTemplate(template));
-    }
+    };
 
     const showAllMenuEntries = () => {
-      const template = [
-        getApplicationMenu(),
-        getFileMenu(),
-        getEditMenu(),
-        getWindowMenu(),
-        getHelpMenu(),
-      ];
+      const template = [getApplicationMenu(), getFileMenu(), getEditMenu(), getWindowMenu(), getHelpMenu()];
 
       electron.Menu.setApplicationMenu(electron.Menu.buildFromTemplate(template));
-    }
+    };
 
     showMenuEntriesWithoutDiagramEntries();
 
@@ -653,12 +637,11 @@ Main._createMainWindow = function () {
 
     electron.ipcMain.on('menu_show-all-menu-entries', () => {
       showAllMenuEntries();
-    })
+    });
   }
-}
+};
 
-Main._startInternalProcessEngine = async function () {
-
+Main._startInternalProcessEngine = async function() {
   const devUserDataFolderPath = path.join(__dirname, '..', 'userData');
   const prodUserDataFolderPath = app.getPath('userData');
 
@@ -673,120 +656,123 @@ Main._startInternalProcessEngine = async function () {
     host: '0.0.0.0'
   };
 
-  return getPort(getPortConfig)
-    .then(async (port) => {
+  return getPort(getPortConfig).then(async (port) => {
+    console.log(`Internal ProcessEngine starting on port ${port}.`);
 
-      console.log(`Internal ProcessEngine starting on port ${port}.`);
+    process.env.http__http_extension__server__port = port;
 
-      process.env.http__http_extension__server__port = port;
+    const processEngineDatabaseFolderName = 'process_engine_databases';
 
-      const processEngineDatabaseFolderName = 'process_engine_databases';
+    process.env.process_engine__process_model_repository__storage = path.join(
+      userDataFolderPath,
+      processEngineDatabaseFolderName,
+      'process_model.sqlite'
+    );
+    process.env.process_engine__flow_node_instance_repository__storage = path.join(
+      userDataFolderPath,
+      processEngineDatabaseFolderName,
+      'flow_node_instance.sqlite'
+    );
+    process.env.process_engine__timer_repository__storage = path.join(
+      userDataFolderPath,
+      processEngineDatabaseFolderName,
+      'timer.sqlite'
+    );
 
-      process.env.process_engine__process_model_repository__storage = path.join(userDataFolderPath, processEngineDatabaseFolderName, 'process_model.sqlite');
-      process.env.process_engine__flow_node_instance_repository__storage = path.join(userDataFolderPath, processEngineDatabaseFolderName, 'flow_node_instance.sqlite');
-      process.env.process_engine__timer_repository__storage = path.join(userDataFolderPath, processEngineDatabaseFolderName, 'timer.sqlite');
+    let internalProcessEngineStatus = undefined;
+    let internalProcessEngineStartupError = undefined;
+    const processEngineStatusListeners = [];
 
-      let internalProcessEngineStatus = undefined;
-      let internalProcessEngineStartupError = undefined;
-      const processEngineStatusListeners = [];
+    function _sendInternalProcessEngineStatus(sender) {
+      let serializedStartupError;
+      const processEngineStartSuccessful =
+        internalProcessEngineStartupError !== undefined && internalProcessEngineStartupError !== null;
 
-      function _sendInternalProcessEngineStatus(sender) {
-        let serializedStartupError;
-        const processEngineStartSuccessful = (internalProcessEngineStartupError !== undefined &&
-          internalProcessEngineStartupError !== null);
-
-        if (processEngineStartSuccessful) {
-          serializedStartupError = JSON.stringify(
-            internalProcessEngineStartupError,
-            Object.getOwnPropertyNames(internalProcessEngineStartupError));
-
-        } else {
-          serializedStartupError = undefined;
-        }
-
-        sender.send(
-          'internal_processengine_status',
-          internalProcessEngineStatus,
-          serializedStartupError);
+      if (processEngineStartSuccessful) {
+        serializedStartupError = JSON.stringify(
+          internalProcessEngineStartupError,
+          Object.getOwnPropertyNames(internalProcessEngineStartupError)
+        );
+      } else {
+        serializedStartupError = undefined;
       }
 
-      function _publishProcessEngineStatus() {
-        processEngineStatusListeners.forEach(_sendInternalProcessEngineStatus);
+      sender.send('internal_processengine_status', internalProcessEngineStatus, serializedStartupError);
+    }
+
+    function _publishProcessEngineStatus() {
+      processEngineStatusListeners.forEach(_sendInternalProcessEngineStatus);
+    }
+
+    /* When someone wants to know to the internal processengine status, he
+     * must first send a `add_internal_processengine_status_listener` message
+     * to the event mechanism. We recieve this message here and add the sender
+     * to our listeners array.
+     *
+     * As soon, as the processengine status is updated, we send the listeners a
+     * notification about this change; this message contains the state and the
+     * error text (if there was an error).
+     *
+     * If the processengine status is known by the time the listener registers,
+     * we instantly respond to the listener with a notification message.
+     *
+     * This is quite a unusual pattern, the problem this approves solves is the
+     * following: It's impossible to do interactions between threads in
+     * electron like this:
+     *
+     *  'renderer process'              'main process'
+     *          |                             |
+     *          o   <<<- Send Message  -<<<   x
+     *
+     * -------------------------------------------------
+     *
+     * Instead our interaction now locks like this:
+     *
+     *  'renderer process'              'main process'
+     *          |                             |
+     *          x   >>>--  Subscribe  -->>>   o
+     *          o   <<<- Send Message  -<<<   x
+     *          |       (event occurs)        |
+     *          o   <<<- Send Message  -<<<   x
+     */
+    electron.ipcMain.on('add_internal_processengine_status_listener', (event) => {
+      if (!processEngineStatusListeners.includes(event.sender)) {
+        processEngineStatusListeners.push(event.sender);
       }
 
-      /* When someone wants to know to the internal processengine status, he
-       * must first send a `add_internal_processengine_status_listener` message
-       * to the event mechanism. We recieve this message here and add the sender
-       * to our listeners array.
-       *
-       * As soon, as the processengine status is updated, we send the listeners a
-       * notification about this change; this message contains the state and the
-       * error text (if there was an error).
-       *
-       * If the processengine status is known by the time the listener registers,
-       * we instantly respond to the listener with a notification message.
-       *
-       * This is quite a unusual pattern, the problem this approves solves is the
-       * following: It's impossible to do interactions between threads in
-       * electron like this:
-       *
-       *  'renderer process'              'main process'
-       *          |                             |
-       *          o   <<<- Send Message  -<<<   x
-       *
-       * -------------------------------------------------
-       *
-       * Instead our interaction now locks like this:
-       *
-       *  'renderer process'              'main process'
-       *          |                             |
-       *          x   >>>--  Subscribe  -->>>   o
-       *          o   <<<- Send Message  -<<<   x
-       *          |       (event occurs)        |
-       *          o   <<<- Send Message  -<<<   x
-       */
-      electron.ipcMain.on('add_internal_processengine_status_listener', (event) => {
-        if (!processEngineStatusListeners.includes(event.sender)) {
-          processEngineStatusListeners.push(event.sender);
-        }
-
-        if (internalProcessEngineStatus !== undefined) {
-          _sendInternalProcessEngineStatus(event.sender);
-        }
-      });
-
-      // This tells the frontend the location at which the electron-skeleton
-      // will be running; this 'get_host' request ist emitted in src/main.ts.
-      electron.ipcMain.on('get_host', (event) => {
-        event.returnValue = `localhost:${port}`;
-      });
-
-
-      // TODO: Check if the ProcessEngine instance is now run on the UI thread.
-      // See issue https://github.com/process-engine/bpmn-studio/issues/312
-      try {
-
-        // Create path for sqlite database in BPMN-Studio context.
-        const userDataFolderPath = getUserConfigFolder();
-        const sqlitePath = `${userDataFolderPath}/bpmn-studio/process_engine_databases`;
-        const pe = require('@process-engine/process_engine_runtime');
-        pe.startRuntime(sqlitePath);
-
-        console.log('Internal ProcessEngine started successfully.');
-        internalProcessEngineStatus = 'success';
-
-        _publishProcessEngineStatus();
-      } catch (error) {
-        console.error('Failed to start internal ProcessEngine: ', error);
-        internalProcessEngineStatus = 'error';
-        internalProcessEngineStartupError = error;
-
-        _publishProcessEngineStatus();
+      if (internalProcessEngineStatus !== undefined) {
+        _sendInternalProcessEngineStatus(event.sender);
       }
-
     });
 
-}
+    // This tells the frontend the location at which the electron-skeleton
+    // will be running; this 'get_host' request ist emitted in src/main.ts.
+    electron.ipcMain.on('get_host', (event) => {
+      event.returnValue = `localhost:${port}`;
+    });
+
+    // TODO: Check if the ProcessEngine instance is now run on the UI thread.
+    // See issue https://github.com/process-engine/bpmn-studio/issues/312
+    try {
+      // Create path for sqlite database in BPMN-Studio context.
+      const userDataFolderPath = getUserConfigFolder();
+      const sqlitePath = `${userDataFolderPath}/bpmn-studio/process_engine_databases`;
+      const pe = require('@process-engine/process_engine_runtime');
+      pe.startRuntime(sqlitePath);
+
+      console.log('Internal ProcessEngine started successfully.');
+      internalProcessEngineStatus = 'success';
+
+      _publishProcessEngineStatus();
+    } catch (error) {
+      console.error('Failed to start internal ProcessEngine: ', error);
+      internalProcessEngineStatus = 'error';
+      internalProcessEngineStartupError = error;
+
+      _publishProcessEngineStatus();
+    }
+  });
+};
 
 function getUserConfigFolder() {
   const userHomeDir = require('os').homedir();
@@ -800,17 +786,15 @@ function getUserConfigFolder() {
   }
 }
 
-Main._bringExistingInstanceToForeground = function () {
-
+Main._bringExistingInstanceToForeground = function() {
   if (Main._window) {
-
     if (Main._window.isMinimized()) {
       Main._window.restore();
     }
 
     Main._window.focus();
   }
-}
+};
 
 // Run our main class
 Main.execute();

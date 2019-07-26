@@ -1,6 +1,6 @@
-import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+import { IDiagram } from '@process-engine/solutionexplorer.contracts';
 
-import {ISolutionEntry} from './ISolutionEntry';
+import { ISolutionEntry } from './ISolutionEntry';
 
 export interface ISolutionService {
   /**

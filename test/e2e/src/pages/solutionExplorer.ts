@@ -1,18 +1,19 @@
-import {browser, by, element, ElementFinder, ExpectedConditions} from 'protractor';
+import { browser, by, element, ElementFinder, ExpectedConditions } from 'protractor';
 
-import {By} from 'selenium-webdriver';
+import { By } from 'selenium-webdriver';
 
 export class SolutionExplorer {
-
   private _diagramIdIdentifier: string = 'diagramList-';
   private _solutionExplorerPanelTag: string = 'solution-explorer-panel';
 
   public async show(): Promise<void> {
-    await browser.wait(ExpectedConditions.visibilityOf(this._solutionExplorerPanelContainer), browser.params.defaultTimeoutMS);
+    await browser.wait(
+      ExpectedConditions.visibilityOf(this._solutionExplorerPanelContainer),
+      browser.params.defaultTimeoutMS
+    );
   }
 
   public async getVisbilityOfSolutionExplorer(): Promise<boolean> {
-
     return this._solutionExplorerPanelContainer.isDisplayed();
   }
 
@@ -42,5 +43,4 @@ export class SolutionExplorer {
 
     return element(byId);
   }
-
 }

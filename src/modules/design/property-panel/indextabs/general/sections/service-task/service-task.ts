@@ -1,26 +1,20 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
 
-import {
-  IPropertiesElement,
-  IProperty,
-  IServiceTaskElement,
-  IShape,
-} from '@process-engine/bpmn-elements_contracts';
+import { IPropertiesElement, IProperty, IServiceTaskElement, IShape } from '@process-engine/bpmn-elements_contracts';
 
-import {IBpmnModdle, IPageModel, ISection} from '../../../../../../../contracts';
+import { IBpmnModdle, IPageModel, ISection } from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
-import {ServiceTaskService} from './components/service-task-service/service-task-service';
+import { ServiceTaskService } from './components/service-task-service/service-task-service';
 
 enum ServiceKind {
   None = 'null',
   HttpClient = 'HttpClient',
-  External = 'external',
+  External = 'external'
 }
 
 @inject(EventAggregator)
 export class ServiceTaskSection implements ISection {
-
   public path: string = '/sections/service-task/service-task';
   public ServiceKind: typeof ServiceKind = ServiceKind;
   public canHandleElement: boolean = false;
@@ -66,7 +60,6 @@ export class ServiceTaskSection implements ISection {
       moduleProperty.value = this.selectedKind;
 
       this._deleteExternalTaskProperties();
-
     } else if (selectedKindIsExternalTask) {
       this.businessObjInPanel.type = this.selectedKind;
       this._deleteHttpProperties();
@@ -79,9 +72,11 @@ export class ServiceTaskSection implements ISection {
   }
 
   private _elementIsServiceTask(element: IShape): boolean {
-    return element !== undefined
-        && element.businessObject !== undefined
-        && element.businessObject.$type === 'bpmn:ServiceTask';
+    return (
+      element !== undefined &&
+      element.businessObject !== undefined &&
+      element.businessObject.$type === 'bpmn:ServiceTask'
+    );
   }
 
   private _publishDiagramChange(): void {
@@ -103,7 +98,7 @@ export class ServiceTaskSection implements ISection {
 
     const modulePropertyObject: Object = {
       name: 'module',
-      value: 'HttpClient',
+      value: 'HttpClient'
     };
 
     const moduleProperty: IProperty = this._moddle.create('camunda:Property', modulePropertyObject);
@@ -127,7 +122,6 @@ export class ServiceTaskSection implements ISection {
     } else {
       this.selectedKind = ServiceKind.None;
     }
-
   }
 
   private _deleteHttpProperties(): void {
@@ -165,13 +159,15 @@ export class ServiceTaskSection implements ISection {
   }
 
   private _deletePropertiesElementAndExtensionElements(): void {
-    const indexOfPropertiesElement: number = this.businessObjInPanel.extensionElements.values.findIndex((element: IPropertiesElement) => {
-      if (!element) {
-        return;
-      }
+    const indexOfPropertiesElement: number = this.businessObjInPanel.extensionElements.values.findIndex(
+      (element: IPropertiesElement) => {
+        if (!element) {
+          return;
+        }
 
-      return element.$type === 'camunda:Properties';
-    });
+        return element.$type === 'camunda:Properties';
+      }
+    );
 
     delete this.businessObjInPanel.extensionElements.values[indexOfPropertiesElement];
 

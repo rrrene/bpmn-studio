@@ -1,18 +1,14 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {bindable, inject} from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { bindable, inject } from 'aurelia-framework';
 
-import {
-  IProperty,
-  IServiceTaskElement,
-} from '@process-engine/bpmn-elements_contracts';
+import { IProperty, IServiceTaskElement } from '@process-engine/bpmn-elements_contracts';
 
-import {IBpmnModdle, IPageModel} from '../../../../../../../../../contracts';
+import { IBpmnModdle, IPageModel } from '../../../../../../../../../contracts';
 import environment from '../../../../../../../../../environment';
-import {ServiceTaskService} from '../service-task-service/service-task-service';
+import { ServiceTaskService } from '../service-task-service/service-task-service';
 
 @inject(EventAggregator)
 export class ExternalTask {
-
   @bindable() public model: IPageModel;
   public businessObjInPanel: IServiceTaskElement;
   public selectedTopic: string;

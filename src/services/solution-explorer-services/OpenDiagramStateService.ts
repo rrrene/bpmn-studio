@@ -1,19 +1,24 @@
-import {IShape} from '@process-engine/bpmn-elements_contracts';
+import { IShape } from '@process-engine/bpmn-elements_contracts';
 
-import {IDiagramState, IDiagramStateList, IDiagramStateListEntry} from '../../contracts';
+import { IDiagramState, IDiagramStateList, IDiagramStateListEntry } from '../../contracts';
 
 export class OpenDiagramStateService {
-
-  public saveDiagramState(uri: string, xml: string, location: any, selectedElements: Array<IShape>, isChanged: boolean): void {
+  public saveDiagramState(
+    uri: string,
+    xml: string,
+    location: any,
+    selectedElements: Array<IShape>,
+    isChanged: boolean
+  ): void {
     const diagramState: IDiagramState = {
       data: {
-        xml: xml,
+        xml: xml
       },
       metaData: {
         location: location,
         selectedElements: selectedElements,
-        isChanged: isChanged,
-      },
+        isChanged: isChanged
+      }
     };
 
     const key: string = this._getLocalStorageKeyByUri(uri);
@@ -54,7 +59,7 @@ export class OpenDiagramStateService {
 
       const diagramStateListEntry: IDiagramStateListEntry = {
         uri: uri,
-        diagramState: diagramState,
+        diagramState: diagramState
       };
 
       diagramStateList.push(diagramStateListEntry);
@@ -75,9 +80,11 @@ export class OpenDiagramStateService {
       return key.startsWith(this._getLocalStorageKeyByUri(''));
     });
 
-    const urisForAllDiagramStates: Array<string> = localStorageKeysForAllDiagramStates.map((localStorageKey: string) => {
-      return localStorageKey.replace(this._getLocalStorageKeyByUri(''), '');
-    });
+    const urisForAllDiagramStates: Array<string> = localStorageKeysForAllDiagramStates.map(
+      (localStorageKey: string) => {
+        return localStorageKey.replace(this._getLocalStorageKeyByUri(''), '');
+      }
+    );
 
     return urisForAllDiagramStates;
   }

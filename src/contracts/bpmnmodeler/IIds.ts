@@ -1,4 +1,4 @@
-import {ISeed} from './index';
+import { ISeed } from './index';
 
 export interface IIds {
   _seed?: ISeed;

@@ -1,25 +1,21 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {bindable, inject} from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { bindable, inject } from 'aurelia-framework';
 
-import {
-  IProperty,
-  IServiceTaskElement,
-} from '@process-engine/bpmn-elements_contracts';
+import { IProperty, IServiceTaskElement } from '@process-engine/bpmn-elements_contracts';
 
-import {IPageModel} from '../../../../../../../../../contracts';
+import { IPageModel } from '../../../../../../../../../contracts';
 import environment from '../../../../../../../../../environment';
-import {ServiceTaskService} from '../service-task-service/service-task-service';
+import { ServiceTaskService } from '../service-task-service/service-task-service';
 
 interface IAuthParameters {
   headers: {
-    'Content-Type'?: string,
-    Authorization?: string,
+    'Content-Type'?: string;
+    Authorization?: string;
   };
 }
 
 @inject(EventAggregator)
 export class HttpServiceTask {
-
   @bindable() public model: IPageModel;
   public businessObjInPanel: IServiceTaskElement;
   public selectedHttpMethod: string;
@@ -111,8 +107,8 @@ export class HttpServiceTask {
     if (httpContentTypeSelected && noHttpAuthorizationSelected) {
       header = {
         headers: {
-          'Content-Type': this.selectedHttpContentType,
-        },
+          'Content-Type': this.selectedHttpContentType
+        }
       };
 
       const stringifiedHeader: string = JSON.stringify(header);
@@ -122,8 +118,8 @@ export class HttpServiceTask {
     if (httpAuthorizationSelected && noHttpContentTypeSelected) {
       header = {
         headers: {
-          Authorization: this.selectedHttpAuth,
-        },
+          Authorization: this.selectedHttpAuth
+        }
       };
 
       const stringifiedHeader: string = JSON.stringify(header);
@@ -135,8 +131,8 @@ export class HttpServiceTask {
       header = {
         headers: {
           Authorization: this.selectedHttpAuth,
-          'Content-Type': this.selectedHttpContentType,
-        },
+          'Content-Type': this.selectedHttpContentType
+        }
       };
 
       const stringifiedHeader: string = JSON.stringify(header);
@@ -150,21 +146,26 @@ export class HttpServiceTask {
   }
 
   private _fillVariablesFromParam(params: string): void {
-
-    const regex: RegExp = new RegExp(',(?=[^\}]*(?:\{|$))');
+    const regex: RegExp = new RegExp(',(?=[^}]*(?:{|$))');
 
     const splittedParamString: Array<string> = params.split(regex);
 
     const urlParamsGiven: boolean = splittedParamString.length > 0;
     if (urlParamsGiven) {
       const hasDoubleQuotationMarks: boolean = splittedParamString[0].search('"') > 0;
-      const hasSingleQuotationMarks: boolean = splittedParamString[0].search('\'') > 0;
+      const hasSingleQuotationMarks: boolean = splittedParamString[0].search("'") > 0;
 
       let urlParam: string;
       if (hasDoubleQuotationMarks) {
-        urlParam = splittedParamString[0].slice(splittedParamString[0].search('"') + 1, splittedParamString[0].lastIndexOf('"'));
+        urlParam = splittedParamString[0].slice(
+          splittedParamString[0].search('"') + 1,
+          splittedParamString[0].lastIndexOf('"')
+        );
       } else if (hasSingleQuotationMarks) {
-        urlParam = splittedParamString[0].slice(splittedParamString[0].search('\'') + 1, splittedParamString[0].lastIndexOf('\''));
+        urlParam = splittedParamString[0].slice(
+          splittedParamString[0].search("'") + 1,
+          splittedParamString[0].lastIndexOf("'")
+        );
       }
 
       this.selectedHttpUrl = urlParam;
@@ -185,7 +186,6 @@ export class HttpServiceTask {
     const headerParamsPosition: number = 2;
     const headerParamsGiven: boolean = splittedParamString.length > headerParamsPosition;
     if (headerParamsGiven) {
-
       let headerParam: string = splittedParamString[headerParamsPosition];
       const headerIsLastParameter: boolean = headerParam.endsWith(']');
       if (headerIsLastParameter) {
@@ -197,7 +197,10 @@ export class HttpServiceTask {
        * quotes to non quotet keys.
        * This way we make sure that JSON.parse() can handle the given string.
        */
-      const headerParamDoubleQuoted: string = headerParam.replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g, '$1"$3":');
+      const headerParamDoubleQuoted: string = headerParam.replace(
+        /(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g,
+        '$1"$3":'
+      );
 
       const headerObject: IAuthParameters = JSON.parse(headerParamDoubleQuoted);
 
@@ -205,5 +208,4 @@ export class HttpServiceTask {
       this.selectedHttpAuth = headerObject.headers['Authorization'];
     }
   }
-
 }

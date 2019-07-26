@@ -1,7 +1,7 @@
-import {EventAggregator} from 'aurelia-event-aggregator';
-import {inject} from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
 
-import {IMessage, IMessageTask, IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
+import { IMessage, IMessageTask, IModdleElement, IShape } from '@process-engine/bpmn-elements_contracts';
 
 import {
   IBpmnModdle,
@@ -9,14 +9,13 @@ import {
   IElementRegistry,
   ILinting,
   IPageModel,
-  ISection,
+  ISection
 } from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
-import {GeneralService} from '../../service/general.service';
+import { GeneralService } from '../../service/general.service';
 
 @inject(GeneralService, EventAggregator)
 export class MessageTaskSection implements ISection {
-
   public path: string = '/sections/message-task/message-task';
   public canHandleElement: boolean = false;
   public messages: Array<IMessage>;
@@ -77,16 +76,16 @@ export class MessageTaskSection implements ISection {
   }
 
   public addMessage(): void {
-    const bpmnMessageProperty: {id: string, name: string} = {
+    const bpmnMessageProperty: { id: string; name: string } = {
       id: `Message_${this._generalService.generateRandomId()}`,
-      name: 'Message Name',
+      name: 'Message Name'
     };
     const bpmnMessage: IMessage = this._moddle.create('bpmn:Message', bpmnMessageProperty);
 
     this._modeler._definitions.rootElements.push(bpmnMessage);
 
     this._moddle.toXML(this._modeler._definitions.rootElements, (toXMLError: Error, xmlStrUpdated: string) => {
-      this._modeler.importXML(xmlStrUpdated, async(importXMLError: Error) => {
+      this._modeler.importXML(xmlStrUpdated, async (importXMLError: Error) => {
         await this._refreshMessages();
         await this._setBusinessObj();
 
@@ -126,14 +125,12 @@ export class MessageTaskSection implements ISection {
   }
 
   private _elementIsMessageTask(element: IShape): boolean {
-    return element !== undefined
-        && (element.type === 'bpmn:SendTask'
-          || element.type === 'bpmn:ReceiveTask');
+    return element !== undefined && (element.type === 'bpmn:SendTask' || element.type === 'bpmn:ReceiveTask');
   }
 
   private _init(): void {
-    const businessObjectHasNoMessageEvents: boolean = this._businessObjInPanel === undefined
-                                                   || this._businessObjInPanel.messageRef === undefined;
+    const businessObjectHasNoMessageEvents: boolean =
+      this._businessObjInPanel === undefined || this._businessObjInPanel.messageRef === undefined;
     if (businessObjectHasNoMessageEvents) {
       this.selectedMessage = undefined;
       this.selectedId = undefined;

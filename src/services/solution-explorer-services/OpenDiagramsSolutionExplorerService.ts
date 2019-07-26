@@ -1,12 +1,12 @@
-import {inject} from 'aurelia-framework';
+import { inject } from 'aurelia-framework';
 
-import {IIdentity} from '@essential-projects/iam_contracts';
-import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
-import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
+import { IIdentity } from '@essential-projects/iam_contracts';
+import { IDiagram, ISolution } from '@process-engine/solutionexplorer.contracts';
+import { ISolutionExplorerService } from '@process-engine/solutionexplorer.service.contracts';
 
-import {IDiagramState, IDiagramValidationService, ISolutionService} from '../../contracts';
-import {OpenDiagramStateService} from './OpenDiagramStateService';
-import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
+import { IDiagramState, IDiagramValidationService, ISolutionService } from '../../contracts';
+import { OpenDiagramStateService } from './OpenDiagramStateService';
+import { SolutionExplorerServiceFactory } from './SolutionExplorerServiceFactory';
 
 /**
  * This service allows to keep all opened open diagrams inside a solution.
@@ -22,7 +22,6 @@ import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
 
 @inject('DiagramValidationService', 'SolutionExplorerServiceFactory', 'SolutionService', 'OpenDiagramStateService')
 export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerService {
-
   public isCreatingDiagram: boolean;
 
   private _validationService: IDiagramValidationService;
@@ -37,7 +36,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     validationService: IDiagramValidationService,
     serviceFactory: SolutionExplorerServiceFactory,
     solutionService: ISolutionService,
-    openDiagramStateService: OpenDiagramStateService,
+    openDiagramStateService: OpenDiagramStateService
   ) {
     this._validationService = validationService;
     this._setSolutionExplorer(serviceFactory);
@@ -74,13 +73,12 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     const solution: ISolution = {
       diagrams: this._openedDiagrams,
       name: this._nameOfOpenDiagramService,
-      uri: this._uriOfOpenDiagramService,
+      uri: this._uriOfOpenDiagramService
     };
     return Promise.resolve(solution);
   }
 
   public async openDiagram(uri: string, identity: IIdentity): Promise<IDiagram> {
-
     const uriIsNoBpmnFile: boolean = !uri.endsWith('.bpmn');
     if (uriIsNoBpmnFile) {
       throw new Error('File is no BPMN file.');
@@ -108,7 +106,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
       diagram = {
         name: filenameWithoutEnding,
         xml: diagramState.data.xml,
-        uri: uri,
+        uri: uri
       };
     } else {
       await this._solutionExplorerToOpenDiagrams.openSolution(filepath, identity);
@@ -145,10 +143,9 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
   }
 
   public async loadDiagram(diagramName: string): Promise<IDiagram> {
-
     const diagramToLoad: IDiagram = this._openedDiagrams.find((diagram: IDiagram) => {
-                                      return diagram.name === diagramName;
-                                    });
+      return diagram.name === diagramName;
+    });
 
     return diagramToLoad;
   }
@@ -158,7 +155,6 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
   }
 
   public saveDiagram(diagram: IDiagram, pathspec?: string): Promise<void> {
-
     return this._solutionExplorerToOpenDiagrams.saveDiagram(diagram, pathspec);
   }
 
@@ -171,9 +167,8 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
   }
 
   private _findIndexOfDiagramWithURI(uri: string): number {
-    const index: number = this._openedDiagrams
-      .findIndex((diagram: IDiagram): boolean => {
-        return diagram.uri === uri;
+    const index: number = this._openedDiagrams.findIndex((diagram: IDiagram): boolean => {
+      return diagram.uri === uri;
     });
 
     return index;

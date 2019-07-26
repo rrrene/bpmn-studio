@@ -1,27 +1,34 @@
-import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {computedFrom, inject} from 'aurelia-framework';
-import {Router} from 'aurelia-router';
+import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
+import { computedFrom, inject } from 'aurelia-framework';
+import { Router } from 'aurelia-router';
 
-import {IIdentity} from '@essential-projects/iam_contracts';
-import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
-import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
+import { IIdentity } from '@essential-projects/iam_contracts';
+import { IDiagram, ISolution } from '@process-engine/solutionexplorer.contracts';
+import { ISolutionExplorerService } from '@process-engine/solutionexplorer.service.contracts';
 
 import {
   IAuthenticationService,
   ILoginResult,
   ISolutionEntry,
   ISolutionService,
-  IUserIdentity,
+  IUserIdentity
 } from '../../../contracts';
-import {OpenDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
-import {SolutionExplorerServiceFactory} from '../../../services/solution-explorer-services/SolutionExplorerServiceFactory';
-import {SolutionExplorerSolution} from '../solution-explorer-solution/solution-explorer-solution';
+import { OpenDiagramsSolutionExplorerService } from '../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
+import { SolutionExplorerServiceFactory } from '../../../services/solution-explorer-services/SolutionExplorerServiceFactory';
+import { SolutionExplorerSolution } from '../solution-explorer-solution/solution-explorer-solution';
 
 interface IUriToViewModelMap {
   [key: string]: SolutionExplorerSolution;
 }
 
-@inject(Router, EventAggregator, 'SolutionExplorerServiceFactory', 'AuthenticationService', 'SolutionService', 'OpenDiagramService')
+@inject(
+  Router,
+  EventAggregator,
+  'SolutionExplorerServiceFactory',
+  'AuthenticationService',
+  'SolutionService',
+  'OpenDiagramService'
+)
 export class SolutionExplorerList {
   public internalSolutionUri: string;
   /**
@@ -52,7 +59,7 @@ export class SolutionExplorerList {
     solutionExplorerServiceFactory: SolutionExplorerServiceFactory,
     authenticationService: IAuthenticationService,
     solutionService: ISolutionService,
-    openDiagramService: OpenDiagramsSolutionExplorerService,
+    openDiagramService: OpenDiagramsSolutionExplorerService
   ) {
     this._router = router;
     this._eventAggregator = eventAggregator;
@@ -81,9 +88,11 @@ export class SolutionExplorerList {
         const viewModelExists: boolean = viewModel !== undefined && viewModel !== null;
         return viewModelExists;
       })
-      .map((viewModel: SolutionExplorerSolution): Promise<void> => {
-        return viewModel.updateSolution();
-      });
+      .map(
+        (viewModel: SolutionExplorerSolution): Promise<void> => {
+          return viewModel.updateSolution();
+        }
+      );
 
     await Promise.all(refreshPromises);
   }
@@ -153,7 +162,7 @@ export class SolutionExplorerList {
       if (uriIsRemote && uriIsNotInternalProcessEngine) {
         const response: Response = await fetch(uri);
 
-        const responseJSON: object & {version: string} = await response.json();
+        const responseJSON: object & { version: string } = await response.json();
 
         const isResponseFromProcessEngine: boolean = responseJSON['name'] === '@process-engine/process_engine_runtime';
         if (!isResponseFromProcessEngine) {
@@ -167,8 +176,9 @@ export class SolutionExplorerList {
     } catch (error) {
       this._solutionService.removeSolutionEntryByUri(uri);
 
-      const errorIsNoProcessEngine: boolean = error.message === 'The response was not send by a ProcessEngine.'
-                                           || error.message === 'Unexpected token < in JSON at position 0';
+      const errorIsNoProcessEngine: boolean =
+        error.message === 'The response was not send by a ProcessEngine.' ||
+        error.message === 'Unexpected token < in JSON at position 0';
       if (errorIsNoProcessEngine) {
         throw new Error('There is no processengine running on this uri.');
       }
@@ -214,7 +224,6 @@ export class SolutionExplorerList {
    * @param uri the uri of the solution to close.
    */
   public async closeSolution(uri: string): Promise<void> {
-
     /**
      * If the user closes the Solution which contains the diagram, which he still
      * has opened, he gets navigated to the start page.
@@ -233,7 +242,6 @@ export class SolutionExplorerList {
       });
 
       this._router.navigateToRoute('start-page');
-
     } else {
       this._cleanupSolution(uri);
     }
@@ -244,19 +252,17 @@ export class SolutionExplorerList {
 
     const couldNotConnectToAuthority: boolean = result === undefined;
     if (couldNotConnectToAuthority) {
-
       return;
     }
 
     const userIsNotLoggedIn: boolean = result.idToken === 'access_denied';
     if (userIsNotLoggedIn) {
-
       return;
     }
 
     const identity: IIdentity = {
       token: result.accessToken,
-      userId: result.idToken,
+      userId: result.idToken
     };
 
     solutionEntry.identity = identity;
@@ -353,33 +359,37 @@ export class SolutionExplorerList {
    * `openDiagramService._openedDiagrams.length` observed because
    * aurelia cannot see the business rules happening in this._shouldDisplaySolution().
    */
-  @computedFrom('_openedSolutions.length', 'openDiagramService._openedDiagrams.length', 'openDiagramService.isCreatingDiagram')
+  @computedFrom(
+    '_openedSolutions.length',
+    'openDiagramService._openedDiagrams.length',
+    'openDiagramService.isCreatingDiagram'
+  )
   public get openedSolutions(): Array<ISolutionEntry> {
-    const filteredEntries: Array<ISolutionEntry> = this._openedSolutions
-      .filter(this._shouldDisplaySolution);
+    const filteredEntries: Array<ISolutionEntry> = this._openedSolutions.filter(this._shouldDisplaySolution);
 
-    const sortedEntries: Array<ISolutionEntry> = filteredEntries.sort((solutionA: ISolutionEntry, solutionB: ISolutionEntry) => {
-      if (solutionA.isOpenDiagramService) {
-        return -1;
+    const sortedEntries: Array<ISolutionEntry> = filteredEntries.sort(
+      (solutionA: ISolutionEntry, solutionB: ISolutionEntry) => {
+        if (solutionA.isOpenDiagramService) {
+          return -1;
+        }
+
+        const solutionAIsInternalProcessEngine: boolean =
+          solutionA.uri === window.localStorage.getItem('InternalProcessEngineRoute');
+        if (solutionAIsInternalProcessEngine) {
+          return 1;
+        }
+
+        return solutionA.uri.startsWith('http') && !solutionB.uri.startsWith('http') ? 1 : -1;
       }
-
-      const solutionAIsInternalProcessEngine: boolean = solutionA.uri === window.localStorage.getItem('InternalProcessEngineRoute');
-      if (solutionAIsInternalProcessEngine) {
-        return 1;
-      }
-
-      return solutionA.uri.startsWith('http') && !solutionB.uri.startsWith('http')
-              ? 1
-              : -1;
-    });
+    );
 
     return sortedEntries;
   }
 
   private _getProcessEngineVersionFromInternalPE(uri: string): Promise<string> {
     return new Promise((resolve: Function): void => {
-      const makeRequest: Function = ((): void => {
-        setTimeout(async() => {
+      const makeRequest: Function = (): void => {
+        setTimeout(async () => {
           try {
             const response: Response = await fetch(uri);
             const responseJSON: any = await response.json();
@@ -390,24 +400,23 @@ export class SolutionExplorerList {
           }
           // tslint:disable-next-line: no-magic-numbers
         }, 100);
-      });
+      };
 
       makeRequest();
     });
   }
 
   private _cleanupSolution(uri: string): void {
-   const indexOfSolutionToBeRemoved: number = this._getIndexOfSolution(uri);
+    const indexOfSolutionToBeRemoved: number = this._getIndexOfSolution(uri);
 
-   const uriNotFound: boolean = indexOfSolutionToBeRemoved < 0;
-   if (uriNotFound) {
-
+    const uriNotFound: boolean = indexOfSolutionToBeRemoved < 0;
+    if (uriNotFound) {
       return;
     }
-   this._openedSolutions.splice(indexOfSolutionToBeRemoved, 1);
+    this._openedSolutions.splice(indexOfSolutionToBeRemoved, 1);
 
-   const entryToRemove: ISolutionEntry = this._solutionService.getSolutionEntryForUri(uri);
-   this._solutionService.removeSolutionEntryByUri(entryToRemove.uri);
+    const entryToRemove: ISolutionEntry = this._solutionService.getSolutionEntryForUri(uri);
+    this._solutionService.removeSolutionEntryByUri(entryToRemove.uri);
   }
   /**
    * Add entry for single file service.
@@ -453,22 +462,23 @@ export class SolutionExplorerList {
     return service === this.openDiagramService;
   }
 
-  private _shouldDisplaySolution: (value: ISolutionEntry, index: number, array: Array<ISolutionEntry>) => boolean =
-    (entry: ISolutionEntry): boolean => {
-      const service: ISolutionExplorerService = entry.service;
+  private _shouldDisplaySolution: (value: ISolutionEntry, index: number, array: Array<ISolutionEntry>) => boolean = (
+    entry: ISolutionEntry
+  ): boolean => {
+    const service: ISolutionExplorerService = entry.service;
 
-      const isOpenDiagramService: boolean = (service as any).getOpenedDiagrams !== undefined;
-      if (isOpenDiagramService) {
-        const openDiagramService: OpenDiagramsSolutionExplorerService = service as OpenDiagramsSolutionExplorerService;
+    const isOpenDiagramService: boolean = (service as any).getOpenedDiagrams !== undefined;
+    if (isOpenDiagramService) {
+      const openDiagramService: OpenDiagramsSolutionExplorerService = service as OpenDiagramsSolutionExplorerService;
 
-        const someDiagramsAreOpened: boolean = openDiagramService.getOpenedDiagrams().length > 0;
-        const isCreatingDiagram: boolean = this.openDiagramService.isCreatingDiagram;
+      const someDiagramsAreOpened: boolean = openDiagramService.getOpenedDiagrams().length > 0;
+      const isCreatingDiagram: boolean = this.openDiagramService.isCreatingDiagram;
 
-        return someDiagramsAreOpened || isCreatingDiagram;
-      }
-
-      return true;
+      return someDiagramsAreOpened || isCreatingDiagram;
     }
+
+    return true;
+  };
 
   private _getIndexOfSolution(uri: string): number {
     const indexOfSolutionWithURI: number = this._openedSolutions.findIndex((element: ISolutionEntry): boolean => {
@@ -479,10 +489,11 @@ export class SolutionExplorerList {
   }
 
   private async _addSolutionEntry(
-    uri: string, service: ISolutionExplorerService,
+    uri: string,
+    service: ISolutionExplorerService,
     identity: IIdentity,
     insertAtBeginning: boolean,
-    processEngineVersion?: string,
+    processEngineVersion?: string
   ): Promise<void> {
     const isOpenDiagramService: boolean = this._isOpenDiagramService(service);
     const fontAwesomeIconClass: string = this._getFontAwesomeIconForSolution(service, uri);
@@ -494,8 +505,8 @@ export class SolutionExplorerList {
     const authorityIsUndefined: boolean = authority === undefined;
 
     const isLoggedIn: boolean = authorityIsUndefined
-                                ? false
-                                : await this._authenticationService.isLoggedIn(authority, identity);
+      ? false
+      : await this._authenticationService.isLoggedIn(authority, identity);
 
     let userName: string;
 
@@ -516,7 +527,7 @@ export class SolutionExplorerList {
       isLoggedIn,
       userName,
       processEngineVersion,
-      hidden,
+      hidden
     };
 
     this._solutionService.addSolutionEntry(entry);
@@ -540,12 +551,11 @@ export class SolutionExplorerList {
   }
 
   private _createIdentityForSolutionExplorer(): IIdentity {
-
     const accessToken: string = this._createDummyAccessToken();
     // TODO: Get the identity from the IdentityService of `@process-engine/iam`
     const identity: IIdentity = {
       token: accessToken,
-      userId: '', // Provided by the IdentityService.
+      userId: '' // Provided by the IdentityService.
     };
 
     return identity;
@@ -561,8 +571,8 @@ export class SolutionExplorerList {
         referrer: 'no-referrer',
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json'
+        }
       });
 
       const response: Response = await fetch(request);
@@ -570,7 +580,6 @@ export class SolutionExplorerList {
 
       return authority;
     }
-
   }
 
   private _createDummyAccessToken(): string {
@@ -579,5 +588,4 @@ export class SolutionExplorerList {
 
     return base64EncodedString;
   }
-
 }

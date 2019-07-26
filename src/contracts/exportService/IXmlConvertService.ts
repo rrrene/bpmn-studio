@@ -1,4 +1,4 @@
-import {IExportService} from './index';
+import { IExportService } from './index';
 
 export interface IXmlConvertService {
   asBpmn(): IExportService;

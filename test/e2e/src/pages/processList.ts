@@ -1,9 +1,8 @@
-import {browser, by, element, ElementFinder, ExpectedConditions} from 'protractor';
+import { browser, by, element, ElementFinder, ExpectedConditions } from 'protractor';
 
-import {By} from 'selenium-webdriver';
+import { By } from 'selenium-webdriver';
 
 export class ProcessList {
-
   public url: string;
 
   private _listEntryIdentifier: string = 'processList-';
@@ -22,7 +21,6 @@ export class ProcessList {
   }
 
   public async getVisibilityOfProcessListContainer(): Promise<boolean> {
-
     return this._processListContainer.isDisplayed();
   }
 
@@ -79,7 +77,9 @@ export class ProcessList {
     const listEntryById: By = by.id(listEntryId);
     const diagramLinkByTag: By = by.className(this._diagramLinkClassName);
 
-    return element(listEntryById).all(diagramLinkByTag).first();
+    return element(listEntryById)
+      .all(diagramLinkByTag)
+      .first();
   }
 
   private _getUserTaskLink(correlationId: string): ElementFinder {
@@ -87,7 +87,8 @@ export class ProcessList {
     const listEntryById: By = by.id(listEntryId);
     const diagramLinkByTag: By = by.className(this._userTaskLinkClassName);
 
-    return element(listEntryById).all(diagramLinkByTag).first();
+    return element(listEntryById)
+      .all(diagramLinkByTag)
+      .first();
   }
-
 }

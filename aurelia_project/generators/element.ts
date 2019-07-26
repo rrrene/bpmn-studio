@@ -1,14 +1,14 @@
-import {inject} from 'aurelia-dependency-injection';
-import {Project, ProjectItem, CLIOptions, UI} from 'aurelia-cli';
+import { inject } from 'aurelia-dependency-injection';
+import { Project, ProjectItem, CLIOptions, UI } from 'aurelia-cli';
 
 @inject(Project, CLIOptions, UI)
 export default class ElementGenerator {
-  constructor(private project: Project, private options: CLIOptions, private ui: UI) { }
+  constructor(private project: Project, private options: CLIOptions, private ui: UI) {}
 
   execute() {
     return this.ui
       .ensureAnswer(this.options.args[0], 'What would you like to call the custom element?')
-      .then(name => {
+      .then((name) => {
         let fileName = this.project.makeFileName(name);
         let className = this.project.makeClassName(name);
 
@@ -17,13 +17,12 @@ export default class ElementGenerator {
           ProjectItem.text(`${fileName}.html`, this.generateHTMLSource(className))
         );
 
-        return this.project.commitChanges()
-          .then(() => this.ui.log(`Created ${fileName}.`));
+        return this.project.commitChanges().then(() => this.ui.log(`Created ${fileName}.`));
       });
   }
 
   generateJSSource(className) {
-return `import {bindable} from 'aurelia-framework';
+    return `import {bindable} from 'aurelia-framework';
 
 export class ${className} {
   @bindable value;
@@ -33,12 +32,12 @@ export class ${className} {
   }
 }
 
-`
+`;
   }
 
   generateHTMLSource(className) {
-return `<template>
+    return `<template>
   <h1>\${value}</h1>
-</template>`
+</template>`;
   }
 }

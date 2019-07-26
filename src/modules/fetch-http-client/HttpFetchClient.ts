@@ -1,13 +1,11 @@
 import * as EssentialProjectErrors from '@essential-projects/errors_ts';
-import {IHttpClient, IRequestOptions, IResponse} from '@essential-projects/http_contracts';
+import { IHttpClient, IRequestOptions, IResponse } from '@essential-projects/http_contracts';
 
 export class HttpFetchClient implements IHttpClient {
-
   private _httpSuccessResponseCode: number = 200;
   private _httpRedirectResponseCode: number = 300;
 
   public async get<T>(url: string, options?: IRequestOptions): Promise<IResponse<T>> {
-
     const request: Request = new Request(url, {
       method: 'GET',
       mode: 'cors',
@@ -15,8 +13,8 @@ export class HttpFetchClient implements IHttpClient {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
-        ...options.headers,
-      },
+        ...options.headers
+      }
     });
 
     const response: Response = await fetch(request);
@@ -27,7 +25,6 @@ export class HttpFetchClient implements IHttpClient {
   }
 
   public async post<D, T>(url: string, data: D, options?: IRequestOptions): Promise<IResponse<T>> {
-
     const request: Request = new Request(url, {
       method: 'POST',
       mode: 'cors',
@@ -35,9 +32,9 @@ export class HttpFetchClient implements IHttpClient {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
-        ...options.headers,
+        ...options.headers
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(data)
     });
 
     const response: Response = await fetch(request);
@@ -48,7 +45,6 @@ export class HttpFetchClient implements IHttpClient {
   }
 
   public async put<T>(url: string, data: T, options?: IRequestOptions): Promise<IResponse<T>> {
-
     const request: Request = new Request(url, {
       method: 'PUT',
       mode: 'cors',
@@ -56,9 +52,9 @@ export class HttpFetchClient implements IHttpClient {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
-        ...options.headers,
+        ...options.headers
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(data)
     });
 
     const response: Response = await fetch(request);
@@ -69,7 +65,6 @@ export class HttpFetchClient implements IHttpClient {
   }
 
   public async delete<T>(url: string, options?: IRequestOptions): Promise<IResponse<T>> {
-
     const request: Request = new Request(url, {
       method: 'DELETE',
       mode: 'cors',
@@ -77,8 +72,8 @@ export class HttpFetchClient implements IHttpClient {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
-        ...options.headers,
-      },
+        ...options.headers
+      }
     });
 
     const response: Response = await fetch(request);
@@ -89,7 +84,6 @@ export class HttpFetchClient implements IHttpClient {
   }
 
   private async _evaluateResponse<T>(response: Response): Promise<IResponse<T>> {
-
     const responseBody: string = await response.text();
 
     const responseHasErrorCode: boolean = this._responseIsAnError(response.status);
@@ -102,7 +96,7 @@ export class HttpFetchClient implements IHttpClient {
 
     const parsedResponse: IResponse<T> = {
       result: this._parseResponseBody(responseBody),
-      status: response.status,
+      status: response.status
     };
 
     return parsedResponse;

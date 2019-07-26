@@ -1,24 +1,23 @@
-import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {computedFrom, inject} from 'aurelia-framework';
-import {Router} from 'aurelia-router';
+import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
+import { computedFrom, inject } from 'aurelia-framework';
+import { Router } from 'aurelia-router';
 
-import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+import { IDiagram } from '@process-engine/solutionexplorer.contracts';
 
-import {DiffMode, ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
+import { DiffMode, ISolutionEntry, ISolutionService, NotificationType } from '../../contracts/index';
 import environment from '../../environment';
-import {NotificationService} from '../../services/notification-service/notification.service';
+import { NotificationService } from '../../services/notification-service/notification.service';
 
 type UpdateProgressData = {
-  bytesPerSecond: number
-  delta: number
-  percent: number
-  total: number
-  transferred: number,
+  bytesPerSecond: number;
+  delta: number;
+  percent: number;
+  total: number;
+  transferred: number;
 };
 
 @inject(EventAggregator, Router, 'SolutionService', 'NotificationService')
 export class StatusBar {
-
   public showDiagramViewButtons: boolean = false;
   public diffIsShown: boolean = false;
   public currentDiffMode: DiffMode;
@@ -48,7 +47,12 @@ export class StatusBar {
   private _ipcRenderer: any;
   private _notificationService: NotificationService;
 
-  constructor(eventAggregator: EventAggregator, router: Router, solutionService: ISolutionService, notificationService: NotificationService) {
+  constructor(
+    eventAggregator: EventAggregator,
+    router: Router,
+    solutionService: ISolutionService,
+    notificationService: NotificationService
+  ) {
     this._eventAggregator = eventAggregator;
     this._router = router;
     this._solutionService = solutionService;
@@ -99,14 +103,17 @@ export class StatusBar {
         [this.previousXmlIdentifier, this.currentXmlIdentifier] = xmlIdentifier;
       }),
 
-      this._eventAggregator.subscribe(environment.events.statusBar.showInspectCorrelationButtons, (showInspectCorrelation: boolean) => {
-        this.showInspectCorrelationButtons = showInspectCorrelation;
-      }),
+      this._eventAggregator.subscribe(
+        environment.events.statusBar.showInspectCorrelationButtons,
+        (showInspectCorrelation: boolean) => {
+          this.showInspectCorrelationButtons = showInspectCorrelation;
+        }
+      ),
 
-      this._eventAggregator.subscribe('router:navigation:success', async() => {
+      this._eventAggregator.subscribe('router:navigation:success', async () => {
         await this._updateStatusBar();
         this._refreshRightButtons();
-      }),
+      })
     ];
 
     $(document).on('click', '.update-dropdown', (event: Event) => {
@@ -140,7 +147,7 @@ export class StatusBar {
       diagramName: this.activeDiagram ? this.activeDiagram.name : undefined,
       diagramUri: this.activeDiagram ? this.activeDiagram.uri : undefined,
       solutionUri: this.activeSolutionEntry.uri,
-      view: this._designView,
+      view: this._designView
     });
 
     this.xmlIsShown = !this.xmlIsShown;
@@ -167,7 +174,7 @@ export class StatusBar {
       diagramName: this.activeDiagram ? this.activeDiagram.name : undefined,
       diagramUri: this.activeDiagram ? this.activeDiagram.uri : undefined,
       solutionUri: this.activeSolutionEntry.uri,
-      view: this._designView,
+      view: this._designView
     });
 
     this.diffIsShown = !this.diffIsShown;
@@ -251,9 +258,7 @@ export class StatusBar {
           return diagram.name === diagramName;
         });
       } else {
-        this.activeDiagram = await this.activeSolutionEntry
-          .service
-          .loadDiagram(diagramName);
+        this.activeDiagram = await this.activeSolutionEntry.service.loadDiagram(diagramName);
       }
     }
   }

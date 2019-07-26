@@ -2,18 +2,18 @@
 /**
  * We are disabling this rule here because we need this kind of statement in the
  * functions used in the promise of the modal.
-*/
+ */
 
-import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {bindable, bindingMode, inject, observable} from 'aurelia-framework';
-import {activationStrategy, NavigationInstruction, Redirect, Router} from 'aurelia-router';
+import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
+import { bindable, bindingMode, inject, observable } from 'aurelia-framework';
+import { activationStrategy, NavigationInstruction, Redirect, Router } from 'aurelia-router';
 
-import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
+import { IDiagram, ISolution } from '@process-engine/solutionexplorer.contracts';
 
-import {ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
+import { ISolutionEntry, ISolutionService, NotificationType } from '../../contracts/index';
 import environment from '../../environment';
-import {NotificationService} from '../../services/notification-service/notification.service';
-import {DiagramDetail} from './diagram-detail/diagram-detail';
+import { NotificationService } from '../../services/notification-service/notification.service';
+import { DiagramDetail } from './diagram-detail/diagram-detail';
 
 export interface IDesignRouteParameters {
   view?: string;
@@ -23,18 +23,17 @@ export interface IDesignRouteParameters {
 }
 
 type DiagramWithSolution = {
-  diagram: IDiagram,
-  solutionName: string,
-  solutionUri: string,
+  diagram: IDiagram;
+  solutionName: string;
+  solutionUri: string;
 };
 
 @inject(EventAggregator, 'SolutionService', Router, 'NotificationService')
 export class Design {
-
   @observable() public activeDiagram: IDiagram;
   @bindable() public activeSolutionEntry: ISolutionEntry;
   @bindable() public xmlForDiff: string;
-  @bindable({defaultBindingMode: bindingMode.oneWay}) public xml: string;
+  @bindable({ defaultBindingMode: bindingMode.oneWay }) public xml: string;
 
   public showSelectDiagramModal: boolean = false;
   public showDetail: boolean = true;
@@ -58,7 +57,12 @@ export class Design {
   private _routeView: string;
   private _ipcRenderer: any;
 
-  constructor(eventAggregator: EventAggregator, solutionService: ISolutionService, router: Router, notificationService: NotificationService) {
+  constructor(
+    eventAggregator: EventAggregator,
+    solutionService: ISolutionService,
+    router: Router,
+    notificationService: NotificationService
+  ) {
     this._eventAggregator = eventAggregator;
     this._solutionService = solutionService;
     this._router = router;
@@ -71,27 +75,27 @@ export class Design {
     const solutionIsSet: boolean = routeParameters.solutionUri !== undefined;
     const diagramNameIsSet: boolean = routeParameters.diagramName !== undefined;
 
-    const routerAndInstructionIsNotNull: boolean = this._router !== null
-                                                && this._router.currentInstruction !== null;
+    const routerAndInstructionIsNotNull: boolean = this._router !== null && this._router.currentInstruction !== null;
 
     const diagramNamesAreDifferent: boolean = routerAndInstructionIsNotNull
-                                              ? routeParameters.diagramName !== this._router.currentInstruction.params.diagramName
-                                              : true;
+      ? routeParameters.diagramName !== this._router.currentInstruction.params.diagramName
+      : true;
 
     const diagramUrisAreDifferent: boolean = routerAndInstructionIsNotNull
-                                             ? routeParameters.diagramUri !== this._router.currentInstruction.queryParams.diagramUri
-                                             || routeParameters.diagramUri === undefined
-                                             : false;
+      ? routeParameters.diagramUri !== this._router.currentInstruction.queryParams.diagramUri ||
+        routeParameters.diagramUri === undefined
+      : false;
 
     const solutionIsDifferent: boolean = routerAndInstructionIsNotNull
-                                        ? routeParameters.solutionUri !== this._router.currentInstruction.queryParams.solutionUri
-                                        : true;
+      ? routeParameters.solutionUri !== this._router.currentInstruction.queryParams.solutionUri
+      : true;
 
     const routeFromOtherView: boolean = routerAndInstructionIsNotNull
-                                      ? this._router.currentInstruction.config.name !== 'design'
-                                      : true;
+      ? this._router.currentInstruction.config.name !== 'design'
+      : true;
 
-    const navigateToAnotherDiagram: boolean = diagramNamesAreDifferent || diagramUrisAreDifferent || routeFromOtherView || solutionIsDifferent;
+    const navigateToAnotherDiagram: boolean =
+      diagramNamesAreDifferent || diagramUrisAreDifferent || routeFromOtherView || solutionIsDifferent;
 
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
     if (isRunningInElectron) {
@@ -105,7 +109,10 @@ export class Design {
        * We have to open the solution here again since if we come here after a
        * reload the solution might not be opened yet.
        */
-      await this.activeSolutionEntry.service.openSolution(this.activeSolutionEntry.uri, this.activeSolutionEntry.identity);
+      await this.activeSolutionEntry.service.openSolution(
+        this.activeSolutionEntry.uri,
+        this.activeSolutionEntry.identity
+      );
 
       const solutionIsRemote: boolean = this.activeSolutionEntry.uri.startsWith('http');
       if (solutionIsRemote) {
@@ -126,15 +133,15 @@ export class Design {
         const persistedDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();
 
         this.activeDiagram = persistedDiagrams.find((diagram: IDiagram) => {
-          return diagram.name === routeParameters.diagramName &&
-                 (diagram.uri === routeParameters.diagramUri || routeParameters.diagramUri === undefined);
+          return (
+            diagram.name === routeParameters.diagramName &&
+            (diagram.uri === routeParameters.diagramUri || routeParameters.diagramUri === undefined)
+          );
         });
-
       } else {
-
         this.activeDiagram = diagramNameIsSet
-                            ? await this.activeSolutionEntry.service.loadDiagram(routeParameters.diagramName)
-                            : undefined;
+          ? await this.activeSolutionEntry.service.loadDiagram(routeParameters.diagramName)
+          : undefined;
       }
 
       const diagramNotFound: boolean = this.activeDiagram === undefined;
@@ -162,7 +169,6 @@ export class Design {
       this.showDiffDestinationButton = false;
 
       this._eventAggregator.publish(environment.events.bpmnio.bindKeyboard);
-
     } else if (routeViewIsXML) {
       this.showDetail = false;
       this.showXML = true;
@@ -205,7 +211,7 @@ export class Design {
     this._subscriptions = [
       this._eventAggregator.subscribe(environment.events.bpmnio.propertyPanelActive, (showPanel: boolean) => {
         this.propertyPanelShown = showPanel;
-      }),
+      })
     ];
 
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
@@ -227,16 +233,11 @@ export class Design {
   }
 
   public determineActivationStrategy(): string {
-
     return activationStrategy.invokeLifecycle;
   }
 
   public setDiffDestination(diffDestination: string, diagramName?: string): void {
-    this._eventAggregator.publish(environment.events.diffView.setDiffDestination,
-      [
-        diffDestination,
-        diagramName,
-      ]);
+    this._eventAggregator.publish(environment.events.diffView.setDiffDestination, [diffDestination, diagramName]);
 
     this.showSelectDiagramModal = false;
   }
@@ -246,7 +247,7 @@ export class Design {
 
     const allSolutions: Array<ISolutionEntry> = this._solutionService.getAllSolutionEntries();
 
-    const loadedSolutionPromises: Array<Promise<ISolution>> = allSolutions.map(async(value: ISolutionEntry) => {
+    const loadedSolutionPromises: Array<Promise<ISolution>> = allSolutions.map(async (value: ISolutionEntry) => {
       const loadedSolution: ISolution = await value.service.loadSolution();
 
       return loadedSolution;
@@ -254,7 +255,6 @@ export class Design {
 
     const loadedSolutions: Array<ISolution> = await Promise.all(loadedSolutionPromises);
     this.filteredSolutions = loadedSolutions.filter((solution: ISolution) => {
-
       return solution.diagrams.length !== 0;
     });
 
@@ -263,7 +263,7 @@ export class Design {
         const diagramWithSolutionName: DiagramWithSolution = {
           diagram,
           solutionName: solution.name,
-          solutionUri: solution.uri,
+          solutionUri: solution.uri
         };
 
         this.diagramArray.push(diagramWithSolutionName);
@@ -273,14 +273,14 @@ export class Design {
     const lastSaved: DiagramWithSolution = {
       diagram: this.activeDiagram,
       solutionName: 'Last Saved',
-      solutionUri: 'lastSaved',
+      solutionUri: 'lastSaved'
     };
 
     this.diagramArray.unshift(lastSaved);
 
     const openedDiagramIndex: number = this.diagramArray.findIndex((diagram: DiagramWithSolution) => {
-      const diagramIsOpenedDiagram: boolean = diagram.solutionUri === this.activeSolutionEntry.uri
-                                           && diagram.diagram.name === this.activeDiagram.name;
+      const diagramIsOpenedDiagram: boolean =
+        diagram.solutionUri === this.activeSolutionEntry.uri && diagram.diagram.name === this.activeDiagram.name;
       return diagramIsOpenedDiagram;
     });
 
@@ -307,8 +307,7 @@ export class Design {
       return;
     }
 
-    const activeDiagramDidNotChange: boolean = newValue.id === oldValue.id
-                                            && newValue.uri === oldValue.uri;
+    const activeDiagramDidNotChange: boolean = newValue.id === oldValue.id && newValue.uri === oldValue.uri;
     if (activeDiagramDidNotChange) {
       return;
     }
@@ -320,9 +319,11 @@ export class Design {
   public get connectedRemoteSolutions(): Array<ISolutionEntry> {
     const remoteSolutions: Array<ISolutionEntry> = this._solutionService.getRemoteSolutionEntries();
 
-    const remoteSolutionsWithoutActive: Array<ISolutionEntry> = remoteSolutions.filter((remoteSolution: ISolutionEntry) => {
-      return remoteSolution.uri !== this.activeSolutionEntry.uri && remoteSolution.fontAwesomeIconClass !== 'fa-bolt';
-    });
+    const remoteSolutionsWithoutActive: Array<ISolutionEntry> = remoteSolutions.filter(
+      (remoteSolution: ISolutionEntry) => {
+        return remoteSolution.uri !== this.activeSolutionEntry.uri && remoteSolution.fontAwesomeIconClass !== 'fa-bolt';
+      }
+    );
 
     return remoteSolutionsWithoutActive;
   }
@@ -330,9 +331,11 @@ export class Design {
   public get remoteSolutions(): Array<ISolutionEntry> {
     const remoteSolutions: Array<ISolutionEntry> = this._solutionService.getRemoteSolutionEntries();
 
-    const remoteSolutionsWithoutActive: Array<ISolutionEntry> = remoteSolutions.filter((remoteSolution: ISolutionEntry) => {
-      return remoteSolution.uri !== this.activeSolutionEntry.uri;
-    });
+    const remoteSolutionsWithoutActive: Array<ISolutionEntry> = remoteSolutions.filter(
+      (remoteSolution: ISolutionEntry) => {
+        return remoteSolution.uri !== this.activeSolutionEntry.uri;
+      }
+    );
 
     return remoteSolutionsWithoutActive;
   }
@@ -392,9 +395,8 @@ export class Design {
     const navigatingBetween: Function = (routeA: string, routeB: string): boolean =>
       (routeA === oldView || routeA === destinationView) && (routeB === oldView || routeB === destinationView);
 
-    const shouldModalBeSuppressed: boolean = navigatingBetween('diff', 'xml')
-      || navigatingBetween('diff', 'detail')
-      || navigatingBetween('xml', 'detail');
+    const shouldModalBeSuppressed: boolean =
+      navigatingBetween('diff', 'xml') || navigatingBetween('diff', 'detail') || navigatingBetween('xml', 'detail');
 
     return shouldModalBeSuppressed;
   }
