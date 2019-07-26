@@ -1,0 +1,108 @@
+# Node.js with React
+# Build a Node.js project that uses React.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+- master
+
+
+stages:
+- stage: BuildAndTest
+  displayName: Build and Test
+
+  jobs:
+
+  - job: Linux
+    pool:
+      vmImage: 'ubuntu-16.04'
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '10.x'
+      displayName: 'Install Node.js'
+
+    # Initialize offscreen display for integration tests
+    - script: |
+        mkdir /tmp/.X11-unix
+        sudo chmod 1777 /tmp/.X11-unix
+        sudo chown root /tmp/.X11-unix/
+        sudo apt-get install xorg
+        sudo apt-get install xvfb
+        sudo apt-get install libxfont-dev xfonts-100dpi xfonts-75dpi xfonts-scalable xfonts-cyrillic
+        export DISPLAY=:99.0
+        Xvfb $DISPLAY -screen 0 1024x768x16 &
+        sleep 3
+      displayName: Install Xvfb
+
+    - script: npm ci
+      displayName: 'npm ci'
+
+    - script: npm run build
+      displayName: 'npm run build'
+
+    - script: xvfb-run --auto-servernum npm test
+      displayName: 'Run Tests'
+
+    - publish: '@fortawesome'
+      artifact: NpmPackage-Fortawesome
+
+    - publish: 'bootstrap'
+      artifact: NpmPackage-Bootstrap
+
+    - publish: 'scripts'
+      artifact: NpmPackage-Scripts
+
+    - publish: 'config'
+      artifact: NpmPackage-config
+
+  - job: Windows
+    pool:
+      vmImage: 'vs2017-win2016'
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '10.x'
+      displayName: 'Install Node.js'
+
+    - script: npm ci
+      displayName: 'npm ci'
+
+    - script: npm run electron-build-windows
+      displayName: 'npm run electron-build-windows'
+
+    - script: npm run test-electron-windows
+      displayName: 'npm test-electron-windows'
+
+  - job: macOS
+    pool:
+      vmImage: 'macOS-10.13'
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '10.x'
+      displayName: 'Install Node.js'
+
+    - script: npm ci
+      displayName: 'npm ci'
+
+    - script: npm run electron-build-macos
+      displayName: 'npm run electron-build-macos'
+
+    - script: npm run test-electron-macos
+      displayName: 'npm test-electron-macos'
+
+- stage: Publish
+  jobs:
+  - job: Linux
+    pool:
+      vmImage: 'ubuntu-16.04'
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '10.x'
+      displayName: 'Install Node.js'
+
+    - script: |
+        echo TODO
+      displayName: 'Publish to npm'
