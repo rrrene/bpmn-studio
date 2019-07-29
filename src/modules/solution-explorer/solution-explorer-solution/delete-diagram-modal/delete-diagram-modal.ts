@@ -20,12 +20,12 @@ export class DeleteDiagramModal {
   public diagram: IDiagram;
   public deleteDiagramModal: DeleteDiagramModal = this;
 
-  private _solutionExplorerService: ISolutionExplorerService;
-  private _notificationService: NotificationService;
-  private _openDiagramStateService: OpenDiagramStateService;
-  private _openDiagramService: OpenDiagramsSolutionExplorerService;
-  private _router: Router;
-  private _solutionService: ISolutionService;
+  private solutionExplorerService: ISolutionExplorerService;
+  private notificationService: NotificationService;
+  private openDiagramStateService: OpenDiagramStateService;
+  private openDiagramService: OpenDiagramsSolutionExplorerService;
+  private router: Router;
+  private solutionService: ISolutionService;
 
   constructor(
     notificationService: NotificationService,
@@ -34,22 +34,22 @@ export class DeleteDiagramModal {
     openDiagramService: OpenDiagramsSolutionExplorerService,
     solutionService: ISolutionService,
   ) {
-    this._notificationService = notificationService;
-    this._openDiagramStateService = openDiagramStateService;
-    this._router = router;
-    this._openDiagramService = openDiagramService;
-    this._solutionService = solutionService;
+    this.notificationService = notificationService;
+    this.openDiagramStateService = openDiagramStateService;
+    this.router = router;
+    this.openDiagramService = openDiagramService;
+    this.solutionService = solutionService;
   }
 
   public async show(diagram: IDiagram, solutionExplorerService: ISolutionExplorerService): Promise<boolean> {
     this.diagram = diagram;
-    this._solutionExplorerService = solutionExplorerService;
+    this.solutionExplorerService = solutionExplorerService;
 
     this.showModal = true;
 
     const deletionPromise: Promise<boolean> = new Promise((resolve: Function, reject: Function): void => {
       const cancelDeletion: IEventFunction = (): void => {
-        this._closeModal();
+        this.closeModal();
 
         resolve(false);
 
@@ -58,7 +58,7 @@ export class DeleteDiagramModal {
       };
 
       const proceedDeletion: IEventFunction = async (): Promise<void> => {
-        await this._deleteDiagram();
+        await this.deleteDiagram();
 
         resolve(true);
 
@@ -75,32 +75,32 @@ export class DeleteDiagramModal {
     return deletionPromise;
   }
 
-  private _closeModal(): void {
+  private closeModal(): void {
     this.diagram = undefined;
-    this._solutionExplorerService = undefined;
+    this.solutionExplorerService = undefined;
 
     this.showModal = false;
   }
 
-  private async _deleteDiagram(): Promise<void> {
+  private async deleteDiagram(): Promise<void> {
     try {
-      await this._solutionExplorerService.deleteDiagram(this.diagram);
+      await this.solutionExplorerService.deleteDiagram(this.diagram);
     } catch (error) {
       const message: string = `Unable to delete the diagram: ${error.message}`;
 
-      this._notificationService.showNotification(NotificationType.ERROR, message);
+      this.notificationService.showNotification(NotificationType.ERROR, message);
     }
 
-    const openDiagramServiceIsAvailable: boolean = typeof this._openDiagramService !== 'string';
+    const openDiagramServiceIsAvailable: boolean = typeof this.openDiagramService !== 'string';
 
     const diagramIndex: number = openDiagramServiceIsAvailable
-      ? this._openDiagramService.getOpenedDiagrams().findIndex((diagram: IDiagram) => diagram.uri === this.diagram.uri)
+      ? this.openDiagramService.getOpenedDiagrams().findIndex((diagram: IDiagram) => diagram.uri === this.diagram.uri)
       : undefined;
 
     const previousOrNextDiagramIndex: number = diagramIndex === 0 ? diagramIndex + 1 : diagramIndex - 1;
 
     const diagramToNavigateTo: IDiagram = openDiagramServiceIsAvailable
-      ? this._openDiagramService
+      ? this.openDiagramService
           .getOpenedDiagrams()
           .find((diagram: IDiagram, index: number) => index === previousOrNextDiagramIndex)
       : undefined;
@@ -108,29 +108,29 @@ export class DeleteDiagramModal {
     const diagramIsDeployed: boolean = this.diagram.uri.startsWith('http');
 
     if (diagramIsDeployed || !diagramToNavigateTo) {
-      this._router.navigateToRoute('start-page');
+      this.router.navigateToRoute('start-page');
     } else {
       const lastIndexOfSlash: number = diagramToNavigateTo.uri.lastIndexOf('/');
       const lastIndexOfBackSlash: number = diagramToNavigateTo.uri.lastIndexOf('\\');
       const indexBeforeFilename: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash);
       const activeSolutionUri: string = diagramToNavigateTo.uri.substring(0, indexBeforeFilename);
 
-      this._router.navigateToRoute('design', {
+      this.router.navigateToRoute('design', {
         diagramName: diagramToNavigateTo.name,
         diagramUri: diagramToNavigateTo.uri,
         solutionUri: activeSolutionUri,
-        view: this._router.currentInstruction.params.view,
+        view: this.router.currentInstruction.params.view,
       });
     }
 
     if (openDiagramServiceIsAvailable) {
-      this._openDiagramService.closeDiagram(this.diagram);
-      this._solutionService.removeOpenDiagramByUri(this.diagram.uri);
-      this._openDiagramStateService.deleteDiagramState(this.diagram.uri);
+      this.openDiagramService.closeDiagram(this.diagram);
+      this.solutionService.removeOpenDiagramByUri(this.diagram.uri);
+      this.openDiagramStateService.deleteDiagramState(this.diagram.uri);
     }
 
     this.diagram = undefined;
-    this._solutionExplorerService = undefined;
+    this.solutionExplorerService = undefined;
 
     this.showModal = false;
   }
