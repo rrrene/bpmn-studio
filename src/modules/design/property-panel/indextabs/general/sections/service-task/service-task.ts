@@ -16,32 +16,33 @@ enum ServiceKind {
 @inject(EventAggregator)
 export class ServiceTaskSection implements ISection {
   public path: string = '/sections/service-task/service-task';
+  // eslint-disable-next-line @typescript-eslint/member-naming
   public ServiceKind: typeof ServiceKind = ServiceKind;
   public canHandleElement: boolean = false;
   public businessObjInPanel: IServiceTaskElement;
   public model: IPageModel;
   public selectedKind: ServiceKind;
 
-  private _eventAggregator: EventAggregator;
-  private _moddle: IBpmnModdle;
-  private _serviceTaskService: ServiceTaskService;
+  private eventAggregator: EventAggregator;
+  private moddle: IBpmnModdle;
+  private serviceTaskService: ServiceTaskService;
 
   constructor(eventAggregator?: EventAggregator) {
-    this._eventAggregator = eventAggregator;
+    this.eventAggregator = eventAggregator;
   }
 
   public activate(model: IPageModel): void {
-    this._serviceTaskService = new ServiceTaskService(model);
+    this.serviceTaskService = new ServiceTaskService(model);
 
     this.businessObjInPanel = model.elementInPanel.businessObject;
     this.model = model;
-    this._moddle = model.modeler.get('moddle');
+    this.moddle = model.modeler.get('moddle');
 
-    this._initServiceTask();
+    this.initServiceTask();
   }
 
   public isSuitableForElement(element: IShape): boolean {
-    return this._elementIsServiceTask(element);
+    return this.elementIsServiceTask(element);
   }
 
   public kindChanged(): void {
@@ -49,29 +50,29 @@ export class ServiceTaskSection implements ISection {
     const selectedKindIsExternalTask: boolean = this.selectedKind === ServiceKind.External;
 
     if (selectedKindIsHttpService) {
-      let moduleProperty: IProperty = this._serviceTaskService.getProperty('module');
+      let moduleProperty: IProperty = this.serviceTaskService.getProperty('module');
       const modulePropertyDoesNotExist: boolean = moduleProperty === undefined;
 
       if (modulePropertyDoesNotExist) {
-        this._createModuleProperty();
+        this.createModuleProperty();
       }
 
-      moduleProperty = this._serviceTaskService.getProperty('module');
+      moduleProperty = this.serviceTaskService.getProperty('module');
       moduleProperty.value = this.selectedKind;
 
-      this._deleteExternalTaskProperties();
+      this.deleteExternalTaskProperties();
     } else if (selectedKindIsExternalTask) {
       this.businessObjInPanel.type = this.selectedKind;
-      this._deleteHttpProperties();
+      this.deleteHttpProperties();
     } else {
-      this._deleteExternalTaskProperties();
-      this._deleteHttpProperties();
+      this.deleteExternalTaskProperties();
+      this.deleteHttpProperties();
     }
 
-    this._publishDiagramChange();
+    this.publishDiagramChange();
   }
 
-  private _elementIsServiceTask(element: IShape): boolean {
+  private elementIsServiceTask(element: IShape): boolean {
     return (
       element !== undefined &&
       element.businessObject !== undefined &&
@@ -79,34 +80,34 @@ export class ServiceTaskSection implements ISection {
     );
   }
 
-  private _publishDiagramChange(): void {
-    this._eventAggregator.publish(environment.events.diagramChange);
+  private publishDiagramChange(): void {
+    this.eventAggregator.publish(environment.events.diagramChange);
   }
 
-  private _createModuleProperty(): void {
-    if (this._serviceTaskService.extensionElementDoesNotExist) {
-      this._serviceTaskService.createExtensionElement();
+  private createModuleProperty(): void {
+    if (this.serviceTaskService.extensionElementDoesNotExist) {
+      this.serviceTaskService.createExtensionElement();
     }
 
-    const noPropertiesElement: boolean = this._serviceTaskService.getPropertiesElement() === undefined;
+    const noPropertiesElement: boolean = this.serviceTaskService.getPropertiesElement() === undefined;
 
     if (noPropertiesElement) {
-      this._serviceTaskService.createPropertiesElement();
+      this.serviceTaskService.createPropertiesElement();
     }
 
-    const propertiesElement: IPropertiesElement = this._serviceTaskService.getPropertiesElement();
+    const propertiesElement: IPropertiesElement = this.serviceTaskService.getPropertiesElement();
 
-    const modulePropertyObject: Object = {
+    const modulePropertyObject: object = {
       name: 'module',
       value: 'HttpClient',
     };
 
-    const moduleProperty: IProperty = this._moddle.create('camunda:Property', modulePropertyObject);
+    const moduleProperty: IProperty = this.moddle.create('camunda:Property', modulePropertyObject);
 
     propertiesElement.values.push(moduleProperty);
   }
 
-  private _initServiceTask(): void {
+  private initServiceTask(): void {
     const taskIsExternalTask: boolean = this.businessObjInPanel.type === 'external';
 
     if (taskIsExternalTask) {
@@ -114,17 +115,17 @@ export class ServiceTaskSection implements ISection {
       return;
     }
 
-    const modulePropertyExists: boolean = this._serviceTaskService.getProperty('module') !== undefined;
+    const modulePropertyExists: boolean = this.serviceTaskService.getProperty('module') !== undefined;
     if (modulePropertyExists) {
-      this.selectedKind = ServiceKind[this._serviceTaskService.getProperty('module').value];
+      this.selectedKind = ServiceKind[this.serviceTaskService.getProperty('module').value];
 
     } else {
       this.selectedKind = ServiceKind.None;
     }
   }
 
-  private _deleteHttpProperties(): void {
-    const propertiesElement: IPropertiesElement = this._serviceTaskService.getPropertiesElement();
+  private deleteHttpProperties(): void {
+    const propertiesElement: IPropertiesElement = this.serviceTaskService.getPropertiesElement();
     const propertiesElementExists: boolean = propertiesElement !== undefined;
 
     if (propertiesElementExists) {
@@ -134,16 +135,16 @@ export class ServiceTaskSection implements ISection {
 
       const emptyProperties: boolean = propertiesElement.values.length === 0;
       if (emptyProperties) {
-        this._deletePropertiesElementAndExtensionElements();
+        this.deletePropertiesElementAndExtensionElements();
       }
     }
   }
 
-  private _deleteExternalTaskProperties(): void {
+  private deleteExternalTaskProperties(): void {
     delete this.businessObjInPanel.type;
     delete this.businessObjInPanel.topic;
 
-    const propertiesElement: IPropertiesElement = this._serviceTaskService.getPropertiesElement();
+    const propertiesElement: IPropertiesElement = this.serviceTaskService.getPropertiesElement();
 
     if (propertiesElement) {
       propertiesElement.values = propertiesElement.values.filter((element: IProperty) => {
@@ -152,25 +153,24 @@ export class ServiceTaskSection implements ISection {
 
       const emptyProperties: boolean = propertiesElement.values.length === 0;
       if (emptyProperties) {
-        this._deletePropertiesElementAndExtensionElements();
+        this.deletePropertiesElementAndExtensionElements();
       }
     }
   }
 
-  private _deletePropertiesElementAndExtensionElements(): void {
+  private deletePropertiesElementAndExtensionElements(): void {
     const indexOfPropertiesElement: number = this.businessObjInPanel.extensionElements.values.findIndex(
       (element: IPropertiesElement) => {
         if (!element) {
           return;
         }
-
+        // eslint-disable-next-line consistent-return
         return element.$type === 'camunda:Properties';
       },
     );
 
     delete this.businessObjInPanel.extensionElements.values[indexOfPropertiesElement];
 
-    // tslint:disable-next-line: no-magic-numbers
     const emptyExtensionElements: boolean = this.businessObjInPanel.extensionElements.values.length < 2;
     if (emptyExtensionElements) {
       delete this.businessObjInPanel.extensionElements;
