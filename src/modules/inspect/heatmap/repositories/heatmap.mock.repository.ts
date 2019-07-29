@@ -7,7 +7,7 @@ import {DataModels} from '@process-engine/management_api_contracts';
 
 import {IHeatmapRepository} from '../contracts/IHeatmap.Repository';
 
-@inject('ManagementApiClientService', 'AuthenticationService')
+@inject('ManagementApiClientService')
 export class HeatmapMockRepository implements IHeatmapRepository {
   private managementApiClient: ManagementApiClientService;
   private identity: IIdentity;
