@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/generic-type-naming */
 import * as EssentialProjectErrors from '@essential-projects/errors_ts';
 import {IHttpClient, IRequestOptions, IResponse} from '@essential-projects/http_contracts';
 
 export class HttpFetchClient implements IHttpClient {
-  private _httpSuccessResponseCode: number = 200;
-  private _httpRedirectResponseCode: number = 300;
+  private httpSuccessResponseCode: number = 200;
+  private httpRedirectResponseCode: number = 300;
 
   public async get<T>(url: string, options?: IRequestOptions): Promise<IResponse<T>> {
     const request: Request = new Request(url, {
@@ -19,7 +20,7 @@ export class HttpFetchClient implements IHttpClient {
 
     const response: Response = await fetch(request);
 
-    const parsedResponse: IResponse<T> = await this._evaluateResponse<T>(response);
+    const parsedResponse: IResponse<T> = await this.evaluateResponse<T>(response);
 
     return parsedResponse;
   }
@@ -39,7 +40,7 @@ export class HttpFetchClient implements IHttpClient {
 
     const response: Response = await fetch(request);
 
-    const parsedResponse: IResponse<T> = await this._evaluateResponse<T>(response);
+    const parsedResponse: IResponse<T> = await this.evaluateResponse<T>(response);
 
     return parsedResponse;
   }
@@ -59,7 +60,7 @@ export class HttpFetchClient implements IHttpClient {
 
     const response: Response = await fetch(request);
 
-    const parsedResponse: IResponse<T> = await this._evaluateResponse<T>(response);
+    const parsedResponse: IResponse<T> = await this.evaluateResponse<T>(response);
 
     return parsedResponse;
   }
@@ -78,38 +79,37 @@ export class HttpFetchClient implements IHttpClient {
 
     const response: Response = await fetch(request);
 
-    const parsedResponse: IResponse<T> = await this._evaluateResponse<T>(response);
+    const parsedResponse: IResponse<T> = await this.evaluateResponse<T>(response);
 
     return parsedResponse;
   }
 
-  private async _evaluateResponse<T>(response: Response): Promise<IResponse<T>> {
+  private async evaluateResponse<T>(response: Response): Promise<IResponse<T>> {
     const responseBody: string = await response.text();
 
-    const responseHasErrorCode: boolean = this._responseIsAnError(response.status);
+    const responseHasErrorCode: boolean = this.responseIsAnError(response.status);
     if (responseHasErrorCode) {
-      // tslint:disable-next-line variable-name
-      const ErrorTypeToThrow: typeof Error = this._getErrorForStatusCode(response.status);
+      const ErrorTypeToThrow: typeof Error = this.getErrorForStatusCode(response.status);
 
       throw new ErrorTypeToThrow(responseBody);
     }
 
     const parsedResponse: IResponse<T> = {
-      result: this._parseResponseBody(responseBody),
+      result: this.parseResponseBody(responseBody),
       status: response.status,
     };
 
     return parsedResponse;
   }
 
-  private _responseIsAnError(responseStatus: number): boolean {
-    return responseStatus < this._httpSuccessResponseCode || responseStatus >= this._httpRedirectResponseCode;
+  private responseIsAnError(responseStatus: number): boolean {
+    return responseStatus < this.httpSuccessResponseCode || responseStatus >= this.httpRedirectResponseCode;
   }
 
-  private _getErrorForStatusCode(responseStatus: number): typeof Error {
+  private getErrorForStatusCode(responseStatus: number): typeof Error {
     const errorName: string = EssentialProjectErrors.ErrorCodes[responseStatus];
 
-    const isEssentialProjectsError: boolean = this._isEssentialProjectsError(errorName);
+    const isEssentialProjectsError: boolean = this.isEssentialProjectsError(errorName);
     if (isEssentialProjectsError) {
       return EssentialProjectErrors[errorName];
     }
@@ -118,11 +118,11 @@ export class HttpFetchClient implements IHttpClient {
     return Error;
   }
 
-  private _isEssentialProjectsError(errorName: string): boolean {
+  private isEssentialProjectsError(errorName: string): boolean {
     return errorName in EssentialProjectErrors;
   }
 
-  private _parseResponseBody(result: any): any {
+  private parseResponseBody(result: any): any {
     // NOTE: For whatever reason, every response.body received by popsicle is a string,
     // even in a response header "Content-Type application/json" is set, or if the response body does not exist.
     // To get around this, we have to cast the result manually.
