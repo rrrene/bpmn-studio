@@ -24,48 +24,48 @@ export class BasicsSection implements ISection {
   public showModal: boolean = false;
   public elementType: string;
 
-  private _modeling: IModeling;
-  private _modeler: IBpmnModeler;
-  private _bpmnModdle: IBpmnModdle;
-  private _elementInPanel: IShape;
-  private _previousProcessRefId: string;
-  private _validationController: ValidationController;
-  private _eventAggregator: EventAggregator;
+  private modeling: IModeling;
+  private modeler: IBpmnModeler;
+  private bpmnModdle: IBpmnModdle;
+  private elementInPanel: IShape;
+  private previousProcessRefId: string;
+  private validationController: ValidationController;
+  private eventAggregator: EventAggregator;
 
   constructor(controller?: ValidationController, eventAggregator?: EventAggregator) {
-    this._validationController = controller;
-    this._eventAggregator = eventAggregator;
+    this.validationController = controller;
+    this.eventAggregator = eventAggregator;
   }
 
   public activate(model: IPageModel): void {
     if (this.validationError) {
-      this.businessObjInPanel.id = this._previousProcessRefId;
-      this._validationController.validate();
+      this.businessObjInPanel.id = this.previousProcessRefId;
+      this.validationController.validate();
     }
 
-    this._elementInPanel = model.elementInPanel;
+    this.elementInPanel = model.elementInPanel;
     this.businessObjInPanel = model.elementInPanel.businessObject;
-    this._previousProcessRefId = model.elementInPanel.businessObject.id;
+    this.previousProcessRefId = model.elementInPanel.businessObject.id;
 
-    this._modeling = model.modeler.get('modeling');
-    this._bpmnModdle = model.modeler.get('moddle');
-    this._modeler = model.modeler;
+    this.modeling = model.modeler.get('modeling');
+    this.bpmnModdle = model.modeler.get('moddle');
+    this.modeler = model.modeler;
 
-    this._validationController.subscribe((event: ValidateEvent) => {
-      this._validateFormId(event);
+    this.validationController.subscribe((event: ValidateEvent) => {
+      this.validateFormId(event);
     });
 
-    this._init();
+    this.init();
 
-    this._setValidationRules();
+    this.setValidationRules();
   }
 
   public detached(): void {
     if (!this.validationError) {
       return;
     }
-    this.businessObjInPanel.id = this._previousProcessRefId;
-    this._validationController.validate();
+    this.businessObjInPanel.id = this.previousProcessRefId;
+    this.validationController.validate();
   }
 
   public isSuitableForElement(element: IShape): boolean {
@@ -77,41 +77,41 @@ export class BasicsSection implements ISection {
   }
 
   public updateDocumentation(): void {
-    this._elementInPanel.documentation = [];
+    this.elementInPanel.documentation = [];
 
-    const documentationPropertyObject: Object = {text: this.elementDocumentation};
-    const documentation: IModdleElement = this._bpmnModdle.create('bpmn:Documentation', documentationPropertyObject);
-    this._elementInPanel.documentation.push(documentation);
+    const documentationPropertyObject: object = {text: this.elementDocumentation};
+    const documentation: IModdleElement = this.bpmnModdle.create('bpmn:Documentation', documentationPropertyObject);
+    this.elementInPanel.documentation.push(documentation);
 
-    const elementInPanelDocumentation: Object = {documentation: this._elementInPanel.documentation};
-    this._modeling.updateProperties(this._elementInPanel, elementInPanelDocumentation);
-    this._publishDiagramChange();
+    const elementInPanelDocumentation: object = {documentation: this.elementInPanel.documentation};
+    this.modeling.updateProperties(this.elementInPanel, elementInPanelDocumentation);
+    this.publishDiagramChange();
   }
 
   public updateName(): void {
-    this._modeling.updateLabel(this._elementInPanel, this.businessObjInPanel.name);
+    this.modeling.updateLabel(this.elementInPanel, this.businessObjInPanel.name);
 
-    this._publishDiagramChange();
+    this.publishDiagramChange();
   }
 
   public updateId(): void {
-    this._validationController.validate();
+    this.validationController.validate();
 
-    if (this._validationController.errors.length > 0) {
+    if (this.validationController.errors.length > 0) {
       return;
     }
 
-    const updateProperty: Object = {id: this.businessObjInPanel.id};
-    this._modeling.updateProperties(this._elementInPanel, updateProperty);
-    this._publishDiagramChange();
+    const updateProperty: object = {id: this.businessObjInPanel.id};
+    this.modeling.updateProperties(this.elementInPanel, updateProperty);
+    this.publishDiagramChange();
   }
 
-  private _init(): void {
+  private init(): void {
     if (!this.businessObjInPanel) {
       return;
     }
 
-    this.elementType = this._humanizeElementType(this.businessObjInPanel.$type);
+    this.elementType = this.humanizeElementType(this.businessObjInPanel.$type);
 
     const documentationExists: boolean =
       this.businessObjInPanel.documentation !== undefined &&
@@ -125,14 +125,14 @@ export class BasicsSection implements ISection {
     }
   }
 
-  private _humanizeElementType(type: string): string {
+  private humanizeElementType(type: string): string {
     const rawType: string = type.replace(/^bpmn:/, '');
     const humanizedType: string = rawType.replace(/([a-z])([A-Z])/, '$1 $2');
 
     return humanizedType;
   }
 
-  private _validateFormId(event: ValidateEvent): void {
+  private validateFormId(event: ValidateEvent): void {
     if (event.type !== 'validate') {
       return;
     }
@@ -151,8 +151,8 @@ export class BasicsSection implements ISection {
     }
   }
 
-  private _formIdIsUnique(id: string): boolean {
-    const elementRegistry: IElementRegistry = this._modeler.get('elementRegistry');
+  private formIdIsUnique(id: string): boolean {
+    const elementRegistry: IElementRegistry = this.modeler.get('elementRegistry');
 
     const elementsWithSameId: Array<IShape> = elementRegistry.filter((element: IShape) => {
       const elementIsBusinessObjectInPanel: boolean = element.businessObject === this.businessObjInPanel;
@@ -173,8 +173,9 @@ export class BasicsSection implements ISection {
     return elementsWithSameId.length === 0;
   }
 
-  private _isProcessIdUnique(id: string): boolean {
-    const elementIds: Array<string> = this._modeler._definitions.rootElements.map((rootElement: IModdleElement) => {
+  private isProcessIdUnique(id: string): boolean {
+    // eslint-disable-next-line no-underscore-dangle
+    const elementIds: Array<string> = this.modeler._definitions.rootElements.map((rootElement: IModdleElement) => {
       return rootElement.id;
     });
 
@@ -184,18 +185,18 @@ export class BasicsSection implements ISection {
     return !elementIds.includes(id);
   }
 
-  private _setValidationRules(): void {
+  private setValidationRules(): void {
     ValidationRules.ensure((businessObject: IModdleElement) => businessObject.id)
       .displayName('elementId')
       .required()
       .withMessage('ID cannot be blank.')
       .then()
-      .satisfies((id: string) => this._formIdIsUnique(id) && this._isProcessIdUnique(id))
+      .satisfies((id: string) => this.formIdIsUnique(id) && this.isProcessIdUnique(id))
       .withMessage('ID already exists.')
       .on(this.businessObjInPanel);
   }
 
-  private _publishDiagramChange(): void {
-    this._eventAggregator.publish(environment.events.diagramChange);
+  private publishDiagramChange(): void {
+    this.eventAggregator.publish(environment.events.diagramChange);
   }
 }
