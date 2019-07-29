@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {inject} from 'aurelia-framework';
 
@@ -22,32 +23,32 @@ export class MessageTaskSection implements ISection {
   public selectedId: string;
   public selectedMessage: IMessage;
 
-  private _businessObjInPanel: IMessageTask;
-  private _linter: ILinting;
-  private _moddle: IBpmnModdle;
-  private _modeler: IBpmnModeler;
-  private _generalService: GeneralService;
-  private _eventAggregator: EventAggregator;
+  private businessObjInPanel: IMessageTask;
+  private linter: ILinting;
+  private moddle: IBpmnModdle;
+  private modeler: IBpmnModeler;
+  private generalService: GeneralService;
+  private eventAggregator: EventAggregator;
 
   constructor(generalService?: GeneralService, eventAggregator?: EventAggregator) {
-    this._generalService = generalService;
-    this._eventAggregator = eventAggregator;
+    this.generalService = generalService;
+    this.eventAggregator = eventAggregator;
   }
 
   public async activate(model: IPageModel): Promise<void> {
-    this._businessObjInPanel = model.elementInPanel.businessObject;
+    this.businessObjInPanel = model.elementInPanel.businessObject;
 
-    this._moddle = model.modeler.get('moddle');
-    this._modeler = model.modeler;
-    this._linter = model.modeler.get('linting');
+    this.moddle = model.modeler.get('moddle');
+    this.modeler = model.modeler;
+    this.linter = model.modeler.get('linting');
 
-    this.messages = await this._getMessages();
+    this.messages = await this.getMessages();
 
-    this._init();
+    this.init();
   }
 
   public isSuitableForElement(element: IShape): boolean {
-    return this._elementIsMessageTask(element);
+    return this.elementIsMessageTask(element);
   }
 
   public updateMessage(): void {
@@ -55,16 +56,16 @@ export class MessageTaskSection implements ISection {
       return message.id === this.selectedId;
     });
 
-    this._businessObjInPanel.messageRef = this.selectedMessage;
-    this._publishDiagramChange();
+    this.businessObjInPanel.messageRef = this.selectedMessage;
+    this.publishDiagramChange();
 
-    if (this._linter.lintingActive()) {
-      this._linter.update();
+    if (this.linter.lintingActive()) {
+      this.linter.update();
     }
   }
 
   public updateName(): void {
-    const rootElements: Array<IModdleElement> = this._modeler._definitions.rootElements;
+    const rootElements: Array<IModdleElement> = this.modeler._definitions.rootElements;
     const selectedMessage: IMessage = rootElements.find((element: IModdleElement) => {
       const elementIsSelectedMessage: boolean = element.$type === 'bpmn:Message' && element.id === this.selectedId;
 
@@ -72,29 +73,29 @@ export class MessageTaskSection implements ISection {
     });
 
     selectedMessage.name = this.selectedMessage.name;
-    this._publishDiagramChange();
+    this.publishDiagramChange();
   }
 
   public addMessage(): void {
     const bpmnMessageProperty: {id: string; name: string} = {
-      id: `Message_${this._generalService.generateRandomId()}`,
+      id: `Message_${this.generalService.generateRandomId()}`,
       name: 'Message Name',
     };
-    const bpmnMessage: IMessage = this._moddle.create('bpmn:Message', bpmnMessageProperty);
+    const bpmnMessage: IMessage = this.moddle.create('bpmn:Message', bpmnMessageProperty);
 
-    this._modeler._definitions.rootElements.push(bpmnMessage);
+    this.modeler._definitions.rootElements.push(bpmnMessage);
 
-    this._moddle.toXML(this._modeler._definitions.rootElements, (toXMLError: Error, xmlStrUpdated: string) => {
-      this._modeler.importXML(xmlStrUpdated, async (importXMLError: Error) => {
-        await this._refreshMessages();
-        await this._setBusinessObj();
+    this.moddle.toXML(this.modeler._definitions.rootElements, (toXMLError: Error, xmlStrUpdated: string) => {
+      this.modeler.importXML(xmlStrUpdated, async (importXMLError: Error) => {
+        await this.refreshMessages();
+        await this.setBusinessObj();
 
         this.selectedId = bpmnMessage.id;
         this.updateMessage();
       });
     });
 
-    this._publishDiagramChange();
+    this.publishDiagramChange();
   }
 
   public removeSelectedMessage(): void {
@@ -108,14 +109,14 @@ export class MessageTaskSection implements ISection {
     });
 
     this.messages.splice(messageIndex, 1);
-    this._modeler._definitions.rootElements.splice(this._getRootElementsIndex(this.selectedId), 1);
+    this.modeler._definitions.rootElements.splice(this.getRootElementsIndex(this.selectedId), 1);
 
     this.updateMessage();
-    this._publishDiagramChange();
+    this.publishDiagramChange();
   }
 
-  private _getRootElementsIndex(elementId: string): number {
-    const rootElements: Array<IModdleElement> = this._modeler._definitions.rootElements;
+  private getRootElementsIndex(elementId: string): number {
+    const rootElements: Array<IModdleElement> = this.modeler._definitions.rootElements;
 
     const rootElementsIndex: number = rootElements.findIndex((element: IModdleElement) => {
       return element.id === elementId;
@@ -124,13 +125,13 @@ export class MessageTaskSection implements ISection {
     return rootElementsIndex;
   }
 
-  private _elementIsMessageTask(element: IShape): boolean {
+  private elementIsMessageTask(element: IShape): boolean {
     return element !== undefined && (element.type === 'bpmn:SendTask' || element.type === 'bpmn:ReceiveTask');
   }
 
-  private _init(): void {
+  private init(): void {
     const businessObjectHasNoMessageEvents: boolean =
-      this._businessObjInPanel === undefined || this._businessObjInPanel.messageRef === undefined;
+      this.businessObjInPanel === undefined || this.businessObjInPanel.messageRef === undefined;
     if (businessObjectHasNoMessageEvents) {
       this.selectedMessage = undefined;
       this.selectedId = undefined;
@@ -138,9 +139,9 @@ export class MessageTaskSection implements ISection {
       return;
     }
 
-    const messageRef: IMessage = this._businessObjInPanel.messageRef;
+    const messageRef: IMessage = this.businessObjInPanel.messageRef;
     const messageId: string = messageRef.id;
-    const elementReferencesMessage: boolean = this._getMessageById(messageId) !== undefined;
+    const elementReferencesMessage: boolean = this.getMessageById(messageId) !== undefined;
 
     if (elementReferencesMessage) {
       this.selectedId = messageId;
@@ -151,8 +152,8 @@ export class MessageTaskSection implements ISection {
     }
   }
 
-  private _getMessageById(messageId: string): IMessage {
-    const messages: Array<IMessage> = this._getMessages();
+  private getMessageById(messageId: string): IMessage {
+    const messages: Array<IMessage> = this.getMessages();
     const message: IMessage = messages.find((messageElement: IMessage) => {
       return messageElement.id === messageId;
     });
@@ -160,8 +161,8 @@ export class MessageTaskSection implements ISection {
     return message;
   }
 
-  private _getMessages(): Array<IMessage> {
-    const rootElements: Array<IModdleElement> = this._modeler._definitions.rootElements;
+  private getMessages(): Array<IMessage> {
+    const rootElements: Array<IModdleElement> = this.modeler._definitions.rootElements;
     const messages: Array<IMessage> = rootElements.filter((element: IModdleElement) => {
       return element.$type === 'bpmn:Message';
     });
@@ -169,18 +170,18 @@ export class MessageTaskSection implements ISection {
     return messages;
   }
 
-  private async _refreshMessages(): Promise<void> {
-    this.messages = await this._getMessages();
+  private async refreshMessages(): Promise<void> {
+    this.messages = await this.getMessages();
   }
 
-  private _setBusinessObj(): void {
-    const elementRegistry: IElementRegistry = this._modeler.get('elementRegistry');
-    const elementInPanel: IShape = elementRegistry.get(this._businessObjInPanel.id);
+  private setBusinessObj(): void {
+    const elementRegistry: IElementRegistry = this.modeler.get('elementRegistry');
+    const elementInPanel: IShape = elementRegistry.get(this.businessObjInPanel.id);
 
-    this._businessObjInPanel = elementInPanel.businessObject;
+    this.businessObjInPanel = elementInPanel.businessObject;
   }
 
-  private _publishDiagramChange(): void {
-    this._eventAggregator.publish(environment.events.diagramChange);
+  private publishDiagramChange(): void {
+    this.eventAggregator.publish(environment.events.diagramChange);
   }
 }
