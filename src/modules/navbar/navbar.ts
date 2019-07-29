@@ -37,10 +37,10 @@ export class NavBar {
 
   public router: Router;
 
-  private _eventAggregator: EventAggregator;
-  private _subscriptions: Array<Subscription>;
-  private _notificationService: NotificationService;
-  private _solutionService: ISolutionService;
+  private eventAggregator: EventAggregator;
+  private subscriptions: Array<Subscription>;
+  private notificationService: NotificationService;
+  private solutionService: ISolutionService;
 
   constructor(
     router: Router,
@@ -49,66 +49,66 @@ export class NavBar {
     solutionService: ISolutionService,
   ) {
     this.router = router;
-    this._eventAggregator = eventAggregator;
-    this._notificationService = notificationService;
-    this._solutionService = solutionService;
+    this.eventAggregator = eventAggregator;
+    this.notificationService = notificationService;
+    this.solutionService = solutionService;
   }
 
   public attached(): void {
     this.solutionExplorerIsActive = window.localStorage.getItem('SolutionExplorerVisibility') === 'true';
 
-    window.addEventListener('resize', this._resizeEventHandler);
+    window.addEventListener('resize', this.resizeEventHandler);
 
-    this._resizeEventHandler();
+    this.resizeEventHandler();
 
-    this._updateNavbar();
+    this.updateNavbar();
 
-    this._subscriptions = [
-      this._eventAggregator.subscribe('router:navigation:success', () => {
-        this._updateNavbar();
+    this.subscriptions = [
+      this.eventAggregator.subscribe('router:navigation:success', () => {
+        this.updateNavbar();
       }),
 
-      this._eventAggregator.subscribe(environment.events.navBar.showTools, () => {
+      this.eventAggregator.subscribe(environment.events.navBar.showTools, () => {
         this.showTools = true;
       }),
 
-      this._eventAggregator.subscribe(environment.events.navBar.hideTools, () => {
+      this.eventAggregator.subscribe(environment.events.navBar.hideTools, () => {
         this.showTools = false;
       }),
 
-      this._eventAggregator.subscribe(environment.events.navBar.validationError, () => {
+      this.eventAggregator.subscribe(environment.events.navBar.validationError, () => {
         this.validationError = true;
       }),
 
-      this._eventAggregator.subscribe(environment.events.navBar.noValidationError, () => {
+      this.eventAggregator.subscribe(environment.events.navBar.noValidationError, () => {
         this.validationError = false;
       }),
 
-      this._eventAggregator.subscribe(environment.events.differsFromOriginal, (isDiagramChanged: boolean) => {
+      this.eventAggregator.subscribe(environment.events.differsFromOriginal, (isDiagramChanged: boolean) => {
         this.diagramContainsUnsavedChanges = isDiagramChanged;
       }),
 
-      this._eventAggregator.subscribe(environment.events.navBar.diagramChangesResolved, () => {
+      this.eventAggregator.subscribe(environment.events.navBar.diagramChangesResolved, () => {
         this.diagramContainsUnsavedChanges = false;
       }),
 
-      this._eventAggregator.subscribe(environment.events.navBar.inspectNavigateToDashboard, () => {
+      this.eventAggregator.subscribe(environment.events.navBar.inspectNavigateToDashboard, () => {
         this.inspectView = 'dashboard';
       }),
 
-      this._eventAggregator.subscribe(environment.events.navBar.toggleHeatmapView, () => {
+      this.eventAggregator.subscribe(environment.events.navBar.toggleHeatmapView, () => {
         this.disableHeatmapButton = true;
         this.disableDashboardButton = false;
         this.disableInspectCorrelationButton = false;
       }),
 
-      this._eventAggregator.subscribe(environment.events.navBar.toggleDashboardView, () => {
+      this.eventAggregator.subscribe(environment.events.navBar.toggleDashboardView, () => {
         this.disableHeatmapButton = false;
         this.disableDashboardButton = true;
         this.disableInspectCorrelationButton = false;
       }),
 
-      this._eventAggregator.subscribe(environment.events.navBar.toggleInspectCorrelationView, () => {
+      this.eventAggregator.subscribe(environment.events.navBar.toggleInspectCorrelationView, () => {
         this.disableHeatmapButton = false;
         this.disableDashboardButton = false;
         this.disableInspectCorrelationButton = true;
@@ -117,7 +117,7 @@ export class NavBar {
   }
 
   public detached(): void {
-    this._disposeAllSubscriptions();
+    this.disposeAllSubscriptions();
   }
 
   @computedFrom('savingTargetIsRemoteSolution')
@@ -126,14 +126,13 @@ export class NavBar {
       if (this.savingTargetIsRemoteSolution) {
         return 'fa-database';
       }
-        return 'fa-folder';
-
+      return 'fa-folder';
     })();
     return iconClassName;
   }
 
-  private _disposeAllSubscriptions(): void {
-    this._subscriptions.forEach((subscription: Subscription) => {
+  private disposeAllSubscriptions(): void {
+    this.subscriptions.forEach((subscription: Subscription) => {
       subscription.dispose();
     });
   }
@@ -149,18 +148,15 @@ export class NavBar {
 
         break;
       case 'design':
-        const noActiveDiagram: boolean = this.activeDiagram === undefined;
-        if (noActiveDiagram) {
-          this._notificationService.showNotification(
+        if (this.activeDiagram === undefined) {
+          this.notificationService.showNotification(
             NotificationType.INFO,
             'In order to open the designer, you have to select a diagram first!',
           );
 
           return;
         }
-
-        const designIsActive: boolean = navModel.isActive === true;
-        if (designIsActive) {
+        if (navModel.isActive) {
           return;
         }
 
@@ -168,8 +164,7 @@ export class NavBar {
 
         break;
       case 'inspect':
-        const inspectIsActive: boolean = navModel.isActive === true;
-        if (inspectIsActive) {
+        if (navModel.isActive) {
           return;
         }
 
@@ -221,7 +216,7 @@ export class NavBar {
 
   public toggleSolutionExplorer(): void {
     this.solutionExplorerIsActive = !this.solutionExplorerIsActive;
-    this._eventAggregator.publish(environment.events.processSolutionPanel.toggleProcessSolutionExplorer);
+    this.eventAggregator.publish(environment.events.processSolutionPanel.toggleProcessSolutionExplorer);
   }
 
   public saveDiagram(): void {
@@ -229,11 +224,11 @@ export class NavBar {
       return;
     }
 
-    this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
+    this.eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
   }
 
   public printDiagram(): void {
-    this._eventAggregator.publish(environment.events.diagramDetail.printDiagram);
+    this.eventAggregator.publish(environment.events.diagramDetail.printDiagram);
   }
 
   public exportDiagram(exportAs: string): void {
@@ -241,7 +236,7 @@ export class NavBar {
       ? environment.events.inspect.exportDiagramAs
       : environment.events.diagramDetail.exportDiagramAs;
 
-    this._eventAggregator.publish(`${eventToPublish}:${exportAs}`);
+    this.eventAggregator.publish(`${eventToPublish}:${exportAs}`);
   }
 
   public startProcess(): void {
@@ -249,7 +244,7 @@ export class NavBar {
       return;
     }
 
-    this._eventAggregator.publish(environment.events.diagramDetail.startProcess);
+    this.eventAggregator.publish(environment.events.diagramDetail.startProcess);
   }
 
   public startProcessWithOptions(): void {
@@ -257,7 +252,7 @@ export class NavBar {
       return;
     }
 
-    this._eventAggregator.publish(environment.events.diagramDetail.startProcessWithOptions);
+    this.eventAggregator.publish(environment.events.diagramDetail.startProcessWithOptions);
   }
 
   public uploadProcess(): void {
@@ -265,7 +260,7 @@ export class NavBar {
       return;
     }
 
-    this._eventAggregator.publish(environment.events.diagramDetail.uploadProcess);
+    this.eventAggregator.publish(environment.events.diagramDetail.uploadProcess);
   }
 
   public get diagramUploadButtonTitle(): string {
@@ -289,7 +284,7 @@ export class NavBar {
    * indicates, if the process was opened from the local filesystem
    * or a remote ProcessEngine
    */
-  private _updateNavbarTitle(): void {
+  private updateNavbarTitle(): void {
     const noActiveDiagram: boolean = this.router.currentInstruction.params.diagramName === undefined;
 
     if (noActiveDiagram) {
@@ -307,7 +302,7 @@ export class NavBar {
     this.savingTargetIsRemoteSolution = activeSolutionIsRemoteSolution;
   }
 
-  private _updateNavbarTools(): void {
+  private updateNavbarTools(): void {
     const activeRoute: string = this.router.currentInstruction.config.name;
 
     const activeSolutionIsRemoteSolution: boolean =
@@ -351,7 +346,7 @@ export class NavBar {
     }
   }
 
-  private async _updateNavbar(): Promise<void> {
+  private async updateNavbar(): Promise<void> {
     const solutionUriFromNavigation: string = this.router.currentInstruction.queryParams.solutionUri;
     const noSolutionUriSpecified: boolean = solutionUriFromNavigation === undefined;
 
@@ -359,7 +354,7 @@ export class NavBar {
       ? window.localStorage.getItem('InternalProcessEngineRoute')
       : solutionUriFromNavigation;
 
-    this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(solutionUri);
+    this.activeSolutionEntry = this.solutionService.getSolutionEntryForUri(solutionUri);
 
     const activeSolutionIsUndefined: boolean = this.activeSolutionEntry === undefined;
     if (activeSolutionIsUndefined) {
@@ -375,7 +370,7 @@ export class NavBar {
     if (solutionIsSet && diagramIsSet) {
       const activeSolutionIsOpenDiagramSolution: boolean = solutionUri === 'about:open-diagrams';
       if (activeSolutionIsOpenDiagramSolution) {
-        const persistedDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();
+        const persistedDiagrams: Array<IDiagram> = this.solutionService.getOpenDiagrams();
 
         this.activeDiagram = persistedDiagrams.find((diagram: IDiagram) => {
           return diagram.name === diagramName;
@@ -392,25 +387,25 @@ export class NavBar {
         return;
       }
 
-      this._updateNavbarTitle();
+      this.updateNavbarTitle();
     }
 
-    this._updateNavbarTools();
+    this.updateNavbarTools();
 
     const routeNameIsStartPage: boolean = this.router.currentInstruction.config.name === 'start-page';
     if (routeNameIsStartPage) {
-      this._resetNavbar();
+      this.resetNavbar();
     }
   }
 
-  private _resetNavbar(): void {
+  private resetNavbar(): void {
     this.activeDiagram = undefined;
     this.activeSolutionEntry = undefined;
     this.navbarTitle = '';
     this.showProcessName = false;
   }
 
-  private _checkIfCurrentPlatformIsMac(): boolean {
+  private checkIfCurrentPlatformIsMac(): boolean {
     const macRegex: RegExp = /.*mac*./i;
     const currentPlatform: string = navigator.platform;
     const currentPlatformIsMac: boolean = macRegex.test(currentPlatform);
@@ -418,8 +413,8 @@ export class NavBar {
     return currentPlatformIsMac;
   }
 
-  private _resizeEventHandler = (event: Event = null): void => {
-    const isMac: boolean = this._checkIfCurrentPlatformIsMac();
+  private resizeEventHandler = (event: Event = null): void => {
+    const isMac: boolean = this.checkIfCurrentPlatformIsMac();
     const isFullscreen: boolean = !window.screenTop && !window.screenY;
 
     this.showLeftMarginInNavbar = isMac && !isFullscreen;
