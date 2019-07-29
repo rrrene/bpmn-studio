@@ -47,7 +47,6 @@ const serve: any = gulp.series(build, (done: Function) => {
 });
 
 function log(message: any): void {
-  // tslint:disable-next-line:no-console
   console.log(message);
 }
 
@@ -67,5 +66,4 @@ if (CLIOptions.hasFlag('watch')) {
   run = serve;
 }
 
-// tslint:disable-next-line:no-default-export
 export default run;

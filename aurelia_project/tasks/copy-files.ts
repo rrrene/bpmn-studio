@@ -4,7 +4,6 @@ import * as minimatch from 'minimatch';
 import * as path from 'path';
 import * as project from '../aurelia.json';
 
-// tslint:disable-next-line:no-default-export
 export default function copyFiles(done: Function): void {
   if (typeof project.build.copyFiles !== 'object') {
     done();

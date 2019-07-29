@@ -11,8 +11,8 @@ import * as gulp from 'gulp';
 import {protractor} from 'gulp-protractor';
 import * as typescript from 'gulp-typescript';
 
-import * as tsConfig from './../../tsconfig.json';
-import * as project from './../aurelia.json';
+import * as tsConfig from "../../tsconfig.json";
+import * as project from "../aurelia.json";
 
 function clean(): Promise<Array<string>> {
   return del(`${project.e2eTestRunner.dist}/*`);
@@ -46,5 +46,4 @@ function e2e(): NodeJS.ReadWriteStream {
     .on('error', () => {});
 }
 
-// tslint:disable-next-line:no-default-export
 export default gulp.series(clean, build, e2e);

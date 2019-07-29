@@ -13,7 +13,6 @@ const debounceWaitTime: number = 100;
 let isBuilding: boolean = false;
 const pendingRefreshPaths: Array<any> = [];
 const watches: object = {};
-// tslint:disable-next-line:no-empty
 let watchCallback: () => void = (): void => {};
 
 watches[project.transpiler.source] = {name: 'transpile', callback: transpile};
@@ -88,7 +87,6 @@ const refresh: any = debounce(() => {
 }, debounceWaitTime);
 
 function log(message: string): void {
-  // tslint:disable-next-line:no-console
   console.log(message);
 }
 
@@ -100,5 +98,4 @@ function writeBundles(): void {
   return build.dest();
 }
 
-// tslint:disable-next-line:no-default-export
 export default watch;

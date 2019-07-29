@@ -1,4 +1,4 @@
-import {build, CLIOptions} from 'aurelia-cli';
+import {CLIOptions, build} from 'aurelia-cli';
 import * as eventStream from 'event-stream';
 import * as gulp from 'gulp';
 import * as changedInPlace from 'gulp-changed-in-place';
@@ -23,7 +23,6 @@ let typescriptCompiler: any = typescriptCompiler || null;
 
 function buildTypeScript(): void {
   typescriptCompiler = ts.createProject('tsconfig.json', {
-    // tslint:disable-next-line:no-require-imports
     typescript: require('typescript'),
   });
 
@@ -40,5 +39,4 @@ function buildTypeScript(): void {
     .pipe(build.bundle());
 }
 
-// tslint:disable-next-line:no-default-export
 export default gulp.series(configureEnvironment, buildTypeScript);

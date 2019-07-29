@@ -3,7 +3,6 @@ const electronHost: string = 'bpmn-studio:/';
 
 const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
 
-// tslint:disable-next-line no-default-export
 export default {
   debug: true,
   testing: true,
