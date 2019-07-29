@@ -41,7 +41,7 @@ export interface IElementRegistry {
    * @param filterMethod Filter function to apply.
    * @return The Elements that matches the filter function.
    */
-  filter(filterMethod: (element: IShape) => Boolean): Array<IShape>;
+  filter(filterMethod: (element: IShape) => boolean): Array<IShape>;
 
   /**
    * Returns all rendered model elements.
