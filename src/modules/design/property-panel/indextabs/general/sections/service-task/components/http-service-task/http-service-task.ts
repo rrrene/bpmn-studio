@@ -24,18 +24,18 @@ export class HttpServiceTask {
   public selectedHttpAuth: string;
   public selectedHttpContentType: string;
 
-  private _eventAggregator: EventAggregator;
-  private _serviceTaskService: ServiceTaskService;
+  private eventAggregator: EventAggregator;
+  private serviceTaskService: ServiceTaskService;
 
   constructor(eventAggregator?: EventAggregator) {
-    this._eventAggregator = eventAggregator;
+    this.eventAggregator = eventAggregator;
   }
 
   public modelChanged(): void {
-    this._serviceTaskService = new ServiceTaskService(this.model);
+    this.serviceTaskService = new ServiceTaskService(this.model);
     this.businessObjInPanel = this.model.elementInPanel.businessObject;
 
-    this._initHttpServiceTask();
+    this.initHttpServiceTask();
   }
 
   public selectedHttpParamsChanged(): void {
@@ -54,40 +54,40 @@ export class HttpServiceTask {
       this.selectedHttpContentType = undefined;
     }
 
-    this._serviceTaskService.getProperty('params').value = this._getParamsFromInput();
-    this._publishDiagramChange();
+    this.serviceTaskService.getProperty('params').value = this.getParamsFromInput();
+    this.publishDiagramChange();
   }
 
   public httpMethodChanged(): void {
-    const property: IProperty = this._serviceTaskService.getProperty('method');
+    const property: IProperty = this.serviceTaskService.getProperty('method');
     property.value = this.selectedHttpMethod;
 
-    this._getParamsFromInput();
-    this._publishDiagramChange();
+    this.getParamsFromInput();
+    this.publishDiagramChange();
   }
 
-  private _initHttpServiceTask(): void {
-    const methodPropertyExists: boolean = this._serviceTaskService.getProperty('method') !== undefined;
-    const paramPropertyExists: boolean = this._serviceTaskService.getProperty('params') !== undefined;
+  private initHttpServiceTask(): void {
+    const methodPropertyExists: boolean = this.serviceTaskService.getProperty('method') !== undefined;
+    const paramPropertyExists: boolean = this.serviceTaskService.getProperty('params') !== undefined;
 
     if (methodPropertyExists) {
-      this.selectedHttpMethod = this._serviceTaskService.getProperty('method').value;
+      this.selectedHttpMethod = this.serviceTaskService.getProperty('method').value;
     } else {
-      this._serviceTaskService.createProperty('method');
+      this.serviceTaskService.createProperty('method');
     }
 
     if (paramPropertyExists) {
-      this._fillVariablesFromParam(this._serviceTaskService.getProperty('params').value);
+      this.fillVariablesFromParam(this.serviceTaskService.getProperty('params').value);
     } else {
-      this._serviceTaskService.createProperty('params');
+      this.serviceTaskService.createProperty('params');
     }
   }
 
-  private _publishDiagramChange(): void {
-    this._eventAggregator.publish(environment.events.diagramChange);
+  private publishDiagramChange(): void {
+    this.eventAggregator.publish(environment.events.diagramChange);
   }
 
-  private _getParamsFromInput(): string {
+  private getParamsFromInput(): string {
     let params: string = '';
 
     params = `${params}"${this.selectedHttpUrl}"`;
@@ -145,7 +145,7 @@ export class HttpServiceTask {
     return params;
   }
 
-  private _fillVariablesFromParam(params: string): void {
+  private fillVariablesFromParam(params: string): void {
     const regex: RegExp = new RegExp(',(?=[^}]*(?:{|$))');
 
     const splittedParamString: Array<string> = params.split(regex);
