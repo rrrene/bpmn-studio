@@ -77,7 +77,6 @@ export class DiagramToolsRight {
        * The distribute elements feature only can do it's thing, if the
        * user selects more than two elements.
        */
-      /* tslint:disable:no-magic-numbers */
       this.distributeElementsEnabled = selectedElements.length > 2;
     });
 

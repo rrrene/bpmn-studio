@@ -141,7 +141,6 @@ export class BasicsSection implements ISection {
 
     delete this.businessObjInPanel.extensionElements.values[indexOfPropertiesElement];
 
-    // tslint:disable-next-line: no-magic-numbers
     const emptyExtensionElements: boolean = this.businessObjInPanel.extensionElements.values.length < 2;
     if (emptyExtensionElements) {
       delete this.businessObjInPanel.extensionElements;
