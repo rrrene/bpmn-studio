@@ -29,11 +29,11 @@ export class TokenViewer {
   public shouldShowFlowNodeId: boolean = false;
   public rawTokenEntries: Array<IRawTokenEntry>;
 
-  private _tokenViewerService: ITokenViewerService;
-  private _getTokenHistoryGroup: Promise<DataModels.TokenHistory.TokenHistoryGroup>;
+  private tokenViewerService: ITokenViewerService;
+  private getTokenHistoryGroup: Promise<DataModels.TokenHistory.TokenHistoryGroup>;
 
   constructor(tokenViewerService: ITokenViewerService) {
-    this._tokenViewerService = tokenViewerService;
+    this.tokenViewerService = tokenViewerService;
   }
 
   public processInstanceIdOrCorrelationChanged(): void {
@@ -52,7 +52,7 @@ export class TokenViewer {
       return;
     }
 
-    this._updateFlowNode();
+    this.updateFlowNode();
   }
 
   public flowNodeChanged(newFlowNode: IShape): Promise<void> {
@@ -72,22 +72,22 @@ export class TokenViewer {
       return;
     }
 
-    this._updateFlowNode();
+    this.updateFlowNode();
   }
 
-  private async _updateFlowNode(): Promise<void> {
+  private async updateFlowNode(): Promise<void> {
     this.firstElementSelected = true;
     this.tokenEntries = [];
 
-    if (this._processEngineSupportsFetchingTokensByProcessInstanceId()) {
+    if (this.processEngineSupportsFetchingTokensByProcessInstanceId()) {
       const processInstanceIdIsUndefined: boolean = this.processInstanceId === undefined;
       if (processInstanceIdIsUndefined) {
-        this._clearTokenViewer();
+        this.clearTokenViewer();
 
         return;
       }
 
-      this._getTokenHistoryGroup = this._tokenViewerService.getTokenForFlowNodeByProcessInstanceId(
+      this.getTokenHistoryGroup = this.tokenViewerService.getTokenForFlowNodeByProcessInstanceId(
         this.processInstanceId,
         this.flowNode.id,
         this.activeSolutionEntry.identity,
@@ -95,12 +95,12 @@ export class TokenViewer {
     } else {
       const correlationIsUndefined: boolean = this.correlation === undefined;
       if (correlationIsUndefined) {
-        this._clearTokenViewer();
+        this.clearTokenViewer();
 
         return;
       }
 
-      this._getTokenHistoryGroup = this._tokenViewerService.getTokenForFlowNodeInstance(
+      this.getTokenHistoryGroup = this.tokenViewerService.getTokenForFlowNodeInstance(
         this.activeDiagram.id,
         this.correlation.id,
         this.flowNode.id,
@@ -108,23 +108,23 @@ export class TokenViewer {
       );
     }
 
-    const tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup = await this._getTokenHistoryGroup;
+    const tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup = await this.getTokenHistoryGroup;
 
-    this.tokenEntries = this._getBeautifiedTokenEntriesForFlowNode(tokenHistoryGroup);
-    this.rawTokenEntries = this._getRawTokenEntriesForFlowNode(tokenHistoryGroup);
+    this.tokenEntries = this.getBeautifiedTokenEntriesForFlowNode(tokenHistoryGroup);
+    this.rawTokenEntries = this.getRawTokenEntriesForFlowNode(tokenHistoryGroup);
 
     this.showTokenEntries = this.tokenEntries.length > 0;
     this.shouldShowFlowNodeId = this.tokenEntries.length > 0;
   }
 
-  private _clearTokenViewer(): void {
+  private clearTokenViewer(): void {
     this.tokenEntries = undefined;
     this.rawTokenEntries = undefined;
     this.showTokenEntries = false;
     this.shouldShowFlowNodeId = false;
   }
 
-  private _processEngineSupportsFetchingTokensByProcessInstanceId(): boolean {
+  private processEngineSupportsFetchingTokensByProcessInstanceId(): boolean {
     const processEngineVersion: string = this.activeSolutionEntry.processEngineVersion;
 
     const noProcessEngineVersionSet: boolean = processEngineVersion === undefined;
@@ -142,7 +142,7 @@ export class TokenViewer {
     return processEngineSupportsEvents;
   }
 
-  private _getRawTokenEntriesForFlowNode(
+  private getRawTokenEntriesForFlowNode(
     tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup,
   ): Array<IRawTokenEntry> {
     const tokenEntries: Array<IRawTokenEntry> = [];
@@ -173,7 +173,7 @@ export class TokenViewer {
     return tokenEntries;
   }
 
-  private _getBeautifiedTokenEntriesForFlowNode(
+  private getBeautifiedTokenEntriesForFlowNode(
     tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup,
   ): Array<ITokenEntry> {
     const tokenEntries: Array<ITokenEntry> = [];
@@ -193,7 +193,7 @@ export class TokenViewer {
             return;
           }
 
-          const tokenEntryPayload: Array<IPayloadEntry> = this._convertHistoryEntryPayloadToTokenEntryPayload(
+          const tokenEntryPayload: Array<IPayloadEntry> = this.convertHistoryEntryPayloadToTokenEntryPayload(
             historyEntryPayload,
           );
 
@@ -212,16 +212,16 @@ export class TokenViewer {
     return tokenEntries;
   }
 
-  private _convertHistoryEntryPayloadToTokenEntryPayload(tokenEntryPayload: any): Array<IPayloadEntry> {
+  private convertHistoryEntryPayloadToTokenEntryPayload(tokenEntryPayload: any): Array<IPayloadEntry> {
     const formattedTokenEntryPayload: Array<IPayloadEntry> = [];
 
     const payloadIsNotAnObjectOrArray: boolean = typeof tokenEntryPayload !== 'object';
     if (payloadIsNotAnObjectOrArray) {
-      const payloadEntry: IPayloadEntry = this._getPayloadEntryForNonObject(tokenEntryPayload);
+      const payloadEntry: IPayloadEntry = this.getPayloadEntryForNonObject(tokenEntryPayload);
 
       formattedTokenEntryPayload.push(payloadEntry);
     } else {
-      const payloadEntries: Array<IPayloadEntry> = this._getAllPayloadEntriesForObject(tokenEntryPayload);
+      const payloadEntries: Array<IPayloadEntry> = this.getAllPayloadEntriesForObject(tokenEntryPayload);
 
       formattedTokenEntryPayload.push(...payloadEntries);
     }
@@ -229,13 +229,15 @@ export class TokenViewer {
     return formattedTokenEntryPayload;
   }
 
-  private _getAllPayloadEntriesForObject(payload: any): Array<IPayloadEntry> {
+  private getAllPayloadEntriesForObject(payload: any): Array<IPayloadEntry> {
     const payloadEntries: Array<IPayloadEntry> = [];
 
-    for (const loadIndex in payload) {
-      const currentLoad: any = payload[loadIndex];
+    const payloadEntryIndexes: Array<string> = Object.keys(payload);
 
-      const payloadEntry: IPayloadEntry = this._getPayloadEntryForObject(currentLoad, loadIndex);
+    for (const payloadIndex of payloadEntryIndexes) {
+      const currentLoad: any = payload[payloadIndex];
+
+      const payloadEntry: IPayloadEntry = this.getPayloadEntryForObject(currentLoad, payloadIndex);
 
       payloadEntries.push(payloadEntry);
     }
@@ -243,7 +245,7 @@ export class TokenViewer {
     return payloadEntries;
   }
 
-  private _getPayloadEntryForObject(load: any, loadName: string): IPayloadEntry {
+  private getPayloadEntryForObject(load: any, loadName: string): IPayloadEntry {
     const payloadEntry: IPayloadEntry = {
       name: loadName,
       values: [],
@@ -251,11 +253,11 @@ export class TokenViewer {
 
     const entryIsNotAnObject: boolean = typeof load !== 'object';
     if (entryIsNotAnObject) {
-      const payloadEntryValues: Array<IPayloadEntryValue> = this._getPayloadEntryValuesForNonObject(load);
+      const payloadEntryValues: Array<IPayloadEntryValue> = this.getPayloadEntryValuesForNonObject(load);
 
       payloadEntry.values = payloadEntryValues;
     } else {
-      const payloadEntryValues: Array<IPayloadEntryValue> = this._getPayloadEntryValuesForObject(load);
+      const payloadEntryValues: Array<IPayloadEntryValue> = this.getPayloadEntryValuesForObject(load);
 
       payloadEntry.values = payloadEntryValues;
     }
@@ -263,10 +265,12 @@ export class TokenViewer {
     return payloadEntry;
   }
 
-  private _getPayloadEntryValuesForObject(payload: any): Array<IPayloadEntryValue> {
+  private getPayloadEntryValuesForObject(payload: any): Array<IPayloadEntryValue> {
     const payloadEntryValues: Array<IPayloadEntryValue> = [];
 
-    for (const entryIndex in payload) {
+    const payloadIndexes: Array<string> = Object.keys(payload);
+
+    for (const entryIndex of payloadIndexes) {
       // tslint:disable-next-line no-magic-numbers
       const payloadEntryValue: string = JSON.stringify(payload[entryIndex], null, 2);
 
@@ -279,8 +283,8 @@ export class TokenViewer {
     return payloadEntryValues;
   }
 
-  private _getPayloadEntryForNonObject(payload: any): IPayloadEntry {
-    const payloadEntryValues: any = this._getPayloadEntryValuesForNonObject(payload);
+  private getPayloadEntryForNonObject(payload: any): IPayloadEntry {
+    const payloadEntryValues: any = this.getPayloadEntryValuesForNonObject(payload);
 
     const payloadEntry: IPayloadEntry = {
       values: payloadEntryValues,
@@ -289,7 +293,7 @@ export class TokenViewer {
     return payloadEntry;
   }
 
-  private _getPayloadEntryValuesForNonObject(payload: any): Array<IPayloadEntryValue> {
+  private getPayloadEntryValuesForNonObject(payload: any): Array<IPayloadEntryValue> {
     const payloadIsString: boolean = typeof payload === 'string';
 
     const payloadEntryValue: string = payloadIsString ? `"${payload}"` : payload.toString();
