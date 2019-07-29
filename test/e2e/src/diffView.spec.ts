@@ -1,4 +1,5 @@
-import {browser, ElementFinder} from 'protractor';
+/* eslint-disable no-undef */
+import {ElementFinder, browser} from 'protractor';
 
 import {SimpleDiagram} from './diagrams/simpleDiagram';
 import {DiagramDetail} from './pages/diagramDetail';
