@@ -2,10 +2,10 @@ import * as print from 'print-js';
 import {IDiagramPrintService} from '../../../../contracts';
 
 export class DiagramPrintService implements IDiagramPrintService {
-  private _svg: string;
+  private svg: string;
 
   constructor(svg?: string) {
-    this._svg = svg;
+    this.svg = svg;
   }
 
   /**
@@ -20,13 +20,14 @@ export class DiagramPrintService implements IDiagramPrintService {
 
     if (svg !== undefined) {
       svgToPrint = svg;
-    } else if (this._svg !== undefined && this._svg !== null) {
-      svgToPrint = this._svg;
+    } else if (this.svg !== undefined && this.svg !== null) {
+      svgToPrint = this.svg;
     } else {
+      // eslint-disable-next-line prefer-promise-reject-errors
       return Promise.reject('No SVG for printing defined');
     }
 
-    const png: string = await this._generateImageFromSVG('png', svgToPrint);
+    const png: string = await this.generateImageFromSVG('png', svgToPrint);
 
     const printOptions: {printable: string; type?: string} = {
       printable: png,
@@ -34,10 +35,11 @@ export class DiagramPrintService implements IDiagramPrintService {
     };
 
     print.default(printOptions);
+    return Promise.resolve();
   }
 
   public updateSVG(newSVG: string): void {
-    this._svg = newSVG;
+    this.svg = newSVG;
   }
 
   /**
@@ -48,12 +50,14 @@ export class DiagramPrintService implements IDiagramPrintService {
    * @param svg SVG that should be converted into an image with the desired format.
    * @returns A DataURL that points to the created image.
    */
-  private async _generateImageFromSVG(desiredImageType: string, svg: string): Promise<string> {
+  private async generateImageFromSVG(desiredImageType: string, svg: string): Promise<string> {
     const encoding: string = `image/${desiredImageType}`;
     const canvas: HTMLCanvasElement = document.createElement('canvas');
     const context: CanvasRenderingContext2D = canvas.getContext('2d');
 
+    // eslint-disable-next-line no-useless-escape
     const svgWidth: number = parseInt(svg.match(/<svg[^>]*width\s*=\s*\"?(\d+)\"?[^>]*>/)[1]);
+    // eslint-disable-next-line no-useless-escape
     const svgHeight: number = parseInt(svg.match(/<svg[^>]*height\s*=\s*\"?(\d+)\"?[^>]*>/)[1]);
 
     // For a print, we use 300 dpi
@@ -65,7 +69,7 @@ export class DiagramPrintService implements IDiagramPrintService {
      * DIN A4 Paper, which has a diagonal size of 14.17 inches.
      */
     const dinA4DiagonalSizeInch: number = 14.17;
-    const pixelRatio: number = this._calculatePixelRatioForDPI(svgWidth, svgHeight, targetDPI, dinA4DiagonalSizeInch);
+    const pixelRatio: number = this.calculatePixelRatioForDPI(svgWidth, svgHeight, targetDPI, dinA4DiagonalSizeInch);
 
     canvas.width = svgWidth * pixelRatio;
     canvas.height = svgHeight * pixelRatio;
@@ -75,7 +79,7 @@ export class DiagramPrintService implements IDiagramPrintService {
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw the image to the canvas
-    const imageDataURL: string = await this._drawSVGToCanvas(svg, canvas, context, encoding);
+    const imageDataURL: string = await this.drawSVGToCanvas(svg, canvas, context, encoding);
 
     return imageDataURL;
   }
@@ -91,15 +95,14 @@ export class DiagramPrintService implements IDiagramPrintService {
    * @param targetDPI DPI of the output.
    * @param diagonalSize Diagonal Size of the printed document.
    */
-  private _calculatePixelRatioForDPI(
+  private calculatePixelRatioForDPI(
     svgWidth: number,
     svgHeight: number,
     targetDPI: number,
     diagonalSize: number,
   ): number {
-    // tslint:disable:no-magic-numbers
-    const svgWidthSquared: number = Math.pow(svgWidth, 2);
-    const svgHeightSquared: number = Math.pow(svgHeight, 2);
+    const svgWidthSquared: number = svgWidth ** 2;
+    const svgHeightSquared: number = svgHeight ** 2;
 
     const diagonalResolution: number = Math.sqrt(svgWidthSquared + svgHeightSquared);
 
@@ -118,7 +121,7 @@ export class DiagramPrintService implements IDiagramPrintService {
    * @param encoding Encoding of the output image.
    * @returns The URL which points to the rendered image.
    */
-  private async _drawSVGToCanvas(
+  private async drawSVGToCanvas(
     svgContent: string,
     canvas: HTMLCanvasElement,
     context: CanvasRenderingContext2D,
