@@ -29,31 +29,31 @@ export class InspectCorrelation {
 
   public viewIsAttached: boolean = false;
 
-  private _inspectCorrelationService: IInspectCorrelationService;
-  private _eventAggregator: EventAggregator;
-  private _subscriptions: Array<Subscription>;
+  private inspectCorrelationService: IInspectCorrelationService;
+  private eventAggregator: EventAggregator;
+  private subscriptions: Array<Subscription>;
 
   constructor(inspectCorrelationService: IInspectCorrelationService, eventAggregator: EventAggregator) {
-    this._inspectCorrelationService = inspectCorrelationService;
-    this._eventAggregator = eventAggregator;
+    this.inspectCorrelationService = inspectCorrelationService;
+    this.eventAggregator = eventAggregator;
   }
 
   public async attached(): Promise<void> {
-    this.correlations = await this._inspectCorrelationService.getAllCorrelationsForProcessModelId(
+    this.correlations = await this.inspectCorrelationService.getAllCorrelationsForProcessModelId(
       this.activeDiagram.id,
       this.activeSolutionEntry.identity,
     );
 
-    this._eventAggregator.publish(environment.events.statusBar.showInspectCorrelationButtons, true);
+    this.eventAggregator.publish(environment.events.statusBar.showInspectCorrelationButtons, true);
 
-    this._subscriptions = [
-      this._eventAggregator.subscribe(
+    this.subscriptions = [
+      this.eventAggregator.subscribe(
         environment.events.inspectCorrelation.showInspectPanel,
         (showInspectPanel: boolean) => {
           this.showInspectPanel = showInspectPanel;
         },
       ),
-      this._eventAggregator.subscribe(
+      this.eventAggregator.subscribe(
         environment.events.inspectCorrelation.showTokenViewer,
         (showTokenViewer: boolean) => {
           this.showTokenViewer = showTokenViewer;
@@ -66,7 +66,7 @@ export class InspectCorrelation {
       windowEvent.cancelBubble = true;
 
       const mousemoveFunction: IEventFunction = (mouseMoveEvent: MouseEvent): void => {
-        this._resizeInspectPanel(mouseMoveEvent);
+        this.resizeInspectPanel(mouseMoveEvent);
         document.getSelection().empty();
       };
 
@@ -84,7 +84,7 @@ export class InspectCorrelation {
       windowEvent.cancelBubble = true;
 
       const mousemoveFunction: IEventFunction = (mouseMoveEvent: MouseEvent): void => {
-        this._resizeTokenViewer(mouseMoveEvent);
+        this.resizeTokenViewer(mouseMoveEvent);
         document.getSelection().empty();
       };
 
@@ -101,23 +101,23 @@ export class InspectCorrelation {
   }
 
   public detached(): void {
-    this._eventAggregator.publish(environment.events.statusBar.showInspectCorrelationButtons, false);
+    this.eventAggregator.publish(environment.events.statusBar.showInspectCorrelationButtons, false);
 
-    for (const subscription of this._subscriptions) {
+    for (const subscription of this.subscriptions) {
       subscription.dispose();
     }
   }
 
   public async activeDiagramChanged(): Promise<void> {
     if (this.viewIsAttached) {
-      this.correlations = await this._inspectCorrelationService.getAllCorrelationsForProcessModelId(
+      this.correlations = await this.inspectCorrelationService.getAllCorrelationsForProcessModelId(
         this.activeDiagram.id,
         this.activeSolutionEntry.identity,
       );
     }
   }
 
-  private _resizeInspectPanel(mouseEvent: MouseEvent): void {
+  private resizeInspectPanel(mouseEvent: MouseEvent): void {
     const mouseYPosition: number = mouseEvent.clientY;
 
     const menuBarHeight: number = 40;
@@ -131,7 +131,7 @@ export class InspectCorrelation {
     this.bottomPanelHeight = Math.max(newBottomPanelHeight, minInspectPanelHeight);
   }
 
-  private _resizeTokenViewer(mouseEvent: MouseEvent): void {
+  private resizeTokenViewer(mouseEvent: MouseEvent): void {
     const mouseXPosition: number = mouseEvent.clientX;
 
     const inspectCorrelation: HTMLElement = this.bottomPanelResizeDiv.parentElement.parentElement;

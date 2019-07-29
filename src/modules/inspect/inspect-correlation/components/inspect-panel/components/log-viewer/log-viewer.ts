@@ -23,24 +23,24 @@ export class LogViewer {
   @bindable public log: Array<DataModels.Logging.LogEntry>;
   @bindable public processInstance: DataModels.Correlations.CorrelationProcessInstance;
   @bindable public activeSolutionEntry: ISolutionEntry;
-  public LogSortProperty: typeof LogSortProperty = LogSortProperty;
+  public logSortProperty: typeof LogSortProperty = LogSortProperty;
   public sortedLog: Array<DataModels.Logging.LogEntry>;
   public sortSettings: ILogSortSettings = {
     ascending: false,
     sortProperty: undefined,
   };
 
-  private _notificationService: NotificationService;
-  private _inspectCorrelationService: IInspectCorrelationService;
+  private notificationService: NotificationService;
+  private inspectCorrelationService: IInspectCorrelationService;
 
   constructor(notificationService: NotificationService, inspectCorrelationService: IInspectCorrelationService) {
-    this._notificationService = notificationService;
-    this._inspectCorrelationService = inspectCorrelationService;
+    this.notificationService = notificationService;
+    this.inspectCorrelationService = inspectCorrelationService;
   }
 
   public async processInstanceChanged(): Promise<void> {
     setTimeout(async () => {
-      this.log = await this._inspectCorrelationService.getLogsForProcessInstance(
+      this.log = await this.inspectCorrelationService.getLogsForProcessInstance(
         this.processInstance.processModelId,
         this.processInstance.processInstanceId,
         this.activeSolutionEntry.identity,
@@ -58,7 +58,7 @@ export class LogViewer {
   public copyToClipboard(textToCopy: string): void {
     (clipboard as IClipboard).writeText(textToCopy);
 
-    this._notificationService.showNotification(NotificationType.SUCCESS, 'Successfully copied to clipboard.');
+    this.notificationService.showNotification(NotificationType.SUCCESS, 'Successfully copied to clipboard.');
   }
 
   public getDateStringFromTimestamp(timestamp: string): string {
@@ -78,13 +78,13 @@ export class LogViewer {
     const sortPropertyIsTime: boolean = property === LogSortProperty.Time;
 
     const sortedLog: Array<DataModels.Logging.LogEntry> = sortPropertyIsTime
-      ? this._getSortedLogByDate()
-      : this._getSortedLogByProperty(property);
+      ? this.getSortedLogByDate()
+      : this.getSortedLogByProperty(property);
 
     this.sortedLog = ascending ? sortedLog : sortedLog.reverse();
   }
 
-  private _getSortedLogByProperty(property: LogSortProperty): Array<DataModels.Logging.LogEntry> {
+  private getSortedLogByProperty(property: LogSortProperty): Array<DataModels.Logging.LogEntry> {
     const sortedLog: Array<DataModels.Logging.LogEntry> = this.log.sort(
       (firstEntry: DataModels.Logging.LogEntry, secondEntry: DataModels.Logging.LogEntry) => {
         // FlowNodeId and FlowNodeInstanceId can be 'undefined', if the LogEntry is for a ProcessInstance.
@@ -117,7 +117,7 @@ export class LogViewer {
     return sortedLog;
   }
 
-  private _getSortedLogByDate(): Array<DataModels.Logging.LogEntry> {
+  private getSortedLogByDate(): Array<DataModels.Logging.LogEntry> {
     const sortedLog: Array<DataModels.Logging.LogEntry> = this.log.sort(
       (firstEntry: DataModels.Logging.LogEntry, secondEntry: DataModels.Logging.LogEntry) => {
         const firstCorrelationDate: Date = new Date(firstEntry.timeStamp);

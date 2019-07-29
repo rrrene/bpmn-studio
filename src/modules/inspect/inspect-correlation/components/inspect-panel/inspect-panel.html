@@ -7,7 +7,7 @@
       <div class="inspect-panel__tabs">
         <button class="inspect-panel__tab"
                 class.bind="showCorrelationList ? 'inspect-panel__active-tab' : ''"
-                click.delegate="changeTab(InspectPanelTab.CorrelationList)"
+                click.delegate="changeTab(inspectPanelTab.CorrelationList)"
                 title="Show a list of all correlations for this process model">
           Correlation List (${processInstances.length})
         </button>
@@ -15,7 +15,7 @@
                 class.bind="selectedProcessInstance === undefined ? 'inspect-panel__disabled-tab' : ''"
                 disabled.bind="selectedProcessInstance === undefined"
                 title.bind="selectedProcessInstance !== undefined ? 'Show log of correlation' : 'Select a correlation in order to toggle the log viewer'"
-                click.delegate="changeTab(InspectPanelTab.LogViewer)">
+                click.delegate="changeTab(inspectPanelTab.LogViewer)">
           Log Viewer
         </button>
       </div>
