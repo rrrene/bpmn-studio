@@ -25,20 +25,20 @@ export class ProcessList {
   public requestSuccessful: boolean = false;
   public processInstancesToDisplay: Array<ProcessInstanceWithCorrelation> = [];
 
-  private _managementApiService: IManagementApi;
-  private _eventAggregator: EventAggregator;
-  private _notificationService: NotificationService;
-  private _solutionService: ISolutionService;
-  private _activeSolutionUri: string;
-  private _router: Router;
+  private managementApiService: IManagementApi;
+  private eventAggregator: EventAggregator;
+  private notificationService: NotificationService;
+  private solutionService: ISolutionService;
+  private activeSolutionUri: string;
+  private router: Router;
 
-  private _pollingTimeout: NodeJS.Timer | number;
-  private _subscriptions: Array<Subscription>;
-  private _correlations: Array<DataModels.Correlations.Correlation> = [];
-  private _processInstancesWithCorrelation: Array<ProcessInstanceWithCorrelation> = [];
-  private _stoppedCorrelations: Array<DataModels.Correlations.Correlation> = [];
-  private _stoppedProcessInstancesWithCorrelation: Array<ProcessInstanceWithCorrelation> = [];
-  private _isAttached: boolean = false;
+  private pollingTimeout: NodeJS.Timer | number;
+  private subscriptions: Array<Subscription>;
+  private correlations: Array<DataModels.Correlations.Correlation> = [];
+  private processInstancesWithCorrelation: Array<ProcessInstanceWithCorrelation> = [];
+  private stoppedCorrelations: Array<DataModels.Correlations.Correlation> = [];
+  private stoppedProcessInstancesWithCorrelation: Array<ProcessInstanceWithCorrelation> = [];
+  private isAttached: boolean = false;
 
   constructor(
     managementApiService: IManagementApi,
@@ -47,61 +47,61 @@ export class ProcessList {
     solutionService: ISolutionService,
     router: Router,
   ) {
-    this._managementApiService = managementApiService;
-    this._eventAggregator = eventAggregator;
-    this._notificationService = notificationService;
-    this._solutionService = solutionService;
-    this._router = router;
+    this.managementApiService = managementApiService;
+    this.eventAggregator = eventAggregator;
+    this.notificationService = notificationService;
+    this.solutionService = solutionService;
+    this.router = router;
   }
 
   public activeSolutionEntryChanged(): void {
-    this._stoppedCorrelations = [];
-    this._stoppedProcessInstancesWithCorrelation = [];
+    this.stoppedCorrelations = [];
+    this.stoppedProcessInstancesWithCorrelation = [];
   }
 
   public async currentPageChanged(newValue: number, oldValue: number): Promise<void> {
     const oldValueIsDefined: boolean = oldValue !== undefined && oldValue !== null;
 
     if (oldValueIsDefined) {
-      this._updateCorrelationsToDisplay();
+      this.updateCorrelationsToDisplay();
     }
   }
 
   public async attached(): Promise<void> {
-    this._isAttached = true;
-    this._activeSolutionUri = this._router.currentInstruction.queryParams.solutionUri;
+    this.isAttached = true;
+    this.activeSolutionUri = this.router.currentInstruction.queryParams.solutionUri;
 
-    const activeSolutionUriIsNotSet: boolean = this._activeSolutionUri === undefined;
+    const activeSolutionUriIsNotSet: boolean = this.activeSolutionUri === undefined;
 
     if (activeSolutionUriIsNotSet) {
-      this._activeSolutionUri = window.localStorage.getItem('InternalProcessEngineRoute');
+      this.activeSolutionUri = window.localStorage.getItem('InternalProcessEngineRoute');
     }
 
-    const activeSolutionUriIsNotRemote: boolean = !this._activeSolutionUri.startsWith('http');
+    const activeSolutionUriIsNotRemote: boolean = !this.activeSolutionUri.startsWith('http');
     if (activeSolutionUriIsNotRemote) {
-      this._activeSolutionUri = window.localStorage.getItem('InternalProcessEngineRoute');
+      this.activeSolutionUri = window.localStorage.getItem('InternalProcessEngineRoute');
     }
 
-    this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(this._activeSolutionUri);
+    this.activeSolutionEntry = this.solutionService.getSolutionEntryForUri(this.activeSolutionUri);
 
     await this.updateCorrelationList();
-    this._startPolling();
+    this.startPolling();
 
-    this._subscriptions = [
-      this._eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, () => {
+    this.subscriptions = [
+      this.eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, () => {
         this.updateCorrelationList();
       }),
-      this._eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
+      this.eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
         this.updateCorrelationList();
       }),
     ];
   }
 
   public detached(): void {
-    this._isAttached = false;
-    clearTimeout(this._pollingTimeout as NodeJS.Timer);
+    this.isAttached = false;
+    clearTimeout(this.pollingTimeout as NodeJS.Timer);
 
-    for (const subscription of this._subscriptions) {
+    for (const subscription of this.subscriptions) {
       subscription.dispose();
     }
   }
@@ -110,14 +110,14 @@ export class ProcessList {
     try {
       const correlations: Array<DataModels.Correlations.Correlation> = await this.getAllActiveCorrelations();
       const correlationListWasUpdated: boolean =
-        JSON.stringify(correlations.sort(this._sortCorrelations)) !== JSON.stringify(this._correlations);
+        JSON.stringify(correlations.sort(this.sortCorrelations)) !== JSON.stringify(this.correlations);
 
       if (correlationListWasUpdated) {
-        this._correlations = correlations;
-        this._correlations.sort(this._sortCorrelations);
+        this.correlations = correlations;
+        this.correlations.sort(this.sortCorrelations);
 
-        this._processInstancesWithCorrelation = [];
-        for (const correlation of this._correlations) {
+        this.processInstancesWithCorrelation = [];
+        for (const correlation of this.correlations) {
           const processInstancesWithCorrelation: Array<
             ProcessInstanceWithCorrelation
           > = correlation.processInstances.map(
@@ -129,28 +129,28 @@ export class ProcessList {
             },
           );
 
-          this._processInstancesWithCorrelation.push(...processInstancesWithCorrelation);
+          this.processInstancesWithCorrelation.push(...processInstancesWithCorrelation);
         }
 
-        this._updateCorrelationsToDisplay();
+        this.updateCorrelationsToDisplay();
       }
 
       this.requestSuccessful = true;
     } catch (error) {
-      this._notificationService.showNotification(
+      this.notificationService.showNotification(
         NotificationType.ERROR,
         `Error receiving process list: ${error.message}`,
       );
       this.requestSuccessful = false;
     }
 
-    const correlationsAreNotSet: boolean = this._correlations === undefined || this._correlations === null;
+    const correlationsAreNotSet: boolean = this.correlations === undefined || this.correlations === null;
     if (correlationsAreNotSet) {
-      this._correlations = [];
-      this._processInstancesWithCorrelation = [];
+      this.correlations = [];
+      this.processInstancesWithCorrelation = [];
     }
 
-    this.totalItems = this._processInstancesWithCorrelation.length;
+    this.totalItems = this.processInstancesWithCorrelation.length;
   }
 
   public async stopProcessInstance(
@@ -158,21 +158,23 @@ export class ProcessList {
     correlation: DataModels.Correlations.Correlation,
   ): Promise<void> {
     try {
-      await this._managementApiService.terminateProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
+      await this.managementApiService.terminateProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
 
       const getStoppedCorrelation: Function = (): void => {
         setTimeout(async () => {
-          const stoppedCorrelation: DataModels.Correlations.Correlation = await this._managementApiService.getCorrelationByProcessInstanceId(
+          const stoppedCorrelation: DataModels.Correlations.Correlation = await this.managementApiService.getCorrelationByProcessInstanceId(
             this.activeSolutionEntry.identity,
             processInstanceId,
           );
 
           const stoppedCorrelationIsNotStopped: boolean = stoppedCorrelation.state === 'running';
           if (stoppedCorrelationIsNotStopped) {
-            return getStoppedCorrelation();
+            getStoppedCorrelation();
+
+            return;
           }
 
-          this._stoppedCorrelations.push(stoppedCorrelation);
+          this.stoppedCorrelations.push(stoppedCorrelation);
 
           const processInstancesWithCorrelation: Array<
             ProcessInstanceWithCorrelation
@@ -185,15 +187,14 @@ export class ProcessList {
             },
           );
 
-          this._stoppedProcessInstancesWithCorrelation.push(...processInstancesWithCorrelation);
-          // tslint:disable-next-line: no-magic-numbers
+          this.stoppedProcessInstancesWithCorrelation.push(...processInstancesWithCorrelation);
         }, 100);
       };
 
       getStoppedCorrelation();
       await this.updateCorrelationList();
     } catch (error) {
-      this._notificationService.showNotification(NotificationType.ERROR, `Error while stopping Process! ${error}`);
+      this.notificationService.showNotification(NotificationType.ERROR, `Error while stopping Process! ${error}`);
     }
   }
 
@@ -204,27 +205,27 @@ export class ProcessList {
   private async getAllActiveCorrelations(): Promise<Array<DataModels.Correlations.Correlation>> {
     const identity: IIdentity = this.activeSolutionEntry.identity;
 
-    return this._managementApiService.getActiveCorrelations(identity);
+    return this.managementApiService.getActiveCorrelations(identity);
   }
 
-  private _startPolling(): void {
-    this._pollingTimeout = setTimeout(async () => {
+  private startPolling(): void {
+    this.pollingTimeout = setTimeout(async () => {
       await this.updateCorrelationList();
 
-      if (this._isAttached) {
-        this._startPolling();
+      if (this.isAttached) {
+        this.startPolling();
       }
     }, environment.processengine.dashboardPollingIntervalInMs);
   }
 
-  private _sortCorrelations(
+  private sortCorrelations(
     correlation1: DataModels.Correlations.Correlation,
     correlation2: DataModels.Correlations.Correlation,
   ): number {
     return Date.parse(correlation2.createdAt.toString()) - Date.parse(correlation1.createdAt.toString());
   }
 
-  private _sortProcessInstancesWithCorrelation(
+  private sortProcessInstancesWithCorrelation(
     firstProcessInstanceWithCorrelation: ProcessInstanceWithCorrelation,
     secondProcessInstanceWithCorrelation: ProcessInstanceWithCorrelation,
   ): number {
@@ -246,13 +247,13 @@ export class ProcessList {
     );
   }
 
-  private _updateCorrelationsToDisplay(): void {
+  private updateCorrelationsToDisplay(): void {
     const firstProcessInstanceIndex: number = (this.currentPage - 1) * this.pageSize;
     const lastProcessInstanceIndex: number = this.pageSize * this.currentPage;
 
-    this.processInstancesToDisplay = this._processInstancesWithCorrelation;
-    this.processInstancesToDisplay.push(...this._stoppedProcessInstancesWithCorrelation);
-    this.processInstancesToDisplay.sort(this._sortProcessInstancesWithCorrelation);
+    this.processInstancesToDisplay = this.processInstancesWithCorrelation;
+    this.processInstancesToDisplay.push(...this.stoppedProcessInstancesWithCorrelation);
+    this.processInstancesToDisplay.sort(this.sortProcessInstancesWithCorrelation);
     this.processInstancesToDisplay = this.processInstancesToDisplay.slice(
       firstProcessInstanceIndex,
       lastProcessInstanceIndex,
