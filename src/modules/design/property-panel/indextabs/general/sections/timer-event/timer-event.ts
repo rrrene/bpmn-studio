@@ -25,31 +25,32 @@ export class TimerEventSection implements ISection {
   public path: string = '/sections/timer-event/timer-event';
   public canHandleElement: boolean = false;
   public timerElement: IModdleElement;
+  // eslint-disable-next-line @typescript-eslint/member-naming
   public TimerType: typeof TimerType = TimerType;
   public timerType: TimerType;
   public isTimerStartEvent: boolean = false;
   @bindable public isEnabled: boolean = true;
 
-  private _businessObjInPanel: ITimerEventElement;
-  private _moddle: IBpmnModdle;
-  private _linter: ILinting;
-  private _eventAggregator: EventAggregator;
+  private businessObjInPanel: ITimerEventElement;
+  private moddle: IBpmnModdle;
+  private linter: ILinting;
+  private eventAggregator: EventAggregator;
 
   constructor(eventAggregator?: EventAggregator) {
-    this._eventAggregator = eventAggregator;
+    this.eventAggregator = eventAggregator;
   }
 
   public activate(model: IPageModel): void {
-    this._businessObjInPanel = model.elementInPanel.businessObject as ITimerEventElement;
+    this.businessObjInPanel = model.elementInPanel.businessObject as ITimerEventElement;
 
-    this._moddle = model.modeler.get('moddle');
-    this._linter = model.modeler.get('linting');
+    this.moddle = model.modeler.get('moddle');
+    this.linter = model.modeler.get('linting');
 
-    this.isTimerStartEvent = this._businessObjInPanel.$type === 'bpmn:StartEvent';
+    this.isTimerStartEvent = this.businessObjInPanel.$type === 'bpmn:StartEvent';
 
-    this.timerElement = this._getTimerElement();
+    this.timerElement = this.getTimerElement();
 
-    this._init();
+    this.init();
   }
 
   public isSuitableForElement(element: IShape): boolean {
@@ -70,11 +71,11 @@ export class TimerEventSection implements ISection {
   }
 
   public updateTimerType(): void {
-    const moddleElement: IModdleElement = this._moddle.create('bpmn:FormalExpression', {
+    const moddleElement: IModdleElement = this.moddle.create('bpmn:FormalExpression', {
       body: this.timerElement.body,
     });
 
-    let timerTypeObject: Object;
+    let timerTypeObject: object;
 
     switch (this.timerType) {
       case TimerType.Date: {
@@ -98,56 +99,56 @@ export class TimerEventSection implements ISection {
       }
     }
 
-    delete this._businessObjInPanel.eventDefinitions[0].timeCycle;
-    delete this._businessObjInPanel.eventDefinitions[0].timeDuration;
-    delete this._businessObjInPanel.eventDefinitions[0].timeDate;
+    delete this.businessObjInPanel.eventDefinitions[0].timeCycle;
+    delete this.businessObjInPanel.eventDefinitions[0].timeDuration;
+    delete this.businessObjInPanel.eventDefinitions[0].timeDate;
 
-    Object.assign(this._businessObjInPanel.eventDefinitions[0], timerTypeObject);
+    Object.assign(this.businessObjInPanel.eventDefinitions[0], timerTypeObject);
     this.timerElement.body = '';
 
-    this._publishDiagramChange();
-    this._updateLinterWhenActive();
+    this.publishDiagramChange();
+    this.updateLinterWhenActive();
   }
 
   public updateTimerDefinition(): void {
-    const timerElement: IModdleElement = this._getTimerElement();
+    const timerElement: IModdleElement = this.getTimerElement();
     timerElement.body = this.timerElement.body;
 
-    this._publishDiagramChange();
-    this._updateLinterWhenActive();
+    this.publishDiagramChange();
+    this.updateLinterWhenActive();
   }
 
   public isEnabledChanged(): void {
-    const enabledProperty: IProperty = this._getProperty('enabled');
+    const enabledProperty: IProperty = this.getProperty('enabled');
     enabledProperty.value = this.isEnabled.toString();
 
-    this._publishDiagramChange();
+    this.publishDiagramChange();
   }
 
-  private _init(): void {
+  private init(): void {
     if (this.isTimerStartEvent) {
-      const extensionElementDoesNotExist: boolean = this._businessObjInPanel.extensionElements === undefined;
+      const extensionElementDoesNotExist: boolean = this.businessObjInPanel.extensionElements === undefined;
       if (extensionElementDoesNotExist) {
-        this._createExtensionElement();
+        this.createExtensionElement();
       }
 
-      const propertyElementDoesNotExists: boolean = this._getPropertiesElement() === undefined;
+      const propertyElementDoesNotExists: boolean = this.getPropertiesElement() === undefined;
       if (propertyElementDoesNotExists) {
-        this._createPropertiesElement();
+        this.createPropertiesElement();
       }
 
-      const enabledProperty: IProperty = this._getProperty('enabled');
+      const enabledProperty: IProperty = this.getProperty('enabled');
 
       const enabledPropertyExists: boolean = enabledProperty !== undefined;
       if (enabledPropertyExists) {
         this.isEnabled = enabledProperty.value === 'true';
       } else {
-        this._createProperty('enabled');
-        this._getProperty('enabled').value = 'true';
+        this.createProperty('enabled');
+        this.getProperty('enabled').value = 'true';
       }
     }
 
-    const {timeDate, timeDuration, timeCycle} = this._businessObjInPanel.eventDefinitions[0];
+    const {timeDate, timeDuration, timeCycle} = this.businessObjInPanel.eventDefinitions[0];
 
     if (timeCycle !== undefined && this.isTimerStartEvent) {
       this.timerType = TimerType.Cycle;
@@ -165,8 +166,8 @@ export class TimerEventSection implements ISection {
     }
   }
 
-  private _getTimerElement(): IModdleElement {
-    const {timeDuration, timeDate, timeCycle} = this._businessObjInPanel.eventDefinitions[0];
+  private getTimerElement(): IModdleElement {
+    const {timeDuration, timeDate, timeCycle} = this.businessObjInPanel.eventDefinitions[0];
 
     if (timeDuration !== undefined) {
       return timeDuration;
@@ -179,53 +180,53 @@ export class TimerEventSection implements ISection {
       return timeCycle;
     }
 
-    const timerEventDefinition: IModdleElement = this._moddle.create('bpmn:FormalExpression', {body: ''});
+    const timerEventDefinition: IModdleElement = this.moddle.create('bpmn:FormalExpression', {body: ''});
     return timerEventDefinition;
   }
 
-  private _publishDiagramChange(): void {
-    this._eventAggregator.publish(environment.events.diagramChange);
+  private publishDiagramChange(): void {
+    this.eventAggregator.publish(environment.events.diagramChange);
   }
 
-  private _updateLinterWhenActive(): void {
-    if (this._linter.lintingActive()) {
-      this._linter.update();
+  private updateLinterWhenActive(): void {
+    if (this.linter.lintingActive()) {
+      this.linter.update();
     }
   }
 
-  private _createExtensionElement(): void {
+  private createExtensionElement(): void {
     const extensionValues: Array<IModdleElement> = [];
 
-    const extensionElements: IModdleElement = this._moddle.create('bpmn:ExtensionElements', {
+    const extensionElements: IModdleElement = this.moddle.create('bpmn:ExtensionElements', {
       values: extensionValues,
     });
-    this._businessObjInPanel.extensionElements = extensionElements;
+    this.businessObjInPanel.extensionElements = extensionElements;
   }
 
-  private _createPropertiesElement(): void {
-    const extensionElement: IExtensionElement = this._businessObjInPanel.extensionElements;
+  private createPropertiesElement(): void {
+    const extensionElement: IExtensionElement = this.businessObjInPanel.extensionElements;
 
     const properties: Array<IProperty> = [];
-    const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', {values: properties});
+    const propertiesElement: IPropertiesElement = this.moddle.create('camunda:Properties', {values: properties});
 
     extensionElement.values.push(propertiesElement);
   }
 
-  private _createProperty(propertyName: string): void {
-    const propertiesElement: IPropertiesElement = this._getPropertiesElement();
+  private createProperty(propertyName: string): void {
+    const propertiesElement: IPropertiesElement = this.getPropertiesElement();
 
     const propertyObject: object = {
       name: propertyName,
       value: '',
     };
 
-    const property: IProperty = this._moddle.create('camunda:Property', propertyObject);
+    const property: IProperty = this.moddle.create('camunda:Property', propertyObject);
 
     propertiesElement.values.push(property);
   }
 
-  private _getProperty(propertyName: string): IProperty {
-    const propertiesElement: IPropertiesElement = this._getPropertiesElement();
+  private getProperty(propertyName: string): IProperty {
+    const propertiesElement: IPropertiesElement = this.getPropertiesElement();
 
     const property: IProperty = propertiesElement.values.find((element: IProperty) => {
       return element.name === propertyName;
@@ -234,8 +235,8 @@ export class TimerEventSection implements ISection {
     return property;
   }
 
-  private _getPropertiesElement(): IPropertiesElement {
-    const propertiesElement: IPropertiesElement = this._businessObjInPanel.extensionElements.values.find(
+  private getPropertiesElement(): IPropertiesElement {
+    const propertiesElement: IPropertiesElement = this.businessObjInPanel.extensionElements.values.find(
       (element: IPropertiesElement) => {
         return element.$type === 'camunda:Properties' && element.values !== undefined;
       },
