@@ -1,6 +1,6 @@
 const electron = require('electron');
 
-const { ipcMain, dialog, app } = electron;
+const {ipcMain, dialog, app} = electron;
 
 const autoUpdater = require('electron-updater').autoUpdater;
 const CancellationToken = require('electron-updater').CancellationToken;
@@ -150,11 +150,11 @@ Main._initializeApplication = function() {
             height: 600,
             title: `Release Notes ${updateCheckResult.updateInfo.version}`,
             minWidth: 600,
-            minHeight: 600
+            minHeight: 600,
           });
 
           releaseNotesWindow.loadURL(
-            `https://github.com/process-engine/bpmn-studio/releases/tag/v${updateCheckResult.updateInfo.version}`
+            `https://github.com/process-engine/bpmn-studio/releases/tag/v${updateCheckResult.updateInfo.version}`,
           );
         });
       });
@@ -182,8 +182,8 @@ Main._initializeApplication = function() {
       autoHideMenuBar: true,
       webPreferences: {
         nodeIntegration: true,
-        nodeIntegrationInWorker: true
-      }
+        nodeIntegrationInWorker: true,
+      },
     };
 
     const electronOidcInstance = electronOidc(oidcConfig, windowParams);
@@ -195,7 +195,7 @@ Main._initializeApplication = function() {
         },
         (err) => {
           console.log('Error while getting token', err);
-        }
+        },
       );
     });
 
@@ -206,7 +206,7 @@ Main._initializeApplication = function() {
         },
         (err) => {
           console.log('Error while logging out', err);
-        }
+        },
       );
     });
   }
@@ -258,7 +258,7 @@ Main._initializeApplication = function() {
 
       event.returnValue = {
         path: filePath,
-        content: fs.readFileSync(filePath, 'utf8')
+        content: fs.readFileSync(filePath, 'utf8'),
       };
       filePath = undefined;
       app.focus();
@@ -282,7 +282,7 @@ Main._createMainWindow = function() {
     minWidth: 1300,
     minHeight: 800,
     icon: path.join(__dirname, '../build/icon.png'), // only for windows
-    titleBarStyle: 'hiddenInset'
+    titleBarStyle: 'hiddenInset',
   });
 
   Main._window.loadURL(`file://${__dirname}/../index.html`);
@@ -319,13 +319,13 @@ Main._createMainWindow = function() {
         filters: [
           {
             name: fileType,
-            extensions: [fileExtension]
+            extensions: [fileExtension],
           },
           {
             name: 'All Files',
-            extensions: ['*']
-          }
-        ]
+            extensions: ['*'],
+          },
+        ],
       });
 
       const downloadCanceled = filename === undefined;
@@ -345,13 +345,13 @@ Main._createMainWindow = function() {
         filters: [
           {
             name: 'BPMN',
-            extensions: ['bpmn', 'xml']
+            extensions: ['bpmn', 'xml'],
           },
           {
             name: 'All Files',
-            extensions: ['*']
-          }
-        ]
+            extensions: ['*'],
+          },
+        ],
       });
 
       event.sender.send('save_diagram_as', filePath);
@@ -364,17 +364,17 @@ Main._createMainWindow = function() {
         filters: [
           {
             name: 'BPMN',
-            extensions: ['bpmn', 'xml']
+            extensions: ['bpmn', 'xml'],
           },
           {
             name: 'XML',
-            extensions: ['bpmn', 'xml']
+            extensions: ['bpmn', 'xml'],
           },
           {
             name: 'All Files',
-            extensions: ['*']
-          }
-        ]
+            extensions: ['*'],
+          },
+        ],
       });
 
       event.sender.send('import_opened_diagram', openedFile);
@@ -384,7 +384,7 @@ Main._createMainWindow = function() {
   function setOpenSolutions() {
     electron.ipcMain.on('open_solution', (event) => {
       const openedFile = dialog.showOpenDialog({
-        properties: ['openDirectory', 'createDirectory']
+        properties: ['openDirectory', 'createDirectory'],
       });
 
       event.sender.send('import_opened_solution', openedFile);
@@ -412,19 +412,19 @@ Main._createMainWindow = function() {
                 win_options: {
                   minimizable: false,
                   maximizable: false,
-                  resizable: false
+                  resizable: false,
                 },
-                package_json_dir: __dirname
-              })
+                package_json_dir: __dirname,
+              }),
           },
           {
-            type: 'separator'
+            type: 'separator',
           },
           {
             label: 'Quit',
-            role: 'quit'
-          }
-        ]
+            role: 'quit',
+          },
+        ],
       };
     };
 
@@ -437,67 +437,67 @@ Main._createMainWindow = function() {
             accelerator: 'CmdOrCtrl+N',
             click: () => {
               Main._window.webContents.send('menubar__start_create_diagram');
-            }
+            },
           },
           {
-            type: 'separator'
+            type: 'separator',
           },
           {
             label: 'Open Diagram',
             accelerator: 'CmdOrCtrl+O',
             click: () => {
               Main._window.webContents.send('menubar__start_opening_diagram');
-            }
+            },
           },
           {
             label: 'Open Solution',
             accelerator: 'CmdOrCtrl+Shift+O',
             click: () => {
               Main._window.webContents.send('menubar__start_opening_solution');
-            }
+            },
           },
           {
-            type: 'separator'
+            type: 'separator',
           },
           {
             label: 'Save Diagram',
             accelerator: 'CmdOrCtrl+S',
             click: () => {
               Main._window.webContents.send('menubar__start_save_diagram');
-            }
+            },
           },
           {
             label: 'Save Diagram As...',
             accelerator: 'CmdOrCtrl+Shift+S',
             click: () => {
               Main._window.webContents.send('menubar__start_save_diagram_as');
-            }
+            },
           },
           {
             label: 'Save All Diagrams',
             accelerator: 'CmdOrCtrl+Alt+S',
             click: () => {
               Main._window.webContents.send('menubar__start_save_all_diagrams');
-            }
+            },
           },
           {
-            type: 'separator'
+            type: 'separator',
           },
           {
             label: 'Close Diagram',
             accelerator: 'CmdOrCtrl+W',
             click: () => {
               Main._window.webContents.send('menubar__start_close_diagram');
-            }
+            },
           },
           {
             label: 'Close All Diagrams',
             accelerator: 'CmdOrCtrl+Alt+W',
             click: () => {
               Main._window.webContents.send('menubar__start_close_all_diagrams');
-            }
-          }
-        ]
+            },
+          },
+        ],
       };
     };
 
@@ -508,62 +508,62 @@ Main._createMainWindow = function() {
           {
             label: 'Undo',
             accelerator: 'CmdOrCtrl+Z',
-            selector: 'undo:'
+            selector: 'undo:',
           },
           {
             label: 'Redo',
             accelerator: 'CmdOrCtrl+Shift+Z',
-            selector: 'redo:'
+            selector: 'redo:',
           },
           {
-            type: 'separator'
+            type: 'separator',
           },
           {
             label: 'Cut',
             accelerator: 'CmdOrCtrl+X',
-            selector: 'cut:'
+            selector: 'cut:',
           },
           {
             label: 'Copy',
             accelerator: 'CmdOrCtrl+C',
-            selector: 'copy:'
+            selector: 'copy:',
           },
           {
             label: 'Paste',
             accelerator: 'CmdOrCtrl+V',
-            selector: 'paste:'
+            selector: 'paste:',
           },
           {
             label: 'Select All',
             accelerator: 'CmdOrCtrl+A',
-            selector: 'selectAll:'
-          }
-        ]
+            selector: 'selectAll:',
+          },
+        ],
       };
     };
 
     const getWindowMenu = () => {
       const windowMenu = {
         label: 'Window',
-        submenu: []
+        submenu: [],
       };
 
       windowMenu.submenu.push({
-        role: 'minimize'
+        role: 'minimize',
       });
       windowMenu.submenu.push({
-        role: 'close'
+        role: 'close',
       });
       windowMenu.submenu.push({
-        type: 'separator'
-      });
-
-      windowMenu.submenu.push({
-        role: 'reload'
+        type: 'separator',
       });
 
       windowMenu.submenu.push({
-        role: 'toggledevtools'
+        role: 'reload',
+      });
+
+      windowMenu.submenu.push({
+        role: 'toggledevtools',
       });
 
       return windowMenu;
@@ -578,7 +578,7 @@ Main._createMainWindow = function() {
             click: () => {
               const documentation_url = 'https://www.process-engine.io/documentation/';
               electron.shell.openExternal(documentation_url);
-            }
+            },
           },
           {
             label: 'Release Notes for Current Version',
@@ -586,9 +586,9 @@ Main._createMainWindow = function() {
               const currentVersion = electron.app.getVersion();
               const currentReleaseNotesUrl = `https://github.com/process-engine/bpmn-studio/releases/tag/v${currentVersion}`;
               electron.shell.openExternal(currentReleaseNotesUrl);
-            }
-          }
-        ]
+            },
+          },
+        ],
       };
     };
 
@@ -653,7 +653,7 @@ Main._startInternalProcessEngine = async function() {
 
   const getPortConfig = {
     port: 8000,
-    host: '0.0.0.0'
+    host: '0.0.0.0',
   };
 
   return getPort(getPortConfig).then(async (port) => {
@@ -666,17 +666,17 @@ Main._startInternalProcessEngine = async function() {
     process.env.process_engine__process_model_repository__storage = path.join(
       userDataFolderPath,
       processEngineDatabaseFolderName,
-      'process_model.sqlite'
+      'process_model.sqlite',
     );
     process.env.process_engine__flow_node_instance_repository__storage = path.join(
       userDataFolderPath,
       processEngineDatabaseFolderName,
-      'flow_node_instance.sqlite'
+      'flow_node_instance.sqlite',
     );
     process.env.process_engine__timer_repository__storage = path.join(
       userDataFolderPath,
       processEngineDatabaseFolderName,
-      'timer.sqlite'
+      'timer.sqlite',
     );
 
     let internalProcessEngineStatus = undefined;
@@ -691,7 +691,7 @@ Main._startInternalProcessEngine = async function() {
       if (processEngineStartSuccessful) {
         serializedStartupError = JSON.stringify(
           internalProcessEngineStartupError,
-          Object.getOwnPropertyNames(internalProcessEngineStartupError)
+          Object.getOwnPropertyNames(internalProcessEngineStartupError),
         );
       } else {
         serializedStartupError = undefined;

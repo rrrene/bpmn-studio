@@ -1,14 +1,14 @@
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { bindable, inject, observable } from 'aurelia-framework';
-import { Router } from 'aurelia-router';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {bindable, inject, observable} from 'aurelia-framework';
+import {Router} from 'aurelia-router';
 
-import { IIdentity } from '@essential-projects/iam_contracts';
-import { DataModels, IManagementApi } from '@process-engine/management_api_contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
 
-import { AuthenticationStateEvent, ISolutionEntry, ISolutionService, NotificationType } from '../../../contracts/index';
+import {AuthenticationStateEvent, ISolutionEntry, ISolutionService, NotificationType} from '../../../contracts/index';
 import environment from '../../../environment';
-import { getBeautifiedDate } from '../../../services/date-service/date.service';
-import { NotificationService } from '../../../services/notification-service/notification.service';
+import {getBeautifiedDate} from '../../../services/date-service/date.service';
+import {NotificationService} from '../../../services/notification-service/notification.service';
 
 type ProcessInstanceWithCorrelation = {
   processInstance: DataModels.Correlations.CorrelationProcessInstance;
@@ -45,7 +45,7 @@ export class ProcessList {
     eventAggregator: EventAggregator,
     notificationService: NotificationService,
     solutionService: ISolutionService,
-    router: Router
+    router: Router,
   ) {
     this._managementApiService = managementApiService;
     this._eventAggregator = eventAggregator;
@@ -93,7 +93,7 @@ export class ProcessList {
       }),
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
         this.updateCorrelationList();
-      })
+      }),
     ];
   }
 
@@ -124,9 +124,9 @@ export class ProcessList {
             (processInstance: DataModels.Correlations.CorrelationProcessInstance) => {
               return {
                 processInstance: processInstance,
-                correlation: correlation
+                correlation: correlation,
               };
-            }
+            },
           );
 
           this._processInstancesWithCorrelation.push(...processInstancesWithCorrelation);
@@ -139,7 +139,7 @@ export class ProcessList {
     } catch (error) {
       this._notificationService.showNotification(
         NotificationType.ERROR,
-        `Error receiving process list: ${error.message}`
+        `Error receiving process list: ${error.message}`,
       );
       this.requestSuccessful = false;
     }
@@ -155,7 +155,7 @@ export class ProcessList {
 
   public async stopProcessInstance(
     processInstanceId: string,
-    correlation: DataModels.Correlations.Correlation
+    correlation: DataModels.Correlations.Correlation,
   ): Promise<void> {
     try {
       await this._managementApiService.terminateProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
@@ -164,7 +164,7 @@ export class ProcessList {
         setTimeout(async () => {
           const stoppedCorrelation: DataModels.Correlations.Correlation = await this._managementApiService.getCorrelationByProcessInstanceId(
             this.activeSolutionEntry.identity,
-            processInstanceId
+            processInstanceId,
           );
 
           const stoppedCorrelationIsNotStopped: boolean = stoppedCorrelation.state === 'running';
@@ -180,9 +180,9 @@ export class ProcessList {
             (processInstance: DataModels.Correlations.CorrelationProcessInstance) => {
               return {
                 processInstance: processInstance,
-                correlation: stoppedCorrelation
+                correlation: stoppedCorrelation,
               };
-            }
+            },
           );
 
           this._stoppedProcessInstancesWithCorrelation.push(...processInstancesWithCorrelation);
@@ -219,14 +219,14 @@ export class ProcessList {
 
   private _sortCorrelations(
     correlation1: DataModels.Correlations.Correlation,
-    correlation2: DataModels.Correlations.Correlation
+    correlation2: DataModels.Correlations.Correlation,
   ): number {
     return Date.parse(correlation2.createdAt.toString()) - Date.parse(correlation1.createdAt.toString());
   }
 
   private _sortProcessInstancesWithCorrelation(
     firstProcessInstanceWithCorrelation: ProcessInstanceWithCorrelation,
-    secondProcessInstanceWithCorrelation: ProcessInstanceWithCorrelation
+    secondProcessInstanceWithCorrelation: ProcessInstanceWithCorrelation,
   ): number {
     const firstCorrelation: DataModels.Correlations.Correlation = firstProcessInstanceWithCorrelation.correlation;
     const secondCorrelation: DataModels.Correlations.Correlation = secondProcessInstanceWithCorrelation.correlation;
@@ -255,7 +255,7 @@ export class ProcessList {
     this.processInstancesToDisplay.sort(this._sortProcessInstancesWithCorrelation);
     this.processInstancesToDisplay = this.processInstancesToDisplay.slice(
       firstProcessInstanceIndex,
-      lastProcessInstanceIndex
+      lastProcessInstanceIndex,
     );
   }
 }

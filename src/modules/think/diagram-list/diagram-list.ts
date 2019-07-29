@@ -1,10 +1,10 @@
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { bindable, inject } from 'aurelia-framework';
-import { Router } from 'aurelia-router';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {bindable, inject} from 'aurelia-framework';
+import {Router} from 'aurelia-router';
 
-import { IDiagram, ISolution } from '@process-engine/solutionexplorer.contracts';
+import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 
-import { AuthenticationStateEvent, ISolutionEntry } from '../../../contracts/index';
+import {AuthenticationStateEvent, ISolutionEntry} from '../../../contracts/index';
 import environment from '../../../environment';
 
 @inject(EventAggregator, Router)
@@ -35,7 +35,7 @@ export class DiagramList {
       }),
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
         this._updateDiagramList();
-      })
+      }),
     ];
   }
 
@@ -63,7 +63,7 @@ export class DiagramList {
     this._router.navigateToRoute('design', {
       diagramName: diagramName,
       solutionUri: this.activeSolutionEntry.uri,
-      view: 'detail'
+      view: 'detail',
     });
   }
 

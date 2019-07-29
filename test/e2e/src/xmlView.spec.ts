@@ -1,10 +1,10 @@
-import { browser } from 'protractor';
+import {browser} from 'protractor';
 
-import { SimpleDiagram } from './diagrams/simpleDiagram';
-import { DiagramDetail } from './pages/diagramDetail';
-import { RouterView } from './pages/routerView';
-import { StatusBar } from './pages/statusBar';
-import { XmlView } from './pages/xmlView';
+import {SimpleDiagram} from './diagrams/simpleDiagram';
+import {DiagramDetail} from './pages/diagramDetail';
+import {RouterView} from './pages/routerView';
+import {StatusBar} from './pages/statusBar';
+import {XmlView} from './pages/xmlView';
 
 describe('XML view', () => {
   let routerView: RouterView;

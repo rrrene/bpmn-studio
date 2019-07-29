@@ -1,7 +1,7 @@
-import { browser } from 'protractor';
-import { HttpClient } from 'protractor-http-client';
+import {browser} from 'protractor';
+import {HttpClient} from 'protractor-http-client';
 
-import { IRequestHeaders, IRequestPayload } from '../contracts/index';
+import {IRequestHeaders, IRequestPayload} from '../contracts/index';
 
 export class SimpleDiagram {
   // tslint:disable-next-line:no-magic-numbers
@@ -49,7 +49,7 @@ export class SimpleDiagram {
         '/></bpmndi:BPMNEdge><bpmndi:BPMNEdge id="SequenceFlow_0y5m38r_di" bpmnElement="SequenceFlow_0y5m38r"><di:waypoint x="119" ' +
         'y="87" /><di:waypoint x="169" y="87" /></bpmndi:BPMNEdge><bpmndi:BPMNShape id="ScriptTask_188qtll_di" ' +
         'bpmnElement="Task_0z3p6gi"><dc:Bounds x="169" y="47" width="100" height="80" /></bpmndi:BPMNShape>' +
-        '</bpmndi:BPMNPlane></bpmndi:BPMNDiagram></bpmn:definitions>'
+        '</bpmndi:BPMNPlane></bpmndi:BPMNDiagram></bpmn:definitions>',
     };
 
     const requestHeaders: IRequestHeaders = this._getRequestHeaders();
@@ -68,7 +68,7 @@ export class SimpleDiagram {
 
   private _getRequestHeaders(): IRequestHeaders {
     const requestHeaders: IRequestHeaders = {
-      authorization: 'Bearer ZHVtbXlfdG9rZW4='
+      authorization: 'Bearer ZHVtbXlfdG9rZW4=',
     };
 
     return requestHeaders;

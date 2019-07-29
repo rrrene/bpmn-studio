@@ -1,5 +1,5 @@
-import { EventAggregator } from 'aurelia-event-aggregator';
-import { inject } from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
 
 import {
   IEscalation,
@@ -7,13 +7,13 @@ import {
   IEscalationEventElement,
   IEventElement,
   IModdleElement,
-  IShape
+  IShape,
 } from '@process-engine/bpmn-elements_contracts';
 
-import { IBpmnModdle, IBpmnModeler, IElementRegistry, IPageModel, ISection } from '../../../../../../../contracts';
+import {IBpmnModdle, IBpmnModeler, IElementRegistry, IPageModel, ISection} from '../../../../../../../contracts';
 
 import environment from '../../../../../../../environment';
-import { GeneralService } from '../../service/general.service';
+import {GeneralService} from '../../service/general.service';
 
 @inject(GeneralService, EventAggregator)
 export class EscalationEventSection implements ISection {
@@ -91,9 +91,9 @@ export class EscalationEventSection implements ISection {
   }
 
   public addEscalation(): void {
-    const bpmnEscalationProperty: { id: string; name: string } = {
+    const bpmnEscalationProperty: {id: string; name: string} = {
       id: `Escalation_${this._generalService.generateRandomId()}`,
-      name: 'Escalation Name'
+      name: 'Escalation Name',
     };
     const bpmnEscalation: IEscalation = this._moddle.create('bpmn:Escalation', bpmnEscalationProperty);
 

@@ -1,4 +1,4 @@
-import { IValidateResult } from './IValidateResult';
+import {IValidateResult} from './IValidateResult';
 
 export interface ILinting {
   activateLinting(): void;

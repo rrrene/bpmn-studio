@@ -1,9 +1,9 @@
-import { browser } from 'protractor';
+import {browser} from 'protractor';
 
-import { SimpleDiagram } from './diagrams/simpleDiagram';
-import { DiagramDetail } from './pages/diagramDetail';
-import { DiagramList } from './pages/diagramList';
-import { RouterView } from './pages/routerView';
+import {SimpleDiagram} from './diagrams/simpleDiagram';
+import {DiagramDetail} from './pages/diagramDetail';
+import {DiagramList} from './pages/diagramList';
+import {RouterView} from './pages/routerView';
 
 describe('Diagram List', () => {
   let diagramList: DiagramList;

@@ -1,9 +1,9 @@
-import { inject } from 'aurelia-framework';
+import {inject} from 'aurelia-framework';
 
-import { IIdentity } from '@essential-projects/iam_contracts';
-import { DataModels } from '@process-engine/management_api_contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {DataModels} from '@process-engine/management_api_contracts';
 
-import { IInspectCorrelationRepository, IInspectCorrelationService } from '../contracts';
+import {IInspectCorrelationRepository, IInspectCorrelationService} from '../contracts';
 
 @inject('InspectCorrelationRepository')
 export class InspectCorrelationService implements IInspectCorrelationService {
@@ -15,14 +15,14 @@ export class InspectCorrelationService implements IInspectCorrelationService {
 
   public getAllCorrelationsForProcessModelId(
     processModelId: string,
-    identity: IIdentity
+    identity: IIdentity,
   ): Promise<Array<DataModels.Correlations.Correlation>> {
     return this._inspectCorrelationRepository.getAllCorrelationsForProcessModelId(processModelId, identity);
   }
 
   public getLogsForCorrelation(
     correlation: DataModels.Correlations.Correlation,
-    identity: IIdentity
+    identity: IIdentity,
   ): Promise<Array<DataModels.Logging.LogEntry>> {
     return this._inspectCorrelationRepository.getLogsForCorrelation(correlation, identity);
   }
@@ -30,7 +30,7 @@ export class InspectCorrelationService implements IInspectCorrelationService {
   public getLogsForProcessInstance(
     processModelId: string,
     processInstanceId: string,
-    identity: IIdentity
+    identity: IIdentity,
   ): Promise<Array<DataModels.Logging.LogEntry>> {
     return this._inspectCorrelationRepository.getLogsForProcessInstance(processModelId, processInstanceId, identity);
   }
@@ -39,7 +39,7 @@ export class InspectCorrelationService implements IInspectCorrelationService {
     processModelId: string,
     correlationId: string,
     flowNodeId: string,
-    identity: IIdentity
+    identity: IIdentity,
   ): Promise<DataModels.TokenHistory.TokenHistoryGroup | undefined> {
     try {
       const tokenHistory: DataModels.TokenHistory.TokenHistoryGroup = {};
@@ -49,7 +49,7 @@ export class InspectCorrelationService implements IInspectCorrelationService {
         processModelId,
         correlationId,
         flowNodeId,
-        identity
+        identity,
       );
 
       tokenHistory[tokenForFlowNodeInstance[0].flowNodeId] = tokenForFlowNodeInstance;
@@ -62,13 +62,13 @@ export class InspectCorrelationService implements IInspectCorrelationService {
   public async getTokenForFlowNodeByProcessInstanceId(
     processInstanceId: string,
     flowNodeId: string,
-    identity: IIdentity
+    identity: IIdentity,
   ): Promise<DataModels.TokenHistory.TokenHistoryGroup | undefined> {
     try {
       return await this._inspectCorrelationRepository.getTokenForFlowNodeByProcessInstanceId(
         processInstanceId,
         flowNodeId,
-        identity
+        identity,
       );
     } catch (error) {
       return undefined;

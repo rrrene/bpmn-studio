@@ -1,20 +1,20 @@
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { bindable, computedFrom, inject } from 'aurelia-framework';
-import { Router } from 'aurelia-router';
-import { domEventDispatch } from 'dom-event-dispatch';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {bindable, computedFrom, inject} from 'aurelia-framework';
+import {Router} from 'aurelia-router';
+import {domEventDispatch} from 'dom-event-dispatch';
 
-import { IIdentity } from '@essential-projects/iam_contracts';
-import { DataModels } from '@process-engine/management_api_contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {DataModels} from '@process-engine/management_api_contracts';
 
 import {
   AuthenticationStateEvent,
   IDynamicUiService,
   ISolutionEntry,
   ISolutionService,
-  NotificationType
+  NotificationType,
 } from '../../contracts/index';
-import { NotificationService } from '../../services/notification-service/notification.service';
-import { DynamicUiWrapper } from '../dynamic-ui-wrapper/dynamic-ui-wrapper';
+import {NotificationService} from '../../services/notification-service/notification.service';
+import {DynamicUiWrapper} from '../dynamic-ui-wrapper/dynamic-ui-wrapper';
 
 interface RouteParameters {
   diagramName: string;
@@ -54,7 +54,7 @@ export class TaskDynamicUi {
     router: Router,
     notificationService: NotificationService,
     solutionService: ISolutionService,
-    element: Element
+    element: Element,
   ) {
     this._eventAggregator = eventAggregator;
     this._dynamicUiService = dynamicUiService;
@@ -89,7 +89,7 @@ export class TaskDynamicUi {
       }),
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
         this.getTask();
-      })
+      }),
     ];
 
     this.dynamicUiWrapper.onButtonClick = (action: string): void => {
@@ -164,7 +164,7 @@ export class TaskDynamicUi {
 
   private _finishTask(action: string): void {
     if (this.isModal) {
-      domEventDispatch.dispatchEvent(this._element, 'close-modal', { bubbles: true });
+      domEventDispatch.dispatchEvent(this._element, 'close-modal', {bubbles: true});
       this.clearTasks();
 
       return;
@@ -177,7 +177,7 @@ export class TaskDynamicUi {
       diagramName: this._activeDiagramName,
       solutionUri: this._activeSolutionUri,
       correlationId: task.correlationId,
-      processInstanceId: this.processInstanceId
+      processInstanceId: this.processInstanceId,
     });
   }
 

@@ -1,14 +1,14 @@
-import { Container, FrameworkConfiguration } from 'aurelia-framework';
+import {Container, FrameworkConfiguration} from 'aurelia-framework';
 
-import { IHttpClient } from '@essential-projects/http_contracts';
-import { SolutionExplorerFileSystemRepository } from '@process-engine/solutionexplorer.repository.filesystem';
-import { SolutionExplorerManagementApiRepository } from '@process-engine/solutionexplorer.repository.management_api';
-import { SolutionExplorerService } from '@process-engine/solutionexplorer.service';
+import {IHttpClient} from '@essential-projects/http_contracts';
+import {SolutionExplorerFileSystemRepository} from '@process-engine/solutionexplorer.repository.filesystem';
+import {SolutionExplorerManagementApiRepository} from '@process-engine/solutionexplorer.repository.management_api';
+import {SolutionExplorerService} from '@process-engine/solutionexplorer.service';
 
-import { DiagramTrashFolderService } from './DiagramTrashFolderService';
-import { OpenDiagramsSolutionExplorerService } from './OpenDiagramsSolutionExplorerService';
-import { OpenDiagramStateService } from './OpenDiagramStateService';
-import { SolutionExplorerServiceFactory } from './SolutionExplorerServiceFactory';
+import {DiagramTrashFolderService} from './DiagramTrashFolderService';
+import {OpenDiagramsSolutionExplorerService} from './OpenDiagramsSolutionExplorerService';
+import {OpenDiagramStateService} from './OpenDiagramStateService';
+import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
 
 export async function configure(config: FrameworkConfiguration): Promise<void> {
   registerManagementApi(config.container);
@@ -29,7 +29,7 @@ function registerFileSystem(container: Container): void {
   const diagramTrashFolder: string = diagramTrashFolderService.getDiagramTrashFolder();
 
   const fileSystemRepository: SolutionExplorerFileSystemRepository = new SolutionExplorerFileSystemRepository(
-    diagramTrashFolder
+    diagramTrashFolder,
   );
   const filesystemSolutionexplorerService: SolutionExplorerService = new SolutionExplorerService(fileSystemRepository);
 
@@ -39,7 +39,7 @@ function registerFileSystem(container: Container): void {
 function registerManagementApi(container: Container): void {
   const httpClient: IHttpClient = container.get('HttpFetchClient');
   const managementApiRepository: SolutionExplorerManagementApiRepository = new SolutionExplorerManagementApiRepository(
-    httpClient
+    httpClient,
   );
   const solutionexplorerService: SolutionExplorerService = new SolutionExplorerService(managementApiRepository);
 

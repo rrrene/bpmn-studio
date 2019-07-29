@@ -1,5 +1,5 @@
-import { IInnerViewbox } from './IInnerViewbox';
-import { IOuterViewbox } from './IOuterViewbox';
+import {IInnerViewbox} from './IInnerViewbox';
+import {IOuterViewbox} from './IOuterViewbox';
 
 export interface IViewbox {
   width: number;

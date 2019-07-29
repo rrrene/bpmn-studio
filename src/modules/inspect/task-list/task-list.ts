@@ -1,13 +1,13 @@
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { bindable, inject } from 'aurelia-framework';
-import { Router } from 'aurelia-router';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {bindable, inject} from 'aurelia-framework';
+import {Router} from 'aurelia-router';
 
-import { isError, NotFoundError, UnauthorizedError } from '@essential-projects/errors_ts';
-import { DataModels, IManagementApi } from '@process-engine/management_api_contracts';
+import {isError, NotFoundError, UnauthorizedError} from '@essential-projects/errors_ts';
+import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
 
-import { AuthenticationStateEvent, ISolutionEntry, ISolutionService, NotificationType } from '../../../contracts/index';
+import {AuthenticationStateEvent, ISolutionEntry, ISolutionService, NotificationType} from '../../../contracts/index';
 import environment from '../../../environment';
-import { NotificationService } from '../../../services/notification-service/notification.service';
+import {NotificationService} from '../../../services/notification-service/notification.service';
 
 interface ITaskListRouteParameters {
   processInstanceId?: string;
@@ -23,7 +23,7 @@ type TaskSource =
 enum TaskType {
   UserTask = 'UserTask',
   ManualTask = 'ManualTask',
-  EmptyActivity = 'EmptyActivity'
+  EmptyActivity = 'EmptyActivity',
 }
 
 type TaskListEntry = {
@@ -65,7 +65,7 @@ export class TaskList {
     managementApiService: IManagementApi,
     router: Router,
     notificationService: NotificationService,
-    solutionService: ISolutionService
+    solutionService: ISolutionService,
   ) {
     this._eventAggregator = eventAggregator;
     this._managementApiService = managementApiService;
@@ -138,7 +138,7 @@ export class TaskList {
       }),
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, async () => {
         await this._updateTasks();
-      })
+      }),
     ];
 
     await this._updateTasks();
@@ -159,14 +159,14 @@ export class TaskList {
   }
 
   public continueTask(task: TaskListEntry): void {
-    const { correlationId, id, processInstanceId } = task;
+    const {correlationId, id, processInstanceId} = task;
 
     this._router.navigateToRoute('live-execution-tracker', {
       diagramName: task.processModelId,
       solutionUri: this.activeSolutionEntry.uri,
       correlationId: correlationId,
       processInstanceId: processInstanceId,
-      taskId: id
+      taskId: id,
     });
   }
 
@@ -182,7 +182,7 @@ export class TaskList {
 
   private async _getAllTasks(): Promise<Array<TaskListEntry>> {
     const allProcessModels: DataModels.ProcessModels.ProcessModelList = await this._managementApiService.getProcessModels(
-      this.activeSolutionEntry.identity
+      this.activeSolutionEntry.identity,
     );
 
     // TODO (ph): This will create 1 + n http reqeusts, where n is the number of process models in the processengine.
@@ -190,39 +190,39 @@ export class TaskList {
       async (processModel: DataModels.ProcessModels.ProcessModel): Promise<Array<TaskListEntry>> => {
         const userTaskList: DataModels.UserTasks.UserTaskList = await this._managementApiService.getUserTasksForProcessModel(
           this.activeSolutionEntry.identity,
-          processModel.id
+          processModel.id,
         );
 
         return this._mapToTaskListEntry(userTaskList.userTasks, TaskType.UserTask);
-      }
+      },
     );
 
     const promisesForAllManualTasks: Array<Promise<Array<TaskListEntry>>> = allProcessModels.processModels.map(
       async (processModel: DataModels.ProcessModels.ProcessModel): Promise<Array<TaskListEntry>> => {
         const manualTaskList: DataModels.ManualTasks.ManualTaskList = await this._managementApiService.getManualTasksForProcessModel(
           this.activeSolutionEntry.identity,
-          processModel.id
+          processModel.id,
         );
 
         return this._mapToTaskListEntry(manualTaskList.manualTasks, TaskType.ManualTask);
-      }
+      },
     );
 
     const promisesForAllEmptyActivities: Array<Promise<Array<TaskListEntry>>> = allProcessModels.processModels.map(
       async (processModel: DataModels.ProcessModels.ProcessModel): Promise<Array<TaskListEntry>> => {
         const emptyActivityList: DataModels.EmptyActivities.EmptyActivityList = await this._managementApiService.getEmptyActivitiesForProcessModel(
           this.activeSolutionEntry.identity,
-          processModel.id
+          processModel.id,
         );
 
         return this._mapToTaskListEntry(emptyActivityList.emptyActivities, TaskType.EmptyActivity);
-      }
+      },
     );
     // Concatenate the Promises for requesting UserTasks and requesting ManualTasks.
     const promisesForAllTasksForAllProcessModels: Array<TaskListEntry> = [].concat(
       promisesForAllUserTasks,
       promisesForAllManualTasks,
-      promisesForAllEmptyActivities
+      promisesForAllEmptyActivities,
     );
 
     // Await all promises.
@@ -237,24 +237,24 @@ export class TaskList {
   private async _getTasksForProcessModel(processModelId: string): Promise<Array<TaskListEntry>> {
     const userTaskList: DataModels.UserTasks.UserTaskList = await this._managementApiService.getUserTasksForProcessModel(
       this.activeSolutionEntry.identity,
-      processModelId
+      processModelId,
     );
 
     const manualTaskList: DataModels.ManualTasks.ManualTaskList = await this._managementApiService.getManualTasksForProcessModel(
       this.activeSolutionEntry.identity,
-      processModelId
+      processModelId,
     );
 
     const emptyActivityList: DataModels.EmptyActivities.EmptyActivityList = await this._managementApiService.getEmptyActivitiesForProcessModel(
       this.activeSolutionEntry.identity,
-      processModelId
+      processModelId,
     );
 
     const userTasks: Array<TaskListEntry> = this._mapToTaskListEntry(userTaskList.userTasks, TaskType.UserTask);
     const manualTasks: Array<TaskListEntry> = this._mapToTaskListEntry(manualTaskList.manualTasks, TaskType.ManualTask);
     const emptyActivities: Array<TaskListEntry> = this._mapToTaskListEntry(
       emptyActivityList.emptyActivities,
-      TaskType.EmptyActivity
+      TaskType.EmptyActivity,
     );
 
     return [].concat(userTasks, manualTasks, emptyActivities);
@@ -268,7 +268,7 @@ export class TaskList {
     const correlation: DataModels.Correlations.Correlation = runningCorrelations.find(
       (otherCorrelation: DataModels.Correlations.Correlation) => {
         return otherCorrelation.id === correlationId;
-      }
+      },
     );
 
     const correlationWasNotFound: boolean = correlation === undefined;
@@ -278,17 +278,17 @@ export class TaskList {
 
     const userTaskList: DataModels.UserTasks.UserTaskList = await this._managementApiService.getUserTasksForCorrelation(
       this.activeSolutionEntry.identity,
-      correlationId
+      correlationId,
     );
 
     const manualTaskList: DataModels.ManualTasks.ManualTaskList = await this._managementApiService.getManualTasksForCorrelation(
       this.activeSolutionEntry.identity,
-      correlationId
+      correlationId,
     );
 
     const emptyActivityList: DataModels.EmptyActivities.EmptyActivityList = await this._managementApiService.getEmptyActivitiesForCorrelation(
       this.activeSolutionEntry.identity,
-      correlationId
+      correlationId,
     );
 
     const userTasks: Array<TaskListEntry> = this._mapToTaskListEntry(userTaskList.userTasks, TaskType.UserTask);
@@ -297,7 +297,7 @@ export class TaskList {
 
     const emptyActivities: Array<TaskListEntry> = this._mapToTaskListEntry(
       emptyActivityList.emptyActivities,
-      TaskType.EmptyActivity
+      TaskType.EmptyActivity,
     );
 
     return [].concat(userTasks, manualTasks, emptyActivities);
@@ -306,27 +306,27 @@ export class TaskList {
   private async _getTasksForProcessInstanceId(processInstanceId: string): Promise<Array<TaskListEntry>> {
     const userTaskList: DataModels.UserTasks.UserTaskList = await this._managementApiService.getUserTasksForProcessInstance(
       this.activeSolutionEntry.identity,
-      processInstanceId
+      processInstanceId,
     );
 
     const manualTaskList: DataModels.ManualTasks.ManualTaskList = await this._managementApiService.getManualTasksForProcessInstance(
       this.activeSolutionEntry.identity,
-      processInstanceId
+      processInstanceId,
     );
 
     const emptyActivityList: DataModels.EmptyActivities.EmptyActivityList = await this._managementApiService.getEmptyActivitiesForProcessInstance(
       this.activeSolutionEntry.identity,
-      processInstanceId
+      processInstanceId,
     );
 
     const userTasksAndProcessModels: Array<TaskListEntry> = this._mapToTaskListEntry(
       userTaskList.userTasks,
-      TaskType.UserTask
+      TaskType.UserTask,
     );
     const manualTasks: Array<TaskListEntry> = this._mapToTaskListEntry(manualTaskList.manualTasks, TaskType.ManualTask);
     const emptyActivities: Array<TaskListEntry> = this._mapToTaskListEntry(
       emptyActivityList.emptyActivities,
-      TaskType.EmptyActivity
+      TaskType.EmptyActivity,
     );
 
     return [].concat(userTasksAndProcessModels, manualTasks, emptyActivities);
@@ -344,9 +344,9 @@ export class TaskList {
           name: task.name,
           // NOTE: Can't use instanceof or typeof, because the tasks were received as a plain JSON that does not have any type infos.
           // TODO: Add type mapping to the Management API Client.
-          taskType: targetType
+          taskType: targetType,
         };
-      }
+      },
     );
 
     return mappedTasks;
@@ -362,13 +362,13 @@ export class TaskList {
       if (isError(error, UnauthorizedError)) {
         this._notificationService.showNotification(
           NotificationType.ERROR,
-          "You don't have permission to view the task list."
+          "You don't have permission to view the task list.",
         );
         this._router.navigateToRoute('start-page');
       } else {
         this._notificationService.showNotification(
           NotificationType.ERROR,
-          `Error receiving task list: ${error.message}`
+          `Error receiving task list: ${error.message}`,
         );
         this._tasks = undefined;
       }

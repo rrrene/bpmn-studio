@@ -1,9 +1,9 @@
-import { browser } from 'protractor';
+import {browser} from 'protractor';
 
-import { DiagramWithUserTask } from './diagrams/diagramWithUserTask';
-import { LETTestDiagram } from './diagrams/letTestDiagram';
-import { LiveExecutionTracker } from './pages/liveExecutionTracker';
-import { RouterView } from './pages/routerView';
+import {DiagramWithUserTask} from './diagrams/diagramWithUserTask';
+import {LETTestDiagram} from './diagrams/letTestDiagram';
+import {LiveExecutionTracker} from './pages/liveExecutionTracker';
+import {RouterView} from './pages/routerView';
 
 describe('Live Execution Tracker', () => {
   let routerView: RouterView;
@@ -25,7 +25,7 @@ describe('Live Execution Tracker', () => {
       applicationUrl,
       diagram.correlationId,
       diagram.name,
-      diagram.processInstanceId
+      diagram.processInstanceId,
     );
   });
 

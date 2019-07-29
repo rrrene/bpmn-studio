@@ -1,8 +1,8 @@
-import { bindable, inject } from 'aurelia-framework';
+import {bindable, inject} from 'aurelia-framework';
 
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
-import { DataModels } from '@process-engine/management_api_contracts';
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
+import {DataModels} from '@process-engine/management_api_contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
 import {
   IBpmnModeler,
@@ -10,10 +10,10 @@ import {
   IElementRegistry,
   IOverlayManager,
   ISolutionEntry,
-  IViewbox
+  IViewbox,
 } from '../../../contracts/index';
 
-import { IFlowNodeAssociation, IHeatmapService } from './contracts';
+import {IFlowNodeAssociation, IHeatmapService} from './contracts';
 
 @inject('HeatmapService')
 export class Heatmap {
@@ -69,8 +69,8 @@ export class Heatmap {
 
     this._modeler = new bundle.modeler({
       moddleExtensions: {
-        camunda: bundle.camundaModdleDescriptor
-      }
+        camunda: bundle.camundaModdleDescriptor,
+      },
     });
 
     await this._pushXmlToBpmnModeler(this.activeDiagram.xml, this._modeler);
@@ -85,7 +85,7 @@ export class Heatmap {
      */
 
     const associations: Array<IFlowNodeAssociation> = await this._heatmapService.getFlowNodeAssociations(
-      elementRegistry
+      elementRegistry,
     );
 
     const flowNodeRuntimeInformation: Array<
@@ -95,11 +95,11 @@ export class Heatmap {
     const xml: string = await this._heatmapService.getColoredXML(
       associations,
       flowNodeRuntimeInformation,
-      this._modeler
+      this._modeler,
     );
 
     this._viewer = new bundle.viewer({
-      additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule, bundle.MiniMap]
+      additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule, bundle.MiniMap],
     });
 
     await this._pushXmlToBpmnModeler(xml, this._viewer);

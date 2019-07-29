@@ -1,28 +1,28 @@
 // tslint:disable no-use-before-declare
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { bindable, computedFrom, inject, NewInstance } from 'aurelia-framework';
-import { Router } from 'aurelia-router';
-import { ControllerValidateResult, ValidateResult, ValidationController, ValidationRules } from 'aurelia-validation';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {bindable, computedFrom, inject, NewInstance} from 'aurelia-framework';
+import {Router} from 'aurelia-router';
+import {ControllerValidateResult, ValidateResult, ValidationController, ValidationRules} from 'aurelia-validation';
 
-import { ForbiddenError, isError, UnauthorizedError } from '@essential-projects/errors_ts';
-import { IDiagram, ISolution } from '@process-engine/solutionexplorer.contracts';
-import { ISolutionExplorerService } from '@process-engine/solutionexplorer.service.contracts';
-import { join } from 'path';
+import {ForbiddenError, isError, UnauthorizedError} from '@essential-projects/errors_ts';
+import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
+import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
+import {join} from 'path';
 
-import { IIdentity } from '@essential-projects/iam_contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
 import {
   IDiagramCreationService,
   IDiagramState,
   IDiagramStateList,
   ISolutionEntry,
   ISolutionService,
-  NotificationType
+  NotificationType,
 } from '../../../contracts/index';
 import environment from '../../../environment';
-import { NotificationService } from '../../../services/notification-service/notification.service';
-import { OpenDiagramsSolutionExplorerService } from '../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
-import { OpenDiagramStateService } from '../../../services/solution-explorer-services/OpenDiagramStateService';
-import { DeleteDiagramModal } from './delete-diagram-modal/delete-diagram-modal';
+import {NotificationService} from '../../../services/notification-service/notification.service';
+import {OpenDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
+import {OpenDiagramStateService} from '../../../services/solution-explorer-services/OpenDiagramStateService';
+import {DeleteDiagramModal} from './delete-diagram-modal/delete-diagram-modal';
 
 const ENTER_KEY: string = 'Enter';
 const ESCAPE_KEY: string = 'Escape';
@@ -32,7 +32,7 @@ type DiagramSorter = (firstElement: IDiagram, secondElement: IDiagram) => number
 enum CloseModalResult {
   Cancel = 0,
   Save = 1,
-  Delete = 2
+  Delete = 2,
 }
 
 interface IDiagramNameInputState {
@@ -50,7 +50,7 @@ interface IDiagramCreationState extends IDiagramNameInputState {
   'DiagramCreationService',
   'NotificationService',
   'SolutionService',
-  'OpenDiagramStateService'
+  'OpenDiagramStateService',
 )
 export class SolutionExplorerSolution {
   public activeDiagram: IDiagram;
@@ -70,10 +70,10 @@ export class SolutionExplorerSolution {
   private _openedSolution: ISolution;
   private _diagramCreationState: IDiagramCreationState = {
     currentDiagramInputValue: undefined,
-    isCreateDiagramInputShown: false
+    isCreateDiagramInputShown: false,
   };
   private _diagramRenamingState: IDiagramNameInputState = {
-    currentDiagramInputValue: undefined
+    currentDiagramInputValue: undefined,
   };
   private _refreshTimeoutTask: NodeJS.Timer | number;
 
@@ -108,7 +108,7 @@ export class SolutionExplorerSolution {
     diagramCreationService: IDiagramCreationService,
     notificationService: NotificationService,
     solutionService: ISolutionService,
-    openDiagramStateService: OpenDiagramStateService
+    openDiagramStateService: OpenDiagramStateService,
   ) {
     this._router = router;
     this._eventAggregator = eventAggregator;
@@ -132,7 +132,7 @@ export class SolutionExplorerSolution {
     this._subscriptions = [
       this._eventAggregator.subscribe('router:navigation:success', () => {
         this._updateSolutionExplorer();
-      })
+      }),
     ];
 
     if (this.displayedSolutionEntry.isOpenDiagramService) {
@@ -140,7 +140,7 @@ export class SolutionExplorerSolution {
         environment.events.solutionExplorer.updateOpenDiagrams,
         (): void => {
           this.updateSolution();
-        }
+        },
       );
 
       this._subscriptions.push(updateSubscription);
@@ -266,7 +266,7 @@ export class SolutionExplorerSolution {
       } else if (isError(error, ForbiddenError)) {
         this._notificationService.showNotification(
           NotificationType.ERROR,
-          "You don't have the required permissions to list process models."
+          "You don't have the required permissions to list process models.",
         );
       } else {
         this._openedSolution.diagrams = undefined;
@@ -323,7 +323,7 @@ export class SolutionExplorerSolution {
       const message: string = `${messageTitle}\n${messageBody}`;
 
       this._notificationService.showNotification(NotificationType.INFO, message, {
-        toastClass: 'toast-not-allowed-renaming-or-deleting'
+        toastClass: 'toast-not-allowed-renaming-or-deleting',
       });
 
       return;
@@ -396,7 +396,7 @@ export class SolutionExplorerSolution {
     const duplicatedDiagram: IDiagram = await this._diagramCreationService.createNewDiagram(
       this.displayedSolutionEntry.uri,
       newName,
-      this._diagramInContextMenu.xml
+      this._diagramInContextMenu.xml,
     );
 
     await this.solutionService.saveDiagram(duplicatedDiagram, duplicatedDiagram.uri);
@@ -668,7 +668,7 @@ export class SolutionExplorerSolution {
         view: this._designView,
         diagramName: diagram.name,
         diagramUri: diagram.uri,
-        solutionUri: this.displayedSolutionEntry.uri
+        solutionUri: this.displayedSolutionEntry.uri,
       });
     });
   }
@@ -718,7 +718,7 @@ export class SolutionExplorerSolution {
       if (activeRouteIsInspect) {
         this._notificationService.showNotification(
           NotificationType.INFO,
-          'There are currently no runtime information about this process available.'
+          'There are currently no runtime information about this process available.',
         );
       }
     }
@@ -727,7 +727,7 @@ export class SolutionExplorerSolution {
       view: this._inspectView ? this._inspectView : this._designView,
       diagramName: diagram.name,
       diagramUri: diagram.uri,
-      solutionUri: this.displayedSolutionEntry.uri
+      solutionUri: this.displayedSolutionEntry.uri,
     });
   }
 
@@ -736,7 +736,7 @@ export class SolutionExplorerSolution {
     // TODO: Get the identity from the IdentityService of `@process-engine/iam`
     const identity: IIdentity = {
       token: accessToken,
-      userId: '' // Provided by the IdentityService.
+      userId: '', // Provided by the IdentityService.
     };
 
     return identity;
@@ -751,7 +751,7 @@ export class SolutionExplorerSolution {
 
   private get _diagramSorter(): DiagramSorter {
     const sortOptions: Intl.CollatorOptions = {
-      caseFirst: 'lower'
+      caseFirst: 'lower',
     };
 
     const sorter: DiagramSorter = (firstElement: IDiagram, secondElement: IDiagram): number => {
@@ -804,7 +804,7 @@ export class SolutionExplorerSolution {
 
   private async _showCloseDiagramModal(
     diagramToSave: IDiagram,
-    shouldNavigate: boolean = true
+    shouldNavigate: boolean = true,
   ): Promise<CloseModalResult> {
     const previousLocation: string = (this._router.history as any).previousLocation;
 
@@ -869,7 +869,7 @@ export class SolutionExplorerSolution {
         document.getElementById('cancelButtonCloseView').addEventListener('click', cancelFunction);
 
         this.showCloseModal = true;
-      }
+      },
     );
 
     return modalResult;
@@ -945,7 +945,7 @@ export class SolutionExplorerSolution {
     const filteredInvalidCharacters: Array<string> = invalidCharacters.filter(
       (current: string, index: number): boolean => {
         return invalidCharacters.indexOf(current) === index;
-      }
+      },
     );
 
     const messagePrefix: string = 'Your diagram contains at least one invalid-character: ';
@@ -979,7 +979,7 @@ export class SolutionExplorerSolution {
 
     const createdDiagram: IDiagram = await this._diagramCreationService.createNewDiagram(
       this._openedSolution.uri,
-      `Untitled-${newDiagramIndex}`
+      `Untitled-${newDiagramIndex}`,
     );
 
     this._openDiagramStateService.saveDiagramState(createdDiagram.uri, createdDiagram.xml, undefined, undefined, true);
@@ -1015,7 +1015,7 @@ export class SolutionExplorerSolution {
   private async _openDiagramAndUpdateSolution(createdDiagram: IDiagram): Promise<void> {
     await this.openDiagramService.openDiagramFromSolution(
       createdDiagram.uri,
-      this._createIdentityForSolutionExplorer()
+      this._createIdentityForSolutionExplorer(),
     );
 
     await this.updateSolution();
@@ -1149,7 +1149,7 @@ export class SolutionExplorerSolution {
     try {
       await this.solutionService.renameDiagram(
         this._currentlyRenamingDiagram,
-        this._diagramRenamingState.currentDiagramInputValue
+        this._diagramRenamingState.currentDiagramInputValue,
       );
     } catch (error) {
       this._notificationService.showNotification(NotificationType.WARNING, error.message);
@@ -1190,7 +1190,7 @@ export class SolutionExplorerSolution {
 
     const emptyDiagram: IDiagram = await this._diagramCreationService.createNewDiagram(
       this._openedSolution.uri,
-      this._diagramCreationState.currentDiagramInputValue
+      this._diagramCreationState.currentDiagramInputValue,
     );
 
     try {
@@ -1240,7 +1240,7 @@ export class SolutionExplorerSolution {
     ValidationRules.off(this._diagramCreationState);
   }
 
-  private _findURIObject<T extends { uri: string }>(objects: Array<T>, targetURI: string): T {
+  private _findURIObject<T extends {uri: string}>(objects: Array<T>, targetURI: string): T {
     const foundObject: T = objects.find((object: T): boolean => {
       return object.uri.toLowerCase() === targetURI.toLowerCase();
     });

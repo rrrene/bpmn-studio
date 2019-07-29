@@ -1,11 +1,11 @@
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { bindable, bindingMode, inject, observable } from 'aurelia-framework';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {bindable, bindingMode, inject, observable} from 'aurelia-framework';
 
-import { IModdleElement, IProcessRef, IPropertiesElement, IShape } from '@process-engine/bpmn-elements_contracts';
+import {IModdleElement, IProcessRef, IPropertiesElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 import * as bpmnlintConfig from '@process-engine/bpmn-lint_rules';
 
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 import {
   IBpmnModeler,
   IBpmnXmlSaveOptions,
@@ -25,13 +25,13 @@ import {
   IValidateIssueCategory,
   IValidateResult,
   IViewbox,
-  NotificationType
+  NotificationType,
 } from '../../../contracts/index';
 import environment from '../../../environment';
-import { NotificationService } from '../../../services/notification-service/notification.service';
-import { OpenDiagramStateService } from '../../../services/solution-explorer-services/OpenDiagramStateService';
-import { PropertyPanel } from '../property-panel/property-panel';
-import { DiagramExportService, DiagramPrintService } from './services/index';
+import {NotificationService} from '../../../services/notification-service/notification.service';
+import {OpenDiagramStateService} from '../../../services/solution-explorer-services/OpenDiagramStateService';
+import {PropertyPanel} from '../property-panel/property-panel';
+import {DiagramExportService, DiagramPrintService} from './services/index';
 
 const sideBarRightSize: number = 35;
 const elementRegistryTimeoutMilliseconds: number = 50;
@@ -45,9 +45,9 @@ export class BpmnIo {
   public resizeButton: HTMLButtonElement;
   public canvasModel: HTMLDivElement;
   public propertyPanel: HTMLElement;
-  @bindable({ changeHandler: 'diagramChanged' }) public diagramUri: string;
-  @bindable({ defaultBindingMode: bindingMode.twoWay }) public xml: string;
-  @bindable({ changeHandler: 'nameChanged' }) public name: string;
+  @bindable({changeHandler: 'diagramChanged'}) public diagramUri: string;
+  @bindable({defaultBindingMode: bindingMode.twoWay}) public xml: string;
+  @bindable({changeHandler: 'nameChanged'}) public name: string;
   @observable public propertyPanelWidth: number;
   public showLinter: boolean;
   public solutionIsRemote: boolean = false;
@@ -93,7 +93,7 @@ export class BpmnIo {
     notificationService: NotificationService,
     eventAggregator: EventAggregator,
     openDiagramStateService: OpenDiagramStateService,
-    solutionService: ISolutionService
+    solutionService: ISolutionService,
   ) {
     this._notificationService = notificationService;
     this._eventAggregator = eventAggregator;
@@ -108,17 +108,17 @@ export class BpmnIo {
         bundle.ZoomScrollModule,
         bundle.MoveCanvasModule,
         bundle.resizeAllModule,
-        bundle.lintModule
+        bundle.lintModule,
       ],
       linting: {
-        bpmnlint: bpmnlintConfig
+        bpmnlint: bpmnlintConfig,
       },
       moddleExtensions: {
-        camunda: bundle.camundaModdleDescriptor
+        camunda: bundle.camundaModdleDescriptor,
       },
       keyboard: {
-        bindTo: document
-      }
+        bindTo: document,
+      },
     });
 
     this._linting = this.modeler.get('linting');
@@ -130,7 +130,7 @@ export class BpmnIo {
     this.modeler.on('elements.paste.rejected', () => {
       this._notificationService.showNotification(
         NotificationType.INFO,
-        'In order to paste an element you have to place your cursor outside of the element.'
+        'In order to paste an element you have to place your cursor outside of the element.',
       );
     });
 
@@ -151,7 +151,7 @@ export class BpmnIo {
 
         this.xml = await this.getXML();
       },
-      handlerPriority
+      handlerPriority,
     );
 
     this.modeler.on('contextPad.create', (event: IInternalEvent) => {
@@ -190,7 +190,7 @@ export class BpmnIo {
           this._linting.update();
         }
       },
-      1
+      1,
     );
 
     this.modeler.on('shape.remove', (event: IInternalEvent) => {
@@ -297,7 +297,7 @@ export class BpmnIo {
         } catch {
           this._notificationService.showNotification(
             NotificationType.ERROR,
-            'An error occurred while preparing the diagram for exporting'
+            'An error occurred while preparing the diagram for exporting',
           );
         }
       }),
@@ -312,7 +312,7 @@ export class BpmnIo {
         } catch (error) {
           this._notificationService.showNotification(
             NotificationType.ERROR,
-            'An error occurred while preparing the diagram for exporting'
+            'An error occurred while preparing the diagram for exporting',
           );
         }
       }),
@@ -327,7 +327,7 @@ export class BpmnIo {
         } catch (error) {
           this._notificationService.showNotification(
             NotificationType.ERROR,
-            'An error occurred while preparing the diagram for exporting'
+            'An error occurred while preparing the diagram for exporting',
           );
         }
       }),
@@ -342,7 +342,7 @@ export class BpmnIo {
         } catch (error) {
           this._notificationService.showNotification(
             NotificationType.ERROR,
-            'An error occurred while preparing the diagram for exporting'
+            'An error occurred while preparing the diagram for exporting',
           );
         }
       }),
@@ -395,7 +395,7 @@ export class BpmnIo {
 
       this._eventAggregator.subscribe(environment.events.differsFromOriginal, (changes: boolean) => {
         this._diagramHasChanges = changes;
-      })
+      }),
     ];
 
     const previousPropertyPanelWidth: string = window.localStorage.getItem('propertyPanelWidth');
@@ -499,7 +499,7 @@ export class BpmnIo {
       const viewerNotInitialized: boolean = this.viewer === undefined;
       if (viewerNotInitialized) {
         this.viewer = new bundle.viewer({
-          additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule, bundle.MiniMap]
+          additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule, bundle.MiniMap],
         });
 
         this.viewer.on('selection.changed', (event: IEvent) => {
@@ -621,7 +621,7 @@ export class BpmnIo {
       if (this._propertyPanelHasNoSpace) {
         this._notificationService.showNotification(
           NotificationType.ERROR,
-          'There is not enough space for the property panel!'
+          'There is not enough space for the property panel!',
         );
         return;
       }
@@ -649,7 +649,7 @@ export class BpmnIo {
   public async getXML(): Promise<string> {
     const returnPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
       const xmlSaveOptions: IBpmnXmlSaveOptions = {
-        format: true
+        format: true,
       };
 
       this.modeler.saveXML(xmlSaveOptions, (error: Error, result: string) => {
@@ -867,7 +867,7 @@ export class BpmnIo {
     } catch (error) {
       this._notificationService.showNotification(
         NotificationType.ERROR,
-        `An error while trying to print the diagram occurred.`
+        `An error while trying to print the diagram occurred.`,
       );
     }
   }

@@ -1,31 +1,31 @@
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { bindable, bindingMode, computedFrom, inject, observable } from 'aurelia-framework';
-import { Router } from 'aurelia-router';
-import { ValidateEvent, ValidationController } from 'aurelia-validation';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {bindable, bindingMode, computedFrom, inject, observable} from 'aurelia-framework';
+import {Router} from 'aurelia-router';
+import {ValidateEvent, ValidationController} from 'aurelia-validation';
 
 import {
   IConnection,
   IExtensionElement,
   IFormElement,
   IModdleElement,
-  IShape
+  IShape,
 } from '@process-engine/bpmn-elements_contracts';
 
-import { DataModels, IManagementApi } from '@process-engine/management_api_contracts';
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
+import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
 import {
   IElementRegistry,
   ISolutionEntry,
   ISolutionService,
   IUserInputValidationRule,
-  NotificationType
+  NotificationType,
 } from '../../../contracts/index';
 
 import environment from '../../../environment';
-import { NotificationService } from '../../../services/notification-service/notification.service';
-import { OpenDiagramsSolutionExplorerService } from '../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
-import { BpmnIo } from '../bpmn-io/bpmn-io';
+import {NotificationService} from '../../../services/notification-service/notification.service';
+import {OpenDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
+import {BpmnIo} from '../bpmn-io/bpmn-io';
 
 @inject(
   'ManagementApiClientService',
@@ -34,14 +34,14 @@ import { BpmnIo } from '../bpmn-io/bpmn-io';
   EventAggregator,
   Router,
   ValidationController,
-  'OpenDiagramService'
+  'OpenDiagramService',
 )
 export class DiagramDetail {
   @bindable() public activeDiagram: IDiagram;
   @bindable() public activeSolutionEntry: ISolutionEntry;
-  @observable({ changeHandler: 'correlationChanged' }) public customCorrelationId: string;
-  @observable({ changeHandler: 'diagramHasChangedChanged' }) public diagramHasChanged: boolean;
-  @bindable({ defaultBindingMode: bindingMode.oneWay }) public xml: string;
+  @observable({changeHandler: 'correlationChanged'}) public customCorrelationId: string;
+  @observable({changeHandler: 'diagramHasChangedChanged'}) public diagramHasChanged: boolean;
+  @bindable({defaultBindingMode: bindingMode.oneWay}) public xml: string;
   @bindable() public initialToken: string;
   public bpmnio: BpmnIo;
   public showUnsavedChangesModal: boolean = false;
@@ -69,7 +69,7 @@ export class DiagramDetail {
   private _correlationIdValidationRegExpList: IUserInputValidationRule = {
     alphanumeric: /^[a-z0-9]/i,
     specialCharacters: /^[._ -]/i,
-    german: /^[äöüß]/i
+    german: /^[äöüß]/i,
   };
   private _clickedOnCustomStart: boolean = false;
   private _openDiagramService: OpenDiagramsSolutionExplorerService;
@@ -81,7 +81,7 @@ export class DiagramDetail {
     eventAggregator: EventAggregator,
     router: Router,
     validationController: ValidationController,
-    openDiagramService: OpenDiagramsSolutionExplorerService
+    openDiagramService: OpenDiagramsSolutionExplorerService,
   ) {
     this._notificationService = notificationService;
     this._solutionService = solutionService;
@@ -140,7 +140,7 @@ export class DiagramDetail {
       }),
       this._eventAggregator.subscribe(environment.events.diagramDetail.saveDiagramAs, () => {
         this._electronOnSaveDiagramAs();
-      })
+      }),
     ];
   }
 
@@ -250,8 +250,8 @@ export class DiagramDetail {
         };
 
         setTimeout(() => {
-          document.getElementById('cancelDiagramDeploy').addEventListener('click', cancelModal, { once: true });
-          document.getElementById('overrideDiagramOnSolution').addEventListener('click', proceedUpload, { once: true });
+          document.getElementById('cancelDiagramDeploy').addEventListener('click', cancelModal, {once: true});
+          document.getElementById('overrideDiagramOnSolution').addEventListener('click', proceedUpload, {once: true});
         }, 0);
       });
 
@@ -279,7 +279,7 @@ export class DiagramDetail {
         id: this.activeDiagram.id,
         name: this.activeDiagram.name,
         uri: removeBPMNSuffix(this.activeDiagram.uri),
-        xml: this.activeDiagram.xml
+        xml: this.activeDiagram.xml,
       };
 
       await solutionToDeployTo.service.saveDiagram(copyOfDiagram, solutionToDeployTo.uri);
@@ -288,12 +288,12 @@ export class DiagramDetail {
 
       this._router.navigateToRoute('design', {
         diagramName: this.activeDiagram.name,
-        solutionUri: solutionToDeployTo.uri
+        solutionUri: solutionToDeployTo.uri,
       });
 
       this._notificationService.showNotification(
         NotificationType.SUCCESS,
-        'Diagram was successfully uploaded to the connected ProcessEngine.'
+        'Diagram was successfully uploaded to the connected ProcessEngine.',
       );
 
       this._eventAggregator.publish(environment.events.diagramDetail.onDiagramDeployed, processModelId);
@@ -325,7 +325,7 @@ export class DiagramDetail {
 
     const startRequestPayload: DataModels.ProcessModels.ProcessStartRequestPayload = {
       inputValues: parsedInitialToken,
-      correlationId: this.customCorrelationId
+      correlationId: this.customCorrelationId,
     };
 
     try {
@@ -338,16 +338,16 @@ export class DiagramDetail {
         startRequestPayload,
         useDefaultStartCallbackType,
         this.selectedStartEventId,
-        doNotAwaitEndEvent
+        doNotAwaitEndEvent,
       );
 
-      const { correlationId, processInstanceId } = response;
+      const {correlationId, processInstanceId} = response;
 
       this._router.navigateToRoute('live-execution-tracker', {
         diagramName: this.activeDiagram.id,
         solutionUri: this.activeSolutionEntry.uri,
         correlationId: correlationId,
-        processInstanceId: processInstanceId
+        processInstanceId: processInstanceId,
       });
     } catch (error) {
       this._notificationService.showNotification(NotificationType.ERROR, error.message);
@@ -427,7 +427,7 @@ export class DiagramDetail {
       name: this.activeDiagram.name,
       id: this.activeDiagram.id,
       uri: this.activeDiagram.uri,
-      xml: xml
+      xml: xml,
     };
 
     try {
@@ -464,7 +464,7 @@ export class DiagramDetail {
     await this._router.navigateToRoute('design', {
       diagramName: this.activeDiagram.name,
       diagramUri: this.activeDiagram.uri,
-      solutionUri: this.activeSolutionEntry.uri
+      solutionUri: this.activeSolutionEntry.uri,
     });
 
     this._notificationService.showNotification(NotificationType.SUCCESS, `File saved!`);
@@ -603,7 +603,7 @@ export class DiagramDetail {
   private async _updateProcessStartEvents(): Promise<void> {
     const startEventResponse: DataModels.Events.EventList = await this._managementApiClient.getStartEventsForProcessModel(
       this.activeSolutionEntry.identity,
-      this.activeDiagram.id
+      this.activeDiagram.id,
     );
 
     this.processesStartEvents = startEventResponse.events;

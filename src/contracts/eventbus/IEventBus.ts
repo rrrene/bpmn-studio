@@ -237,5 +237,5 @@ export interface IEventBus {
   once(events: Array<EventNameType> | EventNameType, priority: number, callback: Function, callbackScope: any): void;
   once(events: Array<EventNameType> | EventNameType, callback: Function, callbackScope: any): void;
   off(event: EventNameType, callback?: Function): void;
-  fire(nameOrType: EventNameType | { type: EventNameType }, data?: any): any;
+  fire(nameOrType: EventNameType | {type: EventNameType}, data?: any): any;
 }

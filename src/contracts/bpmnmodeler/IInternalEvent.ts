@@ -1,6 +1,6 @@
-import { IShape } from '@process-engine/bpmn-elements_contracts';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
 
-import { IDescriptor } from './IDescriptor';
+import {IDescriptor} from './IDescriptor';
 
 export interface IInternalEvent {
   cancelBubble?: boolean;

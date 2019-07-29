@@ -16,14 +16,14 @@ module.exports = function(config, windowParams) {
       response_type: config.responseType,
       scope: config.scope,
       state: _getRandomString(16),
-      nonce: _getRandomString(16)
+      nonce: _getRandomString(16),
     };
 
     var url = `${authorityUrl}connect/authorize?${queryString.stringify(urlParams)}`;
 
     return new Promise(function(resolve, reject) {
       // Open a new browser window and load the previously constructed url.
-      const authWindow = new BrowserWindow(windowParams || { 'use-content-size': true });
+      const authWindow = new BrowserWindow(windowParams || {'use-content-size': true});
 
       authWindow.loadURL(url);
       authWindow.show();
@@ -71,7 +71,7 @@ module.exports = function(config, windowParams) {
 
           const tokenObject = {
             idToken,
-            accessToken
+            accessToken,
           };
 
           resolve(tokenObject);
@@ -107,7 +107,7 @@ module.exports = function(config, windowParams) {
   function logout(tokenObject, authorityUrl) {
     const urlParams = {
       id_token_hint: tokenObject.userId,
-      post_logout_redirect_uri: config.logoutRedirectUri
+      post_logout_redirect_uri: config.logoutRedirectUri,
     };
 
     const endSessionUrl = `${authorityUrl}connect/endsession?${queryString.stringify(urlParams)}`;
@@ -115,7 +115,7 @@ module.exports = function(config, windowParams) {
     return new Promise(async function(resolve, reject) {
       const response = await fetch(endSessionUrl);
 
-      const logoutWindow = new BrowserWindow(windowParams || { 'use-content-size': true });
+      const logoutWindow = new BrowserWindow(windowParams || {'use-content-size': true});
 
       logoutWindow.webContents.on('will-navigate', (event, url) => {
         if (url.includes(config.logoutRedirectUri)) {
@@ -157,6 +157,6 @@ module.exports = function(config, windowParams) {
 
   return {
     getTokenObject: getTokenObject,
-    logout: logout
+    logout: logout,
   };
 };

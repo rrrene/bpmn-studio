@@ -1,11 +1,11 @@
-import { inject } from 'aurelia-dependency-injection';
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { bindable, computedFrom } from 'aurelia-framework';
+import {inject} from 'aurelia-dependency-injection';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {bindable, computedFrom} from 'aurelia-framework';
 
-import { IShape } from '@process-engine/bpmn-elements_contracts';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
-import { diff } from 'bpmn-js-differ';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+import {diff} from 'bpmn-js-differ';
 
 import {
   defaultBpmnColors,
@@ -25,12 +25,12 @@ import {
   IModeling,
   ISolutionEntry,
   IViewbox,
-  NotificationType
+  NotificationType,
 } from '../../../contracts/index';
 import environment from '../../../environment';
-import { ElementNameService } from '../../../services/elementname-service/elementname.service';
-import { NotificationService } from '../../../services/notification-service/notification.service';
-import { SolutionService } from '../../../services/solution-service/SolutionService';
+import {ElementNameService} from '../../../services/elementname-service/elementname.service';
+import {NotificationService} from '../../../services/notification-service/notification.service';
+import {SolutionService} from '../../../services/solution-service/SolutionService';
 
 @inject('NotificationService', EventAggregator, 'SolutionService')
 export class BpmnDiffView {
@@ -54,7 +54,7 @@ export class BpmnDiffView {
     removed: [],
     changed: [],
     added: [],
-    layoutChanged: []
+    layoutChanged: [],
   };
   public showSavedXml: boolean = true;
 
@@ -75,7 +75,7 @@ export class BpmnDiffView {
   constructor(
     notificationService: NotificationService,
     eventAggregator: EventAggregator,
-    solutionService: SolutionService
+    solutionService: SolutionService,
   ) {
     this._notificationService = notificationService;
     this._eventAggregator = eventAggregator;
@@ -135,7 +135,7 @@ export class BpmnDiffView {
             this._setDeployedProcessModelAsPreviousXml();
           }
         }
-      })
+      }),
     ];
 
     this._updateDiffView();
@@ -229,7 +229,7 @@ export class BpmnDiffView {
 
     this._eventAggregator.publish(environment.events.statusBar.setXmlIdentifier, [
       this.previousXmlIdentifier,
-      this.currentXmlIdentifier
+      this.currentXmlIdentifier,
     ]);
   }
 
@@ -241,7 +241,7 @@ export class BpmnDiffView {
 
     this._eventAggregator.publish(environment.events.statusBar.setXmlIdentifier, [
       this.previousXmlIdentifier,
-      this.currentXmlIdentifier
+      this.currentXmlIdentifier,
     ]);
 
     this._diagramName = undefined;
@@ -255,7 +255,7 @@ export class BpmnDiffView {
 
     this._eventAggregator.publish(environment.events.statusBar.setXmlIdentifier, [
       this.previousXmlIdentifier,
-      this.currentXmlIdentifier
+      this.currentXmlIdentifier,
     ]);
   }
 
@@ -405,7 +405,7 @@ export class BpmnDiffView {
 
     const changeListEntry: IChangeListEntry = {
       name: humanReadableElementName,
-      type: humanReadableElementType
+      type: humanReadableElementType,
     };
 
     return changeListEntry;
@@ -573,7 +573,7 @@ export class BpmnDiffView {
   private async _getXmlFromModeler(): Promise<string> {
     const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
       const xmlSaveOptions: IBpmnXmlSaveOptions = {
-        format: true
+        format: true,
       };
 
       this._diffModeler.saveXML(xmlSaveOptions, async (saveXmlError: Error, xml: string) => {
@@ -592,7 +592,7 @@ export class BpmnDiffView {
 
   private _createNewViewer(): IBpmnModeler {
     return new bundle.viewer({
-      additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule]
+      additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule],
     });
   }
 
@@ -630,7 +630,7 @@ export class BpmnDiffView {
 
     this._modeling.setColor(elementsToColor, {
       stroke: color.border,
-      fill: color.fill
+      fill: color.fill,
     });
   }
 }

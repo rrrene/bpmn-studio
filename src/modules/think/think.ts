@@ -1,8 +1,8 @@
-import { inject } from 'aurelia-framework';
-import { activationStrategy } from 'aurelia-router';
+import {inject} from 'aurelia-framework';
+import {activationStrategy} from 'aurelia-router';
 
-import { ISolutionEntry, ISolutionService, NotificationType } from '../../contracts/index';
-import { NotificationService } from '../../services/notification-service/notification.service';
+import {ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
+import {NotificationService} from '../../services/notification-service/notification.service';
 
 export interface IThinkRouteParameters {
   view?: string;
@@ -48,7 +48,7 @@ export class Think {
 
     await this.activeSolutionEntry.service.openSolution(
       this.activeSolutionEntry.uri,
-      this.activeSolutionEntry.identity
+      this.activeSolutionEntry.identity,
     );
 
     return true;

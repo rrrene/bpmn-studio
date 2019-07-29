@@ -1,4 +1,4 @@
-import { CLIOptions } from 'aurelia-cli';
+import {CLIOptions} from 'aurelia-cli';
 import * as browserSync from 'browser-sync';
 import * as historyApiFallback from 'connect-history-api-fallback/lib';
 import * as gulp from 'gulp';
@@ -20,8 +20,8 @@ const serve: any = gulp.series(build, (done: Function) => {
         forms: {
           submit: false,
           inputs: false,
-          toggles: false
-        }
+          toggles: false,
+        },
       },
       server: {
         baseDir: [project.platform.baseDir],
@@ -30,9 +30,9 @@ const serve: any = gulp.series(build, (done: Function) => {
           (req: any, res: any, next: any): void => {
             res.setHeader('Access-Control-Allow-Origin', '*');
             next();
-          }
-        ]
-      }
+          },
+        ],
+      },
     },
     (err: any, bs: any): void => {
       if (err) {
@@ -42,7 +42,7 @@ const serve: any = gulp.series(build, (done: Function) => {
       log(`Application Available At: ${urls.local}`);
       log(`BrowserSync Available At: ${urls.ui}`);
       done();
-    }
+    },
   );
 });
 

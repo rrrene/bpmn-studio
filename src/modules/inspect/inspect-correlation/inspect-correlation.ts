@@ -1,13 +1,13 @@
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { bindable, inject, observable } from 'aurelia-framework';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {bindable, inject, observable} from 'aurelia-framework';
 
-import { IShape } from '@process-engine/bpmn-elements_contracts';
-import { DataModels } from '@process-engine/management_api_contracts';
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
+import {DataModels} from '@process-engine/management_api_contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import { IEventFunction, ISolutionEntry } from '../../../contracts/index';
+import {IEventFunction, ISolutionEntry} from '../../../contracts/index';
 import environment from '../../../environment';
-import { IInspectCorrelationService } from './contracts';
+import {IInspectCorrelationService} from './contracts';
 
 @inject('InspectCorrelationService', EventAggregator)
 export class InspectCorrelation {
@@ -41,7 +41,7 @@ export class InspectCorrelation {
   public async attached(): Promise<void> {
     this.correlations = await this._inspectCorrelationService.getAllCorrelationsForProcessModelId(
       this.activeDiagram.id,
-      this.activeSolutionEntry.identity
+      this.activeSolutionEntry.identity,
     );
 
     this._eventAggregator.publish(environment.events.statusBar.showInspectCorrelationButtons, true);
@@ -51,14 +51,14 @@ export class InspectCorrelation {
         environment.events.inspectCorrelation.showInspectPanel,
         (showInspectPanel: boolean) => {
           this.showInspectPanel = showInspectPanel;
-        }
+        },
       ),
       this._eventAggregator.subscribe(
         environment.events.inspectCorrelation.showTokenViewer,
         (showTokenViewer: boolean) => {
           this.showTokenViewer = showTokenViewer;
-        }
-      )
+        },
+      ),
     ];
 
     this.bottomPanelResizeDiv.addEventListener('mousedown', (mouseDownEvent: Event) => {
@@ -112,7 +112,7 @@ export class InspectCorrelation {
     if (this.viewIsAttached) {
       this.correlations = await this._inspectCorrelationService.getAllCorrelationsForProcessModelId(
         this.activeDiagram.id,
-        this.activeSolutionEntry.identity
+        this.activeSolutionEntry.identity,
       );
     }
   }

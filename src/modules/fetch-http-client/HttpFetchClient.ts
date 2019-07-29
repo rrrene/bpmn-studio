@@ -1,5 +1,5 @@
 import * as EssentialProjectErrors from '@essential-projects/errors_ts';
-import { IHttpClient, IRequestOptions, IResponse } from '@essential-projects/http_contracts';
+import {IHttpClient, IRequestOptions, IResponse} from '@essential-projects/http_contracts';
 
 export class HttpFetchClient implements IHttpClient {
   private _httpSuccessResponseCode: number = 200;
@@ -13,8 +13,8 @@ export class HttpFetchClient implements IHttpClient {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
-        ...options.headers
-      }
+        ...options.headers,
+      },
     });
 
     const response: Response = await fetch(request);
@@ -32,9 +32,9 @@ export class HttpFetchClient implements IHttpClient {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
-        ...options.headers
+        ...options.headers,
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
 
     const response: Response = await fetch(request);
@@ -52,9 +52,9 @@ export class HttpFetchClient implements IHttpClient {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
-        ...options.headers
+        ...options.headers,
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
 
     const response: Response = await fetch(request);
@@ -72,8 +72,8 @@ export class HttpFetchClient implements IHttpClient {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
-        ...options.headers
-      }
+        ...options.headers,
+      },
     });
 
     const response: Response = await fetch(request);
@@ -96,7 +96,7 @@ export class HttpFetchClient implements IHttpClient {
 
     const parsedResponse: IResponse<T> = {
       result: this._parseResponseBody(responseBody),
-      status: response.status
+      status: response.status,
     };
 
     return parsedResponse;

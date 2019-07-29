@@ -1,9 +1,9 @@
-import { inject } from 'aurelia-framework';
+import {inject} from 'aurelia-framework';
 
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import { ISolutionEntry, ISolutionService } from '../../contracts';
-import { SolutionExplorerServiceFactory } from '../solution-explorer-services/SolutionExplorerServiceFactory';
+import {ISolutionEntry, ISolutionService} from '../../contracts';
+import {SolutionExplorerServiceFactory} from '../solution-explorer-services/SolutionExplorerServiceFactory';
 
 @inject('SolutionExplorerServiceFactory')
 export class SolutionService implements ISolutionService {
@@ -100,7 +100,7 @@ export class SolutionService implements ISolutionService {
 
   public addOpenDiagram(diagramToAdd: IDiagram): void {
     const indexOfDiagram: number = this._persistedOpenDiagrams.findIndex(
-      (diagram: IDiagram) => diagram.uri === diagramToAdd.uri
+      (diagram: IDiagram) => diagram.uri === diagramToAdd.uri,
     );
     const diagramIsPersisted: boolean = indexOfDiagram >= 0;
 

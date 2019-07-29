@@ -1,4 +1,4 @@
-import { IDiagramValidationRule } from './index';
+import {IDiagramValidationRule} from './index';
 
 export interface IDiagramValidationRuleSet {
   rules: Array<IDiagramValidationRule>;

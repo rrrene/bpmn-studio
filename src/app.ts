@@ -1,19 +1,19 @@
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { inject } from 'aurelia-framework';
-import { Router, RouterConfiguration } from 'aurelia-router';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
+import {Router, RouterConfiguration} from 'aurelia-router';
 /**
  * This import statement loads bootstrap. Its required because otherwise
  * its not executed.
  */
 import 'bootstrap';
 
-import { OpenIdConnect } from 'aurelia-open-id-connect';
+import {OpenIdConnect} from 'aurelia-open-id-connect';
 
-import { IAuthenticationService, NotificationType } from './contracts/index';
+import {IAuthenticationService, NotificationType} from './contracts/index';
 import environment from './environment';
-import { NotificationService } from './services/notification-service/notification.service';
+import {NotificationService} from './services/notification-service/notification.service';
 
-import { oidcConfig } from './open-id-connect-configuration';
+import {oidcConfig} from './open-id-connect-configuration';
 @inject(OpenIdConnect, 'AuthenticationService', 'NotificationService', EventAggregator)
 export class App {
   public showSolutionExplorer: boolean = false;
@@ -30,7 +30,7 @@ export class App {
     openIdConnect: OpenIdConnect,
     authenticationService: IAuthenticationService,
     notificationService: NotificationService,
-    eventAggregator: EventAggregator
+    eventAggregator: EventAggregator,
   ) {
     this._openIdConnect = openIdConnect;
     this._authenticationService = authenticationService;
@@ -47,7 +47,7 @@ export class App {
       if (isRunningInBrowser) {
         this._notificationService.showNotification(
           NotificationType.INFO,
-          'Drag-and-Drop is currently only available for the Electron application.'
+          'Drag-and-Drop is currently only available for the Electron application.',
         );
       }
 
@@ -69,7 +69,7 @@ export class App {
         } else {
           window.localStorage.setItem('SolutionExplorerVisibility', 'false');
         }
-      })
+      }),
     ];
 
     /*
@@ -126,66 +126,66 @@ export class App {
         route: [''],
         title: 'Start Page',
         name: 'start-page',
-        moduleId: 'modules/start-page/start-page'
+        moduleId: 'modules/start-page/start-page',
       },
       {
         route: ['dashboard'],
         title: 'Dashboard',
         name: 'dashboard',
         moduleId: 'modules/inspect/dashboard/dashboard',
-        nav: false
+        nav: false,
       },
       {
         route: ['task', 'processdef/:diagramName/task'],
         title: 'Task List',
         name: 'task-list-processmodel',
         moduleId: 'modules/task-list-container/task-list-container',
-        nav: false
+        nav: false,
       },
       {
         route: ['correlation/:correlationId/task'],
         title: 'Task List',
         name: 'task-list-correlation',
         moduleId: 'modules/task-list-container/task-list-container',
-        nav: false
+        nav: false,
       },
       {
         route: ['instance/:processInstanceId/task'],
         title: 'Task List',
         name: 'task-list-processinstance',
         moduleId: 'modules/task-list-container/task-list-container',
-        nav: false
+        nav: false,
       },
       {
         route: ['process'],
         title: 'Process Instance List',
         name: 'process-list',
         moduleId: 'modules/inspect/process-list/process-list',
-        nav: false
+        nav: false,
       },
       {
         route: ['correlation/:correlationId/diagram/:diagramName/instance/:processInstanceId/task/:taskId/dynamic-ui'],
         title: 'Task Dynamic UI',
         name: 'task-dynamic-ui',
-        moduleId: 'modules/task-dynamic-ui/task-dynamic-ui'
+        moduleId: 'modules/task-dynamic-ui/task-dynamic-ui',
       },
       {
         route: ['diagram/detail/:diagramName?'],
         title: 'Diagram Detail',
         name: 'diagram-detail',
-        moduleId: 'modules/design/diagram-detail/diagram-detail'
+        moduleId: 'modules/design/diagram-detail/diagram-detail',
       },
       {
         route: ['/correlation/:correlationId/diagram/:diagramName/instance/:processInstanceId/live-execution-tracker'],
         title: 'Live Execution Tracker',
         name: 'live-execution-tracker',
-        moduleId: 'modules/live-execution-tracker/live-execution-tracker'
+        moduleId: 'modules/live-execution-tracker/live-execution-tracker',
       },
       {
         route: 'settings',
         title: 'Settings',
         name: 'settings',
-        moduleId: 'modules/config-panel/config-panel'
+        moduleId: 'modules/config-panel/config-panel',
       },
       {
         route: ['think/:view?/diagram/:diagramName?'],
@@ -193,7 +193,7 @@ export class App {
         name: 'think',
         moduleId: 'modules/think/think',
         nav: 0,
-        href: ''
+        href: '',
       },
       {
         route: ['design/:view?/diagram/:diagramName?'],
@@ -201,7 +201,7 @@ export class App {
         name: 'design',
         moduleId: 'modules/design/design',
         nav: 1,
-        href: ''
+        href: '',
       },
       {
         route: ['inspect/:view?/diagram/:diagramName?'],
@@ -209,8 +209,8 @@ export class App {
         name: 'inspect',
         moduleId: 'modules/inspect/inspect',
         nav: 2,
-        href: ''
-      }
+        href: '',
+      },
     ]);
 
     this._openIdConnect.configure(config);

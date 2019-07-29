@@ -1,12 +1,12 @@
-import { EventAggregator } from 'aurelia-event-aggregator';
-import { FrameworkConfiguration } from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {FrameworkConfiguration} from 'aurelia-framework';
 
-import { IHttpClient } from '@essential-projects/http_contracts';
-import { ExternalAccessor, ManagementApiClientService } from '@process-engine/management_api_client';
+import {IHttpClient} from '@essential-projects/http_contracts';
+import {ExternalAccessor, ManagementApiClientService} from '@process-engine/management_api_client';
 
-import { ISolutionEntry } from '../../contracts';
+import {ISolutionEntry} from '../../contracts';
 import environment from '../../environment';
-import { HttpClientProxy } from './HttpClientProxy';
+import {HttpClientProxy} from './HttpClientProxy';
 
 export async function configure(config: FrameworkConfiguration): Promise<void> {
   const httpClient: IHttpClient = config.container.get('HttpFetchClient');
@@ -27,7 +27,7 @@ export async function configure(config: FrameworkConfiguration): Promise<void> {
     proxiedHttpClient.setUrlPrefix(`${newSolutionEntry.uri}/`);
 
     externalAccessor.config = {
-      socketUrl: newSolutionEntry.uri
+      socketUrl: newSolutionEntry.uri,
     };
 
     if (socketIsAlreadyInitialized) {
@@ -45,7 +45,7 @@ function createExternalAccessor(httpClient: IHttpClient, socketUrl: string): Ext
   const externalAccessor: ExternalAccessor = new ExternalAccessor(httpClient);
 
   externalAccessor.config = {
-    socketUrl: socketUrl
+    socketUrl: socketUrl,
   };
 
   return externalAccessor;

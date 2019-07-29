@@ -1,5 +1,5 @@
-import { IExportService } from '../../../../contracts/index';
-import { DiagramExportRepository } from '../repositories/DiagramExportRepository';
+import {IExportService} from '../../../../contracts/index';
+import {DiagramExportRepository} from '../repositories/DiagramExportRepository';
 
 export class ExportService implements IExportService {
   private _enqueuedPromises: Array<Promise<string>>;
@@ -21,7 +21,7 @@ export class ExportService implements IExportService {
         return lastPromise.then((result: string) => {
           return currentPromise;
         });
-      }
+      },
     );
 
     /*

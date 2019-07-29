@@ -1,9 +1,9 @@
-import { EventAggregator } from 'aurelia-event-aggregator';
-import { inject } from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
 
-import { IScriptTaskElement, IShape } from '@process-engine/bpmn-elements_contracts';
+import {IScriptTaskElement, IShape} from '@process-engine/bpmn-elements_contracts';
 
-import { IPageModel, ISection } from '../../../../../../../contracts';
+import {IPageModel, ISection} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
 @inject(EventAggregator)

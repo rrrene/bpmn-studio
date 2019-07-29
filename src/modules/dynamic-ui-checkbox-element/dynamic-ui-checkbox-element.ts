@@ -1,5 +1,5 @@
-import { bindable } from 'aurelia-framework';
-import { IBooleanFormField } from '../../contracts/index';
+import {bindable} from 'aurelia-framework';
+import {IBooleanFormField} from '../../contracts/index';
 
 export class DynamicUiCheckboxElement {
   @bindable()

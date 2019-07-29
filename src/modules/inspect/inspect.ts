@@ -1,13 +1,13 @@
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { bindable, inject } from 'aurelia-framework';
-import { activationStrategy } from 'aurelia-router';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {bindable, inject} from 'aurelia-framework';
+import {activationStrategy} from 'aurelia-router';
 
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import { ISolutionEntry, ISolutionService, NotificationType } from '../../contracts/index';
+import {ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
 import environment from '../../environment';
-import { NotificationService } from '../../services/notification-service/notification.service';
-import { Dashboard } from './dashboard/dashboard';
+import {NotificationService} from '../../services/notification-service/notification.service';
+import {Dashboard} from './dashboard/dashboard';
 
 interface IInspectRouteParameters {
   view?: string;
@@ -36,7 +36,7 @@ export class Inspect {
   constructor(
     eventAggregator: EventAggregator,
     solutionService: ISolutionService,
-    notificationService: NotificationService
+    notificationService: NotificationService,
   ) {
     this._eventAggregator = eventAggregator;
     this._solutionService = solutionService;
@@ -130,8 +130,8 @@ export class Inspect {
         environment.events.inspect.shouldDisableTokenViewerButton,
         (tokenViewerButtonDisabled: boolean) => {
           this.tokenViewerButtonDisabled = tokenViewerButtonDisabled;
-        }
-      )
+        },
+      ),
     ];
   }
 
@@ -162,14 +162,14 @@ export class Inspect {
     this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(solutionUri);
     await this.activeSolutionEntry.service.openSolution(
       this.activeSolutionEntry.uri,
-      this.activeSolutionEntry.identity
+      this.activeSolutionEntry.identity,
     );
 
     const solutionIsRemote: boolean = solutionUri.startsWith('http');
     if (solutionIsRemote) {
       this._eventAggregator.publish(
         environment.events.configPanel.solutionEntryChanged,
-        this._solutionService.getSolutionEntryForUri(solutionUri)
+        this._solutionService.getSolutionEntryForUri(solutionUri),
       );
     }
 

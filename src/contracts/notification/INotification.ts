@@ -1,4 +1,4 @@
-import { NotificationType } from './constants';
+import {NotificationType} from './constants';
 
 export interface INotification {
   type: NotificationType;

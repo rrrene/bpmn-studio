@@ -1,5 +1,5 @@
-import { inject } from 'aurelia-dependency-injection';
-import { Project, ProjectItem, CLIOptions, UI } from 'aurelia-cli';
+import {inject} from 'aurelia-dependency-injection';
+import {Project, ProjectItem, CLIOptions, UI} from 'aurelia-cli';
 
 @inject(Project, CLIOptions, UI)
 export default class ElementGenerator {
@@ -14,7 +14,7 @@ export default class ElementGenerator {
 
         this.project.elements.add(
           ProjectItem.text(`${fileName}.ts`, this.generateJSSource(className)),
-          ProjectItem.text(`${fileName}.html`, this.generateHTMLSource(className))
+          ProjectItem.text(`${fileName}.html`, this.generateHTMLSource(className)),
         );
 
         return this.project.commitChanges().then(() => this.ui.log(`Created ${fileName}.`));

@@ -1,8 +1,8 @@
-import { EventAggregator } from 'aurelia-event-aggregator';
-import { inject } from 'aurelia-framework';
-import { ValidateEvent, ValidationController, ValidationRules } from 'aurelia-validation';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
+import {ValidateEvent, ValidationController, ValidationRules} from 'aurelia-validation';
 
-import { IModdleElement, IShape } from '@process-engine/bpmn-elements_contracts';
+import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 
 import {
   IBpmnModdle,
@@ -10,7 +10,7 @@ import {
   IElementRegistry,
   IModeling,
   IPageModel,
-  ISection
+  ISection,
 } from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
@@ -79,11 +79,11 @@ export class BasicsSection implements ISection {
   public updateDocumentation(): void {
     this._elementInPanel.documentation = [];
 
-    const documentationPropertyObject: Object = { text: this.elementDocumentation };
+    const documentationPropertyObject: Object = {text: this.elementDocumentation};
     const documentation: IModdleElement = this._bpmnModdle.create('bpmn:Documentation', documentationPropertyObject);
     this._elementInPanel.documentation.push(documentation);
 
-    const elementInPanelDocumentation: Object = { documentation: this._elementInPanel.documentation };
+    const elementInPanelDocumentation: Object = {documentation: this._elementInPanel.documentation};
     this._modeling.updateProperties(this._elementInPanel, elementInPanelDocumentation);
     this._publishDiagramChange();
   }
@@ -101,7 +101,7 @@ export class BasicsSection implements ISection {
       return;
     }
 
-    const updateProperty: Object = { id: this.businessObjInPanel.id };
+    const updateProperty: Object = {id: this.businessObjInPanel.id};
     this._modeling.updateProperties(this._elementInPanel, updateProperty);
     this._publishDiagramChange();
   }

@@ -1,14 +1,9 @@
-import { EventAggregator } from 'aurelia-event-aggregator';
-import { inject } from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
 
-import {
-  IConditionalEventElement,
-  IEventElement,
-  IModdleElement,
-  IShape
-} from '@process-engine/bpmn-elements_contracts';
+import {IConditionalEventElement, IEventElement, IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 
-import { IBpmnModdle, ILinting, IPageModel, ISection } from '../../../../../../../contracts';
+import {IBpmnModdle, ILinting, IPageModel, ISection} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
 @inject(EventAggregator)
@@ -34,13 +29,13 @@ export class ConditionalEventSection implements ISection {
     this._linter = model.modeler.get('linting');
     this._businessObjInPanel = model.elementInPanel.businessObject as IConditionalEventElement;
 
-    const { variableName, variableEvent, condition } = this._businessObjInPanel.eventDefinitions[0];
+    const {variableName, variableEvent, condition} = this._businessObjInPanel.eventDefinitions[0];
 
     this.variableEvent = variableEvent === undefined ? '' : variableEvent;
     this.variableName = variableName === undefined ? '' : variableName;
     this.conditionBody = condition === undefined ? '' : condition.body;
 
-    this._conditionObject = this._moddle.create('bpmn:FormalExpression', { body: this.conditionBody });
+    this._conditionObject = this._moddle.create('bpmn:FormalExpression', {body: this.conditionBody});
     this._businessObjInPanel.eventDefinitions[0].condition = this._conditionObject;
   }
 

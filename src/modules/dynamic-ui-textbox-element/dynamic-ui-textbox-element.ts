@@ -1,5 +1,5 @@
-import { bindable } from 'aurelia-framework';
-import { IStringFormField } from '../../contracts';
+import {bindable} from 'aurelia-framework';
+import {IStringFormField} from '../../contracts';
 
 export class DynamicUiTextboxElement {
   @bindable()

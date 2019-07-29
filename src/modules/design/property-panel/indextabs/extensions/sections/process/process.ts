@@ -1,15 +1,15 @@
-import { EventAggregator } from 'aurelia-event-aggregator';
-import { inject } from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
 
 import {
   IExtensionElement,
   IModdleElement,
   IPropertiesElement,
   IProperty,
-  IShape
+  IShape,
 } from '@process-engine/bpmn-elements_contracts';
 
-import { IBpmnModdle, IPageModel } from '../../../../../../../contracts';
+import {IBpmnModdle, IPageModel} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
 @inject(EventAggregator)
@@ -51,7 +51,7 @@ export class ProcessSection {
   public addProperty(): void {
     const bpmnPropertyProperties: Object = {
       name: '',
-      value: ''
+      value: '',
     };
     const bpmnProperty: IProperty = this._moddle.create('camunda:Property', bpmnPropertyProperties);
 
@@ -158,7 +158,7 @@ export class ProcessSection {
           extensionValue.values.length !== 0;
 
         return extensionIsPropertyElement;
-      }
+      },
     );
 
     const extensionElementHasNoPropertyElement: boolean = extensionsPropertiesElement === undefined;
@@ -186,7 +186,7 @@ export class ProcessSection {
         const extensionIsPropertiesElement: boolean = extensionValue.$type === 'camunda:Properties';
 
         return extensionIsPropertiesElement;
-      }
+      },
     );
 
     return propertiesElement;
@@ -195,21 +195,21 @@ export class ProcessSection {
   private _createExtensionElement(): void {
     const bpmnExecutionListenerProperties: Object = {
       class: '',
-      event: ''
+      event: '',
     };
     const bpmnExecutionListener: IModdleElement = this._moddle.create(
       'camunda:ExecutionListener',
-      bpmnExecutionListenerProperties
+      bpmnExecutionListenerProperties,
     );
 
     const extensionValues: Array<IModdleElement> = [];
-    const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', { values: [] });
+    const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', {values: []});
 
     extensionValues.push(bpmnExecutionListener);
     extensionValues.push(propertiesElement);
 
     const extensionElements: IModdleElement = this._moddle.create('bpmn:ExtensionElements', {
-      values: extensionValues
+      values: extensionValues,
     });
     this._businessObjInPanel.processRef.extensionElements = extensionElements;
   }
@@ -221,7 +221,7 @@ export class ProcessSection {
     const emptyProperties: Array<IProperty> = [];
 
     const createCamundaProperties: () => IPropertiesElement = (): IPropertiesElement =>
-      this._moddle.create('camunda:Properties', { values: emptyProperties });
+      this._moddle.create('camunda:Properties', {values: emptyProperties});
 
     addPropertiesElement(createCamundaProperties());
   }

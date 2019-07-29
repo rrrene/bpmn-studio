@@ -1,6 +1,6 @@
-import { bindable, inject } from 'aurelia-framework';
+import {bindable, inject} from 'aurelia-framework';
 
-import { IModdleElement, IShape } from '@process-engine/bpmn-elements_contracts';
+import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 
 import {
   IBpmnModdle,
@@ -10,13 +10,13 @@ import {
   IElementRegistry,
   IEvent,
   IEventBus,
-  IIndextab
+  IIndextab,
 } from '../../../contracts';
-import { Extensions } from './indextabs/extensions/extensions';
-import { Forms } from './indextabs/forms/forms';
-import { General } from './indextabs/general/general';
+import {Extensions} from './indextabs/extensions/extensions';
+import {Forms} from './indextabs/forms/forms';
+import {General} from './indextabs/general/general';
 
-import { OpenDiagramStateService } from '../../../services/solution-explorer-services/OpenDiagramStateService';
+import {OpenDiagramStateService} from '../../../services/solution-explorer-services/OpenDiagramStateService';
 
 @inject('OpenDiagramStateService')
 export class PropertyPanel {

@@ -1,13 +1,13 @@
-import { inject } from 'aurelia-framework';
+import {inject} from 'aurelia-framework';
 
-import { Subscription } from '@essential-projects/event_aggregator_contracts';
-import { IIdentity } from '@essential-projects/iam_contracts';
-import { IModdleElement, IShape } from '@process-engine/bpmn-elements_contracts';
+import {Subscription} from '@essential-projects/event_aggregator_contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
-import { DataModels } from '@process-engine/management_api_contracts';
-import { CorrelationProcessInstance } from '@process-engine/management_api_contracts/dist/data_models/correlation';
-import { ActiveToken } from '@process-engine/management_api_contracts/dist/data_models/kpi';
-import { TokenHistoryEntry } from '@process-engine/management_api_contracts/dist/data_models/token_history';
+import {DataModels} from '@process-engine/management_api_contracts';
+import {CorrelationProcessInstance} from '@process-engine/management_api_contracts/dist/data_models/correlation';
+import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_models/kpi';
+import {TokenHistoryEntry} from '@process-engine/management_api_contracts/dist/data_models/token_history';
 
 import {
   defaultBpmnColors,
@@ -15,9 +15,9 @@ import {
   IBpmnXmlSaveOptions,
   IColorPickerColor,
   IElementRegistry,
-  IModeling
+  IModeling,
 } from '../../../contracts/index';
-import { ILiveExecutionTrackerRepository, ILiveExecutionTrackerService, RequestError } from '../contracts/index';
+import {ILiveExecutionTrackerRepository, ILiveExecutionTrackerService, RequestError} from '../contracts/index';
 
 @inject('LiveExecutionTrackerRepository')
 export class LiveExecutionTrackerService implements ILiveExecutionTrackerService {
@@ -48,7 +48,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   }
 
   public getTokenHistoryGroupForProcessInstance(
-    processInstanceId: string
+    processInstanceId: string,
   ): Promise<DataModels.TokenHistory.TokenHistoryGroup | null> {
     return this._liveExecutionTrackerRepository.getTokenHistoryGroupForProcessInstance(processInstanceId);
   }
@@ -58,7 +58,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   }
 
   public getEmptyActivitiesForProcessInstance(
-    processInstanceId: string
+    processInstanceId: string,
   ): Promise<DataModels.EmptyActivities.EmptyActivityList | null> {
     return this._liveExecutionTrackerRepository.getEmptyActivitiesForProcessInstance(processInstanceId);
   }
@@ -70,7 +70,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   public finishEmptyActivity(
     processInstanceId: string,
     correlationId: string,
-    emptyActivity: DataModels.EmptyActivities.EmptyActivity
+    emptyActivity: DataModels.EmptyActivities.EmptyActivity,
   ): Promise<void> {
     return this._liveExecutionTrackerRepository.finishEmptyActivity(processInstanceId, correlationId, emptyActivity);
   }
@@ -105,7 +105,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
   public createEmptyActivityFinishedEventListener(
     processInstanceId: string,
-    callback: Function
+    callback: Function,
   ): Promise<Subscription> {
     return this._liveExecutionTrackerRepository.createEmptyActivityFinishedEventListener(processInstanceId, callback);
   }
@@ -120,38 +120,38 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
   public createBoundaryEventTriggeredEventListener(
     processInstanceId: string,
-    callback: Function
+    callback: Function,
   ): Promise<Subscription> {
     return this._liveExecutionTrackerRepository.createBoundaryEventTriggeredEventListener(processInstanceId, callback);
   }
 
   public createIntermediateThrowEventTriggeredEventListener(
     processInstanceId: string,
-    callback: Function
+    callback: Function,
   ): Promise<Subscription> {
     return this._liveExecutionTrackerRepository.createIntermediateThrowEventTriggeredEventListener(
       processInstanceId,
-      callback
+      callback,
     );
   }
 
   public createIntermediateCatchEventReachedEventListener(
     processInstanceId: string,
-    callback: Function
+    callback: Function,
   ): Promise<Subscription> {
     return this._liveExecutionTrackerRepository.createIntermediateCatchEventReachedEventListener(
       processInstanceId,
-      callback
+      callback,
     );
   }
 
   public createIntermediateCatchEventFinishedEventListener(
     processInstanceId: string,
-    callback: Function
+    callback: Function,
   ): Promise<Subscription> {
     return this._liveExecutionTrackerRepository.createIntermediateCatchEventFinishedEventListener(
       processInstanceId,
-      callback
+      callback,
     );
   }
 
@@ -175,7 +175,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
         });
 
         return elementWithActiveToken;
-      }
+      },
     );
 
     return elementsWithActiveToken;
@@ -185,7 +185,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     const elements: Array<IShape> = this.getAllElementsThatCanHaveAToken();
 
     const tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup = await this.getTokenHistoryGroupForProcessInstance(
-      processInstanceId
+      processInstanceId,
     );
 
     const couldNotGetTokenHistory: boolean = tokenHistoryGroups === null;
@@ -210,7 +210,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
         const outgoingElements: Array<IShape> = this.getOutgoingElementsOfElement(
           elementFromTokenHistory,
-          tokenHistoryGroups
+          tokenHistoryGroups,
         );
 
         elementsWithTokenHistory.push(...outgoingElements);
@@ -237,7 +237,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
   public getOutgoingElementsOfElement(
     element: IShape,
-    tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup
+    tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup,
   ): Array<IShape> {
     const outgoingElementsAsIModdleElement: Array<IModdleElement> = element.businessObject.outgoing;
 
@@ -260,7 +260,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
       const targetOfOutgoingElementHasNoTokenHistory: boolean = !this.elementHasTokenHistory(
         targetOfOutgoingElement.id,
-        tokenHistoryGroups
+        tokenHistoryGroups,
       );
 
       if (targetOfOutgoingElementHasNoTokenHistory) {
@@ -295,7 +295,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
   public elementHasTokenHistory(
     elementId: string,
-    tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup
+    tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup,
   ): boolean {
     const tokenHistoryFromFlowNodeInstanceFound: boolean = tokenHistoryGroups[elementId] !== undefined;
 
@@ -350,7 +350,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
   public async getProcessModelByProcessInstanceId(
     correlationId: string,
-    processInstanceId: string
+    processInstanceId: string,
   ): Promise<DataModels.Correlations.CorrelationProcessInstance> {
     const correlation: DataModels.Correlations.Correlation = await this.getCorrelationById(correlationId);
 
@@ -364,7 +364,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
         const processModelFound: boolean = correlationProcessInstance.processInstanceId === processInstanceId;
 
         return processModelFound;
-      }
+      },
     );
 
     return processModel;
@@ -377,7 +377,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   public async getProcessInstanceIdOfCallActivityTarget(
     correlationId: string,
     processInstanceIdOfOrigin: string,
-    callActivityTargetId: string
+    callActivityTargetId: string,
   ): Promise<string> {
     const correlation: DataModels.Correlations.Correlation = await this.getCorrelationById(correlationId);
 
@@ -386,14 +386,14 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
       return undefined;
     }
 
-    const { processInstanceId } = correlation.processInstances.find(
+    const {processInstanceId} = correlation.processInstances.find(
       (correlationProcessInstance: CorrelationProcessInstance): boolean => {
         const targetProcessModelFound: boolean =
           correlationProcessInstance.parentProcessInstanceId === processInstanceIdOfOrigin &&
           correlationProcessInstance.processModelId === callActivityTargetId;
 
         return targetProcessModelFound;
-      }
+      },
     );
 
     return processInstanceId;
@@ -417,7 +417,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   public async exportXmlFromDiagramModeler(): Promise<string> {
     const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
       const xmlSaveOptions: IBpmnXmlSaveOptions = {
-        format: true
+        format: true,
       };
 
       this._diagramModeler.saveXML(xmlSaveOptions, async (saveXmlError: Error, xml: string) => {
@@ -451,13 +451,13 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
     this._modeling.setColor(elementsWithColor, {
       stroke: defaultBpmnColors.none.border,
-      fill: defaultBpmnColors.none.fill
+      fill: defaultBpmnColors.none.fill,
     });
   }
 
   public async getColorizedDiagram(
     processInstanceId: string,
-    processEngineSupportsGettingFlowNodeInstances?: boolean
+    processEngineSupportsGettingFlowNodeInstances?: boolean,
   ): Promise<string> {
     const elementsWithActiveToken: Array<IShape> = await this.getElementsWithActiveToken(processInstanceId);
     const elementsWithTokenHistory: Array<IShape> = await this.getElementsWithTokenHistory(processInstanceId);
@@ -501,7 +501,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
     this._modeling.setColor(elements, {
       stroke: color.border,
-      fill: color.fill
+      fill: color.fill,
     });
   }
 }

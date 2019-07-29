@@ -1,11 +1,11 @@
-import { bindable, inject } from 'aurelia-framework';
+import {bindable, inject} from 'aurelia-framework';
 
-import { IShape } from '@process-engine/bpmn-elements_contracts';
-import { DataModels } from '@process-engine/management_api_contracts';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
+import {DataModels} from '@process-engine/management_api_contracts';
 
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
-import { ISolutionEntry } from '../../../contracts';
-import { IPayloadEntry, IPayloadEntryValue, IRawTokenEntry, ITokenEntry, ITokenViewerService } from './contracts/index';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+import {ISolutionEntry} from '../../../contracts';
+import {IPayloadEntry, IPayloadEntryValue, IRawTokenEntry, ITokenEntry, ITokenViewerService} from './contracts/index';
 
 // tslint:disable: no-magic-numbers
 
@@ -13,14 +13,14 @@ const versionRegex: RegExp = /(\d+)\.(\d+).(\d+)/;
 
 @inject('TokenViewerService')
 export class TokenViewer {
-  @bindable({ changeHandler: 'processInstanceIdOrCorrelationChanged' })
+  @bindable({changeHandler: 'processInstanceIdOrCorrelationChanged'})
   public correlation: DataModels.Correlations.Correlation;
   @bindable() public activeDiagram: IDiagram;
   @bindable() public activeSolutionEntry: ISolutionEntry;
   @bindable() public flowNode: IShape;
   @bindable() public token: string;
   @bindable() public showBeautifiedToken: boolean = true;
-  @bindable({ changeHandler: 'processInstanceIdOrCorrelationChanged' }) public processInstanceId: string;
+  @bindable({changeHandler: 'processInstanceIdOrCorrelationChanged'}) public processInstanceId: string;
 
   public tokenEntries: Array<ITokenEntry> = [];
   public showTokenEntries: boolean = false;
@@ -89,7 +89,7 @@ export class TokenViewer {
       this._getTokenHistoryGroup = this._tokenViewerService.getTokenForFlowNodeByProcessInstanceId(
         this.processInstanceId,
         this.flowNode.id,
-        this.activeSolutionEntry.identity
+        this.activeSolutionEntry.identity,
       );
     } else {
       const correlationIsUndefined: boolean = this.correlation === undefined;
@@ -103,7 +103,7 @@ export class TokenViewer {
         this.activeDiagram.id,
         this.correlation.id,
         this.flowNode.id,
-        this.activeSolutionEntry.identity
+        this.activeSolutionEntry.identity,
       );
     }
 
@@ -142,7 +142,7 @@ export class TokenViewer {
   }
 
   private _getRawTokenEntriesForFlowNode(
-    tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup
+    tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup,
   ): Array<IRawTokenEntry> {
     const tokenEntries: Array<IRawTokenEntry> = [];
 
@@ -161,19 +161,19 @@ export class TokenViewer {
             entryNr: index,
             eventType: historyEntry.tokenEventType,
             createdAt: historyEntry.createdAt,
-            payload: payloadAsString
+            payload: payloadAsString,
           };
 
           tokenEntries.push(tokenEntry);
         });
-      }
+      },
     );
 
     return tokenEntries;
   }
 
   private _getBeautifiedTokenEntriesForFlowNode(
-    tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup
+    tokenHistoryGroup: DataModels.TokenHistory.TokenHistoryGroup,
   ): Array<ITokenEntry> {
     const tokenEntries: Array<ITokenEntry> = [];
 
@@ -193,19 +193,19 @@ export class TokenViewer {
           }
 
           const tokenEntryPayload: Array<IPayloadEntry> = this._convertHistoryEntryPayloadToTokenEntryPayload(
-            historyEntryPayload
+            historyEntryPayload,
           );
 
           const tokenEntry: ITokenEntry = {
             entryNr: index,
             eventType: historyEntry.tokenEventType,
             createdAt: historyEntry.createdAt,
-            payload: tokenEntryPayload
+            payload: tokenEntryPayload,
           };
 
           tokenEntries.push(tokenEntry);
         });
-      }
+      },
     );
 
     return tokenEntries;
@@ -245,7 +245,7 @@ export class TokenViewer {
   private _getPayloadEntryForObject(load: any, loadName: string): IPayloadEntry {
     const payloadEntry: IPayloadEntry = {
       name: loadName,
-      values: []
+      values: [],
     };
 
     const entryIsNotAnObject: boolean = typeof load !== 'object';
@@ -271,7 +271,7 @@ export class TokenViewer {
 
       payloadEntryValues.push({
         title: entryIndex,
-        value: payloadEntryValue
+        value: payloadEntryValue,
       });
     }
 
@@ -282,7 +282,7 @@ export class TokenViewer {
     const payloadEntryValues: any = this._getPayloadEntryValuesForNonObject(payload);
 
     const payloadEntry: IPayloadEntry = {
-      values: payloadEntryValues
+      values: payloadEntryValues,
     };
 
     return payloadEntry;
@@ -293,7 +293,7 @@ export class TokenViewer {
 
     const payloadEntryValue: string = payloadIsString ? `"${payload}"` : payload.toString();
 
-    const payloadEntryValues: Array<IPayloadEntryValue> = [{ value: payloadEntryValue }];
+    const payloadEntryValues: Array<IPayloadEntryValue> = [{value: payloadEntryValue}];
 
     return payloadEntryValues;
   }

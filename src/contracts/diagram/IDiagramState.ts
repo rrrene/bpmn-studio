@@ -1,5 +1,5 @@
-import { IShape } from '@process-engine/bpmn-elements_contracts';
-import { IViewbox } from '../index';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
+import {IViewbox} from '../index';
 
 export interface IDiagramState {
   data: {

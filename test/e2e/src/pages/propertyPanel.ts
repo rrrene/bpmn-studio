@@ -1,6 +1,6 @@
-import { browser, by, element, ElementFinder, ExpectedConditions } from 'protractor';
+import {browser, by, element, ElementFinder, ExpectedConditions} from 'protractor';
 
-import { By } from 'selenium-webdriver';
+import {By} from 'selenium-webdriver';
 
 export class PropertyPanel {
   private _propertyPanelContainerId: string = 'js-properties-panel';

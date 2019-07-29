@@ -1,4 +1,4 @@
-import { IPayloadEntryValue } from './index';
+import {IPayloadEntryValue} from './index';
 
 export interface IPayloadEntry {
   name?: string;

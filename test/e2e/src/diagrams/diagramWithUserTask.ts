@@ -1,7 +1,7 @@
-import { browser } from 'protractor';
-import { HttpClient } from 'protractor-http-client';
+import {browser} from 'protractor';
+import {HttpClient} from 'protractor-http-client';
 
-import { IRequestHeaders, IRequestPayload } from '../contracts/index';
+import {IRequestHeaders, IRequestPayload} from '../contracts/index';
 
 export class DiagramWithUserTask {
   // tslint:disable-next-line:no-magic-numbers
@@ -76,7 +76,7 @@ export class DiagramWithUserTask {
               </bpmndi:BPMNShape>
             </bpmndi:BPMNPlane>
           </bpmndi:BPMNDiagram>
-        </bpmn:definitions>`
+        </bpmn:definitions>`,
     };
 
     const requestHeaders: IRequestHeaders = this._getRequestHeaders();
@@ -120,7 +120,7 @@ export class DiagramWithUserTask {
 
   private _getRequestHeaders(): IRequestHeaders {
     const requestHeaders: IRequestHeaders = {
-      authorization: 'Bearer ZHVtbXlfdG9rZW4='
+      authorization: 'Bearer ZHVtbXlfdG9rZW4=',
     };
 
     return requestHeaders;

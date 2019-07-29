@@ -1,4 +1,4 @@
-import { IHttpClient, IRequestOptions, IResponse } from '@essential-projects/http_contracts';
+import {IHttpClient, IRequestOptions, IResponse} from '@essential-projects/http_contracts';
 
 export class HttpClientProxy implements IHttpClient {
   private _proxiedHttpClient: IHttpClient;

@@ -1,9 +1,9 @@
-import { inject } from 'aurelia-framework';
+import {inject} from 'aurelia-framework';
 
-import { IIdentity } from '@essential-projects/iam_contracts';
-import { DataModels, IManagementApi } from '@process-engine/management_api_contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
 
-import { IHeatmapRepository } from '../contracts/IHeatmap.Repository';
+import {IHeatmapRepository} from '../contracts/IHeatmap.Repository';
 
 @inject('ManagementApiClientService')
 export class HeatmapRepository implements IHeatmapRepository {
@@ -15,7 +15,7 @@ export class HeatmapRepository implements IHeatmapRepository {
   }
 
   public getRuntimeInformationForProcessModel(
-    processModelId: string
+    processModelId: string,
   ): Promise<Array<DataModels.Kpi.FlowNodeRuntimeInformation>> {
     return this._managementApiClientService.getRuntimeInformationForProcessModel(this._identity, processModelId);
   }

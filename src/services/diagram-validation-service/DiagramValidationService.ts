@@ -1,5 +1,5 @@
-import { IDiagramValidationRules, IDiagramValidationService, IDiagramValidator } from '../../contracts';
-import { DiagramValidator } from './DiagramValidator';
+import {IDiagramValidationRules, IDiagramValidationService, IDiagramValidator} from '../../contracts';
+import {DiagramValidator} from './DiagramValidator';
 
 /**
  * This service provides a fluent API to validate BPMN diagrams.
@@ -22,12 +22,12 @@ export class DiagramValidationService implements IDiagramValidationService {
   private _rules: IDiagramValidationRules = {
     isXML: {
       rules: [this._hasXMLFileSignature],
-      errorMessage: 'Diagram is not a valid XML file.'
+      errorMessage: 'Diagram is not a valid XML file.',
     },
     isBPMN: {
       rules: [this._containsBPMN],
-      errorMessage: 'Diagram is not a valid BPMN file.'
-    }
+      errorMessage: 'Diagram is not a valid BPMN file.',
+    },
   };
 
   public validate(diagramXML: string): IDiagramValidator {

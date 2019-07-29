@@ -1,6 +1,6 @@
-import { bindable, inject } from 'aurelia-framework';
+import {bindable, inject} from 'aurelia-framework';
 
-import { IModdleElement, IShape } from '@process-engine/bpmn-elements_contracts';
+import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import * as spectrum from 'spectrum-colorpicker';
 import 'spectrum-colorpicker/spectrum';
 
@@ -15,10 +15,10 @@ import {
   IEvent,
   IEventFunction,
   IModeling,
-  NotificationType
+  NotificationType,
 } from '../../../contracts/index';
 import environment from '../../../environment';
-import { NotificationService } from '../../../services/notification-service/notification.service';
+import {NotificationService} from '../../../services/notification-service/notification.service';
 
 @inject('NotificationService')
 export class DiagramToolsRight {
@@ -120,7 +120,7 @@ export class DiagramToolsRight {
   }
 
   public setPickedColor(): void {
-    const customColor: IColorPickerColor = { fill: this.fillColor, border: this.borderColor };
+    const customColor: IColorPickerColor = {fill: this.fillColor, border: this.borderColor};
 
     this._setColor(customColor);
   }
@@ -178,7 +178,7 @@ export class DiagramToolsRight {
 
     modeling.setColor(selectedElements, {
       fill: color.fill,
-      stroke: color.border
+      stroke: color.border,
     });
   }
 
@@ -223,27 +223,27 @@ export class DiagramToolsRight {
     const borderMoveSetting: spectrum.Options = {
       move: (borderColor: spectrum.tinycolorInstance): void => {
         this._updateBorderColor(borderColor);
-      }
+      },
     };
 
-    const borderLocalStorageKey: spectrum.Options = { localStorageKey: 'borderColors' };
+    const borderLocalStorageKey: spectrum.Options = {localStorageKey: 'borderColors'};
 
     const borderDefaultColors: Array<string> = [
       defaultBpmnColors.red.border,
       defaultBpmnColors.blue.border,
       defaultBpmnColors.green.border,
       defaultBpmnColors.purple.border,
-      defaultBpmnColors.orange.border
+      defaultBpmnColors.orange.border,
     ];
 
-    const borderDefaultPalette: spectrum.Options = { palette: borderDefaultColors };
+    const borderDefaultPalette: spectrum.Options = {palette: borderDefaultColors};
 
     const colorPickerBorderSettings: IColorPickerSettings = Object.assign(
       {},
       environment.colorPickerSettings,
       borderDefaultPalette,
       borderLocalStorageKey,
-      borderMoveSetting
+      borderMoveSetting,
     );
 
     $(this.colorPickerBorder).spectrum(colorPickerBorderSettings);
@@ -252,27 +252,27 @@ export class DiagramToolsRight {
     const fillMoveSetting: spectrum.Options = {
       move: (fillColor: spectrum.tinycolorInstance): void => {
         this._updateFillColor(fillColor);
-      }
+      },
     };
 
-    const fillLocalStorageKey: spectrum.Options = { localStorageKey: 'fillColors' };
+    const fillLocalStorageKey: spectrum.Options = {localStorageKey: 'fillColors'};
 
     const fillDefaultColors: Array<string> = [
       defaultBpmnColors.red.fill,
       defaultBpmnColors.blue.fill,
       defaultBpmnColors.green.fill,
       defaultBpmnColors.purple.fill,
-      defaultBpmnColors.orange.fill
+      defaultBpmnColors.orange.fill,
     ];
 
-    const fillDefaultPalette: spectrum.Options = { palette: fillDefaultColors };
+    const fillDefaultPalette: spectrum.Options = {palette: fillDefaultColors};
 
     const colorPickerFillSettings: IColorPickerSettings = Object.assign(
       {},
       environment.colorPickerSettings,
       fillDefaultPalette,
       fillLocalStorageKey,
-      fillMoveSetting
+      fillMoveSetting,
     );
 
     $(this.colorPickerFill).spectrum(colorPickerFillSettings);

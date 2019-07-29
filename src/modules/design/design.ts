@@ -4,16 +4,16 @@
  * functions used in the promise of the modal.
  */
 
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { bindable, bindingMode, inject, observable } from 'aurelia-framework';
-import { activationStrategy, NavigationInstruction, Redirect, Router } from 'aurelia-router';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {bindable, bindingMode, inject, observable} from 'aurelia-framework';
+import {activationStrategy, NavigationInstruction, Redirect, Router} from 'aurelia-router';
 
-import { IDiagram, ISolution } from '@process-engine/solutionexplorer.contracts';
+import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 
-import { ISolutionEntry, ISolutionService, NotificationType } from '../../contracts/index';
+import {ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
 import environment from '../../environment';
-import { NotificationService } from '../../services/notification-service/notification.service';
-import { DiagramDetail } from './diagram-detail/diagram-detail';
+import {NotificationService} from '../../services/notification-service/notification.service';
+import {DiagramDetail} from './diagram-detail/diagram-detail';
 
 export interface IDesignRouteParameters {
   view?: string;
@@ -33,7 +33,7 @@ export class Design {
   @observable() public activeDiagram: IDiagram;
   @bindable() public activeSolutionEntry: ISolutionEntry;
   @bindable() public xmlForDiff: string;
-  @bindable({ defaultBindingMode: bindingMode.oneWay }) public xml: string;
+  @bindable({defaultBindingMode: bindingMode.oneWay}) public xml: string;
 
   public showSelectDiagramModal: boolean = false;
   public showDetail: boolean = true;
@@ -61,7 +61,7 @@ export class Design {
     eventAggregator: EventAggregator,
     solutionService: ISolutionService,
     router: Router,
-    notificationService: NotificationService
+    notificationService: NotificationService,
   ) {
     this._eventAggregator = eventAggregator;
     this._solutionService = solutionService;
@@ -111,7 +111,7 @@ export class Design {
        */
       await this.activeSolutionEntry.service.openSolution(
         this.activeSolutionEntry.uri,
-        this.activeSolutionEntry.identity
+        this.activeSolutionEntry.identity,
       );
 
       const solutionIsRemote: boolean = this.activeSolutionEntry.uri.startsWith('http');
@@ -211,7 +211,7 @@ export class Design {
     this._subscriptions = [
       this._eventAggregator.subscribe(environment.events.bpmnio.propertyPanelActive, (showPanel: boolean) => {
         this.propertyPanelShown = showPanel;
-      })
+      }),
     ];
 
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
@@ -263,7 +263,7 @@ export class Design {
         const diagramWithSolutionName: DiagramWithSolution = {
           diagram,
           solutionName: solution.name,
-          solutionUri: solution.uri
+          solutionUri: solution.uri,
         };
 
         this.diagramArray.push(diagramWithSolutionName);
@@ -273,7 +273,7 @@ export class Design {
     const lastSaved: DiagramWithSolution = {
       diagram: this.activeDiagram,
       solutionName: 'Last Saved',
-      solutionUri: 'lastSaved'
+      solutionUri: 'lastSaved',
     };
 
     this.diagramArray.unshift(lastSaved);
@@ -322,7 +322,7 @@ export class Design {
     const remoteSolutionsWithoutActive: Array<ISolutionEntry> = remoteSolutions.filter(
       (remoteSolution: ISolutionEntry) => {
         return remoteSolution.uri !== this.activeSolutionEntry.uri && remoteSolution.fontAwesomeIconClass !== 'fa-bolt';
-      }
+      },
     );
 
     return remoteSolutionsWithoutActive;
@@ -334,7 +334,7 @@ export class Design {
     const remoteSolutionsWithoutActive: Array<ISolutionEntry> = remoteSolutions.filter(
       (remoteSolution: ISolutionEntry) => {
         return remoteSolution.uri !== this.activeSolutionEntry.uri;
-      }
+      },
     );
 
     return remoteSolutionsWithoutActive;

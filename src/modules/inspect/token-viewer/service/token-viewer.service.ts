@@ -1,9 +1,9 @@
-import { inject } from 'aurelia-framework';
+import {inject} from 'aurelia-framework';
 
-import { IIdentity } from '@essential-projects/iam_contracts';
-import { DataModels } from '@process-engine/management_api_contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {DataModels} from '@process-engine/management_api_contracts';
 
-import { ITokenViewerRepository, ITokenViewerService } from '../contracts';
+import {ITokenViewerRepository, ITokenViewerService} from '../contracts';
 
 @inject('TokenViewerRepository')
 export class TokenViewerService implements ITokenViewerService {
@@ -17,7 +17,7 @@ export class TokenViewerService implements ITokenViewerService {
     processModelId: string,
     correlationId: string,
     flowNodeId: string,
-    identity: IIdentity
+    identity: IIdentity,
   ): Promise<DataModels.TokenHistory.TokenHistoryGroup | undefined> {
     try {
       const tokenHistory: DataModels.TokenHistory.TokenHistoryGroup = {};
@@ -27,7 +27,7 @@ export class TokenViewerService implements ITokenViewerService {
         processModelId,
         correlationId,
         flowNodeId,
-        identity
+        identity,
       );
 
       tokenHistory[tokenForFlowNodeInstance[0].flowNodeId] = tokenForFlowNodeInstance;
@@ -40,13 +40,13 @@ export class TokenViewerService implements ITokenViewerService {
   public async getTokenForFlowNodeByProcessInstanceId(
     processInstanceId: string,
     flowNodeId: string,
-    identity: IIdentity
+    identity: IIdentity,
   ): Promise<DataModels.TokenHistory.TokenHistoryGroup | undefined> {
     try {
       return await this.tokenViewerRepository.getTokenForFlowNodeByProcessInstanceId(
         processInstanceId,
         flowNodeId,
-        identity
+        identity,
       );
     } catch (error) {
       return undefined;

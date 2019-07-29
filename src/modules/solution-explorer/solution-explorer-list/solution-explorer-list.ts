@@ -1,21 +1,21 @@
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { computedFrom, inject } from 'aurelia-framework';
-import { Router } from 'aurelia-router';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {computedFrom, inject} from 'aurelia-framework';
+import {Router} from 'aurelia-router';
 
-import { IIdentity } from '@essential-projects/iam_contracts';
-import { IDiagram, ISolution } from '@process-engine/solutionexplorer.contracts';
-import { ISolutionExplorerService } from '@process-engine/solutionexplorer.service.contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
+import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 
 import {
   IAuthenticationService,
   ILoginResult,
   ISolutionEntry,
   ISolutionService,
-  IUserIdentity
+  IUserIdentity,
 } from '../../../contracts';
-import { OpenDiagramsSolutionExplorerService } from '../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
-import { SolutionExplorerServiceFactory } from '../../../services/solution-explorer-services/SolutionExplorerServiceFactory';
-import { SolutionExplorerSolution } from '../solution-explorer-solution/solution-explorer-solution';
+import {OpenDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
+import {SolutionExplorerServiceFactory} from '../../../services/solution-explorer-services/SolutionExplorerServiceFactory';
+import {SolutionExplorerSolution} from '../solution-explorer-solution/solution-explorer-solution';
 
 interface IUriToViewModelMap {
   [key: string]: SolutionExplorerSolution;
@@ -27,7 +27,7 @@ interface IUriToViewModelMap {
   'SolutionExplorerServiceFactory',
   'AuthenticationService',
   'SolutionService',
-  'OpenDiagramService'
+  'OpenDiagramService',
 )
 export class SolutionExplorerList {
   public internalSolutionUri: string;
@@ -59,7 +59,7 @@ export class SolutionExplorerList {
     solutionExplorerServiceFactory: SolutionExplorerServiceFactory,
     authenticationService: IAuthenticationService,
     solutionService: ISolutionService,
-    openDiagramService: OpenDiagramsSolutionExplorerService
+    openDiagramService: OpenDiagramsSolutionExplorerService,
   ) {
     this._router = router;
     this._eventAggregator = eventAggregator;
@@ -91,7 +91,7 @@ export class SolutionExplorerList {
       .map(
         (viewModel: SolutionExplorerSolution): Promise<void> => {
           return viewModel.updateSolution();
-        }
+        },
       );
 
     await Promise.all(refreshPromises);
@@ -162,7 +162,7 @@ export class SolutionExplorerList {
       if (uriIsRemote && uriIsNotInternalProcessEngine) {
         const response: Response = await fetch(uri);
 
-        const responseJSON: object & { version: string } = await response.json();
+        const responseJSON: object & {version: string} = await response.json();
 
         const isResponseFromProcessEngine: boolean = responseJSON['name'] === '@process-engine/process_engine_runtime';
         if (!isResponseFromProcessEngine) {
@@ -262,7 +262,7 @@ export class SolutionExplorerList {
 
     const identity: IIdentity = {
       token: result.accessToken,
-      userId: result.idToken
+      userId: result.idToken,
     };
 
     solutionEntry.identity = identity;
@@ -362,7 +362,7 @@ export class SolutionExplorerList {
   @computedFrom(
     '_openedSolutions.length',
     'openDiagramService._openedDiagrams.length',
-    'openDiagramService.isCreatingDiagram'
+    'openDiagramService.isCreatingDiagram',
   )
   public get openedSolutions(): Array<ISolutionEntry> {
     const filteredEntries: Array<ISolutionEntry> = this._openedSolutions.filter(this._shouldDisplaySolution);
@@ -380,7 +380,7 @@ export class SolutionExplorerList {
         }
 
         return solutionA.uri.startsWith('http') && !solutionB.uri.startsWith('http') ? 1 : -1;
-      }
+      },
     );
 
     return sortedEntries;
@@ -463,7 +463,7 @@ export class SolutionExplorerList {
   }
 
   private _shouldDisplaySolution: (value: ISolutionEntry, index: number, array: Array<ISolutionEntry>) => boolean = (
-    entry: ISolutionEntry
+    entry: ISolutionEntry,
   ): boolean => {
     const service: ISolutionExplorerService = entry.service;
 
@@ -493,7 +493,7 @@ export class SolutionExplorerList {
     service: ISolutionExplorerService,
     identity: IIdentity,
     insertAtBeginning: boolean,
-    processEngineVersion?: string
+    processEngineVersion?: string,
   ): Promise<void> {
     const isOpenDiagramService: boolean = this._isOpenDiagramService(service);
     const fontAwesomeIconClass: string = this._getFontAwesomeIconForSolution(service, uri);
@@ -527,7 +527,7 @@ export class SolutionExplorerList {
       isLoggedIn,
       userName,
       processEngineVersion,
-      hidden
+      hidden,
     };
 
     this._solutionService.addSolutionEntry(entry);
@@ -555,7 +555,7 @@ export class SolutionExplorerList {
     // TODO: Get the identity from the IdentityService of `@process-engine/iam`
     const identity: IIdentity = {
       token: accessToken,
-      userId: '' // Provided by the IdentityService.
+      userId: '', // Provided by the IdentityService.
     };
 
     return identity;
@@ -571,8 +571,8 @@ export class SolutionExplorerList {
         referrer: 'no-referrer',
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       const response: Response = await fetch(request);

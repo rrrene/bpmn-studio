@@ -42,7 +42,7 @@ export class UrlUtility {
 
       if (counter++ > 50) {
         return {
-          error: 'Response exceeded expected number of parameters'
+          error: 'Response exceeded expected number of parameters',
         };
       }
     }

@@ -1,16 +1,16 @@
-import { bindable, inject } from 'aurelia-framework';
-import { Router } from 'aurelia-router';
-import { domEventDispatch } from 'dom-event-dispatch';
+import {bindable, inject} from 'aurelia-framework';
+import {Router} from 'aurelia-router';
+import {domEventDispatch} from 'dom-event-dispatch';
 
-import { IIdentity } from '@essential-projects/iam_contracts';
-import { DataModels } from '@process-engine/management_api_contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {DataModels} from '@process-engine/management_api_contracts';
 
-import { IDynamicUiService, ISolutionEntry } from '../../contracts';
+import {IDynamicUiService, ISolutionEntry} from '../../contracts';
 
 enum ButtonClickActions {
   cancel = 'cancel',
   proceed = 'proceed',
-  decline = 'decline'
+  decline = 'decline',
 }
 
 @inject('DynamicUiService', Router, Element)
@@ -46,7 +46,7 @@ export class DynamicUiWrapper {
   public async handleUserTaskButtonClick(
     action: ButtonClickActions,
     userTask: DataModels.UserTasks.UserTask,
-    results: DataModels.UserTasks.UserTaskResult
+    results: DataModels.UserTasks.UserTaskResult,
   ): Promise<void> {
     const actionCanceled: boolean = action === ButtonClickActions.cancel;
 
@@ -81,7 +81,7 @@ export class DynamicUiWrapper {
 
   private _cancelTask(): void {
     if (this.isModal) {
-      domEventDispatch.dispatchEvent(this._element, 'close-modal', { bubbles: true });
+      domEventDispatch.dispatchEvent(this._element, 'close-modal', {bubbles: true});
 
       return;
     }
@@ -92,14 +92,14 @@ export class DynamicUiWrapper {
 
     this._router.navigateToRoute('task-list-correlation', {
       correlationId: correlationId,
-      solutionUri: this._activeSolutionEntry.uri
+      solutionUri: this._activeSolutionEntry.uri,
     });
   }
 
   private _finishUserTask(
     action: ButtonClickActions,
     userTask: DataModels.UserTasks.UserTask,
-    results: DataModels.UserTasks.UserTaskResult
+    results: DataModels.UserTasks.UserTaskResult,
   ): Promise<void> {
     const noUserTaskKnown: boolean = !this.isHandlingUserTask;
 
@@ -107,13 +107,13 @@ export class DynamicUiWrapper {
       return;
     }
 
-    const { correlationId, processInstanceId, flowNodeInstanceId } = userTask;
+    const {correlationId, processInstanceId, flowNodeInstanceId} = userTask;
     this._dynamicUiService.finishUserTask(
       this._identity,
       processInstanceId,
       correlationId,
       flowNodeInstanceId,
-      results
+      results,
     );
 
     this.currentUserTask = undefined;

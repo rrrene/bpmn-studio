@@ -1,4 +1,4 @@
-import { IBpmnXmlSaveOptions } from './IBpmnXmlSaveOptions';
+import {IBpmnXmlSaveOptions} from './IBpmnXmlSaveOptions';
 
 export interface IBpmnModeler {
   _definitions: any;

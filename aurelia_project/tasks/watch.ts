@@ -1,4 +1,4 @@
-import { build } from 'aurelia-cli';
+import {build} from 'aurelia-cli';
 import * as debounce from 'debounce';
 import * as gulp from 'gulp';
 import * as gulpWatch from 'gulp-watch';
@@ -16,12 +16,12 @@ const watches: object = {};
 // tslint:disable-next-line:no-empty
 let watchCallback: () => void = (): void => {};
 
-watches[project.transpiler.source] = { name: 'transpile', callback: transpile };
-watches[project.markupProcessor.source] = { name: 'markup', callback: processMarkup };
-watches[project.cssProcessor.source] = { name: 'CSS', callback: processCSS };
+watches[project.transpiler.source] = {name: 'transpile', callback: transpile};
+watches[project.markupProcessor.source] = {name: 'markup', callback: processMarkup};
+watches[project.cssProcessor.source] = {name: 'CSS', callback: processCSS};
 if (typeof project.build.copyFiles === 'object') {
   for (const src of Object.keys(project.build.copyFiles)) {
-    watches[src] = { name: 'file copy', callback: copyFiles };
+    watches[src] = {name: 'file copy', callback: copyFiles};
   }
 }
 
@@ -31,7 +31,7 @@ const watch: (callback?: any) => void = (callback?: any): void => {
     Object.keys(watches),
     {
       read: false, // performance optimization: do not read actual file contents
-      verbose: true
+      verbose: true,
     },
     (vinyl: any) => {
       if (vinyl.path && vinyl.cwd && vinyl.path.startsWith(vinyl.cwd)) {
@@ -40,7 +40,7 @@ const watch: (callback?: any) => void = (callback?: any): void => {
         pendingRefreshPaths.push(pathToAdd);
         refresh();
       }
-    }
+    },
   );
 };
 
@@ -81,7 +81,7 @@ const refresh: any = debounce(() => {
         log('Watcher: Found more pending changes after finishing build, triggering next one...');
         refresh();
       }
-    }
+    },
   );
 
   toExecute();

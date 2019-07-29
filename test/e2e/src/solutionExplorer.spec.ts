@@ -1,9 +1,9 @@
-import { browser } from 'protractor';
+import {browser} from 'protractor';
 
-import { SimpleDiagram } from './diagrams/simpleDiagram';
-import { DiagramDetail } from './pages/diagramDetail';
-import { RouterView } from './pages/routerView';
-import { SolutionExplorer } from './pages/solutionExplorer';
+import {SimpleDiagram} from './diagrams/simpleDiagram';
+import {DiagramDetail} from './pages/diagramDetail';
+import {RouterView} from './pages/routerView';
+import {SolutionExplorer} from './pages/solutionExplorer';
 
 describe('Solution Explorer', () => {
   let solutionExplorer: SolutionExplorer;

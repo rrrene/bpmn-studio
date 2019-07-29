@@ -2,7 +2,7 @@ import {
   IDiagramValidationRule,
   IDiagramValidationRules,
   IDiagramValidationRuleSet,
-  IDiagramValidator
+  IDiagramValidator,
 } from '../../contracts';
 
 export class DiagramValidator implements IDiagramValidator {
@@ -49,7 +49,7 @@ export class DiagramValidator implements IDiagramValidator {
     const validationsResultPromise: Array<Promise<boolean>> = ruleSet.rules.map(
       (validationRule: IDiagramValidationRule): Promise<boolean> => {
         return validationRule(this._diagramXML);
-      }
+      },
     );
 
     const unifiedPromise: Promise<Array<boolean>> = Promise.all(validationsResultPromise);

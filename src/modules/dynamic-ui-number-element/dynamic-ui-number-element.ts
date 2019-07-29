@@ -1,5 +1,5 @@
-import { bindable } from 'aurelia-framework';
-import { IEnumFormField } from '../../contracts';
+import {bindable} from 'aurelia-framework';
+import {IEnumFormField} from '../../contracts';
 
 export class DynamicUiNumberElement {
   @bindable() public fieldValue: string;

@@ -1,12 +1,12 @@
-import { bindable, inject } from 'aurelia-framework';
-import { Router } from 'aurelia-router';
+import {bindable, inject} from 'aurelia-framework';
+import {Router} from 'aurelia-router';
 
-import { ForbiddenError, isError, UnauthorizedError } from '@essential-projects/errors_ts';
-import { IIdentity } from '@essential-projects/iam_contracts';
-import { IManagementApi } from '@process-engine/management_api_contracts';
+import {ForbiddenError, isError, UnauthorizedError} from '@essential-projects/errors_ts';
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {IManagementApi} from '@process-engine/management_api_contracts';
 
-import { ISolutionEntry, NotificationType } from '../../../contracts/index';
-import { NotificationService } from '../../../services/notification-service/notification.service';
+import {ISolutionEntry, NotificationType} from '../../../contracts/index';
+import {NotificationService} from '../../../services/notification-service/notification.service';
 
 const versionRegex: RegExp = /(\d+)\.(\d+).(\d+)/;
 
@@ -36,7 +36,7 @@ export class Dashboard {
     if (!hasClaimsForProcessList && !hasClaimsForTaskList) {
       this._notificationService.showNotification(
         NotificationType.ERROR,
-        "You don't have the permission to use the dashboard features."
+        "You don't have the permission to use the dashboard features.",
       );
       this._router.navigateToRoute('start-page');
 

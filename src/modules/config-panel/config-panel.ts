@@ -1,11 +1,11 @@
-import { EventAggregator } from 'aurelia-event-aggregator';
-import { inject } from 'aurelia-framework';
-import { Router } from 'aurelia-router';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
+import {Router} from 'aurelia-router';
 
-import { IIdentity } from '@essential-projects/iam_contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
 
-import { IAuthenticationService } from '../../contracts/authentication/IAuthenticationService';
-import { AuthenticationStateEvent, ISolutionEntry, ISolutionService } from '../../contracts/index';
+import {IAuthenticationService} from '../../contracts/authentication/IAuthenticationService';
+import {AuthenticationStateEvent, ISolutionEntry, ISolutionService} from '../../contracts/index';
 
 @inject(Router, 'SolutionService', 'AuthenticationService', EventAggregator)
 export class ConfigPanel {
@@ -22,7 +22,7 @@ export class ConfigPanel {
     router: Router,
     solutionService: ISolutionService,
     authenticationService: IAuthenticationService,
-    eventAggregator: EventAggregator
+    eventAggregator: EventAggregator,
   ) {
     this._router = router;
     this._solutionService = solutionService;
@@ -46,7 +46,7 @@ export class ConfigPanel {
 
     const userIsLoggedIn: boolean = await this._authenticationService.isLoggedIn(
       this.internalSolution.authority,
-      this.internalSolution.identity
+      this.internalSolution.identity,
     );
 
     if (userIsLoggedIn) {
@@ -82,8 +82,8 @@ export class ConfigPanel {
       referrer: 'no-referrer',
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
 
     const response: Response = await fetch(request);
@@ -117,7 +117,7 @@ export class ConfigPanel {
     // TODO: Get the identity from the IdentityService of `@process-engine/iam`
     const identity: IIdentity = {
       token: accessToken,
-      userId: '' // Provided by the IdentityService.
+      userId: '', // Provided by the IdentityService.
     };
 
     return identity;

@@ -1,5 +1,5 @@
-import { IExportService, ISvgConvertService } from '../../../../contracts/index';
-import { ExportService } from './export.service';
+import {IExportService, ISvgConvertService} from '../../../../contracts/index';
+import {ExportService} from './export.service';
 
 export class DiagramSvgConverter implements ISvgConvertService {
   private _enqueuedPromises: Array<Promise<string>> = [];
@@ -109,7 +109,7 @@ export class DiagramSvgConverter implements ISvgConvertService {
     svgWidth: number,
     svgHeight: number,
     targetDPI: number,
-    diagonalSize: number
+    diagonalSize: number,
   ): number {
     const square: Function = (num: number): number => num * num;
 
@@ -137,7 +137,7 @@ export class DiagramSvgConverter implements ISvgConvertService {
     svgContent: string,
     canvas: HTMLCanvasElement,
     context: CanvasRenderingContext2D,
-    encoding: string
+    encoding: string,
   ): Promise<string> {
     const imageElement: HTMLImageElement = document.createElement('img');
 

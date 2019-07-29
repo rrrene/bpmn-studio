@@ -1,6 +1,6 @@
-import { browser, by, element, ElementFinder, ExpectedConditions } from 'protractor';
+import {browser, by, element, ElementFinder, ExpectedConditions} from 'protractor';
 
-import { By } from 'selenium-webdriver';
+import {By} from 'selenium-webdriver';
 
 export class SolutionExplorer {
   private _diagramIdIdentifier: string = 'diagramList-';
@@ -9,7 +9,7 @@ export class SolutionExplorer {
   public async show(): Promise<void> {
     await browser.wait(
       ExpectedConditions.visibilityOf(this._solutionExplorerPanelContainer),
-      browser.params.defaultTimeoutMS
+      browser.params.defaultTimeoutMS,
     );
   }
 

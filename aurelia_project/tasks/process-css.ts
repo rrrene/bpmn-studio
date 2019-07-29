@@ -1,4 +1,4 @@
-import { build } from 'aurelia-cli';
+import {build} from 'aurelia-cli';
 import * as gulp from 'gulp';
 import * as sass from 'gulp-sass';
 import * as sourcemaps from 'gulp-sourcemaps';

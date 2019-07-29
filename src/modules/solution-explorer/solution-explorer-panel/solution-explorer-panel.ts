@@ -1,22 +1,16 @@
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { bindable, inject, observable } from 'aurelia-framework';
-import { Router } from 'aurelia-router';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {bindable, inject, observable} from 'aurelia-framework';
+import {Router} from 'aurelia-router';
 
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import {
-  AuthenticationStateEvent,
-  IFile,
-  IInputEvent,
-  ISolutionEntry,
-  ISolutionService
-} from '../../../contracts/index';
-import { NotificationType } from '../../../contracts/index';
+import {AuthenticationStateEvent, IFile, IInputEvent, ISolutionEntry, ISolutionService} from '../../../contracts/index';
+import {NotificationType} from '../../../contracts/index';
 import environment from '../../../environment';
-import { NotificationService } from '../../../services/notification-service/notification.service';
-import { SolutionExplorerList } from '../solution-explorer-list/solution-explorer-list';
+import {NotificationService} from '../../../services/notification-service/notification.service';
+import {SolutionExplorerList} from '../solution-explorer-list/solution-explorer-list';
 
-type RemoteSolutionUriWithStatus = { uri: string; status: boolean };
+type RemoteSolutionUriWithStatus = {uri: string; status: boolean};
 
 /**
  * This component handels:
@@ -54,7 +48,7 @@ export class SolutionExplorerPanel {
     eventAggregator: EventAggregator,
     notificationService: NotificationService,
     router: Router,
-    solutionService: ISolutionService
+    solutionService: ISolutionService,
   ) {
     this._eventAggregator = eventAggregator;
     this._notificationService = notificationService;
@@ -133,7 +127,7 @@ export class SolutionExplorerPanel {
       }),
       this._eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
         this.solutionExplorerList.refreshSolutions();
-      })
+      }),
     ];
   }
 
@@ -204,7 +198,7 @@ export class SolutionExplorerPanel {
       .map((solutionUri: string) => {
         return {
           uri: solutionUri,
-          status: this.remoteSolutionHistoryStatus.get(solutionUri)
+          status: this.remoteSolutionHistoryStatus.get(solutionUri),
         };
       });
   }
@@ -358,7 +352,7 @@ export class SolutionExplorerPanel {
         } catch {
           this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, false);
         }
-      }
+      },
     );
   }
 
@@ -511,7 +505,7 @@ export class SolutionExplorerPanel {
     const openingPromises: Array<Promise<void>> = urisToOpen.map(
       (uri: string): Promise<void> => {
         return this._openDiagramOrDisplayError(uri);
-      }
+      },
     );
 
     await Promise.all(openingPromises);
@@ -522,7 +516,7 @@ export class SolutionExplorerPanel {
     await this._router.navigateToRoute('design', {
       diagramName: diagram.name,
       diagramUri: diagram.uri,
-      solutionUri: solution.uri
+      solutionUri: solution.uri,
     });
   }
 }

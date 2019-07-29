@@ -1,12 +1,12 @@
-import { bindable, computedFrom, inject } from 'aurelia-framework';
+import {bindable, computedFrom, inject} from 'aurelia-framework';
 
-import { ManagementApiClientService } from '@process-engine/management_api_client';
-import { DataModels } from '@process-engine/management_api_contracts';
+import {ManagementApiClientService} from '@process-engine/management_api_client';
+import {DataModels} from '@process-engine/management_api_contracts';
 
-import { ISolutionEntry, NotificationType } from '../../../contracts/index';
+import {ISolutionEntry, NotificationType} from '../../../contracts/index';
 import environment from '../../../environment';
-import { getBeautifiedDate } from '../../../services/date-service/date.service';
-import { NotificationService } from '../../../services/notification-service/notification.service';
+import {getBeautifiedDate} from '../../../services/date-service/date.service';
+import {NotificationService} from '../../../services/notification-service/notification.service';
 
 @inject('ManagementApiClientService', 'NotificationService')
 export class CronjobList {
@@ -75,7 +75,7 @@ export class CronjobList {
     } catch (error) {
       this._notificationService.showNotification(
         NotificationType.ERROR,
-        `Error receiving process list: ${error.message}`
+        `Error receiving process list: ${error.message}`,
       );
       this.requestSuccessful = false;
     }
@@ -97,7 +97,7 @@ export class CronjobList {
 
   private _sortCronjobs(
     firstCronjob: DataModels.Cronjobs.CronjobConfiguration,
-    secondCronjob: DataModels.Cronjobs.CronjobConfiguration
+    secondCronjob: DataModels.Cronjobs.CronjobConfiguration,
   ): number {
     return firstCronjob.nextExecution.getTime() - secondCronjob.nextExecution.getTime();
   }

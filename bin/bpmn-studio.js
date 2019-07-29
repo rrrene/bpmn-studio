@@ -15,7 +15,7 @@ const httpServerOptions = {
   hostname: hostUsed,
   port: portUsed,
   path: __dirname + './..',
-  indexPath: 'index.html'
+  indexPath: 'index.html',
 };
 
 pushserve(httpServerOptions);

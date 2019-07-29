@@ -1,4 +1,4 @@
-import { build as buildCLI, CLIOptions } from 'aurelia-cli';
+import {build as buildCLI, CLIOptions} from 'aurelia-cli';
 import * as gulp from 'gulp';
 import * as project from '../aurelia.json';
 import copyFiles from './copy-files';
@@ -10,7 +10,7 @@ import watch from './watch';
 const build: any = gulp.series(
   readProjectConfiguration,
   gulp.parallel(transpile, processMarkup, processCSS, copyFiles),
-  writeBundles
+  writeBundles,
 );
 
 let main: any;
@@ -32,4 +32,4 @@ function writeBundles(): any {
   return buildCLI.dest();
 }
 
-export { main as default };
+export {main as default};

@@ -1,20 +1,20 @@
-import { EventAggregator } from 'aurelia-event-aggregator';
-import { inject } from 'aurelia-framework';
-import { OpenIdConnect } from 'aurelia-open-id-connect';
-import { Router } from 'aurelia-router';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
+import {OpenIdConnect} from 'aurelia-open-id-connect';
+import {Router} from 'aurelia-router';
 
-import { IIdentity } from '@essential-projects/iam_contracts';
-import { User } from 'oidc-client';
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {User} from 'oidc-client';
 
 import {
   AuthenticationStateEvent,
   IAuthenticationService,
   ILoginResult,
   IUserIdentity,
-  NotificationType
+  NotificationType,
 } from '../../contracts/index';
-import { oidcConfig } from '../../open-id-connect-configuration';
-import { NotificationService } from './../../services/notification-service/notification.service';
+import {oidcConfig} from '../../open-id-connect-configuration';
+import {NotificationService} from './../../services/notification-service/notification.service';
 
 const UNAUTHORIZED_STATUS_CODE: number = 401;
 const IDENTITY_SERVER_AVAILABLE_SUCCESS_STATUS_CODE: number = 200;
@@ -33,7 +33,7 @@ export class WebOidcAuthenticationService implements IAuthenticationService {
   constructor(
     eventAggregator: EventAggregator,
     notificationService: NotificationService,
-    openIdConnect: OpenIdConnect
+    openIdConnect: OpenIdConnect,
   ) {
     this._eventAggregator = eventAggregator;
     this._notificationService = notificationService;
@@ -71,7 +71,7 @@ export class WebOidcAuthenticationService implements IAuthenticationService {
       identity: await this.getUserIdentity(authority),
       accessToken: await this._getAccessToken(authority),
       // The idToken is provided by the oidc service when making requests and therefore not set here.
-      idToken: ''
+      idToken: '',
     };
 
     return loginResult;
@@ -105,8 +105,8 @@ export class WebOidcAuthenticationService implements IAuthenticationService {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`
-      }
+        Authorization: `Bearer ${accessToken}`,
+      },
     });
 
     const response: Response = await fetch(request);
@@ -125,8 +125,8 @@ export class WebOidcAuthenticationService implements IAuthenticationService {
       referrer: 'no-referrer',
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
 
     let response: Response;

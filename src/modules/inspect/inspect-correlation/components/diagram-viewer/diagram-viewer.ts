@@ -1,11 +1,11 @@
-import { bindable, inject } from 'aurelia-framework';
+import {bindable, inject} from 'aurelia-framework';
 
-import { IShape } from '@process-engine/bpmn-elements_contracts';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
-import { DataModels } from '@process-engine/management_api_contracts';
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
+import {DataModels} from '@process-engine/management_api_contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
 import {
   defaultBpmnColors,
   IBpmnModeler,
@@ -16,11 +16,11 @@ import {
   IElementRegistry,
   IEvent,
   IModeling,
-  NotificationType
+  NotificationType,
 } from '../../../../../contracts/index';
 import environment from '../../../../../environment';
-import { NotificationService } from '../../../../../services/notification-service/notification.service';
-import { DiagramExportService } from '../../../../design/bpmn-io/services/index';
+import {NotificationService} from '../../../../../services/notification-service/notification.service';
+import {DiagramExportService} from '../../../../design/bpmn-io/services/index';
 
 @inject('NotificationService', EventAggregator)
 export class DiagramViewer {
@@ -51,7 +51,7 @@ export class DiagramViewer {
   public attached(): void {
     this._diagramModeler = new bundle.modeler();
     this._diagramViewer = new bundle.viewer({
-      additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule]
+      additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule],
     });
 
     this._modeling = this._diagramModeler.get('modeling');
@@ -76,7 +76,7 @@ export class DiagramViewer {
         } catch (error) {
           this._notificationService.showNotification(
             NotificationType.ERROR,
-            'An error occurred while preparing the diagram for exporting'
+            'An error occurred while preparing the diagram for exporting',
           );
         }
       }),
@@ -91,7 +91,7 @@ export class DiagramViewer {
         } catch (error) {
           this._notificationService.showNotification(
             NotificationType.ERROR,
-            'An error occurred while preparing the diagram for exporting'
+            'An error occurred while preparing the diagram for exporting',
           );
         }
       }),
@@ -106,7 +106,7 @@ export class DiagramViewer {
         } catch (error) {
           this._notificationService.showNotification(
             NotificationType.ERROR,
-            'An error occurred while preparing the diagram for exporting'
+            'An error occurred while preparing the diagram for exporting',
           );
         }
       }),
@@ -121,10 +121,10 @@ export class DiagramViewer {
         } catch (error) {
           this._notificationService.showNotification(
             NotificationType.ERROR,
-            'An error occurred while preparing the diagram for exporting'
+            'An error occurred while preparing the diagram for exporting',
           );
         }
-      })
+      }),
     ];
   }
 
@@ -248,14 +248,14 @@ export class DiagramViewer {
 
     this._modeling.setColor(elementsWithColor, {
       stroke: defaultBpmnColors.none.border,
-      fill: defaultBpmnColors.none.fill
+      fill: defaultBpmnColors.none.fill,
     });
   }
 
   private _colorElement(element: IShape, color: IColorPickerColor): void {
     this._modeling.setColor(element, {
       stroke: color.border,
-      fill: color.fill
+      fill: color.fill,
     });
   }
 
@@ -287,7 +287,7 @@ export class DiagramViewer {
   private async _getXmlFromModeler(): Promise<string> {
     const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
       const xmlSaveOptions: IBpmnXmlSaveOptions = {
-        format: true
+        format: true,
       };
 
       this._diagramModeler.saveXML(xmlSaveOptions, async (saveXmlError: Error, xml: string) => {
@@ -306,7 +306,7 @@ export class DiagramViewer {
 
   private async _getSVG(): Promise<string> {
     const returnPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
-      this._diagramViewer.saveSVG({ format: true }, (error: Error, result: string) => {
+      this._diagramViewer.saveSVG({format: true}, (error: Error, result: string) => {
         if (error) {
           reject(error);
         }

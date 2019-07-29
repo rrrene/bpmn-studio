@@ -1,4 +1,4 @@
-import { ISvgConvertService, IXmlConvertService } from './index';
+import {ISvgConvertService, IXmlConvertService} from './index';
 
 export interface IDiagramExportService {
   loadXML(xml: string): IXmlConvertService;

@@ -1,11 +1,11 @@
-import { inject } from 'aurelia-framework';
+import {inject} from 'aurelia-framework';
 
-import { IHttpClient } from '@essential-projects/http_contracts';
-import { SolutionExplorerFileSystemRepository } from '@process-engine/solutionexplorer.repository.filesystem';
-import { SolutionExplorerManagementApiRepository } from '@process-engine/solutionexplorer.repository.management_api';
-import { SolutionExplorerService } from '@process-engine/solutionexplorer.service';
-import { ISolutionExplorerService } from '@process-engine/solutionexplorer.service.contracts';
-import { DiagramTrashFolderService } from './DiagramTrashFolderService';
+import {IHttpClient} from '@essential-projects/http_contracts';
+import {SolutionExplorerFileSystemRepository} from '@process-engine/solutionexplorer.repository.filesystem';
+import {SolutionExplorerManagementApiRepository} from '@process-engine/solutionexplorer.repository.management_api';
+import {SolutionExplorerService} from '@process-engine/solutionexplorer.service';
+import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
+import {DiagramTrashFolderService} from './DiagramTrashFolderService';
 
 /**
  * This factory provides new instances of different solution explorer services.
@@ -24,7 +24,7 @@ export class SolutionExplorerServiceFactory {
     const diagramTrashFolder: string = this._diagramTrashFolderService.getDiagramTrashFolder();
 
     const fileSystemRepository: SolutionExplorerFileSystemRepository = new SolutionExplorerFileSystemRepository(
-      diagramTrashFolder
+      diagramTrashFolder,
     );
     const createdService: SolutionExplorerService = new SolutionExplorerService(fileSystemRepository);
 
@@ -33,7 +33,7 @@ export class SolutionExplorerServiceFactory {
 
   public async newManagementApiSolutionExplorer(): Promise<ISolutionExplorerService> {
     const managementApiRepository: SolutionExplorerManagementApiRepository = new SolutionExplorerManagementApiRepository(
-      this._httpClient
+      this._httpClient,
     );
     const createdService: SolutionExplorerService = new SolutionExplorerService(managementApiRepository);
 

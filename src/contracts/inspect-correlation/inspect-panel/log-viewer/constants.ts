@@ -3,5 +3,5 @@ export enum LogSortProperty {
   FlowNodeInstanceId = 'flowNodeInstanceId',
   LogLevel = 'logLevel',
   Message = 'message',
-  Time = 'timestamp'
+  Time = 'timestamp',
 }

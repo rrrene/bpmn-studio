@@ -1,6 +1,6 @@
-import { EventAggregator } from 'aurelia-event-aggregator';
-import { inject } from 'aurelia-framework';
-import { ValidateEvent, ValidationController, ValidationRules } from 'aurelia-validation';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
+import {ValidateEvent, ValidationController, ValidationRules} from 'aurelia-validation';
 
 import {
   IEnumValue,
@@ -8,10 +8,10 @@ import {
   IForm,
   IFormElement,
   IModdleElement,
-  IShape
+  IShape,
 } from '@process-engine/bpmn-elements_contracts';
 
-import { IBpmnModdle, IBpmnModeler, IElementRegistry, IPageModel, ISection } from '../../../../../../../contracts';
+import {IBpmnModdle, IBpmnModeler, IElementRegistry, IPageModel, ISection} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
 enum FormfieldTypes {
@@ -21,7 +21,7 @@ enum FormfieldTypes {
   boolean = 'boolean',
   date = 'date',
   enum = 'enum',
-  custom_type = 'custom type'
+  custom_type = 'custom type',
 }
 
 @inject(ValidationController, EventAggregator)
@@ -88,9 +88,9 @@ export class BasicsSection implements ISection {
   }
 
   public addEnumValue(): void {
-    const enumValue: { id: string; value: string } = {
+    const enumValue: {id: string; value: string} = {
       id: `Value_${this._generateRandomId()}`,
-      value: ''
+      value: '',
     };
     const bpmnValue: IEnumValue = this._bpmnModdle.create('camunda:Value', enumValue);
 
@@ -138,7 +138,7 @@ export class BasicsSection implements ISection {
     const bpmnFormObject: IForm = {
       id: `Form_${this._generateRandomId()}`,
       label: '',
-      defaultValue: ''
+      defaultValue: '',
     };
     const bpmnForm: IForm = this._bpmnModdle.create('camunda:FormField', bpmnFormObject);
 
@@ -238,7 +238,7 @@ export class BasicsSection implements ISection {
     const bpmnFormFieldObject: IForm = {
       id: `Form_${this._generateRandomId()}`,
       label: '',
-      defaultValue: ''
+      defaultValue: '',
     };
     const bpmnForm: IForm = this._bpmnModdle.create('camunda:FormField', bpmnFormFieldObject);
 
@@ -388,17 +388,17 @@ export class BasicsSection implements ISection {
   private _createExtensionElement(): void {
     const values: Array<IFormElement> = [];
     const fields: Array<IForm> = [];
-    const formData: IFormElement = this._bpmnModdle.create('camunda:FormData', { fields: fields });
+    const formData: IFormElement = this._bpmnModdle.create('camunda:FormData', {fields: fields});
     values.push(formData);
 
     this.businessObjInPanel.formKey = 'Form Key';
-    const extensionElements: IModdleElement = this._bpmnModdle.create('bpmn:ExtensionElements', { values: values });
+    const extensionElements: IModdleElement = this._bpmnModdle.create('bpmn:ExtensionElements', {values: values});
     this.businessObjInPanel.extensionElements = extensionElements;
   }
 
   private _createEmptyFormData(): void {
     const fields: Array<IModdleElement> = [];
-    const extensionFormElement: IModdleElement = this._bpmnModdle.create('camunda:FormData', { fields: fields });
+    const extensionFormElement: IModdleElement = this._bpmnModdle.create('camunda:FormData', {fields: fields});
     this.businessObjInPanel.extensionElements.values.push(extensionFormElement);
   }
 

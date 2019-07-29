@@ -1,9 +1,9 @@
-import { browser, protractor, ProtractorExpectedConditions } from 'protractor';
+import {browser, protractor, ProtractorExpectedConditions} from 'protractor';
 
-import { Dashboard } from './pages/dashboard';
-import { NavBar } from './pages/navBar';
-import { RouterView } from './pages/routerView';
-import { SolutionExplorer } from './pages/solutionExplorer';
+import {Dashboard} from './pages/dashboard';
+import {NavBar} from './pages/navBar';
+import {RouterView} from './pages/routerView';
+import {SolutionExplorer} from './pages/solutionExplorer';
 
 describe('NavBar', () => {
   let dashboard: Dashboard;

@@ -1,6 +1,6 @@
-import { IShape } from '@process-engine/bpmn-elements_contracts';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
 
-import { IViewbox } from './IViewbox';
+import {IViewbox} from './IViewbox';
 
 export interface ICanvas {
   _container: HTMLElement;

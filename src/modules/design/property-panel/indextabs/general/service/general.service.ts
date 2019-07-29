@@ -1,8 +1,8 @@
-import { inject } from 'aurelia-framework';
+import {inject} from 'aurelia-framework';
 
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import { GeneralRepository } from '../repository/general.repository';
+import {GeneralRepository} from '../repository/general.repository';
 
 @inject(GeneralRepository)
 export class GeneralService {

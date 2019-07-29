@@ -4,10 +4,10 @@
  * You should have the server up and running before executing this task. e.g. run `au run`, otherwise the
  * protractor calls will fail.
  */
-import { CLIOptions } from 'aurelia-cli';
+import {CLIOptions} from 'aurelia-cli';
 import * as del from 'del';
 import * as gulp from 'gulp';
-import { protractor } from 'gulp-protractor';
+import {protractor} from 'gulp-protractor';
 import * as typescript from 'gulp-typescript';
 import * as tsConfig from './../../tsconfig.json';
 import * as project from './../aurelia.json';
@@ -18,7 +18,7 @@ function clean(): Promise<Array<string>> {
 
 function build_tests(): NodeJS.ReadWriteStream {
   const compilerOptionsCopy: any = Object.assign({}, tsConfig.compilerOptions, {
-    module: 'commonjs'
+    module: 'commonjs',
   });
   const typescriptCompiler: typescript.Project = typescript.createProject(compilerOptionsCopy);
 
@@ -34,8 +34,8 @@ function e2eDocker(): NodeJS.ReadWriteStream {
     .pipe(
       protractor({
         configFile: 'test/protractor.conf.js',
-        args: ['--baseUrl', 'http://127.0.0.1:9000']
-      })
+        args: ['--baseUrl', 'http://127.0.0.1:9000'],
+      }),
     )
     .on('end', () => {
       process.exit();

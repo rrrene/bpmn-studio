@@ -1,10 +1,10 @@
-import { browser } from 'protractor';
+import {browser} from 'protractor';
 
-import { DiagramWithUserTask } from './diagrams/diagramWithUserTask';
-import { DiagramDetail } from './pages/diagramDetail';
-import { ProcessList } from './pages/processList';
-import { RouterView } from './pages/routerView';
-import { TaskList } from './pages/taskList';
+import {DiagramWithUserTask} from './diagrams/diagramWithUserTask';
+import {DiagramDetail} from './pages/diagramDetail';
+import {ProcessList} from './pages/processList';
+import {RouterView} from './pages/routerView';
+import {TaskList} from './pages/taskList';
 
 describe('Process List', () => {
   let processList: ProcessList;

@@ -1,15 +1,15 @@
-import { EventAggregator } from 'aurelia-event-aggregator';
-import { inject } from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
 
 import {
   IExtensionElement,
   IModdleElement,
   IPropertiesElement,
   IProperty,
-  IShape
+  IShape,
 } from '@process-engine/bpmn-elements_contracts';
 
-import { IBpmnModdle, IPageModel, ISection } from '../../../../../../../contracts';
+import {IBpmnModdle, IPageModel, ISection} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
 @inject(EventAggregator)
@@ -54,7 +54,7 @@ export class BasicsSection implements ISection {
 
     const bpmnPropertyProperties: Object = {
       name: '',
-      value: ''
+      value: '',
     };
     const bpmnProperty: IProperty = this._moddle.create('camunda:Property', bpmnPropertyProperties);
 
@@ -136,7 +136,7 @@ export class BasicsSection implements ISection {
           return;
         }
         return element.$type === 'camunda:Properties';
-      }
+      },
     );
 
     delete this._businessObjInPanel.extensionElements.values[indexOfPropertiesElement];
@@ -189,7 +189,7 @@ export class BasicsSection implements ISection {
           extensionValue.values.length !== 0;
 
         return extensionIsPropertyElement;
-      }
+      },
     );
 
     const extensionElementHasNoPropertyElement: boolean = extensionsPropertiesElement === undefined;
@@ -234,7 +234,7 @@ export class BasicsSection implements ISection {
           extensionValue.values !== null;
 
         return extensionIsPropertiesElement;
-      }
+      },
     );
 
     return propertiesElement;
@@ -243,11 +243,11 @@ export class BasicsSection implements ISection {
   private _createExtensionElement(): void {
     const extensionValues: Array<IModdleElement> = [];
     const properties: Array<IProperty> = [];
-    const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', { values: properties });
+    const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', {values: properties});
     extensionValues.push(propertiesElement);
 
     const extensionElements: IModdleElement = this._moddle.create('bpmn:ExtensionElements', {
-      values: extensionValues
+      values: extensionValues,
     });
     this._businessObjInPanel.extensionElements = extensionElements;
   }
@@ -259,7 +259,7 @@ export class BasicsSection implements ISection {
     const emptyProperties: Array<IProperty> = [];
 
     const createCamundaProperties: () => IPropertiesElement = (): IPropertiesElement =>
-      this._moddle.create('camunda:Properties', { values: emptyProperties });
+      this._moddle.create('camunda:Properties', {values: emptyProperties});
 
     addPropertiesElement(createCamundaProperties());
   }

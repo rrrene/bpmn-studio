@@ -1,7 +1,7 @@
-import { IShape } from '@process-engine/bpmn-elements_contracts';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
 
-import { IOverlay } from './IOverlay';
-import { IOverlayDescriptor } from './IOverlayDescriptor';
+import {IOverlay} from './IOverlay';
+import {IOverlayDescriptor} from './IOverlayDescriptor';
 
 export interface IOverlayManager {
   _overlays: Map<string, IOverlay>;

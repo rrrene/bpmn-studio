@@ -1,13 +1,13 @@
-import { inject } from 'aurelia-framework';
-import { Router } from 'aurelia-router';
+import {inject} from 'aurelia-framework';
+import {Router} from 'aurelia-router';
 
-import { ForbiddenError, isError, UnauthorizedError } from '@essential-projects/errors_ts';
-import { IManagementApi } from '@process-engine/management_api_contracts';
+import {ForbiddenError, isError, UnauthorizedError} from '@essential-projects/errors_ts';
+import {IManagementApi} from '@process-engine/management_api_contracts';
 
-import { IIdentity } from '@essential-projects/iam_contracts';
-import { ISolutionEntry, ISolutionService, NotificationType } from '../../contracts/index';
-import { NotificationService } from '../../services/notification-service/notification.service';
-import { TaskList } from '../inspect/task-list/task-list';
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
+import {NotificationService} from '../../services/notification-service/notification.service';
+import {TaskList} from '../inspect/task-list/task-list';
 
 interface ITaskListRouteParameters {
   processModelId?: string;
@@ -30,7 +30,7 @@ export class TaskListContainer {
     notificationService: NotificationService,
     router: Router,
     managementApiService: IManagementApi,
-    solutionService: ISolutionService
+    solutionService: ISolutionService,
   ) {
     this._notificationService = notificationService;
     this._router = router;
@@ -56,7 +56,7 @@ export class TaskListContainer {
     if (hasNoClaimsForTaskList) {
       this._notificationService.showNotification(
         NotificationType.ERROR,
-        "You don't have the permission to use the inspect features."
+        "You don't have the permission to use the inspect features.",
       );
       this._router.navigateToRoute('start-page');
 

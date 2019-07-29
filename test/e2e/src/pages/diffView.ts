@@ -1,6 +1,6 @@
-import { browser, by, element, ElementArrayFinder, ElementFinder, ExpectedConditions } from 'protractor';
+import {browser, by, element, ElementArrayFinder, ElementFinder, ExpectedConditions} from 'protractor';
 
-import { By } from 'selenium-webdriver';
+import {By} from 'selenium-webdriver';
 
 const diffAgainstOtherDiagramButtonId: string = 'js-diff-against-other-diagramButton';
 const diffViewContainerId: string = 'js-diagram-diffContainer';

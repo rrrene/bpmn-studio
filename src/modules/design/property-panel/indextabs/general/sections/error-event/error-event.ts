@@ -1,5 +1,5 @@
-import { EventAggregator } from 'aurelia-event-aggregator';
-import { inject } from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
 
 import {
   IError,
@@ -7,7 +7,7 @@ import {
   IErrorEventElement,
   IEventElement,
   IModdleElement,
-  IShape
+  IShape,
 } from '@process-engine/bpmn-elements_contracts';
 
 import {
@@ -16,10 +16,10 @@ import {
   IElementRegistry,
   ILinting,
   IPageModel,
-  ISection
+  ISection,
 } from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
-import { GeneralService } from '../../service/general.service';
+import {GeneralService} from '../../service/general.service';
 
 @inject(GeneralService, EventAggregator)
 export class ErrorEventSection implements ISection {
@@ -105,9 +105,9 @@ export class ErrorEventSection implements ISection {
   }
 
   public async addError(): Promise<void> {
-    const bpmnErrorObject: { id: string; name: string } = {
+    const bpmnErrorObject: {id: string; name: string} = {
       id: `Error_${this._generalService.generateRandomId()}`,
-      name: 'Error Name'
+      name: 'Error Name',
     };
     const bpmnError: IError = this._moddle.create('bpmn:Error', bpmnErrorObject);
 

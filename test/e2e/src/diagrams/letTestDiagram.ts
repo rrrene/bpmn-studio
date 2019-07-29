@@ -1,7 +1,7 @@
-import { browser } from 'protractor';
-import { HttpClient } from 'protractor-http-client';
+import {browser} from 'protractor';
+import {HttpClient} from 'protractor-http-client';
 
-import { IRequestHeaders, IRequestPayload } from '../contracts/index';
+import {IRequestHeaders, IRequestPayload} from '../contracts/index';
 
 export class LETTestDiagram {
   public name: string = 'let_test';
@@ -238,7 +238,7 @@ export class LETTestDiagram {
               </bpmndi:BPMNEdge>
             </bpmndi:BPMNPlane>
           </bpmndi:BPMNDiagram>
-        </bpmn:definitions>`
+        </bpmn:definitions>`,
     };
 
     const requestHeaders: IRequestHeaders = this._getRequestHeaders();
@@ -282,7 +282,7 @@ export class LETTestDiagram {
 
   private _getRequestHeaders(): IRequestHeaders {
     const requestHeaders: IRequestHeaders = {
-      authorization: 'Bearer ZHVtbXlfdG9rZW4='
+      authorization: 'Bearer ZHVtbXlfdG9rZW4=',
     };
 
     return requestHeaders;

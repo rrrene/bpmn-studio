@@ -1,12 +1,12 @@
-import { inject } from 'aurelia-framework';
+import {inject} from 'aurelia-framework';
 
-import { IIdentity } from '@essential-projects/iam_contracts';
-import { IDiagram, ISolution } from '@process-engine/solutionexplorer.contracts';
-import { ISolutionExplorerService } from '@process-engine/solutionexplorer.service.contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
+import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 
-import { IDiagramState, IDiagramValidationService, ISolutionService } from '../../contracts';
-import { OpenDiagramStateService } from './OpenDiagramStateService';
-import { SolutionExplorerServiceFactory } from './SolutionExplorerServiceFactory';
+import {IDiagramState, IDiagramValidationService, ISolutionService} from '../../contracts';
+import {OpenDiagramStateService} from './OpenDiagramStateService';
+import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
 
 /**
  * This service allows to keep all opened open diagrams inside a solution.
@@ -36,7 +36,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     validationService: IDiagramValidationService,
     serviceFactory: SolutionExplorerServiceFactory,
     solutionService: ISolutionService,
-    openDiagramStateService: OpenDiagramStateService
+    openDiagramStateService: OpenDiagramStateService,
   ) {
     this._validationService = validationService;
     this._setSolutionExplorer(serviceFactory);
@@ -73,7 +73,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     const solution: ISolution = {
       diagrams: this._openedDiagrams,
       name: this._nameOfOpenDiagramService,
-      uri: this._uriOfOpenDiagramService
+      uri: this._uriOfOpenDiagramService,
     };
     return Promise.resolve(solution);
   }
@@ -106,7 +106,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
       diagram = {
         name: filenameWithoutEnding,
         xml: diagramState.data.xml,
-        uri: uri
+        uri: uri,
       };
     } else {
       await this._solutionExplorerToOpenDiagrams.openSolution(filepath, identity);

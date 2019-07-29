@@ -1,7 +1,7 @@
-import { EventAggregator } from 'aurelia-event-aggregator';
-import { inject } from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
 
-import { IIdentity } from '@essential-projects/iam_contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
 
 import {
   AuthenticationStateEvent,
@@ -9,10 +9,10 @@ import {
   ILoginResult,
   ITokenObject,
   IUserIdentity,
-  NotificationType
+  NotificationType,
 } from '../../contracts/index';
 
-import { NotificationService } from '../../services/notification-service/notification.service';
+import {NotificationService} from '../../services/notification-service/notification.service';
 
 const UNAUTHORIZED_STATUS_CODE: number = 401;
 const IDENTITY_SERVER_AVAILABLE_SUCCESS_STATUS_CODE: number = 200;
@@ -59,14 +59,14 @@ export class ElectronOidcAuthenticationService implements IAuthenticationService
         ipcRenderer.on('oidc-login-reply', async (event: any, tokenObject: ITokenObject) => {
           const iamIdentity: IIdentity = {
             token: tokenObject.accessToken,
-            userId: tokenObject.idToken
+            userId: tokenObject.idToken,
           };
           const identity: IUserIdentity = await this.getUserIdentity(authority, iamIdentity);
 
           const loginResult: ILoginResult = {
             identity: identity,
             accessToken: tokenObject.accessToken,
-            idToken: tokenObject.idToken
+            idToken: tokenObject.idToken,
           };
 
           this._eventAggregator.publish(AuthenticationStateEvent.LOGIN);
@@ -77,7 +77,7 @@ export class ElectronOidcAuthenticationService implements IAuthenticationService
         });
 
         ipcRenderer.send('oidc-login', authority);
-      }
+      },
     );
 
     return loginResultPromise;
@@ -107,8 +107,8 @@ export class ElectronOidcAuthenticationService implements IAuthenticationService
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${identity.token}`
-      }
+        Authorization: `Bearer ${identity.token}`,
+      },
     });
 
     const userInfoResponse: Response = await fetch(userInfoRequest);
@@ -128,8 +128,8 @@ export class ElectronOidcAuthenticationService implements IAuthenticationService
       referrer: 'no-referrer',
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
 
     let configResponse: Response;

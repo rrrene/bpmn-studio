@@ -1,11 +1,11 @@
-import { inject } from 'aurelia-framework';
+import {inject} from 'aurelia-framework';
 
-import { IModdleElement, IProcessRef } from '@process-engine/bpmn-elements_contracts';
+import {IModdleElement, IProcessRef} from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import { IBpmnModeler, IDiagramCreationService, NotificationType } from '../../contracts/index';
-import { NotificationService } from '../notification-service/notification.service';
+import {IBpmnModeler, IDiagramCreationService, NotificationType} from '../../contracts/index';
+import {NotificationService} from '../notification-service/notification.service';
 
 @inject('NotificationService')
 export class DiagramCreationService implements IDiagramCreationService {
@@ -28,7 +28,7 @@ export class DiagramCreationService implements IDiagramCreationService {
       id: processName,
       name: processName,
       uri: diagramUri,
-      xml: processXML
+      xml: processXML,
     };
 
     return diagram;
@@ -64,7 +64,7 @@ export class DiagramCreationService implements IDiagramCreationService {
           if (errorOccured) {
             this._notificationService.showNotification(
               NotificationType.ERROR,
-              `Failed to copy the diagram. Cause: ${error.message}`
+              `Failed to copy the diagram. Cause: ${error.message}`,
             );
 
             return reject(error);

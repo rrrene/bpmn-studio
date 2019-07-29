@@ -1,5 +1,5 @@
-import { EventAggregator } from 'aurelia-event-aggregator';
-import { inject } from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
 
 import {
   IEventElement,
@@ -7,7 +7,7 @@ import {
   IShape,
   ISignal,
   ISignalEventDefinition,
-  ISignalEventElement
+  ISignalEventElement,
 } from '@process-engine/bpmn-elements_contracts';
 
 import {
@@ -16,10 +16,10 @@ import {
   IElementRegistry,
   ILinting,
   IPageModel,
-  ISection
+  ISection,
 } from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
-import { GeneralService } from '../../service/general.service';
+import {GeneralService} from '../../service/general.service';
 
 @inject(GeneralService, EventAggregator)
 export class SignalEventSection implements ISection {
@@ -93,9 +93,9 @@ export class SignalEventSection implements ISection {
   }
 
   public addSignal(): void {
-    const bpmnSignalProperty: { id: string; name: string } = {
+    const bpmnSignalProperty: {id: string; name: string} = {
       id: `Signal_${this._generalService.generateRandomId()}`,
-      name: 'Signal Name'
+      name: 'Signal Name',
     };
     const bpmnSignal: ISignal = this._moddle.create('bpmn:Signal', bpmnSignalProperty);
 

@@ -1,16 +1,16 @@
-import { IIdentity } from '@essential-projects/iam_contracts';
-import { DataModels } from '@process-engine/management_api_contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {DataModels} from '@process-engine/management_api_contracts';
 
 export interface ITokenViewerRepository {
   getTokenForFlowNodeInstance(
     processModelId: string,
     correlationId: string,
     flowNodeId: string,
-    identity: IIdentity
+    identity: IIdentity,
   ): Promise<Array<DataModels.TokenHistory.TokenHistoryEntry>>;
   getTokenForFlowNodeByProcessInstanceId(
     processInstanceId: string,
     flowNodeId: string,
-    identity: IIdentity
+    identity: IIdentity,
   ): Promise<DataModels.TokenHistory.TokenHistoryGroup>;
 }

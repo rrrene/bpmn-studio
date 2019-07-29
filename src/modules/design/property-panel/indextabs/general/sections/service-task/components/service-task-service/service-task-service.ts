@@ -2,9 +2,9 @@ import {
   IExtensionElement,
   IModdleElement,
   IPropertiesElement,
-  IProperty
+  IProperty,
 } from '@process-engine/bpmn-elements_contracts';
-import { IBpmnModdle, IPageModel } from '../../../../../../../../../contracts';
+import {IBpmnModdle, IPageModel} from '../../../../../../../../../contracts';
 
 export class ServiceTaskService {
   private _model: IPageModel;
@@ -22,7 +22,7 @@ export class ServiceTaskService {
     const extensionValues: Array<IModdleElement> = [];
 
     const extensionElements: IModdleElement = this._moddle.create('bpmn:ExtensionElements', {
-      values: extensionValues
+      values: extensionValues,
     });
     this._businessObjInPanel.extensionElements = extensionElements;
   }
@@ -31,7 +31,7 @@ export class ServiceTaskService {
     const extensionElement: IExtensionElement = this._businessObjInPanel.extensionElements;
 
     const properties: Array<IProperty> = [];
-    const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', { values: properties });
+    const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', {values: properties});
 
     extensionElement.values.push(propertiesElement);
   }
@@ -51,7 +51,7 @@ export class ServiceTaskService {
 
     const propertyObject: Object = {
       name: propertyName,
-      value: ''
+      value: '',
     };
 
     const property: IProperty = this._moddle.create('camunda:Property', propertyObject);
@@ -86,7 +86,7 @@ export class ServiceTaskService {
           return;
         }
         return element.$type === 'camunda:Properties';
-      }
+      },
     );
 
     const noPropertyElementFound: boolean = propertiesElement === undefined;

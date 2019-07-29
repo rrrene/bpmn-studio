@@ -1,13 +1,13 @@
-import { computedFrom, inject, observable } from 'aurelia-framework';
-import { Router } from 'aurelia-router';
+import {computedFrom, inject, observable} from 'aurelia-framework';
+import {Router} from 'aurelia-router';
 
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 
-import { DataModels } from '@process-engine/management_api_contracts';
+import {DataModels} from '@process-engine/management_api_contracts';
 
-import { Subscription } from '@essential-projects/event_aggregator_contracts';
-import { IShape } from '@process-engine/bpmn-elements_contracts';
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
+import {Subscription} from '@essential-projects/event_aggregator_contracts';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
 import {
   IBpmnModeler,
@@ -18,13 +18,13 @@ import {
   IOverlayManager,
   ISolutionEntry,
   ISolutionService,
-  NotificationType
+  NotificationType,
 } from '../../contracts/index';
 
 import environment from '../../environment';
-import { NotificationService } from '../../services/notification-service/notification.service';
-import { TaskDynamicUi } from '../task-dynamic-ui/task-dynamic-ui';
-import { ILiveExecutionTrackerService, RequestError } from './contracts/index';
+import {NotificationService} from '../../services/notification-service/notification.service';
+import {TaskDynamicUi} from '../task-dynamic-ui/task-dynamic-ui';
+import {ILiveExecutionTrackerService, RequestError} from './contracts/index';
 
 type RouteParameters = {
   diagramName: string;
@@ -92,7 +92,7 @@ export class LiveExecutionTracker {
     router: Router,
     notificationService: NotificationService,
     solutionService: ISolutionService,
-    liveExecutionTrackerService: ILiveExecutionTrackerService
+    liveExecutionTrackerService: ILiveExecutionTrackerService,
   ) {
     this._router = router;
     this._notificationService = notificationService;
@@ -123,20 +123,20 @@ export class LiveExecutionTracker {
         this.taskId = routeParameters.taskId;
 
         const emptyActivitiesInProcessInstance: DataModels.EmptyActivities.EmptyActivityList = await this._liveExecutionTrackerService.getEmptyActivitiesForProcessInstance(
-          this.processInstanceId
+          this.processInstanceId,
         );
 
         const emptyActivity: DataModels.EmptyActivities.EmptyActivity = emptyActivitiesInProcessInstance.emptyActivities.find(
           (activity: DataModels.EmptyActivities.EmptyActivity) => {
             return activity.id === this.taskId;
-          }
+          },
         );
 
         if (emptyActivity) {
           this._liveExecutionTrackerService.finishEmptyActivity(
             this.processInstanceId,
             this.correlationId,
-            emptyActivity
+            emptyActivity,
           );
         } else {
           this.showDynamicUiModal = true;
@@ -150,11 +150,11 @@ export class LiveExecutionTracker {
 
     // Create Viewer
     this._diagramViewer = new bundle.viewer({
-      additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule, bundle.MiniMap]
+      additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule, bundle.MiniMap],
     });
 
     this._diagramPreviewViewer = new bundle.viewer({
-      additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule, bundle.MiniMap]
+      additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule, bundle.MiniMap],
     });
 
     this._viewerCanvas = this._diagramViewer.get('canvas');
@@ -273,7 +273,7 @@ export class LiveExecutionTracker {
       correlationId: this.correlationId,
       diagramName: this._parentProcessModelId,
       solutionUri: this.activeSolutionEntry.uri,
-      processInstanceId: this._parentProcessInstanceId
+      processInstanceId: this._parentProcessInstanceId,
     });
   }
 
@@ -344,7 +344,7 @@ export class LiveExecutionTracker {
 
     const parentProcessModel: DataModels.Correlations.CorrelationProcessInstance = await this._liveExecutionTrackerService.getProcessModelByProcessInstanceId(
       this.correlationId,
-      this._parentProcessInstanceId
+      this._parentProcessInstanceId,
     );
 
     const parentProcessModelNotFound: boolean = parentProcessModel === undefined;
@@ -359,10 +359,10 @@ export class LiveExecutionTracker {
     this._overlays.clear();
 
     const elementsWithActiveToken: Array<IShape> = await this._liveExecutionTrackerService.getElementsWithActiveToken(
-      this.processInstanceId
+      this.processInstanceId,
     );
     const inactiveCallActivities: Array<IShape> = await this._liveExecutionTrackerService.getInactiveCallActivities(
-      this.processInstanceId
+      this.processInstanceId,
     );
 
     this._addOverlaysToUserAndManualTasks(elementsWithActiveToken);
@@ -399,9 +399,9 @@ export class LiveExecutionTracker {
       this._overlays.add(element, {
         position: {
           left: 30,
-          top: 25
+          top: 25,
         },
-        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-play let__overlay-button-icon overlay__empty-task"></i></div>`
+        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-play let__overlay-button-icon overlay__empty-task"></i></div>`,
       });
 
       document.getElementById(element.id).addEventListener('click', this._handleEmptyActivityClick);
@@ -443,9 +443,9 @@ export class LiveExecutionTracker {
       this._overlays.add(element, {
         position: {
           left: 30,
-          top: 25
+          top: 25,
         },
-        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-play let__overlay-button-icon"></i></div>`
+        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-play let__overlay-button-icon"></i></div>`,
       });
 
       document.getElementById(element.id).addEventListener('click', this._handleTaskClick);
@@ -482,9 +482,9 @@ export class LiveExecutionTracker {
       this._overlays.add(element, {
         position: {
           left: 30,
-          top: 25
+          top: 25,
         },
-        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-search let__overlay-button-icon"></i></div>`
+        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-search let__overlay-button-icon"></i></div>`,
       });
 
       document.getElementById(element.id).addEventListener('click', this._handleInactiveCallActivityClick);
@@ -513,9 +513,9 @@ export class LiveExecutionTracker {
       this._overlays.add(element, {
         position: {
           left: 30,
-          top: 25
+          top: 25,
         },
-        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-external-link-square-alt let__overlay-button-icon"></i></div>`
+        html: `<div class="let__overlay-button" id="${element.id}"><i class="fas fa-external-link-square-alt let__overlay-button-icon"></i></div>`,
       });
 
       document.getElementById(element.id).addEventListener('click', this._handleActiveCallActivityClick);
@@ -537,20 +537,20 @@ export class LiveExecutionTracker {
     this.taskId = elementId;
 
     const emptyActivitiesInProcessInstance: DataModels.EmptyActivities.EmptyActivityList = await this._liveExecutionTrackerService.getEmptyActivitiesForProcessInstance(
-      this.processInstanceId
+      this.processInstanceId,
     );
 
     const emptyActivity: DataModels.EmptyActivities.EmptyActivity = emptyActivitiesInProcessInstance.emptyActivities.find(
       (activity: DataModels.EmptyActivities.EmptyActivity) => {
         return activity.id === this.taskId;
-      }
+      },
     );
 
     this._liveExecutionTrackerService.finishEmptyActivity(this.processInstanceId, this.correlationId, emptyActivity);
   };
 
   private _handleActiveCallActivityClick: (event: MouseEvent) => Promise<void> = async (
-    event: MouseEvent
+    event: MouseEvent,
   ): Promise<void> => {
     const elementId: string = (event.target as HTMLDivElement).id;
     const element: IShape = this._liveExecutionTrackerService.getElementById(elementId);
@@ -567,7 +567,7 @@ export class LiveExecutionTracker {
     const targetProcessInstanceId: string = await this._liveExecutionTrackerService.getProcessInstanceIdOfCallActivityTarget(
       this.correlationId,
       this.processInstanceId,
-      callActivityTargetProcess
+      callActivityTargetProcess,
     );
 
     const errorGettingTargetProcessInstanceId: boolean = targetProcessInstanceId === undefined;
@@ -583,12 +583,12 @@ export class LiveExecutionTracker {
       diagramName: callActivityTargetProcess,
       solutionUri: this.activeSolutionEntry.uri,
       correlationId: this.correlationId,
-      processInstanceId: targetProcessInstanceId
+      processInstanceId: targetProcessInstanceId,
     });
   };
 
   private _handleInactiveCallActivityClick: (event: MouseEvent) => Promise<void> = async (
-    event: MouseEvent
+    event: MouseEvent,
   ): Promise<void> => {
     const elementId: string = (event.target as HTMLDivElement).id;
     const element: IShape = this._liveExecutionTrackerService.getElementById(elementId);
@@ -615,7 +615,7 @@ export class LiveExecutionTracker {
 
   private async _getXmlByProcessModelId(processModelId: string): Promise<string> {
     const processModel: DataModels.ProcessModels.ProcessModel = await this._liveExecutionTrackerService.getProcessModelById(
-      processModelId
+      processModelId,
     );
 
     return processModel.xml;
@@ -638,14 +638,14 @@ export class LiveExecutionTracker {
 
   private async _getXml(): Promise<string> {
     const correlation: DataModels.Correlations.Correlation = await this._liveExecutionTrackerService.getCorrelationById(
-      this.correlationId
+      this.correlationId,
     );
 
     const errorGettingCorrelation: boolean = correlation === undefined;
     if (errorGettingCorrelation) {
       this._notificationService.showNotification(
         NotificationType.ERROR,
-        'Could not get correlation. Please try to start the process again.'
+        'Could not get correlation. Please try to start the process again.',
       );
 
       return;
@@ -656,7 +656,7 @@ export class LiveExecutionTracker {
         const processModelIsSearchedProcessModel: boolean = processModel.processInstanceId === this.processInstanceId;
 
         return processModelIsSearchedProcessModel;
-      }
+      },
     );
 
     const xmlFromProcessModel: string = processModelFromCorrelation.xml;
@@ -718,7 +718,7 @@ export class LiveExecutionTracker {
   private async _exportXmlFromDiagramViewer(): Promise<string> {
     const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
       const xmlSaveOptions: IBpmnXmlSaveOptions = {
-        format: true
+        format: true,
       };
 
       this._diagramViewer.saveXML(xmlSaveOptions, async (saveXmlError: Error, xml: string) => {
@@ -751,7 +751,7 @@ export class LiveExecutionTracker {
       try {
         return await this._liveExecutionTrackerService.getColorizedDiagram(
           this.processInstanceId,
-          this._checkIfProcessEngineSupportsGettingFlowNodeInstances()
+          this._checkIfProcessEngineSupportsGettingFlowNodeInstances(),
         );
       } catch (error) {
         const message: string = `Could not colorize XML: ${error}`;
@@ -782,7 +782,7 @@ export class LiveExecutionTracker {
 
   private async _getParentProcessInstanceId(): Promise<string> {
     const correlation: DataModels.Correlations.Correlation = await this._liveExecutionTrackerService.getCorrelationById(
-      this.correlationId
+      this.correlationId,
     );
 
     const errorGettingCorrelation: boolean = correlation === undefined;
@@ -795,10 +795,10 @@ export class LiveExecutionTracker {
         const processInstanceFound: boolean = correlationProcessInstance.processInstanceId === this.processInstanceId;
 
         return processInstanceFound;
-      }
+      },
     );
 
-    const { parentProcessInstanceId } = processInstanceFromCorrelation;
+    const {parentProcessInstanceId} = processInstanceFromCorrelation;
 
     return parentProcessInstanceId;
   }
@@ -821,80 +821,80 @@ export class LiveExecutionTracker {
       Subscription
     > = this._liveExecutionTrackerService.createProcessTerminatedEventListener(
       this.processInstanceId,
-      processEndedCallback
+      processEndedCallback,
     );
 
     const userTaskWaitingSubscriptionPromise: Promise<
       Subscription
     > = this._liveExecutionTrackerService.createUserTaskWaitingEventListener(
       this.processInstanceId,
-      colorizationCallback
+      colorizationCallback,
     );
     const userTaskFinishedSubscriptionPromise: Promise<
       Subscription
     > = this._liveExecutionTrackerService.createUserTaskFinishedEventListener(
       this.processInstanceId,
-      colorizationCallback
+      colorizationCallback,
     );
     const manualTaskWaitingSubscriptionPromise: Promise<
       Subscription
     > = this._liveExecutionTrackerService.createManualTaskWaitingEventListener(
       this.processInstanceId,
-      colorizationCallback
+      colorizationCallback,
     );
     const manualTaskFinishedSubscriptionPromise: Promise<
       Subscription
     > = this._liveExecutionTrackerService.createManualTaskFinishedEventListener(
       this.processInstanceId,
-      colorizationCallback
+      colorizationCallback,
     );
     const emptyActivityWaitingSubscriptionPromise: Promise<
       Subscription
     > = this._liveExecutionTrackerService.createEmptyActivityWaitingEventListener(
       this.processInstanceId,
-      colorizationCallback
+      colorizationCallback,
     );
     const emptyActivityFinishedSubscriptionPromise: Promise<
       Subscription
     > = this._liveExecutionTrackerService.createEmptyActivityFinishedEventListener(
       this.processInstanceId,
-      colorizationCallback
+      colorizationCallback,
     );
     const activityReachedSubscriptionPromise: Promise<
       Subscription
     > = this._liveExecutionTrackerService.createActivityReachedEventListener(
       this.processInstanceId,
-      colorizationCallback
+      colorizationCallback,
     );
     const activityFinishedSubscriptionPromise: Promise<
       Subscription
     > = this._liveExecutionTrackerService.createActivityFinishedEventListener(
       this.processInstanceId,
-      colorizationCallback
+      colorizationCallback,
     );
     const boundaryEventTriggeredSubscriptionPromise: Promise<
       Subscription
     > = this._liveExecutionTrackerService.createBoundaryEventTriggeredEventListener(
       this.processInstanceId,
-      colorizationCallback
+      colorizationCallback,
     );
     const intermediateThrowEventTriggeredSubscriptionPromise: Promise<
       Subscription
     > = this._liveExecutionTrackerService.createIntermediateThrowEventTriggeredEventListener(
       this.processInstanceId,
-      colorizationCallback
+      colorizationCallback,
     );
     const intermediateCatchEventReachedSubscriptionPromise: Promise<
       Subscription
     > = this._liveExecutionTrackerService.createIntermediateCatchEventReachedEventListener(
       this.processInstanceId,
-      colorizationCallback
+      colorizationCallback,
     );
     const intermediateCatchEventFinishedSubscriptionPromise: Promise<
       Subscription
     > = this._liveExecutionTrackerService.createIntermediateCatchEventFinishedEventListener(
       this.processInstanceId,
-      colorizationCallback
+      colorizationCallback,
     );
 
     const subscriptionPromises: Array<Promise<Subscription>> = [
@@ -911,7 +911,7 @@ export class LiveExecutionTracker {
       boundaryEventTriggeredSubscriptionPromise,
       intermediateThrowEventTriggeredSubscriptionPromise,
       intermediateCatchEventReachedSubscriptionPromise,
-      intermediateCatchEventFinishedSubscriptionPromise
+      intermediateCatchEventFinishedSubscriptionPromise,
     ];
 
     return Promise.all(subscriptionPromises);

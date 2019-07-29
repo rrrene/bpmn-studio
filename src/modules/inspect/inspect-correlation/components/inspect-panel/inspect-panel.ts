@@ -1,10 +1,10 @@
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { bindable, inject } from 'aurelia-framework';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {bindable, inject} from 'aurelia-framework';
 
-import { DataModels } from '@process-engine/management_api_contracts';
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
+import {DataModels} from '@process-engine/management_api_contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import { InspectPanelTab, ISolutionEntry } from '../../../../../contracts/index';
+import {InspectPanelTab, ISolutionEntry} from '../../../../../contracts/index';
 import environment from '../../../../../environment';
 
 @inject(EventAggregator)
@@ -31,7 +31,7 @@ export class InspectPanel {
     this._subscriptions = [
       this._eventAggregator.subscribe(environment.events.inspectCorrelation.showLogViewer, () => {
         this.changeTab(InspectPanelTab.LogViewer);
-      })
+      }),
     ];
   }
 
@@ -64,7 +64,7 @@ export class InspectPanel {
 
   public correlationChanged(
     newCorrelation: DataModels.Correlations.Correlation,
-    oldCorrelation: DataModels.Correlations.Correlation
+    oldCorrelation: DataModels.Correlations.Correlation,
   ): void {
     const firstCorrelationGotSelected: boolean = oldCorrelation !== undefined;
     const shouldEnableTokenViewerButton: boolean = !(firstCorrelationGotSelected || this.fullscreen);

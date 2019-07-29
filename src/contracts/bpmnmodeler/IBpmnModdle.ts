@@ -1,6 +1,6 @@
-import { IModdleElement } from '@process-engine/bpmn-elements_contracts';
+import {IModdleElement} from '@process-engine/bpmn-elements_contracts';
 
-import { IDefinition, IIds } from './index';
+import {IDefinition, IIds} from './index';
 
 export interface IBpmnModdle {
   ids: IIds;

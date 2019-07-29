@@ -1,6 +1,6 @@
-import { IXmlConvertService } from '../../../../contracts/index';
-import { IExportService } from '../../../../contracts/index';
-import { ExportService } from './export.service';
+import {IXmlConvertService} from '../../../../contracts/index';
+import {IExportService} from '../../../../contracts/index';
+import {ExportService} from './export.service';
 
 export class DiagramXmlConverter implements IXmlConvertService {
   private _xmlContent: string;

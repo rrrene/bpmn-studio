@@ -1,8 +1,8 @@
-import { browser } from 'protractor';
+import {browser} from 'protractor';
 
-import { DiagramWithUserTask } from './diagrams/diagramWithUserTask';
-import { Dashboard } from './pages/dashboard';
-import { RouterView } from './pages/routerView';
+import {DiagramWithUserTask} from './diagrams/diagramWithUserTask';
+import {Dashboard} from './pages/dashboard';
+import {RouterView} from './pages/routerView';
 
 describe('Dashboard', () => {
   let dashboard: Dashboard;

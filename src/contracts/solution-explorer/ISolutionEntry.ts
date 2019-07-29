@@ -1,5 +1,5 @@
-import { IIdentity } from '@essential-projects/iam_contracts';
-import { ISolutionExplorerService } from '@process-engine/solutionexplorer.service.contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 
 /**
  * This entry keeps information about an opened solution. It is used to support

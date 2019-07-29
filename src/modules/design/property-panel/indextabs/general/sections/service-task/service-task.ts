@@ -1,16 +1,16 @@
-import { EventAggregator } from 'aurelia-event-aggregator';
-import { inject } from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
 
-import { IPropertiesElement, IProperty, IServiceTaskElement, IShape } from '@process-engine/bpmn-elements_contracts';
+import {IPropertiesElement, IProperty, IServiceTaskElement, IShape} from '@process-engine/bpmn-elements_contracts';
 
-import { IBpmnModdle, IPageModel, ISection } from '../../../../../../../contracts';
+import {IBpmnModdle, IPageModel, ISection} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
-import { ServiceTaskService } from './components/service-task-service/service-task-service';
+import {ServiceTaskService} from './components/service-task-service/service-task-service';
 
 enum ServiceKind {
   None = 'null',
   HttpClient = 'HttpClient',
-  External = 'external'
+  External = 'external',
 }
 
 @inject(EventAggregator)
@@ -98,7 +98,7 @@ export class ServiceTaskSection implements ISection {
 
     const modulePropertyObject: Object = {
       name: 'module',
-      value: 'HttpClient'
+      value: 'HttpClient',
     };
 
     const moduleProperty: IProperty = this._moddle.create('camunda:Property', modulePropertyObject);
@@ -166,7 +166,7 @@ export class ServiceTaskSection implements ISection {
         }
 
         return element.$type === 'camunda:Properties';
-      }
+      },
     );
 
     delete this.businessObjInPanel.extensionElements.values[indexOfPropertiesElement];

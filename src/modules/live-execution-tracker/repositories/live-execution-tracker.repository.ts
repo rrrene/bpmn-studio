@@ -1,15 +1,15 @@
-import { inject } from 'aurelia-framework';
+import {inject} from 'aurelia-framework';
 
-import { Subscription } from '@essential-projects/event_aggregator_contracts';
-import { IIdentity } from '@essential-projects/iam_contracts';
-import { DataModels, IManagementApi } from '@process-engine/management_api_contracts';
-import { ActiveToken } from '@process-engine/management_api_contracts/dist/data_models/kpi/index';
+import {Subscription} from '@essential-projects/event_aggregator_contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
+import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_models/kpi/index';
 import {
   EndEventReachedMessage,
-  TerminateEndEventReachedMessage
+  TerminateEndEventReachedMessage,
 } from '@process-engine/management_api_contracts/dist/messages/bpmn_events/index';
 
-import { ILiveExecutionTrackerRepository, RequestError } from '../contracts/index';
+import {ILiveExecutionTrackerRepository, RequestError} from '../contracts/index';
 
 @inject('ManagementApiClientService')
 export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepository {
@@ -24,7 +24,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   }
 
   public async getFlowNodeInstancesForProcessInstance(
-    processInstanceId: string
+    processInstanceId: string,
   ): Promise<Array<DataModels.FlowNodeInstances.FlowNodeInstance>> {
     return this._managementApiClient.getFlowNodeInstancesForProcessInstance(this._identity, processInstanceId);
   }
@@ -82,7 +82,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   }
 
   public async getTokenHistoryGroupForProcessInstance(
-    processInstanceId: string
+    processInstanceId: string,
   ): Promise<DataModels.TokenHistory.TokenHistoryGroup | null> {
     for (let retries: number = 0; retries < this._maxRetries; retries++) {
       try {
@@ -116,7 +116,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   }
 
   public async getEmptyActivitiesForProcessInstance(
-    processInstanceId: string
+    processInstanceId: string,
   ): Promise<DataModels.EmptyActivities.EmptyActivityList | null> {
     for (let retries: number = 0; retries < this._maxRetries; retries++) {
       try {
@@ -136,13 +136,13 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   public async finishEmptyActivity(
     processInstanceId: string,
     correlationId: string,
-    emptyActivity: DataModels.EmptyActivities.EmptyActivity
+    emptyActivity: DataModels.EmptyActivities.EmptyActivity,
   ): Promise<void> {
     return this._managementApiClient.finishEmptyActivity(
       this._identity,
       processInstanceId,
       correlationId,
-      emptyActivity.flowNodeInstanceId
+      emptyActivity.flowNodeInstanceId,
     );
   }
 
@@ -175,7 +175,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         }
 
         callback();
-      }
+      },
     );
   }
 
@@ -189,7 +189,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         }
 
         callback();
-      }
+      },
     );
   }
 
@@ -203,7 +203,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         }
 
         callback();
-      }
+      },
     );
   }
 
@@ -217,7 +217,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         }
 
         callback();
-      }
+      },
     );
   }
 
@@ -231,7 +231,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         }
 
         callback();
-      }
+      },
     );
   }
 
@@ -245,7 +245,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         }
 
         callback();
-      }
+      },
     );
   }
 
@@ -259,7 +259,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         }
 
         callback();
-      }
+      },
     );
   }
 
@@ -273,13 +273,13 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         }
 
         callback();
-      }
+      },
     );
   }
 
   public createEmptyActivityFinishedEventListener(
     processInstanceId: string,
-    callback: Function
+    callback: Function,
   ): Promise<Subscription> {
     return this._managementApiClient.onEmptyActivityFinished(
       this._identity,
@@ -290,13 +290,13 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         }
 
         callback();
-      }
+      },
     );
   }
 
   public createBoundaryEventTriggeredEventListener(
     processInstanceId: string,
-    callback: Function
+    callback: Function,
   ): Promise<Subscription> {
     return this._managementApiClient.onBoundaryEventTriggered(
       this._identity,
@@ -307,13 +307,13 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         }
 
         callback();
-      }
+      },
     );
   }
 
   public createIntermediateThrowEventTriggeredEventListener(
     processInstanceId: string,
-    callback: Function
+    callback: Function,
   ): Promise<Subscription> {
     return this._managementApiClient.onIntermediateThrowEventTriggered(
       this._identity,
@@ -324,13 +324,13 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         }
 
         callback();
-      }
+      },
     );
   }
 
   public createIntermediateCatchEventReachedEventListener(
     processInstanceId: string,
-    callback: Function
+    callback: Function,
   ): Promise<Subscription> {
     return this._managementApiClient.onIntermediateCatchEventReached(
       this._identity,
@@ -341,13 +341,13 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         }
 
         callback();
-      }
+      },
     );
   }
 
   public createIntermediateCatchEventFinishedEventListener(
     processInstanceId: string,
-    callback: Function
+    callback: Function,
   ): Promise<Subscription> {
     return this._managementApiClient.onIntermediateCatchEventFinished(
       this._identity,
@@ -358,7 +358,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
         }
 
         callback();
-      }
+      },
     );
   }
 

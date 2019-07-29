@@ -1,4 +1,4 @@
-import { IShape } from '@process-engine/bpmn-elements_contracts';
+import {IShape} from '@process-engine/bpmn-elements_contracts';
 
 export interface IModeling {
   updateProperties(element: IShape, properties: object): void;
@@ -8,6 +8,6 @@ export interface IModeling {
     options: {
       fill: string;
       stroke: string;
-    }
+    },
   ): void;
 }

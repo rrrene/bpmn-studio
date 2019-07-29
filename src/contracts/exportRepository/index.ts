@@ -1,1 +1,1 @@
-export { IDiagramExportRepositoryContracts } from './IDiagramExportRepositoryContracts';
+export {IDiagramExportRepositoryContracts} from './IDiagramExportRepositoryContracts';

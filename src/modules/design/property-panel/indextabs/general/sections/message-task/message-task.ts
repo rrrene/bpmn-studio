@@ -1,7 +1,7 @@
-import { EventAggregator } from 'aurelia-event-aggregator';
-import { inject } from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {inject} from 'aurelia-framework';
 
-import { IMessage, IMessageTask, IModdleElement, IShape } from '@process-engine/bpmn-elements_contracts';
+import {IMessage, IMessageTask, IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 
 import {
   IBpmnModdle,
@@ -9,10 +9,10 @@ import {
   IElementRegistry,
   ILinting,
   IPageModel,
-  ISection
+  ISection,
 } from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
-import { GeneralService } from '../../service/general.service';
+import {GeneralService} from '../../service/general.service';
 
 @inject(GeneralService, EventAggregator)
 export class MessageTaskSection implements ISection {
@@ -76,9 +76,9 @@ export class MessageTaskSection implements ISection {
   }
 
   public addMessage(): void {
-    const bpmnMessageProperty: { id: string; name: string } = {
+    const bpmnMessageProperty: {id: string; name: string} = {
       id: `Message_${this._generalService.generateRandomId()}`,
-      name: 'Message Name'
+      name: 'Message Name',
     };
     const bpmnMessage: IMessage = this._moddle.create('bpmn:Message', bpmnMessageProperty);
 

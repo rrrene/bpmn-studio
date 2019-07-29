@@ -1,9 +1,9 @@
-import { browser } from 'protractor';
+import {browser} from 'protractor';
 
-import { PropertyPanelTestDiagram } from './diagrams/propertyPanelTestDiagram';
-import { DiagramDetail } from './pages/diagramDetail';
-import { PropertyPanel } from './pages/propertyPanel';
-import { RouterView } from './pages/routerView';
+import {PropertyPanelTestDiagram} from './diagrams/propertyPanelTestDiagram';
+import {DiagramDetail} from './pages/diagramDetail';
+import {PropertyPanel} from './pages/propertyPanel';
+import {RouterView} from './pages/routerView';
 
 describe('Property Panel', () => {
   let diagram: PropertyPanelTestDiagram;

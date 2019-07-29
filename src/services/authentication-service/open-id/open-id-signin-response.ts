@@ -4,7 +4,7 @@
 // tslint:disable:variable-name
 // tslint:disable:no-magic-numbers
 
-import { UrlUtility } from './open-id-url-utility';
+import {UrlUtility} from './open-id-url-utility';
 
 const OidcScope: string = 'openid';
 

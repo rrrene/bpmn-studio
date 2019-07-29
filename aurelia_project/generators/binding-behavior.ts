@@ -1,5 +1,5 @@
-import { inject } from 'aurelia-dependency-injection';
-import { Project, ProjectItem, CLIOptions, UI } from 'aurelia-cli';
+import {inject} from 'aurelia-dependency-injection';
+import {Project, ProjectItem, CLIOptions, UI} from 'aurelia-cli';
 
 @inject(Project, CLIOptions, UI)
 export default class BindingBehaviorGenerator {

@@ -1,17 +1,17 @@
-import { EventAggregator } from 'aurelia-event-aggregator';
-import { bindable, inject } from 'aurelia-framework';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {bindable, inject} from 'aurelia-framework';
 
-import { DataModels } from '@process-engine/management_api_contracts';
+import {DataModels} from '@process-engine/management_api_contracts';
 
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 import {
   CorrelationListSortProperty,
   ICorrelationSortSettings,
-  ICorrelationTableEntry
+  ICorrelationTableEntry,
 } from '../../../../../../../contracts/index';
 import environment from '../../../../../../../environment';
-import { getBeautifiedDate } from '../../../../../../../services/date-service/date.service';
-import { IProcessInstanceWithCorrelation } from '../../../../contracts/index';
+import {getBeautifiedDate} from '../../../../../../../services/date-service/date.service';
+import {IProcessInstanceWithCorrelation} from '../../../../contracts/index';
 
 @inject(EventAggregator)
 export class CorrelationList {
@@ -24,7 +24,7 @@ export class CorrelationList {
   public CorrelationListSortProperty: typeof CorrelationListSortProperty = CorrelationListSortProperty;
   public sortSettings: ICorrelationSortSettings = {
     ascending: false,
-    sortProperty: undefined
+    sortProperty: undefined,
   };
   public processInstancesWithCorrelation: Array<IProcessInstanceWithCorrelation> = [];
   public selectedTableEntry: ICorrelationTableEntry;
@@ -60,7 +60,7 @@ export class CorrelationList {
 
         const processInstanceWithCorrelation: IProcessInstanceWithCorrelation = {
           processInstance: processInstance,
-          correlation: correlation
+          correlation: correlation,
         };
 
         this.processInstancesWithCorrelation.push(processInstanceWithCorrelation);
@@ -111,11 +111,11 @@ export class CorrelationList {
           state: state,
           user: 'Not supported yet.',
           correlationId: correlation.id,
-          processInstanceId: processInstance.processInstanceId
+          processInstanceId: processInstance.processInstanceId,
         };
 
         return tableEntry;
-      }
+      },
     );
   }
 
@@ -151,7 +151,7 @@ export class CorrelationList {
         }
 
         return 0;
-      }
+      },
     );
 
     return sortedTableData;
@@ -177,7 +177,7 @@ export class CorrelationList {
         }
 
         return 0;
-      }
+      },
     );
 
     return sortedTableData;
@@ -187,25 +187,25 @@ export class CorrelationList {
     const correlationForTableEntry: DataModels.Correlations.Correlation = this.correlations.find(
       (correlation: DataModels.Correlations.Correlation) => {
         return correlation.id === tableEntry.correlationId;
-      }
+      },
     );
 
     return correlationForTableEntry;
   }
 
   private _getProcessModelForTableEntry(
-    tableEntry: ICorrelationTableEntry
+    tableEntry: ICorrelationTableEntry,
   ): DataModels.Correlations.CorrelationProcessInstance {
     const correlationForTableEntry: DataModels.Correlations.Correlation = this.correlations.find(
       (correlation: DataModels.Correlations.Correlation) => {
         return correlation.id === tableEntry.correlationId;
-      }
+      },
     );
 
     const processModelForTableEntry: DataModels.Correlations.CorrelationProcessInstance = correlationForTableEntry.processInstances.find(
       (processModel: DataModels.Correlations.CorrelationProcessInstance) => {
         return processModel.processInstanceId === tableEntry.processInstanceId;
-      }
+      },
     );
 
     return processModelForTableEntry;
@@ -223,7 +223,7 @@ export class CorrelationList {
         const entryStartedDate: Date = new Date(processInstanceEntry.createdAt);
 
         return entryStartedDate.getTime() < processInstanceStartTime.getTime();
-      }
+      },
     );
 
     const amountOfEarlierStartedProcessInstances: number = earlierStartedProcessInstances.length;

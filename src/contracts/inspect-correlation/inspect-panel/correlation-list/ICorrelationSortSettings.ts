@@ -1,4 +1,4 @@
-import { CorrelationListSortProperty } from './index';
+import {CorrelationListSortProperty} from './index';
 
 export interface ICorrelationSortSettings {
   ascending: boolean;

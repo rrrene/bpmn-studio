@@ -1,4 +1,4 @@
-import { IDiagramValidator } from './index';
+import {IDiagramValidator} from './index';
 
 export interface IDiagramValidationService {
   /**

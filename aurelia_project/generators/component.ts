@@ -1,5 +1,5 @@
-import { inject } from 'aurelia-dependency-injection';
-import { Project, ProjectItem, CLIOptions, UI } from 'aurelia-cli';
+import {inject} from 'aurelia-dependency-injection';
+import {Project, ProjectItem, CLIOptions, UI} from 'aurelia-cli';
 
 var path = require('path');
 
@@ -15,7 +15,7 @@ export default class ElementGenerator {
         .ensureAnswer(
           this.options.args[1],
           "What sub-folder would you like to add it to?\nIf it doesn't exist it will be created for you.\n\nDefault folder is the source folder (src).",
-          '.'
+          '.',
         )
         .then((subFolders) => {
           let fileName = this.project.makeFileName(name);
@@ -23,13 +23,13 @@ export default class ElementGenerator {
 
           self.project.root.add(
             ProjectItem.text(path.join(subFolders, fileName + '.ts'), this.generateJSSource(className)),
-            ProjectItem.text(path.join(subFolders, fileName + '.html'), this.generateHTMLSource(className))
+            ProjectItem.text(path.join(subFolders, fileName + '.html'), this.generateHTMLSource(className)),
           );
 
           return this.project
             .commitChanges()
             .then(() =>
-              this.ui.log(`Created ${name} in the '${path.join(self.project.root.name, subFolders)}' folder`)
+              this.ui.log(`Created ${name} in the '${path.join(self.project.root.name, subFolders)}' folder`),
             );
         });
     });

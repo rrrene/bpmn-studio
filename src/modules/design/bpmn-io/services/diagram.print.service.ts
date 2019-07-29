@@ -1,4 +1,4 @@
-import { IDiagramPrintService } from '../../../../contracts';
+import {IDiagramPrintService} from '../../../../contracts';
 
 import * as print from 'print-js';
 
@@ -29,9 +29,9 @@ export class DiagramPrintService implements IDiagramPrintService {
 
     const png: string = await this._generateImageFromSVG('png', svgToPrint);
 
-    const printOptions: { printable: string; type?: string } = {
+    const printOptions: {printable: string; type?: string} = {
       printable: png,
-      type: 'image'
+      type: 'image',
     };
 
     print.default(printOptions);
@@ -96,7 +96,7 @@ export class DiagramPrintService implements IDiagramPrintService {
     svgWidth: number,
     svgHeight: number,
     targetDPI: number,
-    diagonalSize: number
+    diagonalSize: number,
   ): number {
     // tslint:disable:no-magic-numbers
     const svgWidthSquared: number = Math.pow(svgWidth, 2);
@@ -123,7 +123,7 @@ export class DiagramPrintService implements IDiagramPrintService {
     svgContent: string,
     canvas: HTMLCanvasElement,
     context: CanvasRenderingContext2D,
-    encoding: string
+    encoding: string,
   ): Promise<string> {
     const imageElement: HTMLImageElement = document.createElement('img');
 

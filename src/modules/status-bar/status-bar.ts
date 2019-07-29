@@ -1,12 +1,12 @@
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { computedFrom, inject } from 'aurelia-framework';
-import { Router } from 'aurelia-router';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {computedFrom, inject} from 'aurelia-framework';
+import {Router} from 'aurelia-router';
 
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import { DiffMode, ISolutionEntry, ISolutionService, NotificationType } from '../../contracts/index';
+import {DiffMode, ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
 import environment from '../../environment';
-import { NotificationService } from '../../services/notification-service/notification.service';
+import {NotificationService} from '../../services/notification-service/notification.service';
 
 type UpdateProgressData = {
   bytesPerSecond: number;
@@ -51,7 +51,7 @@ export class StatusBar {
     eventAggregator: EventAggregator,
     router: Router,
     solutionService: ISolutionService,
-    notificationService: NotificationService
+    notificationService: NotificationService,
   ) {
     this._eventAggregator = eventAggregator;
     this._router = router;
@@ -107,13 +107,13 @@ export class StatusBar {
         environment.events.statusBar.showInspectCorrelationButtons,
         (showInspectCorrelation: boolean) => {
           this.showInspectCorrelationButtons = showInspectCorrelation;
-        }
+        },
       ),
 
       this._eventAggregator.subscribe('router:navigation:success', async () => {
         await this._updateStatusBar();
         this._refreshRightButtons();
-      })
+      }),
     ];
 
     $(document).on('click', '.update-dropdown', (event: Event) => {
@@ -147,7 +147,7 @@ export class StatusBar {
       diagramName: this.activeDiagram ? this.activeDiagram.name : undefined,
       diagramUri: this.activeDiagram ? this.activeDiagram.uri : undefined,
       solutionUri: this.activeSolutionEntry.uri,
-      view: this._designView
+      view: this._designView,
     });
 
     this.xmlIsShown = !this.xmlIsShown;
@@ -174,7 +174,7 @@ export class StatusBar {
       diagramName: this.activeDiagram ? this.activeDiagram.name : undefined,
       diagramUri: this.activeDiagram ? this.activeDiagram.uri : undefined,
       solutionUri: this.activeSolutionEntry.uri,
-      view: this._designView
+      view: this._designView,
     });
 
     this.diffIsShown = !this.diffIsShown;

@@ -1,18 +1,18 @@
-import { bindable, inject } from 'aurelia-framework';
+import {bindable, inject} from 'aurelia-framework';
 
 import * as clipboard from 'clipboard-polyfill';
 
-import { DataModels } from '@process-engine/management_api_contracts';
+import {DataModels} from '@process-engine/management_api_contracts';
 
 import {
   ILogSortSettings,
   ISolutionEntry,
   LogSortProperty,
-  NotificationType
+  NotificationType,
 } from '../../../../../../../contracts/index';
-import { getBeautifiedDate } from '../../../../../../../services/date-service/date.service';
-import { NotificationService } from '../../../../../../../services/notification-service/notification.service';
-import { IInspectCorrelationService } from '../../../../contracts';
+import {getBeautifiedDate} from '../../../../../../../services/date-service/date.service';
+import {NotificationService} from '../../../../../../../services/notification-service/notification.service';
+import {IInspectCorrelationService} from '../../../../contracts';
 
 interface IClipboard {
   writeText?(text: string): void;
@@ -27,7 +27,7 @@ export class LogViewer {
   public sortedLog: Array<DataModels.Logging.LogEntry>;
   public sortSettings: ILogSortSettings = {
     ascending: false,
-    sortProperty: undefined
+    sortProperty: undefined,
   };
 
   private _notificationService: NotificationService;
@@ -43,12 +43,12 @@ export class LogViewer {
       this.log = await this._inspectCorrelationService.getLogsForProcessInstance(
         this.processInstance.processModelId,
         this.processInstance.processInstanceId,
-        this.activeSolutionEntry.identity
+        this.activeSolutionEntry.identity,
       );
 
       this.sortSettings = {
         ascending: false,
-        sortProperty: undefined
+        sortProperty: undefined,
       };
 
       this.sortList(LogSortProperty.Time);
@@ -111,7 +111,7 @@ export class LogViewer {
         }
 
         return 0;
-      }
+      },
     );
 
     return sortedLog;
@@ -134,7 +134,7 @@ export class LogViewer {
         }
 
         return 0;
-      }
+      },
     );
 
     return sortedLog;

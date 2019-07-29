@@ -1,11 +1,11 @@
-import { EventAggregator, Subscription } from 'aurelia-event-aggregator';
-import { computedFrom, inject } from 'aurelia-framework';
-import { NavModel, Router } from 'aurelia-router';
+import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
+import {computedFrom, inject} from 'aurelia-framework';
+import {NavModel, Router} from 'aurelia-router';
 
-import { IDiagram } from '@process-engine/solutionexplorer.contracts';
-import { ISolutionEntry, ISolutionService, NotificationType } from '../../contracts/index';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+import {ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
 import environment from '../../environment';
-import { NotificationService } from '../../services/notification-service/notification.service';
+import {NotificationService} from '../../services/notification-service/notification.service';
 
 @inject(Router, EventAggregator, 'NotificationService', 'SolutionService')
 export class NavBar {
@@ -46,7 +46,7 @@ export class NavBar {
     router: Router,
     eventAggregator: EventAggregator,
     notificationService: NotificationService,
-    solutionService: ISolutionService
+    solutionService: ISolutionService,
   ) {
     this.router = router;
     this._eventAggregator = eventAggregator;
@@ -112,7 +112,7 @@ export class NavBar {
         this.disableHeatmapButton = false;
         this.disableDashboardButton = false;
         this.disableInspectCorrelationButton = true;
-      })
+      }),
     ];
   }
 
@@ -153,7 +153,7 @@ export class NavBar {
         if (noActiveDiagram) {
           this._notificationService.showNotification(
             NotificationType.INFO,
-            'In order to open the designer, you have to select a diagram first!'
+            'In order to open the designer, you have to select a diagram first!',
           );
 
           return;
@@ -215,7 +215,7 @@ export class NavBar {
     this.router.navigateToRoute(route, {
       diagramName: this.activeDiagram ? this.activeDiagram.name : undefined,
       solutionUri: this.activeSolutionEntry ? this.activeSolutionEntry.uri : undefined,
-      view: view
+      view: view,
     });
   }
 
@@ -382,7 +382,7 @@ export class NavBar {
         });
       } else {
         this.activeDiagram = await this.activeSolutionEntry.service.loadDiagram(
-          this.router.currentInstruction.params.diagramName
+          this.router.currentInstruction.params.diagramName,
         );
       }
 

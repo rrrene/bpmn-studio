@@ -1,7 +1,7 @@
-import { DataModels } from '@process-engine/management_api_contracts';
-import { bindable, inject } from 'aurelia-framework';
-import { NotificationType } from '../../contracts/index';
-import { NotificationService } from '../../services/notification-service/notification.service';
+import {DataModels} from '@process-engine/management_api_contracts';
+import {bindable, inject} from 'aurelia-framework';
+import {NotificationType} from '../../contracts/index';
+import {NotificationService} from '../../services/notification-service/notification.service';
 
 @inject('NotificationService')
 export class FormWidget {

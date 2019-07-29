@@ -1,8 +1,8 @@
-import { inject } from 'aurelia-framework';
+import {inject} from 'aurelia-framework';
 
-import { IIdentity } from '@essential-projects/iam_contracts';
-import { IConnection, IShape } from '@process-engine/bpmn-elements_contracts';
-import { DataModels } from '@process-engine/management_api_contracts';
+import {IIdentity} from '@essential-projects/iam_contracts';
+import {IConnection, IShape} from '@process-engine/bpmn-elements_contracts';
+import {DataModels} from '@process-engine/management_api_contracts';
 
 import {
   defaultBpmnColors,
@@ -11,14 +11,14 @@ import {
   IElementRegistry,
   IModeling,
   IOverlayManager,
-  IOverlayPosition
+  IOverlayPosition,
 } from '../../../../contracts/index';
 import {
   defaultOverlayPositions,
   IFlowNodeAssociation,
   IHeatmapRepository,
   IHeatmapService,
-  ITokenPositionAndCount
+  ITokenPositionAndCount,
 } from '../contracts/index';
 
 // maximalTokenCount is used to sanitise the displayed number to "99+"
@@ -37,7 +37,7 @@ export class HeatmapService implements IHeatmapService {
   }
 
   public getRuntimeInformationForProcessModel(
-    processModelId: string
+    processModelId: string,
   ): Promise<Array<DataModels.Kpi.FlowNodeRuntimeInformation>> {
     return this._heatmapRepository.getRuntimeInformationForProcessModel(processModelId);
   }
@@ -56,42 +56,42 @@ export class HeatmapService implements IHeatmapService {
   public async addOverlays(
     overlays: IOverlayManager,
     elementRegistry: IElementRegistry,
-    processModelId: string
+    processModelId: string,
   ): Promise<void> {
     let participantsTokenCount: number = 0;
 
     const addOverlay: (elementId: string, count: number, position: IOverlayPosition) => void = (
       elementId: string,
       count: number,
-      position: IOverlayPosition
+      position: IOverlayPosition,
     ): void => {
       const countIsTooHigh: boolean = count >= maximalTokenCount;
 
       overlays.add(elementId, {
         position: {
           left: position.left,
-          top: position.top
+          top: position.top,
         },
         html: `<div class="heatmap__overlay" title="This element has actual ${count} token.">${
           countIsTooHigh ? '99+' : count
-        }</div>`
+        }</div>`,
       });
     };
 
     const elementsForOverlays: Array<IShape> = this._getElementsForOverlays(elementRegistry);
     const activeTokenListArray: Array<Array<DataModels.Kpi.ActiveToken>> = await this._getActiveTokenListArray(
       elementsForOverlays,
-      processModelId
+      processModelId,
     );
 
     this._addShapeTypeToActiveToken(activeTokenListArray, elementsForOverlays);
 
     const elementsWithoutToken: Array<IShape> = this._getElementsWithoutToken(
       elementsForOverlays,
-      activeTokenListArray
+      activeTokenListArray,
     );
 
-    activeTokenListArray.forEach((activeTokenArray: Array<DataModels.Kpi.ActiveToken & { type: string }>) => {
+    activeTokenListArray.forEach((activeTokenArray: Array<DataModels.Kpi.ActiveToken & {type: string}>) => {
       const elementIsEvent: boolean = this._elementIsEvent(activeTokenArray[0].type);
       const elementIsGateway: boolean = this._elementIsGateway(activeTokenArray[0].type);
       const elementIsTask: boolean = this._elementIsTask(activeTokenArray[0].type);
@@ -124,7 +124,7 @@ export class HeatmapService implements IHeatmapService {
     const participantShape: IShape = this._getParticipantShape(elementRegistry);
     addOverlay(participantShape.id, participantsTokenCount, {
       left: participantShape.width - defaultOverlayPositions.participants.left,
-      top: participantShape.height - defaultOverlayPositions.participants.top
+      top: participantShape.height - defaultOverlayPositions.participants.top,
     });
   }
 
@@ -168,7 +168,7 @@ export class HeatmapService implements IHeatmapService {
       const flowNodeAssociation: IFlowNodeAssociation = {
         associationId: association.id,
         sourceId: association.source.id,
-        runtime_medianInMs: medianRunTime
+        runtime_medianInMs: medianRunTime,
       };
 
       flowNodeAssociations.push(flowNodeAssociation);
@@ -193,21 +193,21 @@ export class HeatmapService implements IHeatmapService {
   public async getColoredXML(
     associations: Array<IFlowNodeAssociation>,
     flowNodeRuntimeInformation: Array<DataModels.Kpi.FlowNodeRuntimeInformation>,
-    modeler: IBpmnModeler
+    modeler: IBpmnModeler,
   ): Promise<string> {
     const elementRegistry: IElementRegistry = modeler.get('elementRegistry');
     const modeling: IModeling = modeler.get('modeling');
 
     const elementsToColor: Array<DataModels.Kpi.FlowNodeRuntimeInformation> = this._getElementsToColor(
       associations,
-      flowNodeRuntimeInformation
+      flowNodeRuntimeInformation,
     );
 
     associations.forEach((association: IFlowNodeAssociation) => {
       const elementToColor: DataModels.Kpi.FlowNodeRuntimeInformation = elementsToColor.find(
         (element: DataModels.Kpi.FlowNodeRuntimeInformation) => {
           return element.flowNodeId === association.sourceId;
-        }
+        },
       );
 
       const elementToColorIsUndefined: boolean = elementToColor === undefined;
@@ -235,7 +235,7 @@ export class HeatmapService implements IHeatmapService {
   private colorElement(modeling: IModeling, shapeToColor: IShape, color: IColorPickerColor): void {
     modeling.setColor(shapeToColor, {
       stroke: color.border,
-      fill: color.fill
+      fill: color.fill,
     });
   }
 
@@ -248,7 +248,7 @@ export class HeatmapService implements IHeatmapService {
    */
   private _getElementsToColor(
     associations: Array<IFlowNodeAssociation>,
-    flowNodeRuntimeInformation: Array<DataModels.Kpi.FlowNodeRuntimeInformation>
+    flowNodeRuntimeInformation: Array<DataModels.Kpi.FlowNodeRuntimeInformation>,
   ): Array<DataModels.Kpi.FlowNodeRuntimeInformation> {
     const elementsToColor: Array<DataModels.Kpi.FlowNodeRuntimeInformation> = flowNodeRuntimeInformation.filter(
       (information: DataModels.Kpi.FlowNodeRuntimeInformation) => {
@@ -257,7 +257,7 @@ export class HeatmapService implements IHeatmapService {
         });
 
         return associationWithSameId;
-      }
+      },
     );
 
     return elementsToColor;
@@ -273,7 +273,7 @@ export class HeatmapService implements IHeatmapService {
    */
   private _getShape(
     elementRegistry: IElementRegistry,
-    elementToColor: DataModels.Kpi.FlowNodeRuntimeInformation | ITokenPositionAndCount | DataModels.Kpi.ActiveToken
+    elementToColor: DataModels.Kpi.FlowNodeRuntimeInformation | ITokenPositionAndCount | DataModels.Kpi.ActiveToken,
   ): IShape {
     const elementShape: IShape = elementRegistry.get(elementToColor.flowNodeId);
 
@@ -312,7 +312,7 @@ export class HeatmapService implements IHeatmapService {
 
   private async _getXmlFromModeler(modeler: IBpmnModeler): Promise<string> {
     const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
-      modeler.saveXML({ format: true }, async (saveXmlError: Error, xml: string) => {
+      modeler.saveXML({format: true}, async (saveXmlError: Error, xml: string) => {
         if (saveXmlError) {
           reject(saveXmlError);
 
@@ -340,12 +340,12 @@ export class HeatmapService implements IHeatmapService {
 
   private async _getActiveTokenListArray(
     elementsForOverlays: Array<IShape>,
-    processModelId: string
+    processModelId: string,
   ): Promise<Array<Array<DataModels.Kpi.ActiveToken>>> {
     const promisesForElements: Array<Promise<Array<DataModels.Kpi.ActiveToken>>> = elementsForOverlays.map(
       async (element: IShape) => {
         const elementsActiveTokens: Array<DataModels.Kpi.ActiveToken> = await this.getActiveTokensForFlowNode(
-          element.id
+          element.id,
         );
 
         const elementActiveTokensForProcessModel: Array<DataModels.Kpi.ActiveToken> = elementsActiveTokens.filter(
@@ -353,15 +353,15 @@ export class HeatmapService implements IHeatmapService {
             const tokenIsInProcessModel: boolean = token.processModelId === processModelId;
 
             return tokenIsInProcessModel;
-          }
+          },
         );
 
         return elementActiveTokensForProcessModel;
-      }
+      },
     );
 
     const activeTokenListArrayForAllElements: Array<Array<DataModels.Kpi.ActiveToken>> = await Promise.all(
-      promisesForElements
+      promisesForElements,
     );
 
     const filteredActiveTokenListArray: Array<
@@ -377,9 +377,9 @@ export class HeatmapService implements IHeatmapService {
 
   private _addShapeTypeToActiveToken(
     activeTokenListArray: Array<Array<DataModels.Kpi.ActiveToken>>,
-    elementsForOverlays: Array<IShape>
+    elementsForOverlays: Array<IShape>,
   ): void {
-    activeTokenListArray.forEach((activeTokenArray: Array<DataModels.Kpi.ActiveToken & { type: string }>) => {
+    activeTokenListArray.forEach((activeTokenArray: Array<DataModels.Kpi.ActiveToken & {type: string}>) => {
       const elementOfActiveToken: IShape = elementsForOverlays.find((element: IShape) => {
         const isCorrectElement: boolean = element.id === activeTokenArray[0].flowNodeId;
 
@@ -392,13 +392,13 @@ export class HeatmapService implements IHeatmapService {
 
   private _getElementsWithoutToken(
     elementsForOverlays: Array<IShape>,
-    activeTokenListArray: Array<Array<DataModels.Kpi.ActiveToken>>
+    activeTokenListArray: Array<Array<DataModels.Kpi.ActiveToken>>,
   ): Array<IShape> {
     const elementsWithoutToken: Array<IShape> = elementsForOverlays.filter((element: IShape) => {
       const activeTokenForElement: Array<DataModels.Kpi.ActiveToken> = activeTokenListArray.find(
         (activeTokenArray: Array<DataModels.Kpi.ActiveToken>) => {
           return activeTokenArray[0].flowNodeId === element.id;
-        }
+        },
       );
 
       const noActiveTokenForElement: boolean = activeTokenForElement === undefined;
