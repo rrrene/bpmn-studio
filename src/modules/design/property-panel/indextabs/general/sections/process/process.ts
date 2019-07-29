@@ -12,13 +12,14 @@ export class ProcessSection implements ISection {
   public canHandleElement: boolean = false;
   public businessObjInPanel: any;
 
-  private _eventAggregator: EventAggregator;
+  private eventAggregator: EventAggregator;
 
   constructor(eventAggregator?: EventAggregator) {
-    this._eventAggregator = eventAggregator;
+    this.eventAggregator = eventAggregator;
   }
 
   public activate(model: IPageModel): void {
+    // eslint-disable-next-line no-underscore-dangle
     this.businessObjInPanel = model.modeler._definitions.rootElements.find((rootElement: IModdleElement) => {
       return rootElement.$type === 'bpmn:Process';
     });
@@ -36,10 +37,10 @@ export class ProcessSection implements ISection {
   }
 
   public toggleExecutable(): void {
-    this._publishDiagramChange();
+    this.publishDiagramChange();
   }
 
-  private _publishDiagramChange(): void {
-    this._eventAggregator.publish(environment.events.diagramChange);
+  private publishDiagramChange(): void {
+    this.eventAggregator.publish(environment.events.diagramChange);
   }
 }
