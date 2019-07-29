@@ -6,7 +6,7 @@
 
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
 import {bindable, bindingMode, inject, observable} from 'aurelia-framework';
-import {activationStrategy, NavigationInstruction, Redirect, Router} from 'aurelia-router';
+import {NavigationInstruction, Redirect, Router, activationStrategy} from 'aurelia-router';
 
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 
@@ -121,11 +121,9 @@ export class Design {
         }
 
         this._eventAggregator.publish(environment.events.configPanel.solutionEntryChanged, this.activeSolutionEntry);
-      } else {
-        if (isRunningInElectron) {
+      } else if (isRunningInElectron) {
           this._ipcRenderer.send('menu_show-all-menu-entries');
         }
-      }
 
       const isOpenDiagram: boolean = this.activeSolutionEntry.uri === 'about:open-diagrams';
 

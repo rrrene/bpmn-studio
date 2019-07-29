@@ -7,7 +7,6 @@ import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
 import {
-  defaultBpmnColors,
   IBpmnModeler,
   IBpmnXmlSaveOptions,
   ICanvas,
@@ -17,6 +16,7 @@ import {
   IEvent,
   IModeling,
   NotificationType,
+  defaultBpmnColors,
 } from '../../../../../contracts/index';
 import environment from '../../../../../environment';
 import {NotificationService} from '../../../../../services/notification-service/notification.service';

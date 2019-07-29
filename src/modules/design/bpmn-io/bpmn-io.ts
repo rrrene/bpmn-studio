@@ -565,7 +565,7 @@ export class BpmnIo {
 
   public propertyPanelWidthChanged(newValue: number): void {
     if (newValue !== undefined) {
-      window.localStorage.setItem('propertyPanelWidth', '' + this.propertyPanelWidth);
+      window.localStorage.setItem('propertyPanelWidth', `${this.propertyPanelWidth}`);
     }
   }
 
@@ -742,11 +742,9 @@ export class BpmnIo {
       if (viewerDiagramIsVisible) {
         viewerCanvas.zoom('fit-viewport', 'auto');
       }
-    } else {
-      if (modelerDiagramIsVisible) {
+    } else if (modelerDiagramIsVisible) {
         modelerCanvas.zoom('fit-viewport', 'auto');
       }
-    }
   }
 
   private _renameFormFields(event: IInternalEvent): IInternalEvent {
@@ -867,7 +865,7 @@ export class BpmnIo {
     } catch (error) {
       this._notificationService.showNotification(
         NotificationType.ERROR,
-        `An error while trying to print the diagram occurred.`,
+        'An error while trying to print the diagram occurred.',
       );
     }
   }
@@ -909,7 +907,7 @@ export class BpmnIo {
     if (userWantsToSaveAs) {
       event.preventDefault();
       this._eventAggregator.publish(environment.events.diagramDetail.saveDiagramAs);
-      return;
+
     }
   };
 

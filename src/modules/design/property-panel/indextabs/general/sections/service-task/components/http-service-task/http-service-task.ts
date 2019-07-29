@@ -90,12 +90,12 @@ export class HttpServiceTask {
   private _getParamsFromInput(): string {
     let params: string = '';
 
-    params = params + '"' + this.selectedHttpUrl + '"';
+    params = `${params}"${this.selectedHttpUrl}"`;
 
     const httpBodySelected: boolean = this.selectedHttpBody !== undefined;
 
     if (httpBodySelected) {
-      params = params + ', ' + this.selectedHttpBody + '';
+      params = `${params}, ${this.selectedHttpBody}`;
     }
 
     let header: IAuthParameters;
@@ -112,7 +112,7 @@ export class HttpServiceTask {
       };
 
       const stringifiedHeader: string = JSON.stringify(header);
-      params = params + ', ' + stringifiedHeader;
+      params = `${params}, ${stringifiedHeader}`;
     }
 
     if (httpAuthorizationSelected && noHttpContentTypeSelected) {
@@ -124,7 +124,7 @@ export class HttpServiceTask {
 
       const stringifiedHeader: string = JSON.stringify(header);
 
-      params = params + ', ' + stringifiedHeader;
+      params = `${params}, ${stringifiedHeader}`;
     }
 
     if (httpContentTypeSelected && httpAuthorizationSelected) {
@@ -137,10 +137,10 @@ export class HttpServiceTask {
 
       const stringifiedHeader: string = JSON.stringify(header);
 
-      params = params + ', ' + stringifiedHeader;
+      params = `${params}, ${stringifiedHeader}`;
     }
 
-    params = '[' + params + ']';
+    params = `[${params}]`;
 
     return params;
   }

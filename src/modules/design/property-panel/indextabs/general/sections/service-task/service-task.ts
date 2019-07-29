@@ -118,7 +118,6 @@ export class ServiceTaskSection implements ISection {
     if (modulePropertyExists) {
       this.selectedKind = ServiceKind[this._serviceTaskService.getProperty('module').value];
 
-      return;
     } else {
       this.selectedKind = ServiceKind.None;
     }

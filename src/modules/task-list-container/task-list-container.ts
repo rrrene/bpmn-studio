@@ -1,7 +1,7 @@
 import {inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
-import {ForbiddenError, isError, UnauthorizedError} from '@essential-projects/errors_ts';
+import {ForbiddenError, UnauthorizedError, isError} from '@essential-projects/errors_ts';
 import {IManagementApi} from '@process-engine/management_api_contracts';
 
 import {IIdentity} from '@essential-projects/iam_contracts';

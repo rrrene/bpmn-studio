@@ -7,6 +7,7 @@ import {NotificationService} from '../../services/notification-service/notificat
 export class FormWidget {
   @bindable()
   public userTaskConfig: DataModels.UserTasks.UserTaskConfig;
+
   private _notificationService: NotificationService;
 
   constructor(notificationService: NotificationService) {

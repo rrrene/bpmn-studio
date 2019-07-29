@@ -9,6 +9,7 @@ import {NotificationService} from '../../services/notification-service/notificat
 export class ConfirmWidget {
   @bindable()
   public userTaskConfig: DataModels.UserTasks.UserTaskConfig;
+
   public formFields: Array<DataModels.UserTasks.UserTaskFormField>;
   public confirmMessage: string;
 

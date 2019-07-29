@@ -125,9 +125,9 @@ export class NavBar {
     const iconClassName: string = ((): string => {
       if (this.savingTargetIsRemoteSolution) {
         return 'fa-database';
-      } else {
-        return 'fa-folder';
       }
+        return 'fa-folder';
+
     })();
     return iconClassName;
   }
@@ -335,7 +335,7 @@ export class NavBar {
         this.disableHeatmapButton = inspectViewIsHeatmap;
         this.disableInspectCorrelationButton = inspectViewIsInspectCorrelation;
 
-        this.showExportOnInspectCorrelation = inspectViewIsInspectCorrelation ? inspectViewIsInspectCorrelation : false;
+        this.showExportOnInspectCorrelation = inspectViewIsInspectCorrelation || false;
       } else {
         this.showInspectTools = false;
       }

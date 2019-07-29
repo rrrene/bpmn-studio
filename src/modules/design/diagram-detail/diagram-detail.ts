@@ -71,6 +71,7 @@ export class DiagramDetail {
     specialCharacters: /^[._ -]/i,
     german: /^[äöüß]/i,
   };
+
   private _clickedOnCustomStart: boolean = false;
   private _openDiagramService: OpenDiagramsSolutionExplorerService;
 
@@ -389,7 +390,7 @@ export class DiagramDetail {
 
       this.bpmnio.saveCurrentXML();
 
-      this._notificationService.showNotification(NotificationType.SUCCESS, `File saved!`);
+      this._notificationService.showNotification(NotificationType.SUCCESS, 'File saved!');
       this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
     } catch (error) {
       this._notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
@@ -467,7 +468,7 @@ export class DiagramDetail {
       solutionUri: this.activeSolutionEntry.uri,
     });
 
-    this._notificationService.showNotification(NotificationType.SUCCESS, `File saved!`);
+    this._notificationService.showNotification(NotificationType.SUCCESS, 'File saved!');
 
     this._eventAggregator.subscribeOnce('router:navigation:success', () => {
       this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);

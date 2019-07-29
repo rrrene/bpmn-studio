@@ -15,6 +15,7 @@ const versionRegex: RegExp = /(\d+)\.(\d+).(\d+)/;
 export class TokenViewer {
   @bindable({changeHandler: 'processInstanceIdOrCorrelationChanged'})
   public correlation: DataModels.Correlations.Correlation;
+
   @bindable() public activeDiagram: IDiagram;
   @bindable() public activeSolutionEntry: ISolutionEntry;
   @bindable() public flowNode: IShape;

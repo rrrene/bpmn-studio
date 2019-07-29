@@ -1,12 +1,11 @@
 import {Aurelia} from 'aurelia-framework';
 
+import process from 'process';
 import {NotificationType} from './contracts/index';
 import environment from './environment';
 import {NotificationService} from './services/notification-service/notification.service';
 
 import {oidcConfig} from './open-id-connect-configuration';
-
-import process from 'process';
 
 export function configure(aurelia: Aurelia): void {
   if (navigator.cookieEnabled === false) {
@@ -87,7 +86,7 @@ export function configure(aurelia: Aurelia): void {
          * TODO: Implement a proper FAQ section and link to that.
          */
         // tslint:disable-next-line: max-line-length
-        const targetHref: string = `<a href="javascript:nodeRequire('open')('https://github.com/process-engine/bpmn-studio/issues/316')">click here</a>`;
+        const targetHref: string = '<a href="javascript:nodeRequire(\'open\')(\'https://github.com/process-engine/bpmn-studio/issues/316\')">click here</a>';
 
         const errorMessage: string = `Failed to start ProcessEngine. For further information ${targetHref}.`;
         const notificationService: NotificationService = aurelia.container.get('NotificationService');

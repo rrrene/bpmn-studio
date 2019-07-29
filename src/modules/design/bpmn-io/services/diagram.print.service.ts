@@ -1,6 +1,5 @@
-import {IDiagramPrintService} from '../../../../contracts';
-
 import * as print from 'print-js';
+import {IDiagramPrintService} from '../../../../contracts';
 
 export class DiagramPrintService implements IDiagramPrintService {
   private _svg: string;

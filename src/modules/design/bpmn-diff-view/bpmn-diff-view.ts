@@ -8,7 +8,6 @@ import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 import {diff} from 'bpmn-js-differ';
 
 import {
-  defaultBpmnColors,
   DiffMode,
   IBpmnModdle,
   IBpmnModeler,
@@ -26,6 +25,7 @@ import {
   ISolutionEntry,
   IViewbox,
   NotificationType,
+  defaultBpmnColors,
 } from '../../../contracts/index';
 import environment from '../../../environment';
 import {ElementNameService} from '../../../services/elementname-service/elementname.service';
@@ -56,6 +56,7 @@ export class BpmnDiffView {
     added: [],
     layoutChanged: [],
   };
+
   public showSavedXml: boolean = true;
 
   private _notificationService: NotificationService;

@@ -4,7 +4,7 @@ import {bindable, inject} from 'aurelia-framework';
 import {DataModels} from '@process-engine/management_api_contracts';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import {InspectPanelTab, ISolutionEntry} from '../../../../../contracts/index';
+import {ISolutionEntry, InspectPanelTab} from '../../../../../contracts/index';
 import environment from '../../../../../environment';
 
 @inject(EventAggregator)

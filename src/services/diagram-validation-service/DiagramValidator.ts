@@ -1,7 +1,7 @@
 import {
   IDiagramValidationRule,
-  IDiagramValidationRules,
   IDiagramValidationRuleSet,
+  IDiagramValidationRules,
   IDiagramValidator,
 } from '../../contracts';
 

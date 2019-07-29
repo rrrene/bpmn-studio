@@ -14,7 +14,7 @@ import {
   NotificationType,
 } from '../../contracts/index';
 import {oidcConfig} from '../../open-id-connect-configuration';
-import {NotificationService} from './../../services/notification-service/notification.service';
+import {NotificationService} from '../notification-service/notification.service';
 
 const UNAUTHORIZED_STATUS_CODE: number = 401;
 const IDENTITY_SERVER_AVAILABLE_SUCCESS_STATUS_CODE: number = 200;

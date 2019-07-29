@@ -47,9 +47,9 @@ export class ExternalTask {
     const payloadPropertyExists: boolean = payloadProperty !== undefined;
     if (payloadPropertyExists) {
       return payloadProperty.value;
-    } else {
-      return undefined;
     }
+      return undefined;
+
   }
 
   private _setPayloadToModel(value: string): void {

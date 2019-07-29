@@ -10,12 +10,12 @@ import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_mo
 import {TokenHistoryEntry} from '@process-engine/management_api_contracts/dist/data_models/token_history';
 
 import {
-  defaultBpmnColors,
   IBpmnModeler,
   IBpmnXmlSaveOptions,
   IColorPickerColor,
   IElementRegistry,
   IModeling,
+  defaultBpmnColors,
 } from '../../../contracts/index';
 import {ILiveExecutionTrackerRepository, ILiveExecutionTrackerService, RequestError} from '../contracts/index';
 

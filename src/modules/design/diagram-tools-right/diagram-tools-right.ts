@@ -5,7 +5,6 @@ import * as spectrum from 'spectrum-colorpicker';
 import 'spectrum-colorpicker/spectrum';
 
 import {
-  defaultBpmnColors,
   ElementDistributeOptions,
   IBpmnFunction,
   IBpmnModeler,
@@ -16,6 +15,7 @@ import {
   IEventFunction,
   IModeling,
   NotificationType,
+  defaultBpmnColors,
 } from '../../../contracts/index';
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
@@ -24,10 +24,13 @@ import {NotificationService} from '../../../services/notification-service/notifi
 export class DiagramToolsRight {
   @bindable()
   public modeler: IBpmnModeler;
+
   @bindable()
   public viewer: IBpmnModeler;
+
   @bindable()
   public solutionIsRemote: boolean;
+
   public colorSelectionDropdownToggle: HTMLElement;
   public colorSelectionDropdown: HTMLElement;
 
@@ -72,7 +75,7 @@ export class DiagramToolsRight {
        * The distribute elements feature only can do it's thing, if the
        * user selects more than two elements.
        */
-      /*tslint:disable:no-magic-numbers*/
+      /* tslint:disable:no-magic-numbers */
       this.distributeElementsEnabled = selectedElements.length > 2;
     });
 

@@ -4,8 +4,8 @@ import {Router} from 'aurelia-router';
 
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import {AuthenticationStateEvent, IFile, IInputEvent, ISolutionEntry, ISolutionService} from '../../../contracts/index';
-import {NotificationType} from '../../../contracts/index';
+import {AuthenticationStateEvent, IFile, IInputEvent, ISolutionEntry, ISolutionService, NotificationType} from '../../../contracts/index';
+
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 import {SolutionExplorerList} from '../solution-explorer-list/solution-explorer-list';
@@ -91,7 +91,7 @@ export class SolutionExplorerPanel {
         try {
           this.solutionExplorerList.openSolution(entry.uri, false, entry.identity);
         } catch (error) {
-          return;
+
         }
       }
     });
@@ -101,7 +101,7 @@ export class SolutionExplorerPanel {
       try {
         this.solutionExplorerList.openDiagram(diagram.uri);
       } catch {
-        return;
+
       }
     });
   }

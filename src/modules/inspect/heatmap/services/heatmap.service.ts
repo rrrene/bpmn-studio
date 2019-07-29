@@ -5,20 +5,20 @@ import {IConnection, IShape} from '@process-engine/bpmn-elements_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
 
 import {
-  defaultBpmnColors,
   IBpmnModeler,
   IColorPickerColor,
   IElementRegistry,
   IModeling,
   IOverlayManager,
   IOverlayPosition,
+  defaultBpmnColors,
 } from '../../../../contracts/index';
 import {
-  defaultOverlayPositions,
   IFlowNodeAssociation,
   IHeatmapRepository,
   IHeatmapService,
   ITokenPositionAndCount,
+  defaultOverlayPositions,
 } from '../contracts/index';
 
 // maximalTokenCount is used to sanitise the displayed number to "99+"
@@ -332,7 +332,7 @@ export class HeatmapService implements IHeatmapService {
     const startRunTimeText: number = annotationText.search('RT:') + lengthOfRTStamp;
     const lengthOfRunTimeText: number = 12;
     const runTimeTimeStamp: string = annotationText.substr(startRunTimeText, lengthOfRunTimeText);
-    const date: Date = new Date('1970-01-01T' + runTimeTimeStamp + 'Z');
+    const date: Date = new Date(`1970-01-01T${runTimeTimeStamp}Z`);
     const medianRunTimeInMs: number = date.getTime();
 
     return medianRunTimeInMs;

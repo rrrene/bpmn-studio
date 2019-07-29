@@ -1,10 +1,10 @@
 // tslint:disable no-use-before-declare
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {bindable, computedFrom, inject, NewInstance} from 'aurelia-framework';
+import {NewInstance, bindable, computedFrom, inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 import {ControllerValidateResult, ValidateResult, ValidationController, ValidationRules} from 'aurelia-validation';
 
-import {ForbiddenError, isError, UnauthorizedError} from '@essential-projects/errors_ts';
+import {ForbiddenError, UnauthorizedError, isError} from '@essential-projects/errors_ts';
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 import {join} from 'path';
@@ -72,9 +72,11 @@ export class SolutionExplorerSolution {
     currentDiagramInputValue: undefined,
     isCreateDiagramInputShown: false,
   };
+
   private _diagramRenamingState: IDiagramNameInputState = {
     currentDiagramInputValue: undefined,
   };
+
   private _refreshTimeoutTask: NodeJS.Timer | number;
 
   private _diagramValidationRegExpList: Array<RegExp> = [/^[a-z0-9]/i, /^[._ -]/i, /^[äöüß]/i];
@@ -308,9 +310,9 @@ export class SolutionExplorerSolution {
 
         this._router.navigateToRoute('start-page');
       });
-    } else {
-      this._closeDiagram(diagram);
     }
+      this._closeDiagram(diagram);
+
   }
 
   public async startRenamingOfDiagram(diagram: IDiagram, event: Event): Promise<void> {
@@ -1302,7 +1304,7 @@ export class SolutionExplorerSolution {
 
         return diagramNamePassesNameChecks;
       })
-      .withMessage(`Your diagram contains at least one invalid-character: \${$value}`)
+      .withMessage('Your diagram contains at least one invalid-character: ${$value}')
       .satisfies((input: string) => {
         const inputIsNotEmpty: boolean = input !== undefined;
 

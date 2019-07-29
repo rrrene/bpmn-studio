@@ -26,6 +26,7 @@ export class CorrelationList {
     ascending: false,
     sortProperty: undefined,
   };
+
   public processInstancesWithCorrelation: Array<IProcessInstanceWithCorrelation> = [];
   public selectedTableEntry: ICorrelationTableEntry;
 

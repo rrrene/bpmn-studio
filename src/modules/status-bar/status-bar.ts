@@ -70,7 +70,7 @@ export class StatusBar {
         this.updateAvailable = true;
         this.updateVersion = version;
 
-        const message: string = `A new update is available.\nPlease click on the BPMN-Studio icon in the statusbar to start the download.`;
+        const message: string = 'A new update is available.\nPlease click on the BPMN-Studio icon in the statusbar to start the download.';
 
         this._notificationService.showNonDisappearingNotification(NotificationType.INFO, message);
       });

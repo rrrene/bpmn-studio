@@ -107,6 +107,7 @@ export class ProcessSection {
     this._propertiesElement.values[index].value = this.newValues[index];
     this._publishDiagramChange();
   }
+
   public inputFieldBlurred(index: number, event: FocusEvent): void {
     const targetElement: HTMLElement = event.relatedTarget as HTMLElement;
     const targetIsNoInputField: boolean = !(targetElement instanceof HTMLInputElement);

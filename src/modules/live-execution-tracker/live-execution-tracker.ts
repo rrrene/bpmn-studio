@@ -758,7 +758,6 @@ export class LiveExecutionTracker {
 
         this._notificationService.showNotification(NotificationType.ERROR, message);
 
-        return;
       }
     })();
 
