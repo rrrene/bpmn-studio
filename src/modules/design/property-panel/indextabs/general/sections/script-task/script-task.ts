@@ -12,10 +12,10 @@ export class ScriptTaskSection implements ISection {
   public canHandleElement: boolean = false;
   public businessObjInPanel: IScriptTaskElement;
 
-  private _eventAggregator: EventAggregator;
+  private eventAggregator: EventAggregator;
 
   constructor(eventAggregator?: EventAggregator) {
-    this._eventAggregator = eventAggregator;
+    this.eventAggregator = eventAggregator;
   }
 
   public activate(model: IPageModel): void {
@@ -23,14 +23,14 @@ export class ScriptTaskSection implements ISection {
   }
 
   public isSuitableForElement(element: IShape): boolean {
-    return this._elementIsScriptTask(element);
+    return this.elementIsScriptTask(element);
   }
 
   public updateScript(): void {
-    this._publishDiagramChange();
+    this.publishDiagramChange();
   }
 
-  private _elementIsScriptTask(element: IShape): boolean {
+  private elementIsScriptTask(element: IShape): boolean {
     return (
       element !== undefined &&
       element.businessObject !== undefined &&
@@ -38,7 +38,7 @@ export class ScriptTaskSection implements ISection {
     );
   }
 
-  private _publishDiagramChange(): void {
-    this._eventAggregator.publish(environment.events.diagramChange);
+  private publishDiagramChange(): void {
+    this.eventAggregator.publish(environment.events.diagramChange);
   }
 }
