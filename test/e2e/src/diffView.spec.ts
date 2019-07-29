@@ -107,11 +107,8 @@ describe('Diff view', () => {
     /**
      * The third option gets selected because the first two are always there.
      */
-    // tslint:disable-next-line:no-magic-numbers
     expect(arrayOfOptions.length).toBeGreaterThan(2);
-    // tslint:disable-next-line:no-magic-numbers
     await arrayOfOptions[2].click();
-    // tslint:disable-next-line:no-magic-numbers
     expect(await arrayOfOptions[2].isSelected()).toBe(true);
   });
 
@@ -123,7 +120,6 @@ describe('Diff view', () => {
 
     const arrayOfOptions: Array<ElementFinder> = await diffView.getDropdownOptions();
 
-    // tslint:disable-next-line:no-magic-numbers
     await arrayOfOptions[2].click();
     diffView.clickOnModalCompareButton();
 
