@@ -6,10 +6,10 @@ import {GeneralRepository} from '../repository/general.repository';
 
 @inject(GeneralRepository)
 export class GeneralService {
-  private _generalRepository: GeneralRepository;
+  private generalRepository: GeneralRepository;
 
   constructor(generalRepository: GeneralRepository) {
-    this._generalRepository = generalRepository;
+    this.generalRepository = generalRepository;
   }
 
   public generateRandomId(): string {
@@ -24,6 +24,6 @@ export class GeneralService {
   }
 
   public getAllDiagrams(): Promise<Array<IDiagram>> {
-    return this._generalRepository.getAllDiagrams();
+    return this.generalRepository.getAllDiagrams();
   }
 }
