@@ -3,26 +3,26 @@ import {IExportService, IXmlConvertService} from '../../../../contracts/index';
 import {ExportService} from './export.service';
 
 export class DiagramXmlConverter implements IXmlConvertService {
-  private _xmlContent: string;
-  private _enqueuedPromises: Array<Promise<string>> = [];
+  private xmlContent: string;
+  private enqueuedPromises: Array<Promise<string>> = [];
 
   constructor(xmlContent: string) {
-    this._xmlContent = xmlContent;
+    this.xmlContent = xmlContent;
   }
 
   public asBpmn(): IExportService {
-    const formatterPromise: Promise<string> = this._bpmnExporter();
+    const formatterPromise: Promise<string> = this.bpmnExporter();
     const mimeType: string = 'application/bpmn20-xml';
 
-    this._enqueuedPromises.push(formatterPromise);
+    this.enqueuedPromises.push(formatterPromise);
 
-    return new ExportService(mimeType, this._enqueuedPromises);
+    return new ExportService(mimeType, this.enqueuedPromises);
   }
 
   /**
    * Formats the current loaded xml.
    */
-  private _bpmnExporter = async (): Promise<string> => {
-    return Promise.resolve(this._xmlContent);
+  private bpmnExporter = async (): Promise<string> => {
+    return Promise.resolve(this.xmlContent);
   };
 }
