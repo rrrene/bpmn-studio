@@ -7,31 +7,30 @@ import {
 import {IBpmnModdle, IPageModel} from '../../../../../../../../../contracts';
 
 export class ServiceTaskService {
-  private _model: IPageModel;
-  private _businessObjInPanel: IModdleElement;
-
-  private _moddle: IBpmnModdle;
+  private model: IPageModel;
+  private businessObjInPanel: IModdleElement;
+  private moddle: IBpmnModdle;
 
   constructor(model: IPageModel) {
-    this._model = model;
-    this._businessObjInPanel = model.elementInPanel.businessObject;
-    this._moddle = this._model.modeler.get('moddle');
+    this.model = model;
+    this.businessObjInPanel = model.elementInPanel.businessObject;
+    this.moddle = this.model.modeler.get('moddle');
   }
 
   public createExtensionElement(): void {
     const extensionValues: Array<IModdleElement> = [];
 
-    const extensionElements: IModdleElement = this._moddle.create('bpmn:ExtensionElements', {
+    const extensionElements: IModdleElement = this.moddle.create('bpmn:ExtensionElements', {
       values: extensionValues,
     });
-    this._businessObjInPanel.extensionElements = extensionElements;
+    this.businessObjInPanel.extensionElements = extensionElements;
   }
 
   public createPropertiesElement(): void {
-    const extensionElement: IExtensionElement = this._businessObjInPanel.extensionElements;
+    const extensionElement: IExtensionElement = this.businessObjInPanel.extensionElements;
 
     const properties: Array<IProperty> = [];
-    const propertiesElement: IPropertiesElement = this._moddle.create('camunda:Properties', {values: properties});
+    const propertiesElement: IPropertiesElement = this.moddle.create('camunda:Properties', {values: properties});
 
     extensionElement.values.push(propertiesElement);
   }
@@ -49,12 +48,12 @@ export class ServiceTaskService {
 
     const propertiesElement: IPropertiesElement = this.getPropertiesElement();
 
-    const propertyObject: Object = {
+    const propertyObject: object = {
       name: propertyName,
       value: '',
     };
 
-    const property: IProperty = this._moddle.create('camunda:Property', propertyObject);
+    const property: IProperty = this.moddle.create('camunda:Property', propertyObject);
 
     propertiesElement.values.push(property);
 
@@ -80,11 +79,12 @@ export class ServiceTaskService {
       return undefined;
     }
 
-    const propertiesElement: IPropertiesElement = this._businessObjInPanel.extensionElements.values.find(
-      (element: IPropertiesElement) => {
+    const propertiesElement: IPropertiesElement = this.businessObjInPanel.extensionElements.values.find(
+      (element: IPropertiesElement): boolean => {
         if (!element) {
-          return;
+          return undefined;
         }
+
         return element.$type === 'camunda:Properties';
       },
     );
@@ -104,8 +104,8 @@ export class ServiceTaskService {
 
   public get extensionElementDoesNotExist(): boolean {
     return (
-      this._businessObjInPanel.extensionElements === undefined ||
-      this._businessObjInPanel.extensionElements.values === undefined
+      this.businessObjInPanel.extensionElements === undefined ||
+      this.businessObjInPanel.extensionElements.values === undefined
     );
   }
 }
