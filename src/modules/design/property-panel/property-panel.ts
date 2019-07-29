@@ -30,27 +30,27 @@ export class PropertyPanel {
   public extensionsIndextab: IIndextab = new Extensions();
   public indextabs: Array<IIndextab>;
 
-  private _moddle: IBpmnModdle;
-  private _eventBus: IEventBus;
-  private _currentIndextabTitle: string = this.generalIndextab.title;
-  private _openDiagramStateService: OpenDiagramStateService;
+  private moddle: IBpmnModdle;
+  private eventBus: IEventBus;
+  private currentIndextabTitle: string = this.generalIndextab.title;
+  private openDiagramStateService: OpenDiagramStateService;
 
-  private _diagramChanged: boolean = false;
+  private diagramChanged: boolean = false;
 
   constructor(openDiagramStateService: OpenDiagramStateService) {
-    this._openDiagramStateService = openDiagramStateService;
+    this.openDiagramStateService = openDiagramStateService;
   }
 
   public attached(): void {
-    this._moddle = this.modeler.get('moddle');
-    this._eventBus = this.modeler.get('eventBus');
+    this.moddle = this.modeler.get('moddle');
+    this.eventBus = this.modeler.get('eventBus');
 
     this.indextabs = [this.generalIndextab, this.formsIndextab, this.extensionsIndextab];
 
     this.updateIndexTabsSuitability();
     this.checkIndexTabSuitability();
 
-    this._eventBus.on(['element.click', 'shape.changed', 'selection.changed'], (event: IEvent) => {
+    this.eventBus.on(['element.click', 'shape.changed', 'selection.changed'], (event: IEvent) => {
       const elementWasClickedOn: boolean = event.type === 'element.click';
       const elementIsValidShape: boolean = event.type === 'shape.changed' && event.element.type !== 'label';
 
@@ -76,11 +76,11 @@ export class PropertyPanel {
   }
 
   public updateIndextab(selectedIndextab: IIndextab): void {
-    this._currentIndextabTitle = selectedIndextab.title;
+    this.currentIndextabTitle = selectedIndextab.title;
   }
 
   public selectPreviouslySelectedOrFirstElement(): void {
-    const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(this.diagramUri);
+    const diagramState: IDiagramState = this.openDiagramStateService.loadDiagramState(this.diagramUri);
 
     const noSelectedElementState: boolean =
       diagramState === null ||
@@ -94,13 +94,13 @@ export class PropertyPanel {
 
     const selectedElementId: string = diagramState.metaData.selectedElements[0].id;
 
-    this._selectElementById(selectedElementId);
+    this.selectElementById(selectedElementId);
   }
 
   private setFirstElement(): void {
     let firstElement: IModdleElement;
 
-    this._moddle.fromXML(this.xml, (err: Error, definitions: IDefinition): void => {
+    this.moddle.fromXML(this.xml, (err: Error, definitions: IDefinition): void => {
       const process: IModdleElement = definitions.rootElements.find((element: IModdleElement) => {
         return element.$type === 'bpmn:Process';
       });
@@ -123,11 +123,11 @@ export class PropertyPanel {
         firstElement = process;
       }
 
-      this._selectElementById(firstElement.id);
+      this.selectElementById(firstElement.id);
     });
   }
 
-  private _selectElementById(elementId: string): void {
+  private selectElementById(elementId: string): void {
     const elementRegistry: IElementRegistry = this.modeler.get('elementRegistry');
     const element: IShape = elementRegistry.get(elementId);
 
@@ -153,11 +153,11 @@ export class PropertyPanel {
 
   private checkIndexTabSuitability(): void {
     const currentIndexTab: IIndextab = this.indextabs.find((indextab: IIndextab) => {
-      return indextab.title === this._currentIndextabTitle;
+      return indextab.title === this.currentIndextabTitle;
     });
 
     if (!currentIndexTab.canHandleElement) {
-      this._currentIndextabTitle = this.generalIndextab.title;
+      this.currentIndextabTitle = this.generalIndextab.title;
     }
   }
 
@@ -167,12 +167,12 @@ export class PropertyPanel {
       return;
     }
 
-    this._diagramChanged = true;
+    this.diagramChanged = true;
   }
 
   public xmlChanged(newXml: string, previousXml: string): void {
     const previousXmlDoesNotExist: boolean = previousXml === undefined;
-    const diagramDidNotChange: boolean = !this._diagramChanged;
+    const diagramDidNotChange: boolean = !this.diagramChanged;
     if (previousXmlDoesNotExist || diagramDidNotChange) {
       return;
     }
@@ -182,6 +182,6 @@ export class PropertyPanel {
       this.selectPreviouslySelectedOrFirstElement();
     }, 0);
 
-    this._diagramChanged = false;
+    this.diagramChanged = false;
   }
 }
