@@ -26,24 +26,24 @@ const maximalTokenCount: number = 100;
 
 @inject('HeatmapRepository')
 export class HeatmapService implements IHeatmapService {
-  private _heatmapRepository: IHeatmapRepository;
+  private heatmapRepository: IHeatmapRepository;
 
   constructor(heatmapRepository: IHeatmapRepository) {
-    this._heatmapRepository = heatmapRepository;
+    this.heatmapRepository = heatmapRepository;
   }
 
   public setIdentity(identity: IIdentity): void {
-    this._heatmapRepository.setIdentity(identity);
+    this.heatmapRepository.setIdentity(identity);
   }
 
   public getRuntimeInformationForProcessModel(
     processModelId: string,
   ): Promise<Array<DataModels.Kpi.FlowNodeRuntimeInformation>> {
-    return this._heatmapRepository.getRuntimeInformationForProcessModel(processModelId);
+    return this.heatmapRepository.getRuntimeInformationForProcessModel(processModelId);
   }
 
   public getActiveTokensForFlowNode(flowNodeId: string): Promise<Array<DataModels.Kpi.ActiveToken>> {
-    return this._heatmapRepository.getActiveTokensForFlowNode(flowNodeId);
+    return this.heatmapRepository.getActiveTokensForFlowNode(flowNodeId);
   }
 
   /**
@@ -78,23 +78,20 @@ export class HeatmapService implements IHeatmapService {
       });
     };
 
-    const elementsForOverlays: Array<IShape> = this._getElementsForOverlays(elementRegistry);
-    const activeTokenListArray: Array<Array<DataModels.Kpi.ActiveToken>> = await this._getActiveTokenListArray(
+    const elementsForOverlays: Array<IShape> = this.getElementsForOverlays(elementRegistry);
+    const activeTokenListArray: Array<Array<DataModels.Kpi.ActiveToken>> = await this.getActiveTokenListArray(
       elementsForOverlays,
       processModelId,
     );
 
-    this._addShapeTypeToActiveToken(activeTokenListArray, elementsForOverlays);
+    this.addShapeTypeToActiveToken(activeTokenListArray, elementsForOverlays);
 
-    const elementsWithoutToken: Array<IShape> = this._getElementsWithoutToken(
-      elementsForOverlays,
-      activeTokenListArray,
-    );
+    const elementsWithoutToken: Array<IShape> = this.getElementsWithoutToken(elementsForOverlays, activeTokenListArray);
 
     activeTokenListArray.forEach((activeTokenArray: Array<DataModels.Kpi.ActiveToken & {type: string}>) => {
-      const elementIsEvent: boolean = this._elementIsEvent(activeTokenArray[0].type);
-      const elementIsGateway: boolean = this._elementIsGateway(activeTokenArray[0].type);
-      const elementIsTask: boolean = this._elementIsTask(activeTokenArray[0].type);
+      const elementIsEvent: boolean = this.elementIsEvent(activeTokenArray[0].type);
+      const elementIsGateway: boolean = this.elementIsGateway(activeTokenArray[0].type);
+      const elementIsTask: boolean = this.elementIsTask(activeTokenArray[0].type);
 
       if (elementIsGateway) {
         addOverlay(activeTokenArray[0].flowNodeId, activeTokenArray.length, defaultOverlayPositions.gateways);
@@ -108,9 +105,9 @@ export class HeatmapService implements IHeatmapService {
     });
 
     elementsWithoutToken.forEach((element: IShape) => {
-      const elementIsEvent: boolean = this._elementIsEvent(element.type);
-      const elementIsGateway: boolean = this._elementIsGateway(element.type);
-      const elementIsTask: boolean = this._elementIsTask(element.type);
+      const elementIsEvent: boolean = this.elementIsEvent(element.type);
+      const elementIsGateway: boolean = this.elementIsGateway(element.type);
+      const elementIsTask: boolean = this.elementIsTask(element.type);
 
       if (elementIsGateway) {
         addOverlay(element.id, 0, defaultOverlayPositions.gateways);
@@ -121,7 +118,7 @@ export class HeatmapService implements IHeatmapService {
       }
     });
 
-    const participantShape: IShape = this._getParticipantShape(elementRegistry);
+    const participantShape: IShape = this.getParticipantShape(elementRegistry);
     addOverlay(participantShape.id, participantsTokenCount, {
       left: participantShape.width - defaultOverlayPositions.participants.left,
       top: participantShape.height - defaultOverlayPositions.participants.top,
@@ -129,7 +126,7 @@ export class HeatmapService implements IHeatmapService {
   }
 
   public getProcess(processModelId: string): Promise<DataModels.ProcessModels.ProcessModel> {
-    return this._heatmapRepository.getProcess(processModelId);
+    return this.heatmapRepository.getProcess(processModelId);
   }
 
   /**
@@ -163,7 +160,7 @@ export class HeatmapService implements IHeatmapService {
     });
 
     associations.forEach((association: IConnection) => {
-      const medianRunTime: number = this._getMedianRunTimeForAssociation(association);
+      const medianRunTime: number = this.getMedianRunTimeForAssociation(association);
 
       const flowNodeAssociation: IFlowNodeAssociation = {
         associationId: association.id,
@@ -198,7 +195,7 @@ export class HeatmapService implements IHeatmapService {
     const elementRegistry: IElementRegistry = modeler.get('elementRegistry');
     const modeling: IModeling = modeler.get('modeling');
 
-    const elementsToColor: Array<DataModels.Kpi.FlowNodeRuntimeInformation> = this._getElementsToColor(
+    const elementsToColor: Array<DataModels.Kpi.FlowNodeRuntimeInformation> = this.getElementsToColor(
       associations,
       flowNodeRuntimeInformation,
     );
@@ -216,7 +213,7 @@ export class HeatmapService implements IHeatmapService {
         return;
       }
 
-      const shapeToColor: IShape = this._getShape(elementRegistry, elementToColor);
+      const shapeToColor: IShape = this.getShape(elementRegistry, elementToColor);
       const flowNodeRuntimeIsGreaterThanExpected: boolean =
         elementToColor.medianRuntimeInMs > association.runtime_medianInMs;
 
@@ -227,7 +224,7 @@ export class HeatmapService implements IHeatmapService {
       }
     });
 
-    const xml: string = await this._getXmlFromModeler(modeler);
+    const xml: string = await this.getXmlFromModeler(modeler);
 
     return xml;
   }
@@ -246,7 +243,7 @@ export class HeatmapService implements IHeatmapService {
    *
    * Returns the flowNodeRuntimeInformation from the elements which must get colored.
    */
-  private _getElementsToColor(
+  private getElementsToColor(
     associations: Array<IFlowNodeAssociation>,
     flowNodeRuntimeInformation: Array<DataModels.Kpi.FlowNodeRuntimeInformation>,
   ): Array<DataModels.Kpi.FlowNodeRuntimeInformation> {
@@ -271,7 +268,7 @@ export class HeatmapService implements IHeatmapService {
    * Returns the IShape of an element.
    * The IShape is needed by the IModeling module from bpmn-js to color an element.
    */
-  private _getShape(
+  private getShape(
     elementRegistry: IElementRegistry,
     elementToColor: DataModels.Kpi.FlowNodeRuntimeInformation | ITokenPositionAndCount | DataModels.Kpi.ActiveToken,
   ): IShape {
@@ -280,7 +277,7 @@ export class HeatmapService implements IHeatmapService {
     return elementShape;
   }
 
-  private _getParticipantShape(elementRegistry: IElementRegistry): IShape {
+  private getParticipantShape(elementRegistry: IElementRegistry): IShape {
     const allElements: Array<IShape> = elementRegistry.getAll();
 
     const participantShape: IShape = allElements.find((element: IShape) => {
@@ -292,7 +289,7 @@ export class HeatmapService implements IHeatmapService {
     return participantShape;
   }
 
-  private _getElementsForOverlays(elementRegistry: IElementRegistry): Array<IShape> {
+  private getElementsForOverlays(elementRegistry: IElementRegistry): Array<IShape> {
     const allElements: Array<IShape> = elementRegistry.getAll();
     const filteredElements: Array<IShape> = allElements.filter((element: IShape) => {
       const condition: boolean =
@@ -310,7 +307,7 @@ export class HeatmapService implements IHeatmapService {
     return filteredElements;
   }
 
-  private async _getXmlFromModeler(modeler: IBpmnModeler): Promise<string> {
+  private async getXmlFromModeler(modeler: IBpmnModeler): Promise<string> {
     const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
       modeler.saveXML({format: true}, async (saveXmlError: Error, xml: string) => {
         if (saveXmlError) {
@@ -326,7 +323,7 @@ export class HeatmapService implements IHeatmapService {
     return saveXmlPromise;
   }
 
-  private _getMedianRunTimeForAssociation(association: IConnection): number {
+  private getMedianRunTimeForAssociation(association: IConnection): number {
     const annotationText: string = association.target.businessObject.text;
     const lengthOfRTStamp: number = 4;
     const startRunTimeText: number = annotationText.search('RT:') + lengthOfRTStamp;
@@ -338,7 +335,7 @@ export class HeatmapService implements IHeatmapService {
     return medianRunTimeInMs;
   }
 
-  private async _getActiveTokenListArray(
+  private async getActiveTokenListArray(
     elementsForOverlays: Array<IShape>,
     processModelId: string,
   ): Promise<Array<Array<DataModels.Kpi.ActiveToken>>> {
@@ -375,7 +372,7 @@ export class HeatmapService implements IHeatmapService {
     return filteredActiveTokenListArray;
   }
 
-  private _addShapeTypeToActiveToken(
+  private addShapeTypeToActiveToken(
     activeTokenListArray: Array<Array<DataModels.Kpi.ActiveToken>>,
     elementsForOverlays: Array<IShape>,
   ): void {
@@ -386,11 +383,12 @@ export class HeatmapService implements IHeatmapService {
         return isCorrectElement;
       });
 
+      // eslint-disable-next-line no-param-reassign
       activeTokenArray[0].type = elementOfActiveToken.type;
     });
   }
 
-  private _getElementsWithoutToken(
+  private getElementsWithoutToken(
     elementsForOverlays: Array<IShape>,
     activeTokenListArray: Array<Array<DataModels.Kpi.ActiveToken>>,
   ): Array<IShape> {
@@ -409,7 +407,7 @@ export class HeatmapService implements IHeatmapService {
     return elementsWithoutToken;
   }
 
-  private _elementIsEvent(type: string): boolean {
+  private elementIsEvent(type: string): boolean {
     const elementTypeIsEvent: boolean =
       type === 'bpmn:StartEvent' ||
       type === 'bpmn:EndEvent' ||
@@ -420,7 +418,7 @@ export class HeatmapService implements IHeatmapService {
     return elementTypeIsEvent;
   }
 
-  private _elementIsGateway(type: string): boolean {
+  private elementIsGateway(type: string): boolean {
     const elementTypeIsGateway: boolean =
       type === 'bpmn:ExclusiveGateway' ||
       type === 'bpmn:ParallelGateway' ||
@@ -431,7 +429,7 @@ export class HeatmapService implements IHeatmapService {
     return elementTypeIsGateway;
   }
 
-  private _elementIsTask(type: string): boolean {
+  private elementIsTask(type: string): boolean {
     const elementTypeIsTask: boolean =
       type === 'bpmn:UserTask' ||
       type === 'bpmn:ScriptTask' ||
