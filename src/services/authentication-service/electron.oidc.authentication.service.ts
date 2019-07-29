@@ -19,16 +19,16 @@ const IDENTITY_SERVER_AVAILABLE_SUCCESS_STATUS_CODE: number = 200;
 
 @inject(EventAggregator, 'NotificationService')
 export class ElectronOidcAuthenticationService implements IAuthenticationService {
-  private _eventAggregator: EventAggregator;
-  private _notificationService: NotificationService;
+  private eventAggregator: EventAggregator;
+  private notificationService: NotificationService;
 
   constructor(eventAggregator: EventAggregator, notificationService: NotificationService) {
-    this._eventAggregator = eventAggregator;
-    this._notificationService = notificationService;
+    this.eventAggregator = eventAggregator;
+    this.notificationService = notificationService;
   }
 
   public async isLoggedIn(authority: string, identity: IIdentity): Promise<boolean> {
-    authority = this._formAuthority(authority);
+    authority = this.formAuthority(authority);
 
     let userIdentity: IUserIdentity;
 
@@ -44,12 +44,12 @@ export class ElectronOidcAuthenticationService implements IAuthenticationService
   }
 
   public async login(authority: string): Promise<ILoginResult> {
-    authority = this._formAuthority(authority);
+    authority = this.formAuthority(authority);
 
-    const identityServerIsNotReachable: boolean = !(await this._isAuthorityReachable(authority));
+    const identityServerIsNotReachable: boolean = !(await this.isAuthorityReachable(authority));
 
     if (identityServerIsNotReachable) {
-      return;
+      return undefined;
     }
 
     const loginResultPromise: Promise<ILoginResult> = new Promise(
@@ -69,7 +69,7 @@ export class ElectronOidcAuthenticationService implements IAuthenticationService
             idToken: tokenObject.idToken,
           };
 
-          this._eventAggregator.publish(AuthenticationStateEvent.LOGIN);
+          this.eventAggregator.publish(AuthenticationStateEvent.LOGIN);
 
           ipcRenderer.removeAllListeners('oidc-login-reply');
 
@@ -84,13 +84,13 @@ export class ElectronOidcAuthenticationService implements IAuthenticationService
   }
 
   public async logout(authority: string, identity: IIdentity): Promise<void> {
-    authority = this._formAuthority(authority);
+    authority = this.formAuthority(authority);
 
     const ipcRenderer: any = (window as any).nodeRequire('electron').ipcRenderer;
 
     ipcRenderer.on('oidc-logout-reply', async (event: any, logoutWasSuccessful: boolean) => {
       if (logoutWasSuccessful) {
-        this._eventAggregator.publish(AuthenticationStateEvent.LOGOUT);
+        this.eventAggregator.publish(AuthenticationStateEvent.LOGOUT);
       }
     });
 
@@ -98,7 +98,7 @@ export class ElectronOidcAuthenticationService implements IAuthenticationService
   }
 
   public async getUserIdentity(authority: string, identity: IIdentity): Promise<IUserIdentity | null> {
-    authority = this._formAuthority(authority);
+    authority = this.formAuthority(authority);
 
     const userInfoRequest: Request = new Request(`${authority}connect/userinfo`, {
       method: 'GET',
@@ -121,7 +121,7 @@ export class ElectronOidcAuthenticationService implements IAuthenticationService
     return userInfoResponse.json();
   }
 
-  private async _isAuthorityReachable(authority: string): Promise<boolean> {
+  private async isAuthorityReachable(authority: string): Promise<boolean> {
     const configRequest: Request = new Request(`${authority}.well-known/openid-configuration`, {
       method: 'GET',
       mode: 'cors',
@@ -139,7 +139,7 @@ export class ElectronOidcAuthenticationService implements IAuthenticationService
     } catch (error) {
       const identityServerWasOffline: boolean = error.message === 'Failed to fetch';
       if (identityServerWasOffline) {
-        this._notificationService.showNotification(NotificationType.ERROR, 'IdentityServer is offline.');
+        this.notificationService.showNotification(NotificationType.ERROR, 'IdentityServer is offline.');
 
         return false;
       }
@@ -153,7 +153,7 @@ export class ElectronOidcAuthenticationService implements IAuthenticationService
     return false;
   }
 
-  private _formAuthority(authority: string): string {
+  private formAuthority(authority: string): string {
     const authorityDoesNotEndWithSlash: boolean = !authority.endsWith('/');
 
     if (authorityDoesNotEndWithSlash) {
