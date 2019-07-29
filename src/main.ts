@@ -9,6 +9,7 @@ import {oidcConfig} from './open-id-connect-configuration';
 
 export function configure(aurelia: Aurelia): void {
   if (navigator.cookieEnabled === false) {
+    // eslint-disable-next-line no-restricted-globals
     const url: string = location.href;
     throw new Error(`In order to use the web version of BPMN Studio please enable cookies for this URL: ${url}.`);
   }
@@ -85,7 +86,8 @@ export function configure(aurelia: Aurelia): void {
          *
          * TODO: Implement a proper FAQ section and link to that.
          */
-        const targetHref: string = '<a href="javascript:nodeRequire(\'open\')(\'https://github.com/process-engine/bpmn-studio/issues/316\')">click here</a>';
+        const targetHref: string =
+          "<a href=\"javascript:nodeRequire('open')('https://github.com/process-engine/bpmn-studio/issues/316')\">click here</a>";
 
         const errorMessage: string = `Failed to start ProcessEngine. For further information ${targetHref}.`;
         const notificationService: NotificationService = aurelia.container.get('NotificationService');
