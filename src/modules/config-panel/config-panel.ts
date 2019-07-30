@@ -100,7 +100,7 @@ export class ConfigPanel {
     /**
      * This RegEx checks if the entered URI is valid or not.
      */
-    const urlRegEx: RegExp = /^(?:http(s)?:\/\/)+[\w.-]?[\w\-\._~:/?#[\]@!\$&\'\(\)\*\+,;=.]+$/g;
+    const urlRegEx: RegExp = /^(?:http(s)?:\/\/)+[\w.-]?[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/g;
     const uriIsValid: boolean = urlRegEx.test(this.authority);
 
     return uriIsValid;
