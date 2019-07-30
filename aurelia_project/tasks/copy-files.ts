@@ -13,6 +13,7 @@ export default function copyFiles(done: Function): void {
   const instruction: object = getNormalizedInstruction();
   const files: Array<string> = Object.keys(instruction);
 
+  // eslint-disable-next-line consistent-return
   return gulp
     .src(files)
     .pipe(changedInPlace({firstPass: true}))
@@ -29,9 +30,9 @@ function getNormalizedInstruction(): object {
   const files: Array<string> = project.build.copyFiles;
   const normalizedInstruction: object = {};
 
-  for (const key in files) {
+  Object.values(files).forEach((key: string) => {
     normalizedInstruction[path.posix.normalize(key)] = files[key];
-  }
+  });
 
   return normalizedInstruction;
 }
