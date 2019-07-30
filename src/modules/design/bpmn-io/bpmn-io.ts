@@ -105,6 +105,7 @@ export class BpmnIo {
   }
 
   public created(): void {
+    // eslint-disable-next-line 6river/new-cap
     this.modeler = new bundle.modeler({
       additionalModules: [
         bundle.MiniMap,
@@ -506,6 +507,7 @@ export class BpmnIo {
     if (this.solutionIsRemote) {
       const viewerNotInitialized: boolean = this.viewer === undefined;
       if (viewerNotInitialized) {
+        // eslint-disable-next-line 6river/new-cap
         this.viewer = new bundle.viewer({
           additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule, bundle.MiniMap],
         });

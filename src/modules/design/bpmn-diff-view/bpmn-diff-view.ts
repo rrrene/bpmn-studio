@@ -90,6 +90,7 @@ export class BpmnDiffView {
     this.rightViewer = this.createNewViewer();
     this.lowerViewer = this.createNewViewer();
 
+    // eslint-disable-next-line 6river/new-cap
     this.diffModeler = new bundle.modeler();
 
     this.modeling = this.diffModeler.get('modeling');
@@ -593,6 +594,7 @@ export class BpmnDiffView {
   }
 
   private createNewViewer(): IBpmnModeler {
+    // eslint-disable-next-line 6river/new-cap
     return new bundle.viewer({
       additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule],
     });

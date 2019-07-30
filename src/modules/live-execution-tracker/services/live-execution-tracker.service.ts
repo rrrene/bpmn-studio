@@ -27,6 +27,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   constructor(liveExecutionTrackerRepository: ILiveExecutionTrackerRepository) {
     this.liveExecutionTrackerRepository = liveExecutionTrackerRepository;
 
+    // eslint-disable-next-line 6river/new-cap
     this.diagramModeler = new bundle.modeler();
     this.modeling = this.diagramModeler.get('modeling');
     this.elementRegistry = this.diagramModeler.get('elementRegistry');

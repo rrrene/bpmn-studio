@@ -148,10 +148,12 @@ export class LiveExecutionTracker {
     this.isAttached = true;
 
     // Create Viewer
+    // eslint-disable-next-line 6river/new-cap
     this.diagramViewer = new bundle.viewer({
       additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule, bundle.MiniMap],
     });
 
+    // eslint-disable-next-line 6river/new-cap
     this.diagramPreviewViewer = new bundle.viewer({
       additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule, bundle.MiniMap],
     });

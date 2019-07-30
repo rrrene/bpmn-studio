@@ -49,7 +49,9 @@ export class DiagramViewer {
   }
 
   public attached(): void {
+    // eslint-disable-next-line 6river/new-cap
     this.diagramModeler = new bundle.modeler();
+    // eslint-disable-next-line 6river/new-cap
     this.diagramViewer = new bundle.viewer({
       additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule],
     });

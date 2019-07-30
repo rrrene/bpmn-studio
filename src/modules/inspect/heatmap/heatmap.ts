@@ -67,6 +67,7 @@ export class Heatmap {
       return;
     }
 
+    // eslint-disable-next-line 6river/new-cap
     this.modeler = new bundle.modeler({
       moddleExtensions: {
         camunda: bundle.camundaModdleDescriptor,
@@ -94,6 +95,7 @@ export class Heatmap {
 
     const xml: string = await this.heatmapService.getColoredXML(associations, flowNodeRuntimeInformation, this.modeler);
 
+    // eslint-disable-next-line 6river/new-cap
     this.viewer = new bundle.viewer({
       additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule, bundle.MiniMap],
     });
