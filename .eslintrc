@@ -16,6 +16,7 @@
     "function-paren-newline": "off",
     "max-len": "off",
     "no-console": "off",
+    "import/no-unresolved": "off",
     "no-lonely-if": "warn",
     "no-null/no-null": "off",
     "no-plusplus": "off",
