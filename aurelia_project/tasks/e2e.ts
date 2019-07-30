@@ -18,7 +18,7 @@ function clean(): Promise<Array<string>> {
   return del(`${project.e2eTestRunner.dist}/*`);
 }
 
-function build_tests(): NodeJS.ReadWriteStream {
+function buildTests(): NodeJS.ReadWriteStream {
   const typescriptCompiler: typescript.Project = typescript.createProject(
     Object.assign({}, tsConfig.compilerOptions, {
       module: 'commonjs',
@@ -48,4 +48,4 @@ function e2e(): NodeJS.ReadWriteStream {
     });
 }
 
-export default gulp.series(clean, build_tests, build, run, e2e);
+export default gulp.series(clean, buildTests, build, run, e2e);
