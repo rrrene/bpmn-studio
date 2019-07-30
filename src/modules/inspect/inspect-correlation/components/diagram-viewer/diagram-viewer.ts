@@ -28,6 +28,7 @@ export class DiagramViewer {
   @bindable public xml: string;
   @bindable public activeDiagram: IDiagram;
   @bindable public selectedFlowNode: IShape;
+  @bindable public noCorrelationsFound: boolean;
   public xmlIsNotSelected: boolean = true;
   public canvasModel: HTMLElement;
 
@@ -158,6 +159,12 @@ export class DiagramViewer {
     this.subscriptions.forEach((subscription: Subscription) => subscription.dispose());
   }
 
+  public noCorrelationsFoundChanged(): void {
+    if (this.noCorrelationsFound) {
+      this.xmlIsNotSelected = false;
+    }
+  }
+  
   public async processInstanceChanged(): Promise<void> {
     const noProcessInstanceSelected: boolean = this.processInstance === undefined;
     if (noProcessInstanceSelected) {
@@ -204,6 +211,7 @@ export class DiagramViewer {
 
     this.diagramViewer.clear();
     this.xmlIsNotSelected = true;
+    this.noCorrelationsFound = false;
     this.xml = undefined;
 
     this.fitDiagramToViewport();
