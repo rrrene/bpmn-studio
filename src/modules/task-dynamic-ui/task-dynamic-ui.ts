@@ -16,7 +16,7 @@ import {
 import {NotificationService} from '../../services/notification-service/notification.service';
 import {DynamicUiWrapper} from '../dynamic-ui-wrapper/dynamic-ui-wrapper';
 
-interface RouteParameters {
+interface IRouteParameters {
   diagramName: string;
   solutionUri: string;
   correlationId: string;
@@ -34,19 +34,19 @@ export class TaskDynamicUi {
   @bindable() public taskId: string;
   @bindable() public isModal: boolean;
   @bindable() public activeSolutionEntry: ISolutionEntry;
+  public userTask: DataModels.UserTasks.UserTask;
+  public manualTask: DataModels.ManualTasks.ManualTask;
 
-  private _activeDiagramName: string;
-  private _activeSolutionUri: string;
-  private _eventAggregator: EventAggregator;
-  private _router: Router;
-  private _notificationService: NotificationService;
-  private _solutionService: ISolutionService;
-  private _dynamicUiService: IDynamicUiService;
-  private _subscriptions: Array<Subscription>;
-  private _userTask: DataModels.UserTasks.UserTask;
-  private _manualTask: DataModels.ManualTasks.ManualTask;
-  private _element: Element;
-  private _identity: IIdentity;
+  private activeDiagramName: string;
+  private activeSolutionUri: string;
+  private eventAggregator: EventAggregator;
+  private router: Router;
+  private notificationService: NotificationService;
+  private solutionService: ISolutionService;
+  private dynamicUiService: IDynamicUiService;
+  private subscriptions: Array<Subscription>;
+  private element: Element;
+  private identity: IIdentity;
 
   constructor(
     eventAggregator: EventAggregator,
@@ -56,44 +56,44 @@ export class TaskDynamicUi {
     solutionService: ISolutionService,
     element: Element,
   ) {
-    this._eventAggregator = eventAggregator;
-    this._dynamicUiService = dynamicUiService;
-    this._router = router;
-    this._notificationService = notificationService;
-    this._solutionService = solutionService;
-    this._element = element;
+    this.eventAggregator = eventAggregator;
+    this.dynamicUiService = dynamicUiService;
+    this.router = router;
+    this.notificationService = notificationService;
+    this.solutionService = solutionService;
+    this.element = element;
   }
 
-  public activate(routeParameters: RouteParameters): void {
+  public activate(routeParameters: IRouteParameters): void {
     // This is called when starting tasks
     this.correlationId = routeParameters.correlationId;
     this.processModelId = routeParameters.diagramName;
     this.processInstanceId = routeParameters.processInstanceId;
     this.taskId = routeParameters.taskId;
-    this._activeDiagramName = routeParameters.diagramName;
-    this._activeSolutionUri = routeParameters.solutionUri;
+    this.activeDiagramName = routeParameters.diagramName;
+    this.activeSolutionUri = routeParameters.solutionUri;
 
-    this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(this._activeSolutionUri);
-    this._identity = this.activeSolutionEntry.identity;
+    this.activeSolutionEntry = this.solutionService.getSolutionEntryForUri(this.activeSolutionUri);
+    this.identity = this.activeSolutionEntry.identity;
 
     this.isModal = false;
   }
 
   public attached(): void {
-    this.dynamicUiWrapper.identity = this._identity;
+    this.dynamicUiWrapper.identity = this.identity;
     this.getTask();
 
-    this._subscriptions = [
-      this._eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, () => {
+    this.subscriptions = [
+      this.eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, () => {
         this.getTask();
       }),
-      this._eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
+      this.eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
         this.getTask();
       }),
     ];
 
-    this.dynamicUiWrapper.onButtonClick = (action: string): void => {
-      this._finishTask(action);
+    this.dynamicUiWrapper.onButtonClick = (): void => {
+      this.finishTask();
     };
 
     this.setDynamicUIWrapperUserTask();
@@ -102,7 +102,7 @@ export class TaskDynamicUi {
   }
 
   public activeSolutionEntryChanged(newValue: ISolutionEntry): void {
-    this._identity = newValue.identity;
+    this.identity = newValue.identity;
 
     const dynamicUiWrapperIsUndefined: boolean = this.dynamicUiWrapper === undefined;
     if (dynamicUiWrapperIsUndefined) {
@@ -113,42 +113,28 @@ export class TaskDynamicUi {
   }
 
   public detached(): void {
-    for (const subscription of this._subscriptions) {
+    for (const subscription of this.subscriptions) {
       subscription.dispose();
     }
   }
 
-  public set userTask(userTask: DataModels.UserTasks.UserTask) {
-    this._userTask = userTask;
-
+  public userTaskChanged(): void {
     this.setDynamicUIWrapperUserTask();
   }
 
-  @computedFrom('_userTask')
-  public get userTask(): DataModels.UserTasks.UserTask {
-    return this._userTask;
-  }
-
-  public set manualTask(manualTask: DataModels.ManualTasks.ManualTask) {
-    this._manualTask = manualTask;
-
+  public manualTaskChanged(): void {
     this.setDynamicUIWrapperManualTask();
   }
 
-  @computedFrom('_manualTask')
-  public get manualTask(): DataModels.ManualTasks.ManualTask {
-    return this._manualTask;
-  }
-
-  @computedFrom('_userTask', '_manualTask')
+  @computedFrom('userTask', 'manualTask')
   public get taskName(): string {
     const nonWhiteSpaceRegex: RegExp = /\S/;
     const task: DataModels.UserTasks.UserTask | DataModels.ManualTasks.ManualTask =
-      this._userTask === undefined ? this._manualTask : this._userTask;
+      this.userTask === undefined ? this.manualTask : this.userTask;
 
     const noTaskIsSet: boolean = task === undefined;
     if (noTaskIsSet) {
-      return;
+      return undefined;
     }
 
     const taskNameIsSet: boolean = nonWhiteSpaceRegex.test(task.name);
@@ -162,20 +148,20 @@ export class TaskDynamicUi {
     this.manualTask = undefined;
   }
 
-  private _finishTask(action: string): void {
+  private finishTask(): void {
     if (this.isModal) {
-      domEventDispatch.dispatchEvent(this._element, 'close-modal', {bubbles: true});
+      domEventDispatch.dispatchEvent(this.element, 'close-modal', {bubbles: true});
       this.clearTasks();
 
       return;
     }
 
     const task: DataModels.UserTasks.UserTask | DataModels.ManualTasks.ManualTask =
-      this._userTask === undefined ? this._manualTask : this._userTask;
+      this.userTask === undefined ? this.manualTask : this.userTask;
 
-    this._router.navigateToRoute('live-execution-tracker', {
-      diagramName: this._activeDiagramName,
-      solutionUri: this._activeSolutionUri,
+    this.router.navigateToRoute('live-execution-tracker', {
+      diagramName: this.activeDiagramName,
+      solutionUri: this.activeSolutionUri,
       correlationId: task.correlationId,
       processInstanceId: this.processInstanceId,
     });
@@ -189,23 +175,23 @@ export class TaskDynamicUi {
         throw Error(`Invalid ProcessInstance ID: ${this.processInstanceId}`);
       }
 
-      this.userTask = await this._dynamicUiService.getUserTask(this._identity, this.processInstanceId, this.taskId);
+      this.userTask = await this.dynamicUiService.getUserTask(this.identity, this.processInstanceId, this.taskId);
 
-      const userTaskFound: boolean = this._userTask !== undefined;
+      const userTaskFound: boolean = this.userTask !== undefined;
       if (userTaskFound) {
         return;
       }
 
-      this.manualTask = await this._dynamicUiService.getManualTask(this._identity, this.processInstanceId, this.taskId);
+      this.manualTask = await this.dynamicUiService.getManualTask(this.identity, this.processInstanceId, this.taskId);
 
-      const manualTaskFound: boolean = this._manualTask !== undefined;
+      const manualTaskFound: boolean = this.manualTask !== undefined;
       if (manualTaskFound) {
         return;
       }
 
       throw new Error(`No UserTask or ManualTask with ID ${this.taskId} found!`);
     } catch (error) {
-      this._notificationService.showNotification(NotificationType.ERROR, `Failed to refresh task: ${error.message}`);
+      this.notificationService.showNotification(NotificationType.ERROR, `Failed to refresh task: ${error.message}`);
       throw error;
     }
   }
@@ -217,7 +203,7 @@ export class TaskDynamicUi {
       return;
     }
 
-    this.dynamicUiWrapper.currentUserTask = this._userTask;
+    this.dynamicUiWrapper.currentUserTask = this.userTask;
   }
 
   private async setDynamicUIWrapperManualTask(): Promise<void> {
@@ -227,6 +213,6 @@ export class TaskDynamicUi {
       return;
     }
 
-    this.dynamicUiWrapper.currentManualTask = this._manualTask;
+    this.dynamicUiWrapper.currentManualTask = this.manualTask;
   }
 }
