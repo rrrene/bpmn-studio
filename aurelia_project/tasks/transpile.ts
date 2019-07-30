@@ -7,6 +7,7 @@ import * as plumber from 'gulp-plumber';
 import * as rename from 'gulp-rename';
 import * as sourcemaps from 'gulp-sourcemaps';
 import * as ts from 'gulp-typescript';
+import * as typescript from 'typescript';
 import * as project from '../aurelia.json';
 
 function configureEnvironment(): void {
@@ -23,7 +24,7 @@ let typescriptCompiler: any = typescriptCompiler || null;
 
 function buildTypeScript(): void {
   typescriptCompiler = ts.createProject('tsconfig.json', {
-    typescript: require('typescript'),
+    typescript: typescript,
   });
 
   const dts: any = gulp.src(project.transpiler.dtsSource);
