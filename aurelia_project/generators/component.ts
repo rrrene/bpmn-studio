@@ -1,13 +1,22 @@
 import {inject} from 'aurelia-dependency-injection';
 import {CLIOptions, Project, ProjectItem, UI} from 'aurelia-cli';
 
-const path = require('path');
+import path from 'path';
 
 @inject(Project, CLIOptions, UI)
 export default class ElementGenerator {
-  constructor(private project: Project, private options: CLIOptions, private ui: UI) {}
+  private project: Project;
+  private options: CLIOptions;
+  private ui: UI;
 
-  execute() {
+  constructor(project: Project, options: CLIOptions, ui: UI) {
+    this.project = project;
+    this.options = options;
+    this.ui = ui;
+  }
+
+  public execute(): any {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
 
     return this.ui.ensureAnswer(this.options.args[0], 'What would you like to call the component?').then((name) => {
@@ -35,7 +44,7 @@ export default class ElementGenerator {
     });
   }
 
-  generateJSSource(className) {
+  public generateJSSource(className): string {
     return `export class ${className} {    
   message: string;
   
@@ -45,7 +54,7 @@ export default class ElementGenerator {
 }`;
   }
 
-  generateHTMLSource(className) {
+  public generateHTMLSource(className): string {
     return `<template>
   <h1>\${message}</h1>
 </template>`;
