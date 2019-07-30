@@ -38,7 +38,10 @@ export class DiagramCreationService implements IDiagramCreationService {
     const modeler: IBpmnModeler = new bundle.modeler({});
 
     modeler.importXML(xml, (error: Error) => {
-      this.notificationService.showNotification(NotificationType.ERROR, `Failed to copy diagram. ${error.message}`);
+      const errorOccured: boolean = error !== undefined;
+      if (errorOccured) {
+        this.notificationService.showNotification(NotificationType.ERROR, `Failed to copy diagram. ${error.message}`);
+      }
     });
 
     const promise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
