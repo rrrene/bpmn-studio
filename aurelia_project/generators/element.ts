@@ -1,5 +1,5 @@
 import {inject} from 'aurelia-dependency-injection';
-import {Project, ProjectItem, CLIOptions, UI} from 'aurelia-cli';
+import {CLIOptions, Project, ProjectItem, UI} from 'aurelia-cli';
 
 @inject(Project, CLIOptions, UI)
 export default class ElementGenerator {
@@ -9,8 +9,8 @@ export default class ElementGenerator {
     return this.ui
       .ensureAnswer(this.options.args[0], 'What would you like to call the custom element?')
       .then((name) => {
-        let fileName = this.project.makeFileName(name);
-        let className = this.project.makeClassName(name);
+        const fileName = this.project.makeFileName(name);
+        const className = this.project.makeClassName(name);
 
         this.project.elements.add(
           ProjectItem.text(`${fileName}.ts`, this.generateJSSource(className)),

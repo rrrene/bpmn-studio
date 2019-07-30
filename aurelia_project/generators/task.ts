@@ -1,5 +1,5 @@
 import {inject} from 'aurelia-dependency-injection';
-import {Project, ProjectItem, CLIOptions, UI} from 'aurelia-cli';
+import {CLIOptions, Project, ProjectItem, UI} from 'aurelia-cli';
 
 @inject(Project, CLIOptions, UI)
 export default class TaskGenerator {
@@ -7,8 +7,8 @@ export default class TaskGenerator {
 
   execute() {
     return this.ui.ensureAnswer(this.options.args[0], 'What would you like to call the task?').then((name) => {
-      let fileName = this.project.makeFileName(name);
-      let functionName = this.project.makeFunctionName(name);
+      const fileName = this.project.makeFileName(name);
+      const functionName = this.project.makeFunctionName(name);
 
       this.project.tasks.add(ProjectItem.text(`${fileName}.ts`, this.generateSource(functionName)));
 

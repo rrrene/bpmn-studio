@@ -9,8 +9,8 @@ import * as del from 'del';
 import * as gulp from 'gulp';
 import {protractor} from 'gulp-protractor';
 import * as typescript from 'gulp-typescript';
-import * as tsConfig from "../../tsconfig.json";
-import * as project from "../aurelia.json";
+import * as tsConfig from '../../tsconfig.json';
+import * as project from '../aurelia.json';
 import build from './build';
 import run from './run';
 

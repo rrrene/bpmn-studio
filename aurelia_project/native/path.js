@@ -1,9 +1,9 @@
 if (window.nodeRequire) {
-  define('path', function() {
+  define('path', () => {
     return window.nodeRequire('path');
   });
 } else {
-  define('path', function() {
-    return;
+  define('path', () => {
+
   });
 }

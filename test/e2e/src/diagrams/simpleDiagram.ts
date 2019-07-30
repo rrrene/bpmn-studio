@@ -5,7 +5,7 @@ import {IRequestHeaders, IRequestPayload} from '../contracts/index';
 
 export class SimpleDiagram {
   // tslint:disable-next-line:no-magic-numbers
-  public name: string = 'TA_' + Math.floor(Math.random() * 1000000);
+  public name: string = `TA_${Math.floor(Math.random() * 1000000)}`;
   public correlationId: string;
   public processInstanceId: string;
 
@@ -18,19 +18,19 @@ export class SimpleDiagram {
     const requestDestination: string = `/api/management/v1/process_models/${this.name}/update`;
     const requestPayload: IRequestPayload = {
       xml:
-        '<?xml version="1.0" encoding="UTF-8"?>\n<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" ' +
+        `${'<?xml version="1.0" encoding="UTF-8"?>\n<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" ' +
         'xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" ' +
         'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" ' +
         'id="Definition_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="BPMN Studio" exporterVersion="1">' +
-        '<bpmn:collaboration id="Collaboration_1cidyxu" name=""><bpmn:participant id="Participant_0px403d" name="' +
-        this.name +
-        '" processRef="' +
-        this.name +
-        '" /></bpmn:collaboration><bpmn:process id="' +
-        this.name +
-        '" name="' +
-        this.name +
-        '" isExecutable="true"><bpmn:laneSet><bpmn:lane id="Lane_1xzf0d3" name="Lane">' +
+        '<bpmn:collaboration id="Collaboration_1cidyxu" name=""><bpmn:participant id="Participant_0px403d" name="'}${
+        this.name
+        }" processRef="${
+        this.name
+        }" /></bpmn:collaboration><bpmn:process id="${
+        this.name
+        }" name="${
+        this.name
+        }" isExecutable="true"><bpmn:laneSet><bpmn:lane id="Lane_1xzf0d3" name="Lane">` +
         '<bpmn:flowNodeRef>StartEvent_1mox3jl</bpmn:flowNodeRef><bpmn:flowNodeRef>EndEvent_0eie6q6</bpmn:flowNodeRef>' +
         '<bpmn:flowNodeRef>Task_0z3p6gi</bpmn:flowNodeRef></bpmn:lane></bpmn:laneSet><bpmn:startEvent id="StartEvent_1mox3jl"' +
         ' name="Start Event"><bpmn:outgoing>SequenceFlow_1jdocur</bpmn:outgoing><bpmn:outgoing>SequenceFlow_0y5m38r</bpmn:outgoing>' +

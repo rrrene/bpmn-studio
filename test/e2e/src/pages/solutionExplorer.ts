@@ -1,4 +1,4 @@
-import {browser, by, element, ElementFinder, ExpectedConditions} from 'protractor';
+import {ElementFinder, ExpectedConditions, browser, by, element} from 'protractor';
 
 import {By} from 'selenium-webdriver';
 

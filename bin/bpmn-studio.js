@@ -14,7 +14,7 @@ const httpServerOptions = {
   noPushstate: false,
   hostname: hostUsed,
   port: portUsed,
-  path: __dirname + './..',
+  path: `${__dirname}./..`,
   indexPath: 'index.html',
 };
 
@@ -57,7 +57,7 @@ function _applicationHostIsValid(host) {
     return false;
   }
   if (!host.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/)) {
-    console.log("The specified host: '" + host + "' is not a valid IP address, like: '0.0.0.0'.\n");
+    console.log(`The specified host: '${host}' is not a valid IP address, like: '0.0.0.0'.\n`);
     return false;
   }
   return true;

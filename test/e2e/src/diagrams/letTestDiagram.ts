@@ -267,15 +267,15 @@ export class LETTestDiagram {
     });
 
     this.userTaskDynamicUiUrl =
-      this._applicationUrl +
-      '/correlation/' +
-      this.correlationId +
-      '/diagram/' +
-      this.name +
-      '/instance/' +
-      this.processInstanceId +
-      '/task/' +
-      this.userTaskId;
+      `${this._applicationUrl
+      }/correlation/${
+      this.correlationId
+      }/diagram/${
+      this.name
+      }/instance/${
+      this.processInstanceId
+      }/task/${
+      this.userTaskId}`;
 
     await browser.sleep(this._processEngineActionTimeout);
   }

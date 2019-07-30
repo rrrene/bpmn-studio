@@ -29,7 +29,7 @@ let fileOpenMainEvent;
 
 Main._window = null;
 
-Main.execute = function() {
+Main.execute = function () {
   /**
    * Makes this application a Single Instance Application.
    */
@@ -82,7 +82,7 @@ Main.execute = function() {
   }
 };
 
-Main._initializeApplication = function() {
+Main._initializeApplication = function () {
   app.on('ready', () => {
     Main._createMainWindow();
   });
@@ -270,7 +270,7 @@ function answerOpenFileEvent(filePath) {
   this.fileOpenMainEvent.sender.send('double-click-on-file', filePath);
 }
 
-Main._createMainWindow = function() {
+Main._createMainWindow = function () {
   console.log('create window called');
 
   setElectronMenubar();
@@ -641,7 +641,7 @@ Main._createMainWindow = function() {
   }
 };
 
-Main._startInternalProcessEngine = async function() {
+Main._startInternalProcessEngine = async function () {
   const devUserDataFolderPath = path.join(__dirname, '..', 'userData');
   const prodUserDataFolderPath = app.getPath('userData');
 
@@ -679,8 +679,8 @@ Main._startInternalProcessEngine = async function() {
       'timer.sqlite',
     );
 
-    let internalProcessEngineStatus = undefined;
-    let internalProcessEngineStartupError = undefined;
+    let internalProcessEngineStatus;
+    let internalProcessEngineStartupError;
     const processEngineStatusListeners = [];
 
     function _sendInternalProcessEngineStatus(sender) {
@@ -786,7 +786,7 @@ function getUserConfigFolder() {
   }
 }
 
-Main._bringExistingInstanceToForeground = function() {
+Main._bringExistingInstanceToForeground = function () {
   if (Main._window) {
     if (Main._window.isMinimized()) {
       Main._window.restore();

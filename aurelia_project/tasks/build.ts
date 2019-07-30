@@ -1,4 +1,4 @@
-import {build as buildCLI, CLIOptions} from 'aurelia-cli';
+import {CLIOptions, build as buildCLI} from 'aurelia-cli';
 import * as gulp from 'gulp';
 import * as project from '../aurelia.json';
 import copyFiles from './copy-files';

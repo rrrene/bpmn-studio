@@ -1,9 +1,9 @@
 if (window.nodeRequire) {
-  define('fs', function() {
+  define('fs', () => {
     return window.nodeRequire('fs');
   });
 } else {
-  define('fs', function() {
-    return;
+  define('fs', () => {
+
   });
 }

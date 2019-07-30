@@ -5,7 +5,7 @@ import {IRequestHeaders, IRequestPayload} from '../contracts/index';
 
 export class DiagramWithUserTask {
   // tslint:disable-next-line:no-magic-numbers
-  public name: string = 'TA_' + Math.floor(Math.random() * 1000000);
+  public name: string = `TA_${Math.floor(Math.random() * 1000000)}`;
   public userTaskId: string = 'Task_1adxlm1';
   public correlationId: string;
   public processInstanceId: string;
@@ -105,15 +105,15 @@ export class DiagramWithUserTask {
     });
 
     this.userTaskDynamicUiUrl =
-      this._applicationUrl +
-      '/correlation/' +
-      this.correlationId +
-      '/diagram/' +
-      this.name +
-      '/instance/' +
-      this.processInstanceId +
-      '/task/' +
-      this.userTaskId;
+      `${this._applicationUrl
+      }/correlation/${
+      this.correlationId
+      }/diagram/${
+      this.name
+      }/instance/${
+      this.processInstanceId
+      }/task/${
+      this.userTaskId}`;
 
     await browser.sleep(this._processEngineActionTimeout);
   }

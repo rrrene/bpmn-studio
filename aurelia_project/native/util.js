@@ -1,9 +1,9 @@
 if (window.nodeRequire) {
-  define('util', function() {
+  define('util', () => {
     return window.nodeRequire('util');
   });
 } else {
-  define('util', function() {
-    return;
+  define('util', () => {
+
   });
 }
