@@ -16,32 +16,32 @@ export class Think {
 
   public activeSolutionEntry: ISolutionEntry;
 
-  private _solutionService: ISolutionService;
-  private _notificationService: NotificationService;
+  private solutionService: ISolutionService;
+  private notificationService: NotificationService;
 
-  private _diagramSelected: boolean = false;
+  private diagramSelected: boolean = false;
 
-  private _ipcRenderer: any;
+  private ipcRenderer: any;
 
   constructor(solutionService: ISolutionService, notificationService: NotificationService) {
-    this._solutionService = solutionService;
-    this._notificationService = notificationService;
+    this.solutionService = solutionService;
+    this.notificationService = notificationService;
   }
 
   public async canActivate(routeParameters: IThinkRouteParameters): Promise<boolean> {
     const solutionUriIsSet: boolean = routeParameters.solutionUri !== undefined;
 
-    this._diagramSelected = routeParameters.diagramName !== undefined;
+    this.diagramSelected = routeParameters.diagramName !== undefined;
 
     const solutionUri: string = solutionUriIsSet
       ? routeParameters.solutionUri
       : window.localStorage.getItem('InternalProcessEngineRoute');
 
-    this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(solutionUri);
+    this.activeSolutionEntry = this.solutionService.getSolutionEntryForUri(solutionUri);
 
     const noActiveSolution: boolean = this.activeSolutionEntry === undefined;
     if (noActiveSolution) {
-      this._notificationService.showNotification(NotificationType.INFO, 'Please open a solution first.');
+      this.notificationService.showNotification(NotificationType.INFO, 'Please open a solution first.');
 
       return false;
     }
@@ -60,8 +60,8 @@ export class Think {
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
 
     if (isRunningInElectron) {
-      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
-      this._ipcRenderer.on('menubar__start_close_diagram', this._closeBpmnStudio);
+      this.ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+      this.ipcRenderer.on('menubar__start_close_diagram', this.closeBpmnStudio);
     }
   }
 
@@ -69,7 +69,7 @@ export class Think {
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
 
     if (isRunningInElectron) {
-      this._ipcRenderer.removeListener('menubar__start_close_diagram', this._closeBpmnStudio);
+      this.ipcRenderer.removeListener('menubar__start_close_diagram', this.closeBpmnStudio);
     }
   }
 
@@ -77,9 +77,9 @@ export class Think {
     return activationStrategy.replace;
   }
 
-  private _closeBpmnStudio: Function = (): void => {
-    if (!this._diagramSelected) {
-      this._ipcRenderer.send('close_bpmn-studio');
+  private closeBpmnStudio: Function = (): void => {
+    if (!this.diagramSelected) {
+      this.ipcRenderer.send('close_bpmn-studio');
     }
   };
 }
