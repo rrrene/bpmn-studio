@@ -3,109 +3,109 @@ import {ElementFinder, ExpectedConditions, browser, by, element} from 'protracto
 import {By} from 'selenium-webdriver';
 
 export class NavBar {
-  private _navBarContainerId: string = 'navBarContainer';
-  private _leftNavBarContainerId: string = 'navBarLeft';
-  private _centerNavBarContainerId: string = 'navBarCenter';
-  private _rightNavBarContainerId: string = 'navBarRight';
+  private navBarContainerId: string = 'navBarContainer';
+  private leftNavBarContainerId: string = 'navBarLeft';
+  private centerNavBarContainerId: string = 'navBarCenter';
+  private rightNavBarContainerId: string = 'navBarRight';
 
-  private _thinkButtonId: string = 'navbar-Think';
-  private _designButtonId: string = 'navbar-Design';
-  private _inspectButtonId: string = 'navbar-Inspect';
-  private _solutionExplorerButtonId: string = 'navbarSolutionExplorerButton';
+  private thinkButtonId: string = 'navbar-Think';
+  private designButtonId: string = 'navbar-Design';
+  private inspectButtonId: string = 'navbar-Inspect';
+  private solutionExplorerButtonId: string = 'navbarSolutionExplorerButton';
 
-  private _buttonActiveClassName: string = 'button--active';
+  private buttonActiveClassName: string = 'button--active';
 
   public async show(): Promise<void> {
-    await browser.wait(ExpectedConditions.visibilityOf(this._navBarContainer), browser.params.defaultTimeoutMS);
+    await browser.wait(ExpectedConditions.visibilityOf(this.navBarContainer), browser.params.defaultTimeoutMS);
   }
 
   public async getVisibilityOfLeftContainer(): Promise<boolean> {
-    return this._leftNavBarContainer.isDisplayed();
+    return this.leftNavBarContainer.isDisplayed();
   }
 
   public async getVisibilityOfCenterContainer(): Promise<boolean> {
-    return this._centerNavBarContainer.isDisplayed();
+    return this.centerNavBarContainer.isDisplayed();
   }
 
   public async getVisibilityOfRightContainer(): Promise<boolean> {
-    return this._rightNavBarContainer.isDisplayed();
+    return this.rightNavBarContainer.isDisplayed();
   }
 
   public async getVisibilityOfSolutionExplorerButton(): Promise<boolean> {
-    return this._solutionExplorerButton.isDisplayed();
+    return this.solutionExplorerButton.isDisplayed();
   }
 
   public async getActiveStateOfSolutionExplorerButton(): Promise<boolean> {
-    const attributes: string = await this._solutionExplorerButton.getAttribute('class');
-    const containsActiveClass: boolean = attributes.includes(this._buttonActiveClassName);
+    const attributes: string = await this.solutionExplorerButton.getAttribute('class');
+    const containsActiveClass: boolean = attributes.includes(this.buttonActiveClassName);
 
     return containsActiveClass;
   }
 
   public async clickOnSolutionExplorerButton(): Promise<void> {
-    return this._solutionExplorerButton.click();
+    return this.solutionExplorerButton.click();
   }
 
   public async getVisibilityOfThinkButton(): Promise<boolean> {
-    return this._thinkButton.isDisplayed();
+    return this.thinkButton.isDisplayed();
   }
 
   public async getVisibilityOfDesignButton(): Promise<boolean> {
-    return this._designButton.isDisplayed();
+    return this.designButton.isDisplayed();
   }
 
   public async getVisibilityOfInspectButton(): Promise<boolean> {
-    return this._inspectButton.isDisplayed();
+    return this.inspectButton.isDisplayed();
   }
 
   public async clickOnInspectButton(): Promise<void> {
-    return this._inspectButton.click();
+    return this.inspectButton.click();
   }
 
-  private get _navBarContainer(): ElementFinder {
-    const navBarContainerById: By = by.id(this._navBarContainerId);
+  private get navBarContainer(): ElementFinder {
+    const navBarContainerById: By = by.id(this.navBarContainerId);
 
     return element(navBarContainerById);
   }
 
-  private get _leftNavBarContainer(): ElementFinder {
-    const leftNavBarContainerById: By = by.id(this._leftNavBarContainerId);
+  private get leftNavBarContainer(): ElementFinder {
+    const leftNavBarContainerById: By = by.id(this.leftNavBarContainerId);
 
     return element(leftNavBarContainerById);
   }
 
-  private get _centerNavBarContainer(): ElementFinder {
-    const centerNavBarContainer: By = by.id(this._centerNavBarContainerId);
+  private get centerNavBarContainer(): ElementFinder {
+    const centerNavBarContainer: By = by.id(this.centerNavBarContainerId);
 
     return element(centerNavBarContainer);
   }
 
-  private get _rightNavBarContainer(): ElementFinder {
-    const rightNavBarContainerById: By = by.id(this._rightNavBarContainerId);
+  private get rightNavBarContainer(): ElementFinder {
+    const rightNavBarContainerById: By = by.id(this.rightNavBarContainerId);
 
     return element(rightNavBarContainerById);
   }
 
-  private get _solutionExplorerButton(): ElementFinder {
-    const solutionExlorerButtonById: By = by.id(this._solutionExplorerButtonId);
+  private get solutionExplorerButton(): ElementFinder {
+    const solutionExlorerButtonById: By = by.id(this.solutionExplorerButtonId);
 
     return element(solutionExlorerButtonById);
   }
 
-  private get _thinkButton(): ElementFinder {
-    const thinkButtonById: By = by.id(this._thinkButtonId);
+  private get thinkButton(): ElementFinder {
+    const thinkButtonById: By = by.id(this.thinkButtonId);
 
     return element(thinkButtonById);
   }
 
-  private get _designButton(): ElementFinder {
-    const designButtonById: By = by.id(this._designButtonId);
+  private get designButton(): ElementFinder {
+    const designButtonById: By = by.id(this.designButtonId);
 
     return element(designButtonById);
   }
 
-  private get _inspectButton(): ElementFinder {
-    const inspectButtonById: By = by.id(this._inspectButtonId);
+  private get inspectButton(): ElementFinder {
+    const inspectButtonById: By = by.id(this.inspectButtonId);
 
     return element(inspectButtonById);
   }

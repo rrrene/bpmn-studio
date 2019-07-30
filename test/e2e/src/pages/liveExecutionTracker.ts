@@ -5,7 +5,7 @@ import {By} from 'selenium-webdriver';
 export class LiveExecutionTracker {
   public url: string;
 
-  private _liveExecutionTrackerContainerId: string = 'liveExecutionTrackerContainer';
+  private liveExecutionTrackerContainerId: string = 'liveExecutionTrackerContainer';
 
   constructor(applicationUrl: string, correlationId: string, diagramName: string, processInstanceId: string) {
     // tslint:disable-next-line max-line-length
@@ -16,30 +16,30 @@ export class LiveExecutionTracker {
     await browser.get(this.url);
 
     await browser.wait(
-      ExpectedConditions.visibilityOf(this._liveExecutionTrackerContainer),
+      ExpectedConditions.visibilityOf(this.liveExecutionTrackerContainer),
       browser.params.defaultTimeoutMS,
     );
   }
 
   public async getVisibilityOfLiveExecutionTrackerContainer(): Promise<boolean> {
-    this._waitForVisbilityOfElement(this._liveExecutionTrackerContainer);
+    this.waitForVisbilityOfElement(this.liveExecutionTrackerContainer);
 
-    return this._liveExecutionTrackerContainer.isDisplayed();
+    return this.liveExecutionTrackerContainer.isDisplayed();
   }
 
   public async getVisibilityOfInactiveCallActivityOverlay(): Promise<boolean> {
-    this._waitForVisbilityOfElement(this._callActivityOverlays);
+    this.waitForVisbilityOfElement(this.callActivityOverlays);
 
-    return this._callActivityOverlays.isDisplayed();
+    return this.callActivityOverlays.isDisplayed();
   }
 
   public async getVisbilityOfEmptyActivityOverlay(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._emptyActivityOverlays);
+    await this.waitForVisbilityOfElement(this.emptyActivityOverlays);
 
-    return this._emptyActivityOverlays.isDisplayed();
+    return this.emptyActivityOverlays.isDisplayed();
   }
 
-  private async _waitForVisbilityOfElement(finder: ElementFinder): Promise<void> {
+  private async waitForVisbilityOfElement(finder: ElementFinder): Promise<void> {
     const finderVisibility: Function = ExpectedConditions.visibilityOf(finder);
 
     await browser.wait(finderVisibility, browser.params.defaultTimeoutMS).catch(() => {
@@ -49,22 +49,22 @@ export class LiveExecutionTracker {
     });
   }
 
-  private get _liveExecutionTrackerContainer(): ElementFinder {
-    const liveExecutionTrackerContainerById: By = by.id(this._liveExecutionTrackerContainerId);
+  private get liveExecutionTrackerContainer(): ElementFinder {
+    const liveExecutionTrackerContainerById: By = by.id(this.liveExecutionTrackerContainerId);
 
     return element(liveExecutionTrackerContainerById);
   }
 
-  private get _callActivityOverlays(): ElementFinder {
-    const _callActivityOverlaysByCss: By = by.className('fas fa-search let__overlay-button-icon');
+  private get callActivityOverlays(): ElementFinder {
+    const callActivityOverlaysByCss: By = by.className('fas fa-search let__overlay-button-icon');
 
-    return element(_callActivityOverlaysByCss);
+    return element(callActivityOverlaysByCss);
   }
 
-  private get _emptyActivityOverlays(): ElementFinder {
-    const _emptyActivityOverlaysByCss: By = by.className('fas fa-play let__overlay-button-icon overlay__empty-task');
+  private get emptyActivityOverlays(): ElementFinder {
+    const emptyActivityOverlaysByCss: By = by.className('fas fa-play let__overlay-button-icon overlay__empty-task');
 
-    const allEmptyActivityOverlays: ElementArrayFinder = element.all(_emptyActivityOverlaysByCss);
+    const allEmptyActivityOverlays: ElementArrayFinder = element.all(emptyActivityOverlaysByCss);
 
     return allEmptyActivityOverlays.first();
   }

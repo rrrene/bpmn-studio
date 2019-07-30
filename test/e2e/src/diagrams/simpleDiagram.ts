@@ -10,26 +10,22 @@ export class SimpleDiagram {
   public processInstanceId: string;
 
   // Define Instances
-  private _processEngineUrl: string = browser.params.processEngineUrl;
-  private _http: HttpClient = new HttpClient(this._processEngineUrl);
-  private _processEngineActionTimeout: number = browser.params.processEngineActionTimeout;
+  private processEngineUrl: string = browser.params.processEngineUrl;
+  private http: HttpClient = new HttpClient(this.processEngineUrl);
+  private processEngineActionTimeout: number = browser.params.processEngineActionTimeout;
 
   public async deployDiagram(): Promise<void> {
     const requestDestination: string = `/api/management/v1/process_models/${this.name}/update`;
     const requestPayload: IRequestPayload = {
       xml:
         `${'<?xml version="1.0" encoding="UTF-8"?>\n<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" ' +
-        'xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" ' +
-        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" ' +
-        'id="Definition_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="BPMN Studio" exporterVersion="1">' +
-        '<bpmn:collaboration id="Collaboration_1cidyxu" name=""><bpmn:participant id="Participant_0px403d" name="'}${
-        this.name
-        }" processRef="${
-        this.name
-        }" /></bpmn:collaboration><bpmn:process id="${
-        this.name
-        }" name="${
-        this.name
+          'xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" ' +
+          'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" ' +
+          'id="Definition_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="BPMN Studio" exporterVersion="1">' +
+          '<bpmn:collaboration id="Collaboration_1cidyxu" name=""><bpmn:participant id="Participant_0px403d" name="'}${
+          this.name
+        }" processRef="${this.name}" /></bpmn:collaboration><bpmn:process id="${this.name}" name="${
+          this.name
         }" isExecutable="true"><bpmn:laneSet><bpmn:lane id="Lane_1xzf0d3" name="Lane">` +
         '<bpmn:flowNodeRef>StartEvent_1mox3jl</bpmn:flowNodeRef><bpmn:flowNodeRef>EndEvent_0eie6q6</bpmn:flowNodeRef>' +
         '<bpmn:flowNodeRef>Task_0z3p6gi</bpmn:flowNodeRef></bpmn:lane></bpmn:laneSet><bpmn:startEvent id="StartEvent_1mox3jl"' +
@@ -52,21 +48,21 @@ export class SimpleDiagram {
         '</bpmndi:BPMNPlane></bpmndi:BPMNDiagram></bpmn:definitions>',
     };
 
-    const requestHeaders: IRequestHeaders = this._getRequestHeaders();
+    const requestHeaders: IRequestHeaders = this.getRequestHeaders();
 
-    await this._http.post(requestDestination, requestPayload, requestHeaders);
+    await this.http.post(requestDestination, requestPayload, requestHeaders);
 
-    await browser.sleep(this._processEngineActionTimeout);
+    await browser.sleep(this.processEngineActionTimeout);
   }
 
   public async deleteDiagram(): Promise<void> {
     const requestDestination: string = `/api/management/v1/process_models/${this.name}/delete`;
-    const requestHeaders: IRequestHeaders = this._getRequestHeaders();
+    const requestHeaders: IRequestHeaders = this.getRequestHeaders();
 
-    await this._http.get(requestDestination, requestHeaders);
+    await this.http.get(requestDestination, requestHeaders);
   }
 
-  private _getRequestHeaders(): IRequestHeaders {
+  private getRequestHeaders(): IRequestHeaders {
     const requestHeaders: IRequestHeaders = {
       authorization: 'Bearer ZHVtbXlfdG9rZW4=',
     };

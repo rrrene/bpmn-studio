@@ -6,7 +6,7 @@ export class XmlView {
   public url: string;
   public urlWithoutQueryParams: string;
 
-  private _xmlViewContainerId: string = 'diagramXmlContainer';
+  private xmlViewContainerId: string = 'diagramXmlContainer';
 
   constructor(applicationUrl: string, diagramName: string) {
     this.url = `${applicationUrl}/design/xml/diagram/${diagramName}?solutionUri=http%3A%2F%2Flocalhost%3A8000`;
@@ -16,34 +16,34 @@ export class XmlView {
   public async show(): Promise<void> {
     await browser.get(this.url);
 
-    await browser.wait(ExpectedConditions.visibilityOf(this._xmlViewContainer), browser.params.defaultTimeoutMS);
+    await browser.wait(ExpectedConditions.visibilityOf(this.xmlViewContainer), browser.params.defaultTimeoutMS);
   }
 
   public async getVisibilityOfXmlViewContainer(): Promise<boolean> {
-    this._waitForVisbilityOfElement(this._xmlViewContainer);
+    this.waitForVisbilityOfElement(this.xmlViewContainer);
 
-    return this._xmlViewContainer.isDisplayed();
+    return this.xmlViewContainer.isDisplayed();
   }
 
   public async getVisbilityOfXMLCodeBlock(): Promise<boolean> {
-    this._waitForVisbilityOfElement(this._xmlCodeBlock);
+    this.waitForVisbilityOfElement(this.xmlCodeBlock);
 
-    return this._xmlViewContainer.isDisplayed();
+    return this.xmlViewContainer.isDisplayed();
   }
 
   public async getVisbilityOfLineNumbers(): Promise<boolean> {
-    this._waitForVisbilityOfElement(this._lineNumbers.first());
+    this.waitForVisbilityOfElement(this.lineNumbers.first());
 
-    return this._lineNumbers.isDisplayed();
+    return this.lineNumbers.isDisplayed();
   }
 
   public async getVisbilityOfCodeLines(): Promise<boolean> {
-    this._waitForVisbilityOfElement(this._codeLines.first());
+    this.waitForVisbilityOfElement(this.codeLines.first());
 
-    return this._codeLines.isDisplayed();
+    return this.codeLines.isDisplayed();
   }
 
-  private async _waitForVisbilityOfElement(finder: ElementFinder): Promise<void> {
+  private async waitForVisbilityOfElement(finder: ElementFinder): Promise<void> {
     const finderVisibility: Function = ExpectedConditions.visibilityOf(finder);
 
     await browser.wait(finderVisibility, browser.params.defaultTimeoutMS).catch(() => {
@@ -53,25 +53,25 @@ export class XmlView {
     });
   }
 
-  private get _xmlViewContainer(): ElementFinder {
-    const xmlViewContainerById: By = by.id(this._xmlViewContainerId);
+  private get xmlViewContainer(): ElementFinder {
+    const xmlViewContainerById: By = by.id(this.xmlViewContainerId);
 
     return element(xmlViewContainerById);
   }
 
-  private get _xmlCodeBlock(): ElementFinder {
+  private get xmlCodeBlock(): ElementFinder {
     const codeBlockByTag: By = by.tagName('code');
 
     return element(codeBlockByTag);
   }
 
-  private get _lineNumbers(): ElementArrayFinder {
+  private get lineNumbers(): ElementArrayFinder {
     const lineNumbersByCss: By = by.css('hljs-ln-numbers');
 
     return element.all(lineNumbersByCss);
   }
 
-  private get _codeLines(): ElementArrayFinder {
+  private get codeLines(): ElementArrayFinder {
     const codeLinesByCss: By = by.css('hljs-ln-code');
 
     return element.all(codeLinesByCss);

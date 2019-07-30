@@ -3,16 +3,16 @@ import {ElementFinder, ExpectedConditions, browser, by, element} from 'protracto
 import {By} from 'selenium-webdriver';
 
 export class RouterView {
-  private _routerViewTagName: string = 'router-view';
+  private routerViewTagName: string = 'router-view';
 
   public async show(): Promise<void> {
     await browser.get(browser.params.aureliaUrl);
 
-    await browser.wait(ExpectedConditions.visibilityOf(this._routerViewContainer), browser.params.defaultTimeoutMS);
+    await browser.wait(ExpectedConditions.visibilityOf(this.routerViewContainer), browser.params.defaultTimeoutMS);
   }
 
-  private get _routerViewContainer(): ElementFinder {
-    const routerViewByTagName: By = by.tagName(this._routerViewTagName);
+  private get routerViewContainer(): ElementFinder {
+    const routerViewByTagName: By = by.tagName(this.routerViewTagName);
 
     return element(routerViewByTagName);
   }

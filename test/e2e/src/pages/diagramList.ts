@@ -5,8 +5,8 @@ import {By} from 'selenium-webdriver';
 export class DiagramList {
   public url: string;
 
-  private _diagramListContainerTag: string = 'diagram-list';
-  private _diagramListEntryIndentifier: string = 'diagram-';
+  private diagramListContainerTag: string = 'diagram-list';
+  private diagramListEntryIndentifier: string = 'diagram-';
 
   constructor(applicationUrl: string) {
     this.url = `${applicationUrl}/think`;
@@ -15,29 +15,29 @@ export class DiagramList {
   public async show(): Promise<void> {
     await browser.get(this.url);
 
-    await browser.wait(ExpectedConditions.visibilityOf(this._diagramListContainer), browser.params.defaultTimeoutMS);
+    await browser.wait(ExpectedConditions.visibilityOf(this.diagramListContainer), browser.params.defaultTimeoutMS);
   }
 
   public async getVisibilityOfDiagramListEntry(diagramName: string): Promise<boolean> {
-    const diagramListEntry: ElementFinder = this._getDiagramListEntry(diagramName);
+    const diagramListEntry: ElementFinder = this.getDiagramListEntry(diagramName);
 
     return diagramListEntry.isDisplayed();
   }
 
   public async clickOnDiagramListEntry(diagramName: string): Promise<void> {
-    const diagramListEntry: ElementFinder = this._getDiagramListEntry(diagramName);
+    const diagramListEntry: ElementFinder = this.getDiagramListEntry(diagramName);
 
     return diagramListEntry.click();
   }
 
-  private get _diagramListContainer(): ElementFinder {
-    const diagramDetailContainerById: By = by.tagName(this._diagramListContainerTag);
+  private get diagramListContainer(): ElementFinder {
+    const diagramDetailContainerById: By = by.tagName(this.diagramListContainerTag);
 
     return element(diagramDetailContainerById);
   }
 
-  private _getDiagramListEntry(diagramName: string): ElementFinder {
-    const diagramListEntryId: string = `${this._diagramListEntryIndentifier}${diagramName}`;
+  private getDiagramListEntry(diagramName: string): ElementFinder {
+    const diagramListEntryId: string = `${this.diagramListEntryIndentifier}${diagramName}`;
     const diagramListEntryById: By = by.id(diagramListEntryId);
 
     return element(diagramListEntryById);
