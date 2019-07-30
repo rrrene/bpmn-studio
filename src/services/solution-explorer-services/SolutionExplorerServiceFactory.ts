@@ -12,16 +12,16 @@ import {DiagramTrashFolderService} from './DiagramTrashFolderService';
  */
 @inject('HttpFetchClient', 'DiagramTrashFolderService')
 export class SolutionExplorerServiceFactory {
-  private _httpClient: IHttpClient;
-  private _diagramTrashFolderService: DiagramTrashFolderService;
+  private httpClient: IHttpClient;
+  private diagramTrashFolderService: DiagramTrashFolderService;
 
   constructor(httpClient: IHttpClient, diagramTrashFolderService: DiagramTrashFolderService) {
-    this._httpClient = httpClient;
-    this._diagramTrashFolderService = diagramTrashFolderService;
+    this.httpClient = httpClient;
+    this.diagramTrashFolderService = diagramTrashFolderService;
   }
 
   public async newFileSystemSolutionExplorer(): Promise<ISolutionExplorerService> {
-    const diagramTrashFolder: string = this._diagramTrashFolderService.getDiagramTrashFolder();
+    const diagramTrashFolder: string = this.diagramTrashFolderService.getDiagramTrashFolder();
 
     const fileSystemRepository: SolutionExplorerFileSystemRepository = new SolutionExplorerFileSystemRepository(
       diagramTrashFolder,
@@ -33,7 +33,7 @@ export class SolutionExplorerServiceFactory {
 
   public async newManagementApiSolutionExplorer(): Promise<ISolutionExplorerService> {
     const managementApiRepository: SolutionExplorerManagementApiRepository = new SolutionExplorerManagementApiRepository(
-      this._httpClient,
+      this.httpClient,
     );
     const createdService: SolutionExplorerService = new SolutionExplorerService(managementApiRepository);
 
