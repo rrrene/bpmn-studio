@@ -3,9 +3,17 @@ import {CLIOptions, Project, ProjectItem, UI} from 'aurelia-cli';
 
 @inject(Project, CLIOptions, UI)
 export default class TaskGenerator {
-  constructor(private project: Project, private options: CLIOptions, private ui: UI) {}
+  private project: Project;
+  private options: CLIOptions;
+  private ui: UI;
 
-  execute() {
+  constructor(project: Project, options: CLIOptions, ui: UI) {
+    this.project = project;
+    this.options = options;
+    this.ui = ui;
+  }
+
+  public execute(): any {
     return this.ui.ensureAnswer(this.options.args[0], 'What would you like to call the task?').then((name) => {
       const fileName = this.project.makeFileName(name);
       const functionName = this.project.makeFunctionName(name);
@@ -16,7 +24,7 @@ export default class TaskGenerator {
     });
   }
 
-  generateSource(functionName) {
+  public generateSource(functionName): any {
     return `import * as gulp from 'gulp';
 import * as changed from 'gulp-changed';
 import * as project from '../aurelia.json';
