@@ -1,3 +1,4 @@
+/* eslint-disable import/no-mutable-exports */
 import {CLIOptions} from 'aurelia-cli';
 import * as browserSync from 'browser-sync';
 import * as historyApiFallback from 'connect-history-api-fallback/lib';
@@ -36,7 +37,8 @@ const serve: any = gulp.series(build, (done: Function) => {
     },
     (err: any, bs: any): void => {
       if (err) {
-        return done(err);
+        done(err);
+        return;
       }
       const urls: any = bs.options.get('urls').toJS();
       log(`Application Available At: ${urls.local}`);
