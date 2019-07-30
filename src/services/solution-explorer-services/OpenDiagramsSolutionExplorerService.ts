@@ -24,13 +24,13 @@ import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
 export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerService {
   public isCreatingDiagram: boolean;
 
-  private _validationService: IDiagramValidationService;
-  private _solutionExplorerToOpenDiagrams: ISolutionExplorerService;
-  private _uriOfOpenDiagramService: string = 'about:open-diagrams';
-  private _nameOfOpenDiagramService: string = 'Open Diagrams';
-  private _openedDiagrams: Array<IDiagram> = [];
-  private _solutionService: ISolutionService;
-  private _openDiagramStateService: OpenDiagramStateService;
+  private validationService: IDiagramValidationService;
+  private solutionExplorerToOpenDiagrams: ISolutionExplorerService;
+  private uriOfOpenDiagramService: string = 'about:open-diagrams';
+  private nameOfOpenDiagramService: string = 'Open Diagrams';
+  private openedDiagrams: Array<IDiagram> = [];
+  private solutionService: ISolutionService;
+  private openDiagramStateService: OpenDiagramStateService;
 
   constructor(
     validationService: IDiagramValidationService,
@@ -38,14 +38,14 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     solutionService: ISolutionService,
     openDiagramStateService: OpenDiagramStateService,
   ) {
-    this._validationService = validationService;
-    this._setSolutionExplorer(serviceFactory);
-    this._solutionService = solutionService;
-    this._openDiagramStateService = openDiagramStateService;
+    this.validationService = validationService;
+    this.setSolutionExplorer(serviceFactory);
+    this.solutionService = solutionService;
+    this.openDiagramStateService = openDiagramStateService;
   }
 
   public getOpenedDiagrams(): Array<IDiagram> {
-    return this._openedDiagrams;
+    return this.openedDiagrams;
   }
 
   /**
@@ -53,14 +53,14 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
    * before.
    */
   public getOpenedDiagramByURI(uri: string): IDiagram | null {
-    const indexOfDiagram: number = this._findIndexOfDiagramWithURI(uri);
+    const indexOfDiagram: number = this.findIndexOfDiagramWithURI(uri);
 
     const diagramWasNotFound: boolean = indexOfDiagram < 0;
     if (diagramWasNotFound) {
       return null;
     }
 
-    const diagramWithURI: IDiagram = this._openedDiagrams[indexOfDiagram];
+    const diagramWithURI: IDiagram = this.openedDiagrams[indexOfDiagram];
 
     return diagramWithURI;
   }
@@ -71,9 +71,9 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
 
   public loadSolution(): Promise<ISolution> {
     const solution: ISolution = {
-      diagrams: this._openedDiagrams,
-      name: this._nameOfOpenDiagramService,
-      uri: this._uriOfOpenDiagramService,
+      diagrams: this.openedDiagrams,
+      name: this.nameOfOpenDiagramService,
+      uri: this.uriOfOpenDiagramService,
     };
     return Promise.resolve(solution);
   }
@@ -84,7 +84,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
       throw new Error('File is no BPMN file.');
     }
 
-    const uriAlreadyOpened: boolean = this._findIndexOfDiagramWithURI(uri) >= 0;
+    const uriAlreadyOpened: boolean = this.findIndexOfDiagramWithURI(uri) >= 0;
     if (uriAlreadyOpened) {
       throw new Error('This diagram is already opened.');
     }
@@ -94,14 +94,15 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     const indexBeforeFilename: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash);
 
     const filepath: string = uri.substring(0, indexBeforeFilename);
-    const filename: string = uri.replace(/^.*[\\\/]/, '');
+    // TODO Check if this still works
+    const filename: string = uri.replace(/^.*[\\/]/, '');
     const filenameWithoutEnding: string = filename.replace('.bpmn', '');
 
     let diagram: IDiagram;
 
     const isUnsavedDiagram: boolean = filepath === 'about:open-diagrams';
     if (isUnsavedDiagram) {
-      const diagramState: IDiagramState = this._openDiagramStateService.loadDiagramState(uri);
+      const diagramState: IDiagramState = this.openDiagramStateService.loadDiagramState(uri);
 
       diagram = {
         name: filenameWithoutEnding,
@@ -109,27 +110,27 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
         uri: uri,
       };
     } else {
-      await this._solutionExplorerToOpenDiagrams.openSolution(filepath, identity);
+      await this.solutionExplorerToOpenDiagrams.openSolution(filepath, identity);
 
-      diagram = await this._solutionExplorerToOpenDiagrams.loadDiagram(filenameWithoutEnding, filepath);
+      diagram = await this.solutionExplorerToOpenDiagrams.loadDiagram(filenameWithoutEnding, filepath);
 
-      await this._validationService
+      await this.validationService
         .validate(diagram.xml)
         .isXML()
         .isBPMN()
         .throwIfError();
     }
 
-    this._openedDiagrams.push(diagram);
+    this.openedDiagrams.push(diagram);
 
     return diagram;
   }
 
   public closeDiagram(diagram: IDiagram): Promise<void> {
-    const index: number = this._findIndexOfDiagramWithURI(diagram.uri);
+    const index: number = this.findIndexOfDiagramWithURI(diagram.uri);
 
-    this._openedDiagrams.splice(index, 1);
-    this._openDiagramStateService.deleteDiagramState(diagram.uri);
+    this.openedDiagrams.splice(index, 1);
+    this.openDiagramStateService.deleteDiagramState(diagram.uri);
 
     return Promise.resolve();
   }
@@ -143,7 +144,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
   }
 
   public async loadDiagram(diagramName: string): Promise<IDiagram> {
-    const diagramToLoad: IDiagram = this._openedDiagrams.find((diagram: IDiagram) => {
+    const diagramToLoad: IDiagram = this.openedDiagrams.find((diagram: IDiagram) => {
       return diagram.name === diagramName;
     });
 
@@ -155,26 +156,26 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
   }
 
   public saveDiagram(diagram: IDiagram, pathspec?: string): Promise<void> {
-    return this._solutionExplorerToOpenDiagrams.saveDiagram(diagram, pathspec);
+    return this.solutionExplorerToOpenDiagrams.saveDiagram(diagram, pathspec);
   }
 
   public async openDiagramFromSolution(diagramUri: string, identity: IIdentity): Promise<IDiagram> {
     const openedDiagram: IDiagram = await this.openDiagram(diagramUri, identity);
 
-    this._solutionService.addOpenDiagram(openedDiagram);
+    this.solutionService.addOpenDiagram(openedDiagram);
 
     return openedDiagram;
   }
 
-  private _findIndexOfDiagramWithURI(uri: string): number {
-    const index: number = this._openedDiagrams.findIndex((diagram: IDiagram): boolean => {
+  private findIndexOfDiagramWithURI(uri: string): number {
+    const index: number = this.openedDiagrams.findIndex((diagram: IDiagram): boolean => {
       return diagram.uri === uri;
     });
 
     return index;
   }
 
-  private async _setSolutionExplorer(serviceFactory: SolutionExplorerServiceFactory): Promise<void> {
-    this._solutionExplorerToOpenDiagrams = await serviceFactory.newFileSystemSolutionExplorer();
+  private async setSolutionExplorer(serviceFactory: SolutionExplorerServiceFactory): Promise<void> {
+    this.solutionExplorerToOpenDiagrams = await serviceFactory.newFileSystemSolutionExplorer();
   }
 }
