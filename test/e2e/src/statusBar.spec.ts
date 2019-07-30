@@ -2,10 +2,8 @@ import {browser} from 'protractor';
 
 import {SimpleDiagram} from './diagrams/simpleDiagram';
 import {DiagramDetail} from './pages/diagramDetail';
-import {DiffView} from './pages/diffView';
 import {RouterView} from './pages/routerView';
 import {StatusBar} from './pages/statusBar';
-import {XmlView} from './pages/xmlView';
 
 describe('Status Bar', () => {
   let routerView: RouterView;
