@@ -1,3 +1,7 @@
+/* eslint-disable no-shadow */
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable no-underscore-dangle */
 const electron = require('electron');
 
 const {ipcMain, dialog, app} = electron;
@@ -29,7 +33,7 @@ let fileOpenMainEvent;
 
 Main._window = null;
 
-Main.execute = function () {
+Main.execute = () => {
   /**
    * Makes this application a Single Instance Application.
    */
@@ -82,7 +86,7 @@ Main.execute = function () {
   }
 };
 
-Main._initializeApplication = function () {
+Main._initializeApplication = () => {
   app.on('ready', () => {
     Main._createMainWindow();
   });
@@ -219,7 +223,7 @@ Main._initializeApplication = function () {
 
     app.on('will-finish-launching', () => {
       // for windows
-      if (process.platform == 'win32' && process.argv.length >= 2) {
+      if (process.platform === 'win32' && process.argv.length >= 2) {
         filePath = process.argv[1];
       }
 
@@ -270,7 +274,7 @@ function answerOpenFileEvent(filePath) {
   this.fileOpenMainEvent.sender.send('double-click-on-file', filePath);
 }
 
-Main._createMainWindow = function () {
+Main._createMainWindow = () => {
   console.log('create window called');
 
   setElectronMenubar();
@@ -576,8 +580,8 @@ Main._createMainWindow = function () {
           {
             label: 'Documentation',
             click: () => {
-              const documentation_url = 'https://www.process-engine.io/documentation/';
-              electron.shell.openExternal(documentation_url);
+              const documentationUrl = 'https://www.process-engine.io/documentation/';
+              electron.shell.openExternal(documentationUrl);
             },
           },
           {
@@ -641,7 +645,7 @@ Main._createMainWindow = function () {
   }
 };
 
-Main._startInternalProcessEngine = async function () {
+Main._startInternalProcessEngine = async () => {
   const devUserDataFolderPath = path.join(__dirname, '..', 'userData');
   const prodUserDataFolderPath = app.getPath('userData');
 
@@ -757,6 +761,7 @@ Main._startInternalProcessEngine = async function () {
       // Create path for sqlite database in BPMN-Studio context.
       const userDataFolderPath = getUserConfigFolder();
       const sqlitePath = `${userDataFolderPath}/bpmn-studio/process_engine_databases`;
+      // eslint-disable-next-line global-require
       const pe = require('@process-engine/process_engine_runtime');
       pe.startRuntime(sqlitePath);
 
@@ -775,6 +780,7 @@ Main._startInternalProcessEngine = async function () {
 };
 
 function getUserConfigFolder() {
+  // eslint-disable-next-line global-require
   const userHomeDir = require('os').homedir();
   switch (process.platform) {
     case 'darwin':
@@ -786,7 +792,7 @@ function getUserConfigFolder() {
   }
 }
 
-Main._bringExistingInstanceToForeground = function () {
+Main._bringExistingInstanceToForeground = () => {
   if (Main._window) {
     if (Main._window.isMinimized()) {
       Main._window.restore();
