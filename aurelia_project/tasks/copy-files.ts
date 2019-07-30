@@ -1,3 +1,5 @@
+/* eslint-disable guard-for-in */
+/* eslint-disable no-restricted-syntax */
 import * as gulp from 'gulp';
 import * as changedInPlace from 'gulp-changed-in-place';
 import * as minimatch from 'minimatch';
@@ -30,9 +32,9 @@ function getNormalizedInstruction(): object {
   const files: Array<string> = project.build.copyFiles;
   const normalizedInstruction: object = {};
 
-  Object.values(files).forEach((key: string) => {
+  for (const key in files) {
     normalizedInstruction[path.posix.normalize(key)] = files[key];
-  });
+  }
 
   return normalizedInstruction;
 }
