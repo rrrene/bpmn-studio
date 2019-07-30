@@ -4,8 +4,6 @@
  * You should have the server up and running before executing this task. e.g. run `au run`, otherwise the
  * protractor calls will fail.
  */
-import {CLIOptions} from 'aurelia-cli';
-
 import * as del from 'del';
 import * as gulp from 'gulp';
 import {protractor} from 'gulp-protractor';
