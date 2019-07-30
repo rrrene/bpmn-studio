@@ -8,15 +8,17 @@
         <tr>
           <th>Process</th>
           <td>
-            <select class="props-input props-select" value.bind="selectedDiagramId" change.delegate="updateCalledDiagram()" disabled.bind="!isEditable">
-              <option model.bind="null">-Choose called process-</option>
-              <option repeat.for="diagram of allDiagrams"
-                      model.bind="diagram.name" value="${diagram.name}">${diagram.name}</option>
-            </select>
+            <div class="called-process-selection">
+              <select class="called-process-selection__select" value.bind="selectValue" change.delegate="updateCalledDiagram()"  disabled.bind="!isEditable"}>
+                <option model.bind="undefined">-Choose called process-</option>
+                <option repeat.for="diagram of allDiagrams" model.bind="diagram.name" value="${diagram.name}">${diagram.name}</option>
+              </select>
+              <input class="called-process-selection__input" value.bind="selectedDiagramName" change.delegate="updateCalledDiagram()"/>
+            </div>
           </td>
         </tr>
       </table>
-      <button class="navigation-button" disabled.bind="!selectedDiagramId || !isEditable" click.delegate="navigateToCalledDiagram()">Navigate to called process</button>
+      <button class="navigation-button" disabled.bind="!selectedDiagramName || !isEditable || !isPartOfAllDiagrams(selectedDiagramName)" click.delegate="navigateToCalledDiagram()">Navigate to called process</button>
     </div>
   </div>
 </template>

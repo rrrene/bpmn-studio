@@ -14,7 +14,10 @@ export class CallActivitySection implements ISection {
   public path: string = '/sections/call-activity/call-activity';
   public canHandleElement: boolean = false;
   public allDiagrams: Array<IDiagram>;
-  public selectedDiagramId: string;
+  public selectValue: string;
+  public selectedDiagramName: string;
+
+  public previouslySelectedDiagram: string;
 
   private businessObjInPanel: ICallActivityElement;
   private generalService: GeneralService;
@@ -34,7 +37,8 @@ export class CallActivitySection implements ISection {
 
     await this.getAllDiagrams();
 
-    this.selectedDiagramId = this.businessObjInPanel.calledElement;
+    this.previouslySelectedDiagram = this.businessObjInPanel.calledElement;
+    this.selectedDiagramName = this.businessObjInPanel.calledElement;
   }
 
   public isSuitableForElement(element: IShape): boolean {
@@ -48,14 +52,26 @@ export class CallActivitySection implements ISection {
 
   public navigateToCalledDiagram(): void {
     this.router.navigateToRoute('design', {
-      diagramName: this.selectedDiagramId,
+      diagramName: this.selectedDiagramName,
       solutionUri: this.activeSolutionUri,
       view: 'detail',
     });
   }
 
+  public isPartOfAllDiagrams(diagramName: string): boolean {
+    return this.allDiagrams.some((diagram: IDiagram): boolean => {
+      return diagram.name === diagramName;
+    });
+  }
+
   public updateCalledDiagram(): void {
-    this.businessObjInPanel.calledElement = this.selectedDiagramId;
+    const diagramSelectedViaSelect: boolean = this.selectValue !== undefined;
+    if (diagramSelectedViaSelect) {
+      this.selectedDiagramName = this.selectValue;
+      this.selectValue = undefined;
+    }
+
+    this.businessObjInPanel.calledElement = this.selectedDiagramName;
 
     this.publishDiagramChange();
   }
