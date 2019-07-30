@@ -21,7 +21,7 @@ enum FormfieldTypes {
   boolean = 'boolean',
   date = 'date',
   enum = 'enum',
-  custom_type = 'custom type',
+  customType = 'custom type',
 }
 
 @inject(ValidationController, EventAggregator)
@@ -200,7 +200,7 @@ export class BasicsSection implements ISection {
      * If the user selected a custom type, find out what type the user provided.
      */
     const type: string = ((): string => {
-      const selectedTypeIsNotCustomType: boolean = this.selectedType !== FormfieldTypes.custom_type;
+      const selectedTypeIsNotCustomType: boolean = this.selectedType !== FormfieldTypes.customType;
 
       if (selectedTypeIsNotCustomType) {
         return this.selectedType;
@@ -241,7 +241,7 @@ export class BasicsSection implements ISection {
       label: '',
       defaultValue: '',
     };
-    const bpmnForm: IForm = this.bpmnModdle.create('camunda:FormField', bpmnFormFieldObject);
+    this.bpmnModdle.create('camunda:FormField', bpmnFormFieldObject);
 
     if (this.formElement.fields === undefined || this.formElement.fields === null) {
       this.formElement.fields = [];
@@ -342,7 +342,7 @@ export class BasicsSection implements ISection {
       type === FormfieldTypes.boolean ||
       type === FormfieldTypes.date ||
       type === FormfieldTypes.enum ||
-      type === FormfieldTypes.custom_type ||
+      type === FormfieldTypes.customType ||
       type === null;
 
     if (typeIsRegularType) {
@@ -351,7 +351,7 @@ export class BasicsSection implements ISection {
     }
 
     this.customType = type;
-    return FormfieldTypes.custom_type;
+    return FormfieldTypes.customType;
   }
 
   private getSelectedIndex(): number {

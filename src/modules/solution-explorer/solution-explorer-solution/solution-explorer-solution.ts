@@ -177,10 +177,14 @@ export class SolutionExplorerSolution {
       const makeRequest: Function = (): void => {
         setTimeout(async () => {
           try {
-            const response: Response = await fetch(this.displayedSolutionEntry.uri);
+            await fetch(this.displayedSolutionEntry.uri);
+
             this.processEngineRunning = true;
+
             await this.updateSolution();
+
             this.startPolling();
+
             resolve(true);
           } catch (error) {
             makeRequest();

@@ -753,8 +753,8 @@ export class BpmnIo {
         viewerCanvas.zoom('fit-viewport', 'auto');
       }
     } else if (modelerDiagramIsVisible) {
-        modelerCanvas.zoom('fit-viewport', 'auto');
-      }
+      modelerCanvas.zoom('fit-viewport', 'auto');
+    }
   }
 
   private renameFormFields(event: IInternalEvent): IInternalEvent {
@@ -917,7 +917,6 @@ export class BpmnIo {
     if (userWantsToSaveAs) {
       event.preventDefault();
       this.eventAggregator.publish(environment.events.diagramDetail.saveDiagramAs);
-
     }
   };
 
