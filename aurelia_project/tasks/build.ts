@@ -1,3 +1,4 @@
+/* eslint-disable import/no-mutable-exports */
 import {CLIOptions, build as buildCLI} from 'aurelia-cli';
 import * as gulp from 'gulp';
 import * as project from '../aurelia.json';
