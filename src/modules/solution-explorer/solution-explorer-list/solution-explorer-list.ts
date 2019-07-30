@@ -152,7 +152,7 @@ export class SolutionExplorerList {
 
     const identityIsSet: boolean = identity !== undefined && identity !== null;
 
-    const identitiyToUse: IIdentity = identityIsSet ? identity : this.createIdentityForSolutionExplorer();
+    const identityToUse: IIdentity = identityIsSet ? identity : this.createIdentityForSolutionExplorer();
 
     let processEngineVersion: string;
     const internalProcessEngineRoute: string = window.localStorage.getItem('InternalProcessEngineRoute');
@@ -172,7 +172,7 @@ export class SolutionExplorerList {
         processEngineVersion = responseJSON.version;
       }
 
-      await solutionExplorer.openSolution(uri, identitiyToUse);
+      await solutionExplorer.openSolution(uri, identityToUse);
     } catch (error) {
       this.solutionService.removeSolutionEntryByUri(uri);
 
@@ -188,7 +188,7 @@ export class SolutionExplorerList {
         if (!uriIsNotInternalProcessEngine) {
           await this.getProcessEngineVersionFromInternalPE(uri);
 
-          this.openSolution(uri, insertAtBeginning, identitiyToUse);
+          this.openSolution(uri, insertAtBeginning, identityToUse);
 
           return;
         }
