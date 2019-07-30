@@ -13,6 +13,7 @@ export class ExternalTask {
   public businessObjInPanel: IServiceTaskElement;
   public selectedTopic: string;
   public selectedPayload: string;
+  public showModal: boolean = false;
 
   private eventAggregator: EventAggregator;
   private serviceTaskService: ServiceTaskService;
