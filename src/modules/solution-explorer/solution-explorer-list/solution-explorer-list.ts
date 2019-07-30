@@ -216,7 +216,7 @@ export class SolutionExplorerList {
       processEngineVersion = await this.getProcessEngineVersionFromInternalPE(uri);
     }
 
-    this.addSolutionEntry(uri, solutionExplorer, identity, insertAtBeginning, processEngineVersion);
+    this.addSolutionEntry(uri, solutionExplorer, identityToUse, insertAtBeginning, processEngineVersion);
   }
 
   /**
