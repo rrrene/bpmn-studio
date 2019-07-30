@@ -16,7 +16,7 @@ function clean(): Promise<Array<string>> {
   return del(`${project.e2eTestRunner.dist}/*`);
 }
 
-function build_tests(): NodeJS.ReadWriteStream {
+function buildTests(): NodeJS.ReadWriteStream {
   const compilerOptionsCopy: any = Object.assign({}, tsConfig.compilerOptions, {
     module: 'commonjs',
   });
@@ -45,4 +45,4 @@ function e2eDocker(): NodeJS.ReadWriteStream {
     });
 }
 
-export default gulp.series(clean, build_tests, e2eDocker);
+export default gulp.series(clean, buildTests, e2eDocker);
