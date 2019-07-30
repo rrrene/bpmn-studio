@@ -19,30 +19,30 @@ import {DiagramValidator} from './DiagramValidator';
  * RuleSets are defined in the `_rules` field of this class.
  */
 export class DiagramValidationService implements IDiagramValidationService {
-  private _rules: IDiagramValidationRules = {
+  private rules: IDiagramValidationRules = {
     isXML: {
-      rules: [this._hasXMLFileSignature],
+      rules: [this.hasXMLFileSignature],
       errorMessage: 'Diagram is not a valid XML file.',
     },
     isBPMN: {
-      rules: [this._containsBPMN],
+      rules: [this.containsBPMN],
       errorMessage: 'Diagram is not a valid BPMN file.',
     },
   };
 
   public validate(diagramXML: string): IDiagramValidator {
-    return new DiagramValidator(this._rules, diagramXML);
+    return new DiagramValidator(this.rules, diagramXML);
   }
 
   // Business Rules {{{
-  private _hasXMLFileSignature(content: string): Promise<boolean> {
+  private hasXMLFileSignature(content: string): Promise<boolean> {
     const xmlSignature: string = '<?xml ';
     const startsWithSignature: boolean = content.startsWith(xmlSignature);
 
     return Promise.resolve(startsWithSignature);
   }
 
-  private _containsBPMN(content: string): Promise<boolean> {
+  private containsBPMN(content: string): Promise<boolean> {
     const bpmn: string = 'bpmn';
     const containsBPMN: boolean = content.indexOf(bpmn) !== -1;
 
