@@ -16,9 +16,9 @@
 
     <ul if.bind="!solutionIsNotLoaded" class="solution__diagram-list">
 
-      <li if.bind="_diagramCreationState.isCreateDiagramInputShown" class="diagram-create">
+      <li if.bind="diagramCreationState.isCreateDiagramInputShown" class="diagram-create">
         <div class="input-holder">
-          <input ref="createNewDiagramInput" class.bind="hasValidationErrors ? 'input-holder__input input-holder__input--error' : 'input-holder__input'" type="text" value.bind="_diagramCreationState.currentDiagramInputValue & validateOnChange">
+          <input ref="createNewDiagramInput" class.bind="hasValidationErrors ? 'input-holder__input input-holder__input--error' : 'input-holder__input'" type="text" value.bind="diagramCreationState.currentDiagramInputValue & validateOnChange">
         </div>
         <ul if.bind="hasValidationErrors" class="diagram-create__errors">
           <li repeat.for="error of diagramValidationErrors" class="diagram-create__error">${error.message}</li>
