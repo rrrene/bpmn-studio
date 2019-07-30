@@ -3,9 +3,17 @@ import {CLIOptions, Project, ProjectItem, UI} from 'aurelia-cli';
 
 @inject(Project, CLIOptions, UI)
 export default class ValueConverterGenerator {
-  constructor(private project: Project, private options: CLIOptions, private ui: UI) {}
+  private project: Project;
+  private options: CLIOptions;
+  private ui: UI;
 
-  execute() {
+  constructor(project: Project, options: CLIOptions, ui: UI) {
+    this.project = project;
+    this.options = options;
+    this.ui = ui;
+  }
+
+  public execute(): any {
     return this.ui
       .ensureAnswer(this.options.args[0], 'What would you like to call the value converter?')
       .then((name) => {
@@ -18,7 +26,7 @@ export default class ValueConverterGenerator {
       });
   }
 
-  generateSource(className) {
+  public generateSource(className): any {
     return `export class ${className}ValueConverter {
   toView(value) {
 
