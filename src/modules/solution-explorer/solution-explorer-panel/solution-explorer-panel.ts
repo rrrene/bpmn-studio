@@ -4,7 +4,14 @@ import {Router} from 'aurelia-router';
 
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import {AuthenticationStateEvent, IFile, IInputEvent, ISolutionEntry, ISolutionService, NotificationType} from '../../../contracts/index';
+import {
+  AuthenticationStateEvent,
+  IFile,
+  IInputEvent,
+  ISolutionEntry,
+  ISolutionService,
+  NotificationType,
+} from '../../../contracts/index';
 
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
@@ -25,16 +32,6 @@ type RemoteSolutionUriWithStatus = {uri: string; status: boolean};
 export class SolutionExplorerPanel {
   @observable public selectedProtocol: string = 'http://';
 
-  private _eventAggregator: EventAggregator;
-  private _notificationService: NotificationService;
-  private _router: Router;
-  // TODO: Add typings
-  private _ipcRenderer: any | null = null;
-  private _subscriptions: Array<Subscription> = [];
-  private _solutionService: ISolutionService;
-  private _remoteSolutionHistoryStatusPollingTimer: NodeJS.Timer;
-  private _remoteSolutionHistoryStatusIsPolling: boolean;
-
   // Fields below are bound from the html view.
   public solutionExplorerList: SolutionExplorerList;
   public solutionInput: HTMLInputElement;
@@ -44,19 +41,29 @@ export class SolutionExplorerPanel {
   public solutionExplorerPanel: SolutionExplorerPanel = this;
   public remoteSolutionHistoryStatus: Map<string, boolean> = new Map<string, boolean>();
 
+  private eventAggregator: EventAggregator;
+  private notificationService: NotificationService;
+  private router: Router;
+  // TODO: Add typings
+  private ipcRenderer: any | null = null;
+  private subscriptions: Array<Subscription> = [];
+  private solutionService: ISolutionService;
+  private remoteSolutionHistoryStatusPollingTimer: NodeJS.Timer;
+  private remoteSolutionHistoryStatusIsPolling: boolean;
+
   constructor(
     eventAggregator: EventAggregator,
     notificationService: NotificationService,
     router: Router,
     solutionService: ISolutionService,
   ) {
-    this._eventAggregator = eventAggregator;
-    this._notificationService = notificationService;
-    this._router = router;
-    this._solutionService = solutionService;
+    this.eventAggregator = eventAggregator;
+    this.notificationService = notificationService;
+    this.router = router;
+    this.solutionService = solutionService;
 
     if (this.canReadFromFileSystem()) {
-      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+      this.ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
     }
   }
 
@@ -64,7 +71,7 @@ export class SolutionExplorerPanel {
     // Open the solution of the currently configured processengine instance on startup.
     const uriOfProcessEngine: string = window.localStorage.getItem('InternalProcessEngineRoute');
 
-    const persistedInternalSolution: ISolutionEntry = this._solutionService.getSolutionEntryForUri(uriOfProcessEngine);
+    const persistedInternalSolution: ISolutionEntry = this.solutionService.getSolutionEntryForUri(uriOfProcessEngine);
     const internalSolutionWasPersisted: boolean = persistedInternalSolution !== undefined;
 
     try {
@@ -78,7 +85,7 @@ export class SolutionExplorerPanel {
     }
 
     // Open the previously opened solutions.
-    const previouslyOpenedSolutions: Array<ISolutionEntry> = this._solutionService.getPersistedEntries();
+    const previouslyOpenedSolutions: Array<ISolutionEntry> = this.solutionService.getPersistedEntries();
     previouslyOpenedSolutions.forEach((entry: ISolutionEntry) => {
       // We are not adding the solution of the connect PE here again since that happened above.
       const entryIsNotConnectedProcessEngine: boolean = entry.uri !== uriOfProcessEngine;
@@ -91,41 +98,41 @@ export class SolutionExplorerPanel {
         try {
           this.solutionExplorerList.openSolution(entry.uri, false, entry.identity);
         } catch (error) {
-
+          // Do nothing
         }
       }
     });
 
-    const persistedOpenDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();
+    const persistedOpenDiagrams: Array<IDiagram> = this.solutionService.getOpenDiagrams();
     persistedOpenDiagrams.forEach((diagram: IDiagram) => {
       try {
         this.solutionExplorerList.openDiagram(diagram.uri);
       } catch {
-
+        // Do nothing
       }
     });
   }
 
   public async attached(): Promise<void> {
     if (this.canReadFromFileSystem()) {
-      this._registerElectronHooks();
-      document.addEventListener('drop', this._openDiagramOnDropBehaviour);
+      this.registerElectronHooks();
+      document.addEventListener('drop', this.openDiagramOnDropBehaviour);
     }
 
-    this._subscriptions = [
-      this._eventAggregator.subscribe(environment.events.diagramDetail.onDiagramDeployed, () => {
-        this._refreshSolutions();
+    this.subscriptions = [
+      this.eventAggregator.subscribe(environment.events.diagramDetail.onDiagramDeployed, () => {
+        this.refreshSolutions();
       }),
-      this._eventAggregator.subscribe(environment.events.startPage.openLocalSolution, () => {
+      this.eventAggregator.subscribe(environment.events.startPage.openLocalSolution, () => {
         this.openSolution();
       }),
-      this._eventAggregator.subscribe(environment.events.startPage.openDiagram, () => {
+      this.eventAggregator.subscribe(environment.events.startPage.openDiagram, () => {
         this.openDiagram();
       }),
-      this._eventAggregator.subscribe(environment.events.startPage.createDiagram, () => {
-        this._createNewDiagram();
+      this.eventAggregator.subscribe(environment.events.startPage.createDiagram, () => {
+        this.createNewDiagram();
       }),
-      this._eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
+      this.eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
         this.solutionExplorerList.refreshSolutions();
       }),
     ];
@@ -133,11 +140,11 @@ export class SolutionExplorerPanel {
 
   public detached(): void {
     if (this.canReadFromFileSystem()) {
-      this._removeElectronFileOpeningHooks();
-      document.removeEventListener('drop', this._openDiagramOnDropBehaviour);
+      this.removeElectronFileOpeningHooks();
+      document.removeEventListener('drop', this.openDiagramOnDropBehaviour);
     }
 
-    for (const subscription of this._subscriptions) {
+    for (const subscription of this.subscriptions) {
       subscription.dispose();
     }
   }
@@ -145,12 +152,12 @@ export class SolutionExplorerPanel {
   public async openRemoteSolutionModal(): Promise<void> {
     this.showOpenRemoteSolutionModal = true;
 
-    await this._updateRemoteSolutionHistoryStatus();
-    this._startPollingOfRemoteSolutionHistoryStatus();
+    await this.updateRemoteSolutionHistoryStatus();
+    this.startPollingOfRemoteSolutionHistoryStatus();
   }
 
   public removeSolutionFromHistory(solutionUri: string): void {
-    this._removeSolutionFromSolutionHistroy(solutionUri);
+    this.removeSolutionFromSolutionHistroy(solutionUri);
   }
 
   public selectProtocol(protocol: string): void {
@@ -160,7 +167,7 @@ export class SolutionExplorerPanel {
   public closeRemoteSolutionModal(): void {
     this.showOpenRemoteSolutionModal = false;
     this.uriOfRemoteSolutionWithoutProtocol = undefined;
-    this._stopPollingOfRemoteSolutionHistoryStatus();
+    this.stopPollingOfRemoteSolutionHistoryStatus();
   }
 
   public async openRemoteSolution(): Promise<void> {
@@ -176,13 +183,13 @@ export class SolutionExplorerPanel {
         this.uriOfRemoteSolutionWithoutProtocol = this.uriOfRemoteSolutionWithoutProtocol.slice(0, -1);
       }
 
-      await this._addSolutionToRemoteSolutionHistory(this.uriOfRemoteSolution);
+      await this.addSolutionToRemoteSolutionHistory(this.uriOfRemoteSolution);
 
       await this.solutionExplorerList.openSolution(this.uriOfRemoteSolution);
     } catch (error) {
       const genericMessage: string = `Unable to connect to ProcessEngine on: ${this.uriOfRemoteSolution}`;
       const cause: string = error.message ? error.message : '';
-      this._notificationService.showNotification(NotificationType.ERROR, `${genericMessage}<br />${cause}`);
+      this.notificationService.showNotification(NotificationType.ERROR, `${genericMessage}<br />${cause}`);
     }
 
     this.closeRemoteSolutionModal();
@@ -193,7 +200,7 @@ export class SolutionExplorerPanel {
   }
 
   public get remoteSolutionHistoryWithStatus(): Array<RemoteSolutionUriWithStatus> {
-    return this._loadRemoteSolutionHistory()
+    return this.loadRemoteSolutionHistory()
       .reverse()
       .map((solutionUri: string) => {
         return {
@@ -212,7 +219,7 @@ export class SolutionExplorerPanel {
     const uri: string = event.target.files[0].path;
     this.solutionInput.value = '';
 
-    this._openSolutionOrDisplayError(uri);
+    this.openSolutionOrDisplayError(uri);
   }
 
   /**
@@ -224,7 +231,7 @@ export class SolutionExplorerPanel {
     const uri: string = event.target.files[0].path;
     this.openDiagramInput.value = '';
 
-    return this._openDiagramOrDisplayError(uri);
+    return this.openDiagramOrDisplayError(uri);
   }
 
   public async openDiagram(): Promise<void> {
@@ -235,9 +242,9 @@ export class SolutionExplorerPanel {
       return;
     }
 
-    this._ipcRenderer.send('open_diagram');
+    this.ipcRenderer.send('open_diagram');
 
-    this._ipcRenderer.once('import_opened_diagram', async (event: Event, openedFile: File) => {
+    this.ipcRenderer.once('import_opened_diagram', async (event: Event, openedFile: File) => {
       const noFileSelected: boolean = openedFile === null;
       if (noFileSelected) {
         return;
@@ -245,7 +252,7 @@ export class SolutionExplorerPanel {
 
       const filePath: string = openedFile[0];
 
-      await this._openDiagramOrDisplayError(filePath);
+      await this.openDiagramOrDisplayError(filePath);
     });
   }
 
@@ -257,7 +264,8 @@ export class SolutionExplorerPanel {
     /**
      * This RegEx checks if the entered URI is valid or not.
      */
-    const urlRegEx: RegExp = /^(?:http(s)?:\/\/)+[\w.-]?[\w\-\._~:/?#[\]@!\$&\'\(\)\*\+,;=.]+$/g;
+    // TODO Check if this still works
+    const urlRegEx: RegExp = /^(?:http(s)?:\/\/)+[\w.-]?[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/g;
     const uriIsValid: boolean = urlRegEx.test(this.uriOfRemoteSolution);
 
     return uriIsValid;
@@ -278,16 +286,16 @@ export class SolutionExplorerPanel {
       return;
     }
 
-    this._ipcRenderer.send('open_solution');
+    this.ipcRenderer.send('open_solution');
 
-    this._ipcRenderer.once('import_opened_solution', async (event: Event, openedFolder: File) => {
+    this.ipcRenderer.once('import_opened_solution', async (event: Event, openedFolder: File) => {
       const noFolderSelected: boolean = openedFolder === null;
       if (noFolderSelected) {
         return;
       }
 
       const folderPath: string = openedFolder[0];
-      await this._openSolutionOrDisplayError(folderPath);
+      await this.openSolutionOrDisplayError(folderPath);
     });
   }
 
@@ -306,36 +314,36 @@ export class SolutionExplorerPanel {
     this.uriOfRemoteSolutionWithoutProtocol = uri;
   }
 
-  private _startPollingOfRemoteSolutionHistoryStatus(): void {
-    this._remoteSolutionHistoryStatusIsPolling = true;
-    this._pollRemoteSolutionHistoryStauts();
+  private startPollingOfRemoteSolutionHistoryStatus(): void {
+    this.remoteSolutionHistoryStatusIsPolling = true;
+    this.pollRemoteSolutionHistoryStauts();
   }
 
-  private _pollRemoteSolutionHistoryStauts(): void {
-    this._remoteSolutionHistoryStatusPollingTimer = setTimeout(() => {
-      this._updateRemoteSolutionHistoryStatus();
+  private pollRemoteSolutionHistoryStauts(): void {
+    this.remoteSolutionHistoryStatusPollingTimer = setTimeout(() => {
+      this.updateRemoteSolutionHistoryStatus();
 
-      if (!this._remoteSolutionHistoryStatusIsPolling) {
+      if (!this.remoteSolutionHistoryStatusIsPolling) {
         return;
       }
 
-      this._startPollingOfRemoteSolutionHistoryStatus();
+      this.startPollingOfRemoteSolutionHistoryStatus();
     }, environment.processengine.updateRemoteSolutionHistoryIntervalInMs);
   }
 
-  private _stopPollingOfRemoteSolutionHistoryStatus(): void {
-    const noTimerExisting: boolean = this._remoteSolutionHistoryStatusPollingTimer === undefined;
+  private stopPollingOfRemoteSolutionHistoryStatus(): void {
+    const noTimerExisting: boolean = this.remoteSolutionHistoryStatusPollingTimer === undefined;
     if (noTimerExisting) {
       return;
     }
 
-    clearTimeout(this._remoteSolutionHistoryStatusPollingTimer);
+    clearTimeout(this.remoteSolutionHistoryStatusPollingTimer);
 
-    this._remoteSolutionHistoryStatusPollingTimer = undefined;
-    this._remoteSolutionHistoryStatusIsPolling = false;
+    this.remoteSolutionHistoryStatusPollingTimer = undefined;
+    this.remoteSolutionHistoryStatusIsPolling = false;
   }
 
-  private async _updateRemoteSolutionHistoryStatus(): Promise<void> {
+  private async updateRemoteSolutionHistoryStatus(): Promise<void> {
     this.remoteSolutionHistoryWithStatus.forEach(
       async (remoteSolutionWithStatus: RemoteSolutionUriWithStatus): Promise<void> => {
         try {
@@ -356,19 +364,19 @@ export class SolutionExplorerPanel {
     );
   }
 
-  private async _refreshSolutions(): Promise<void> {
+  private async refreshSolutions(): Promise<void> {
     return this.solutionExplorerList.refreshSolutions();
   }
 
-  private async _openSolutionOrDisplayError(uri: string): Promise<void> {
+  private async openSolutionOrDisplayError(uri: string): Promise<void> {
     try {
       await this.solutionExplorerList.openSolution(uri);
     } catch (error) {
-      this._notificationService.showNotification(NotificationType.ERROR, error.message);
+      this.notificationService.showNotification(NotificationType.ERROR, error.message);
     }
   }
 
-  private _loadRemoteSolutionHistory(): Array<string> {
+  private loadRemoteSolutionHistory(): Array<string> {
     const remoteSolutionHistoryFromLocalStorage: string | null = localStorage.getItem('remoteSolutionHistory');
     const noHistoryExisting: boolean = remoteSolutionHistoryFromLocalStorage === null;
     const remoteSolutionHistory: Array<string> = noHistoryExisting
@@ -378,40 +386,40 @@ export class SolutionExplorerPanel {
     return remoteSolutionHistory;
   }
 
-  private _saveRemoteSolutionHistory(remoteSolutionHistory: Array<string>): void {
+  private saveRemoteSolutionHistory(remoteSolutionHistory: Array<string>): void {
     const remoteSolutionHistoryString: string = JSON.stringify(remoteSolutionHistory);
 
     localStorage.setItem('remoteSolutionHistory', remoteSolutionHistoryString);
   }
 
-  private _addSolutionToRemoteSolutionHistory(solutionUri: string): void {
-    this._removeSolutionFromSolutionHistroy(solutionUri);
+  private addSolutionToRemoteSolutionHistory(solutionUri: string): void {
+    this.removeSolutionFromSolutionHistroy(solutionUri);
 
-    const remoteSolutionHistory: Array<string> = this._loadRemoteSolutionHistory();
+    const remoteSolutionHistory: Array<string> = this.loadRemoteSolutionHistory();
 
     remoteSolutionHistory.push(solutionUri);
 
-    this._saveRemoteSolutionHistory(remoteSolutionHistory);
+    this.saveRemoteSolutionHistory(remoteSolutionHistory);
   }
 
-  private _removeSolutionFromSolutionHistroy(solutionUri: string): void {
-    const remoteSolutionHistory: Array<string> = this._loadRemoteSolutionHistory();
+  private removeSolutionFromSolutionHistroy(solutionUri: string): void {
+    const remoteSolutionHistory: Array<string> = this.loadRemoteSolutionHistory();
 
     const uniqueRemoteSolutionHistory: Array<string> = remoteSolutionHistory.filter((remoteSolutionUri: string) => {
       return remoteSolutionUri !== solutionUri;
     });
 
-    this._saveRemoteSolutionHistory(uniqueRemoteSolutionHistory);
+    this.saveRemoteSolutionHistory(uniqueRemoteSolutionHistory);
   }
 
-  private async _openDiagramOrDisplayError(uri: string): Promise<void> {
+  private async openDiagramOrDisplayError(uri: string): Promise<void> {
     try {
       const openedDiagram: IDiagram = await this.solutionExplorerList.openDiagram(uri);
       const solution: ISolutionEntry = this.solutionExplorerList.getOpenDiagramSolutionEntry();
 
-      this._solutionService.addOpenDiagram(openedDiagram);
+      this.solutionService.addOpenDiagram(openedDiagram);
 
-      await this._navigateToDetailView(openedDiagram, solution);
+      await this.navigateToDetailView(openedDiagram, solution);
     } catch (error) {
       // The diagram may already be opened.
       const diagram: IDiagram | null = await this.solutionExplorerList.getOpenedDiagramByURI(uri);
@@ -419,39 +427,41 @@ export class SolutionExplorerPanel {
 
       const diagramWithURIIsAlreadyOpened: boolean = diagram !== null;
       if (diagramWithURIIsAlreadyOpened) {
-        return this._navigateToDetailView(diagram, solution);
+        return this.navigateToDetailView(diagram, solution);
       }
 
-      this._notificationService.showNotification(NotificationType.ERROR, error.message);
+      this.notificationService.showNotification(NotificationType.ERROR, error.message);
     }
+
+    return undefined;
   }
 
-  private _electronFileOpeningHook = async (_: Event, pathToFile: string): Promise<void> => {
+  private electronFileOpeningHook = async (_: Event, pathToFile: string): Promise<void> => {
     const uri: string = pathToFile;
-    this._openDiagramOrDisplayError(uri);
+    this.openDiagramOrDisplayError(uri);
   };
 
-  private _electronOnMenuOpenDiagramHook = async (_: Event): Promise<void> => {
+  private electronOnMenuOpenDiagramHook = async (_: Event): Promise<void> => {
     this.openDiagram();
   };
 
-  private _electronOnMenuOpenSolutionHook = async (_: Event): Promise<void> => {
+  private electronOnMenuOpenSolutionHook = async (_: Event): Promise<void> => {
     this.openSolution();
   };
 
-  private _electronOnCreateDiagram = async (_: Event): Promise<void> => {
-    this._openNewDiagram();
+  private electronOnCreateDiagram = async (_: Event): Promise<void> => {
+    this.openNewDiagram();
   };
 
-  private _openNewDiagram(): void {
+  private openNewDiagram(): void {
     const uri: string = 'about:open-diagrams';
 
     this.solutionExplorerList.createDiagram(uri);
   }
 
-  private _createNewDiagram(): void {
-    const activeSolutionUri: string = this._router.currentInstruction.queryParams.solutionUri;
-    const activeSolution: ISolutionEntry = this._solutionService.getSolutionEntryForUri(activeSolutionUri);
+  private createNewDiagram(): void {
+    const activeSolutionUri: string = this.router.currentInstruction.queryParams.solutionUri;
+    const activeSolution: ISolutionEntry = this.solutionService.getSolutionEntryForUri(activeSolutionUri);
 
     const activeSolutionCanCreateDiagrams: boolean =
       activeSolution !== undefined && !activeSolution.uri.startsWith('http');
@@ -461,39 +471,39 @@ export class SolutionExplorerPanel {
     this.solutionExplorerList.createDiagram(uri);
   }
 
-  private _registerElectronHooks(): void {
+  private registerElectronHooks(): void {
     // Register handler for double-click event fired from "electron.js".
-    this._ipcRenderer.on('double-click-on-file', this._electronFileOpeningHook);
+    this.ipcRenderer.on('double-click-on-file', this.electronFileOpeningHook);
 
-    this._ipcRenderer.on('menubar__start_opening_diagram', this._electronOnMenuOpenDiagramHook);
-    this._ipcRenderer.on('menubar__start_opening_solution', this._electronOnMenuOpenSolutionHook);
+    this.ipcRenderer.on('menubar__start_opening_diagram', this.electronOnMenuOpenDiagramHook);
+    this.ipcRenderer.on('menubar__start_opening_solution', this.electronOnMenuOpenSolutionHook);
 
-    this._ipcRenderer.on('menubar__start_create_diagram', this._electronOnCreateDiagram);
+    this.ipcRenderer.on('menubar__start_create_diagram', this.electronOnCreateDiagram);
 
     // Send event to signal the component is ready to handle the event.
-    this._ipcRenderer.send('waiting-for-double-file-click');
+    this.ipcRenderer.send('waiting-for-double-file-click');
 
     // Check if there was a double click before BPMN-Studio was loaded.
-    const fileInfo: IFile = this._ipcRenderer.sendSync('get_opened_file');
+    const fileInfo: IFile = this.ipcRenderer.sendSync('get_opened_file');
 
     if (fileInfo.path) {
       // There was a file opened before BPMN-Studio was loaded, open it.
       const uri: string = fileInfo.path;
-      this._openDiagramOrDisplayError(uri);
+      this.openDiagramOrDisplayError(uri);
     }
   }
 
-  private _removeElectronFileOpeningHooks(): void {
+  private removeElectronFileOpeningHooks(): void {
     // Register handler for double-click event fired from "electron.js".
-    this._ipcRenderer.removeListener('double-click-on-file', this._electronFileOpeningHook);
+    this.ipcRenderer.removeListener('double-click-on-file', this.electronFileOpeningHook);
 
-    this._ipcRenderer.removeListener('menubar__start_opening_diagram', this._electronOnMenuOpenDiagramHook);
-    this._ipcRenderer.removeListener('menubar__start_opening_solution', this._electronOnMenuOpenSolutionHook);
+    this.ipcRenderer.removeListener('menubar__start_opening_diagram', this.electronOnMenuOpenDiagramHook);
+    this.ipcRenderer.removeListener('menubar__start_opening_solution', this.electronOnMenuOpenSolutionHook);
 
-    this._ipcRenderer.removeListener('menubar__start_create_diagram', this._electronOnCreateDiagram);
+    this.ipcRenderer.removeListener('menubar__start_create_diagram', this.electronOnCreateDiagram);
   }
 
-  private _openDiagramOnDropBehaviour: EventListener = async (event: DragEvent): Promise<void> => {
+  private openDiagramOnDropBehaviour: EventListener = async (event: DragEvent): Promise<void> => {
     event.preventDefault();
 
     const loadedFiles: FileList = event.dataTransfer.files;
@@ -504,7 +514,7 @@ export class SolutionExplorerPanel {
 
     const openingPromises: Array<Promise<void>> = urisToOpen.map(
       (uri: string): Promise<void> => {
-        return this._openDiagramOrDisplayError(uri);
+        return this.openDiagramOrDisplayError(uri);
       },
     );
 
@@ -512,8 +522,8 @@ export class SolutionExplorerPanel {
   };
 
   // TODO: This method is copied all over the place.
-  private async _navigateToDetailView(diagram: IDiagram, solution: ISolutionEntry): Promise<void> {
-    await this._router.navigateToRoute('design', {
+  private async navigateToDetailView(diagram: IDiagram, solution: ISolutionEntry): Promise<void> {
+    await this.router.navigateToRoute('design', {
       diagramName: diagram.name,
       diagramUri: diagram.uri,
       solutionUri: solution.uri,
