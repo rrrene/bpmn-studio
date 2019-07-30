@@ -3,7 +3,7 @@
  * written to.
  */
 export class DiagramTrashFolderService {
-  private _diagramTrashFolder: string | null = null;
+  private diagramTrashFolder: string | null = null;
 
   /**
    * Gets the trash folder location on the current platform. This
@@ -12,18 +12,18 @@ export class DiagramTrashFolderService {
    * @return the folder to which deleted diagrams should be moved.
    */
   public getDiagramTrashFolder(): string {
-    const serviceIsNotInitialized: boolean = this._diagramTrashFolder === null;
+    const serviceIsNotInitialized: boolean = this.diagramTrashFolder === null;
     if (serviceIsNotInitialized) {
-      this._initializeDiagramTrashFolder();
+      this.initializeDiagramTrashFolder();
     }
 
-    return this._diagramTrashFolder;
+    return this.diagramTrashFolder;
   }
 
   /**
    * Initializes the diagram trash folder.
    */
-  private _initializeDiagramTrashFolder(): void {
+  private initializeDiagramTrashFolder(): void {
     const path: any = (window as any).nodeRequire('path');
     const os: any = (window as any).nodeRequire('os');
     const fs: any = (window as any).nodeRequire('fs');
@@ -34,7 +34,7 @@ export class DiagramTrashFolderService {
     const platformIsMacOS: boolean = os.platform() === 'darwin';
     if (platformIsMacOS) {
       const systemTrashFolder: string = path.join(homeFolder, '.Trash');
-      this._diagramTrashFolder = systemTrashFolder;
+      this.diagramTrashFolder = systemTrashFolder;
 
       return;
     }
@@ -54,6 +54,6 @@ export class DiagramTrashFolderService {
       fs.mkdirSync(deletedDiagramsFolder);
     }
 
-    this._diagramTrashFolder = deletedDiagramsFolder;
+    this.diagramTrashFolder = deletedDiagramsFolder;
   }
 }
