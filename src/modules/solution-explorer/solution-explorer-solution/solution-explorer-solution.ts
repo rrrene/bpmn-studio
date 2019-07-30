@@ -1,4 +1,4 @@
-// tslint:disable no-use-before-declare
+/* eslint-disable max-lines */
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
 import {NewInstance, bindable, computedFrom, inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';

@@ -564,24 +564,26 @@ export class SolutionExplorerList {
   }
 
   private async getAuthorityForSolution(solutionUri: string): Promise<string> {
-    const solutionIsRemote: boolean = solutionUri.startsWith('http');
+    const solutionIsNotRemote: boolean = !solutionUri.startsWith('http');
 
-    if (solutionIsRemote) {
-      const request: Request = new Request(`${solutionUri}/security/authority`, {
-        method: 'GET',
-        mode: 'cors',
-        referrer: 'no-referrer',
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const response: Response = await fetch(request);
-      const authority: string = (await response.json()).authority;
-
-      return authority;
+    if (solutionIsNotRemote) {
+      return undefined;
     }
+
+    const request: Request = new Request(`${solutionUri}/security/authority`, {
+      method: 'GET',
+      mode: 'cors',
+      referrer: 'no-referrer',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const response: Response = await fetch(request);
+    const authority: string = (await response.json()).authority;
+
+    return authority;
   }
 
   private createDummyAccessToken(): string {

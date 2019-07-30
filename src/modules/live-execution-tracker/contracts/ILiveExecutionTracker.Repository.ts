@@ -1,7 +1,6 @@
 import {Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
-import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_models/kpi';
 
 export interface ILiveExecutionTrackerRepository {
   finishEmptyActivity(
@@ -11,7 +10,7 @@ export interface ILiveExecutionTrackerRepository {
   ): Promise<void>;
   terminateProcess(processInstanceId: string): Promise<void>;
 
-  getActiveTokensForProcessInstance(processInstanceId: string): Promise<Array<ActiveToken> | null>;
+  getActiveTokensForProcessInstance(processInstanceId: string): Promise<Array<DataModels.Kpi.ActiveToken> | null>;
   getCorrelationById(correlationId: string): Promise<DataModels.Correlations.Correlation>;
   getEmptyActivitiesForProcessInstance(
     processInstanceId: string,

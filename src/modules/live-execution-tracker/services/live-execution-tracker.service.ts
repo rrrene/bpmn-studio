@@ -5,9 +5,6 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 import {DataModels} from '@process-engine/management_api_contracts';
-import {CorrelationProcessInstance} from '@process-engine/management_api_contracts/dist/data_models/correlation';
-import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_models/kpi';
-import {TokenHistoryEntry} from '@process-engine/management_api_contracts/dist/data_models/token_history';
 
 import {
   IBpmnModeler,
@@ -162,14 +159,16 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   public async getElementsWithActiveToken(processInstanceId: string): Promise<Array<IShape> | null> {
     const elements: Array<IShape> = this.getAllElementsThatCanHaveAToken();
 
-    const activeTokens: Array<ActiveToken> | null = await this.getActiveTokensForProcessInstance(processInstanceId);
+    const activeTokens: Array<DataModels.Kpi.ActiveToken> | null = await this.getActiveTokensForProcessInstance(
+      processInstanceId,
+    );
     const couldNotGetActiveTokens: boolean = activeTokens === null;
     if (couldNotGetActiveTokens) {
       return null;
     }
 
     const elementsWithActiveToken: Array<IShape> = activeTokens.map(
-      (activeToken: ActiveToken): IShape => {
+      (activeToken: DataModels.Kpi.ActiveToken): IShape => {
         const elementWithActiveToken: IShape = elements.find((element: IShape) => {
           return element.id === activeToken.flowNodeId;
         });
@@ -203,7 +202,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
       });
 
       const elementFinished: boolean =
-        tokenHistoryGroups[flowNodeId].find((tokenHistoryEntry: TokenHistoryEntry) => {
+        tokenHistoryGroups[flowNodeId].find((tokenHistoryEntry: DataModels.TokenHistory.TokenHistoryEntry) => {
           return tokenHistoryEntry.tokenEventType === DataModels.TokenHistory.TokenEventType.onExit;
         }) !== undefined;
 
@@ -271,10 +270,11 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
       const outgoingElementIsSequenceFlow: boolean = outgoingElementAsShape.type === 'bpmn:SequenceFlow';
       if (outgoingElementIsSequenceFlow) {
-        const tokenHistoryForTarget: TokenHistoryEntry = tokenHistoryGroups[targetOfOutgoingElement.id][0];
+        const tokenHistoryForTarget: DataModels.TokenHistory.TokenHistoryEntry =
+          tokenHistoryGroups[targetOfOutgoingElement.id][0];
         const previousFlowNodeInstanceIdOfTarget: string = tokenHistoryForTarget.previousFlowNodeInstanceId;
 
-        const tokenHistoryForElement: TokenHistoryEntry = tokenHistoryGroups[element.id][0];
+        const tokenHistoryForElement: DataModels.TokenHistory.TokenHistoryEntry = tokenHistoryGroups[element.id][0];
         const flowNodeInstanceIdOfElement: string = tokenHistoryForElement.flowNodeInstanceId;
 
         // This is needed because the ParallelGateway only knows the flowNodeId of the first element that reaches the ParallelGateway
@@ -304,12 +304,14 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return tokenHistoryFromFlowNodeInstanceFound;
   }
 
-  public elementHasActiveToken(elementId: string, activeTokens: Array<ActiveToken>): boolean {
-    const activeTokenForFlowNodeInstance: ActiveToken = activeTokens.find((activeToken: ActiveToken) => {
-      const activeTokenIsFromFlowNodeInstance: boolean = activeToken.flowNodeId === elementId;
+  public elementHasActiveToken(elementId: string, activeTokens: Array<DataModels.Kpi.ActiveToken>): boolean {
+    const activeTokenForFlowNodeInstance: DataModels.Kpi.ActiveToken = activeTokens.find(
+      (activeToken: DataModels.Kpi.ActiveToken) => {
+        const activeTokenIsFromFlowNodeInstance: boolean = activeToken.flowNodeId === elementId;
 
-      return activeTokenIsFromFlowNodeInstance;
-    });
+        return activeTokenIsFromFlowNodeInstance;
+      },
+    );
 
     return activeTokenForFlowNodeInstance !== undefined;
   }
@@ -324,7 +326,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
   public async getActiveCallActivities(processInstanceId: string): Promise<Array<IShape>> {
     const activeTokens: Array<
-      ActiveToken
+      DataModels.Kpi.ActiveToken
     > = await this.liveExecutionTrackerRepository.getActiveTokensForProcessInstance(processInstanceId);
 
     const callActivities: Array<IShape> = this.getCallActivities();
@@ -338,7 +340,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
   public async getInactiveCallActivities(processInstanceId: string): Promise<Array<IShape>> {
     const activeTokens: Array<
-      ActiveToken
+      DataModels.Kpi.ActiveToken
     > = await this.liveExecutionTrackerRepository.getActiveTokensForProcessInstance(processInstanceId);
 
     const callActivities: Array<IShape> = this.getCallActivities();
@@ -389,7 +391,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     }
 
     const {processInstanceId} = correlation.processInstances.find(
-      (correlationProcessInstance: CorrelationProcessInstance): boolean => {
+      (correlationProcessInstance: DataModels.Correlations.CorrelationProcessInstance): boolean => {
         const targetProcessModelFound: boolean =
           correlationProcessInstance.parentProcessInstanceId === processInstanceIdOfOrigin &&
           correlationProcessInstance.processModelId === callActivityTargetId;

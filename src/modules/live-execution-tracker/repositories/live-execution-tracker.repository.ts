@@ -2,13 +2,7 @@ import {inject} from 'aurelia-framework';
 
 import {Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IIdentity} from '@essential-projects/iam_contracts';
-import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
-import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_models/kpi/index';
-import {
-  EndEventReachedMessage,
-  TerminateEndEventReachedMessage,
-} from '@process-engine/management_api_contracts/dist/messages/bpmn_events/index';
-
+import {DataModels, IManagementApi, Messages} from '@process-engine/management_api_contracts';
 import {ILiveExecutionTrackerRepository, RequestError} from '../contracts/index';
 
 @inject('ManagementApiClientService')
@@ -47,7 +41,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   }
 
   public async isProcessInstanceActive(processInstanceId: string): Promise<boolean> {
-    const getActiveTokens: Function = async (): Promise<Array<ActiveToken> | RequestError> => {
+    const getActiveTokens: Function = async (): Promise<Array<DataModels.Kpi.ActiveToken> | RequestError> => {
       for (let retries: number = 0; retries < this.maxRetries; retries++) {
         try {
           return await this.managementApiClient.getActiveTokensForProcessInstance(this.identity, processInstanceId);
@@ -63,7 +57,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
       return RequestError.OtherError;
     };
 
-    const activeTokensOrRequestError: Array<ActiveToken> | RequestError = await getActiveTokens();
+    const activeTokensOrRequestError: Array<DataModels.Kpi.ActiveToken> | RequestError = await getActiveTokens();
 
     const couldNotGetActiveTokens: boolean =
       activeTokensOrRequestError === RequestError.ConnectionLost ||
@@ -74,7 +68,9 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
       throw requestError;
     }
 
-    const allActiveTokens: Array<ActiveToken> = activeTokensOrRequestError as Array<ActiveToken>;
+    const allActiveTokens: Array<DataModels.Kpi.ActiveToken> = activeTokensOrRequestError as Array<
+      DataModels.Kpi.ActiveToken
+    >;
 
     const correlationIsActive: boolean = allActiveTokens.length > 0;
 
@@ -99,7 +95,9 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
     return null;
   }
 
-  public async getActiveTokensForProcessInstance(processInstanceId: string): Promise<Array<ActiveToken> | null> {
+  public async getActiveTokensForProcessInstance(
+    processInstanceId: string,
+  ): Promise<Array<DataModels.Kpi.ActiveToken> | null> {
     for (let retries: number = 0; retries < this.maxRetries; retries++) {
       try {
         return await this.managementApiClient.getActiveTokensForProcessInstance(this.identity, processInstanceId);
@@ -155,20 +153,23 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   }
 
   public createProcessEndedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this.managementApiClient.onProcessEnded(this.identity, (message: EndEventReachedMessage): void => {
-      const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
-      if (eventIsForAnotherProcessInstance) {
-        return;
-      }
+    return this.managementApiClient.onProcessEnded(
+      this.identity,
+      (message: Messages.BpmnEvents.EndEventReachedMessage): void => {
+        const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
+        if (eventIsForAnotherProcessInstance) {
+          return;
+        }
 
-      callback();
-    });
+        callback();
+      },
+    );
   }
 
   public createProcessTerminatedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this.managementApiClient.onProcessTerminated(
       this.identity,
-      (message: TerminateEndEventReachedMessage): void => {
+      (message: Messages.BpmnEvents.TerminateEndEventReachedMessage): void => {
         const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
         if (eventIsForAnotherProcessInstance) {
           return;
@@ -182,7 +183,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   public createUserTaskWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this.managementApiClient.onUserTaskWaiting(
       this.identity,
-      (message: TerminateEndEventReachedMessage): void => {
+      (message: Messages.BpmnEvents.TerminateEndEventReachedMessage): void => {
         const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
         if (eventIsForAnotherProcessInstance) {
           return;
@@ -196,7 +197,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   public createActivityReachedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this.managementApiClient.onActivityReached(
       this.identity,
-      (message: TerminateEndEventReachedMessage): void => {
+      (message: Messages.BpmnEvents.TerminateEndEventReachedMessage): void => {
         const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
         if (eventIsForAnotherProcessInstance) {
           return;
@@ -210,7 +211,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   public createActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this.managementApiClient.onActivityFinished(
       this.identity,
-      (message: TerminateEndEventReachedMessage): void => {
+      (message: Messages.BpmnEvents.TerminateEndEventReachedMessage): void => {
         const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
         if (eventIsForAnotherProcessInstance) {
           return;
@@ -224,7 +225,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   public createUserTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this.managementApiClient.onUserTaskFinished(
       this.identity,
-      (message: TerminateEndEventReachedMessage): void => {
+      (message: Messages.BpmnEvents.TerminateEndEventReachedMessage): void => {
         const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
         if (eventIsForAnotherProcessInstance) {
           return;
@@ -238,7 +239,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   public createManualTaskWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this.managementApiClient.onManualTaskWaiting(
       this.identity,
-      (message: TerminateEndEventReachedMessage): void => {
+      (message: Messages.BpmnEvents.TerminateEndEventReachedMessage): void => {
         const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
         if (eventIsForAnotherProcessInstance) {
           return;
@@ -252,7 +253,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   public createManualTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this.managementApiClient.onManualTaskFinished(
       this.identity,
-      (message: TerminateEndEventReachedMessage): void => {
+      (message: Messages.BpmnEvents.TerminateEndEventReachedMessage): void => {
         const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
         if (eventIsForAnotherProcessInstance) {
           return;
@@ -266,7 +267,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   public createEmptyActivityWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
     return this.managementApiClient.onEmptyActivityWaiting(
       this.identity,
-      (message: TerminateEndEventReachedMessage): void => {
+      (message: Messages.BpmnEvents.TerminateEndEventReachedMessage): void => {
         const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
         if (eventIsForAnotherProcessInstance) {
           return;
@@ -283,7 +284,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   ): Promise<Subscription> {
     return this.managementApiClient.onEmptyActivityFinished(
       this.identity,
-      (message: TerminateEndEventReachedMessage): void => {
+      (message: Messages.BpmnEvents.TerminateEndEventReachedMessage): void => {
         const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
         if (eventIsForAnotherProcessInstance) {
           return;
@@ -300,7 +301,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   ): Promise<Subscription> {
     return this.managementApiClient.onBoundaryEventTriggered(
       this.identity,
-      (message: TerminateEndEventReachedMessage): void => {
+      (message: Messages.BpmnEvents.TerminateEndEventReachedMessage): void => {
         const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
         if (eventIsForAnotherProcessInstance) {
           return;
@@ -317,7 +318,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   ): Promise<Subscription> {
     return this.managementApiClient.onIntermediateThrowEventTriggered(
       this.identity,
-      (message: TerminateEndEventReachedMessage): void => {
+      (message: Messages.BpmnEvents.TerminateEndEventReachedMessage): void => {
         const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
         if (eventIsForAnotherProcessInstance) {
           return;
@@ -334,7 +335,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   ): Promise<Subscription> {
     return this.managementApiClient.onIntermediateCatchEventReached(
       this.identity,
-      (message: TerminateEndEventReachedMessage): void => {
+      (message: Messages.BpmnEvents.TerminateEndEventReachedMessage): void => {
         const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
         if (eventIsForAnotherProcessInstance) {
           return;
@@ -351,7 +352,7 @@ export class LiveExecutionTrackerRepository implements ILiveExecutionTrackerRepo
   ): Promise<Subscription> {
     return this.managementApiClient.onIntermediateCatchEventFinished(
       this.identity,
-      (message: TerminateEndEventReachedMessage): void => {
+      (message: Messages.BpmnEvents.TerminateEndEventReachedMessage): void => {
         const eventIsForAnotherProcessInstance: boolean = message.processInstanceId !== processInstanceId;
         if (eventIsForAnotherProcessInstance) {
           return;

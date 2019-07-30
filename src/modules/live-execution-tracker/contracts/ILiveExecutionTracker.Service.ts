@@ -2,7 +2,6 @@ import {Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {IShape} from '@process-engine/bpmn-elements_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
-import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_models/kpi';
 
 export interface ILiveExecutionTrackerService {
   finishEmptyActivity(
@@ -12,7 +11,7 @@ export interface ILiveExecutionTrackerService {
   ): Promise<void>;
   terminateProcess(processInstanceId: string): Promise<void>;
 
-  getActiveTokensForProcessInstance(processInstanceId: string): Promise<Array<ActiveToken> | null>;
+  getActiveTokensForProcessInstance(processInstanceId: string): Promise<Array<DataModels.Kpi.ActiveToken> | null>;
   getCorrelationById(correlationId: string): Promise<DataModels.Correlations.Correlation>;
   getEmptyActivitiesForProcessInstance(
     processInstanceId: string,
@@ -43,7 +42,7 @@ export interface ILiveExecutionTrackerService {
     tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup,
   ): Array<IShape>;
 
-  elementHasActiveToken(elementId: string, activeTokens: Array<ActiveToken>): boolean;
+  elementHasActiveToken(elementId: string, activeTokens: Array<DataModels.Kpi.ActiveToken>): boolean;
   elementHasTokenHistory(elementId: string, tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup): boolean;
 
   setIdentity(identity: IIdentity): void;
