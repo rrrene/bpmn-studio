@@ -1,4 +1,4 @@
-import {ProtractorExpectedConditions, browser, protractor} from 'protractor';
+import {browser} from 'protractor';
 
 import {Dashboard} from './pages/dashboard';
 import {NavBar} from './pages/navBar';
