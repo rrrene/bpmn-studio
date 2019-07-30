@@ -2,7 +2,9 @@
   "extends": "@essential-projects/eslint-config",
   "env": {
       "browser": true,
-      "node": true
+      "node": true,
+      "protractor": true,
+      "jasmine": true
   },
   "rules": {
     "@typescript-eslint/camelcase": ["error", { "properties": "never" }],
