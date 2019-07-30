@@ -21,21 +21,21 @@ export class OpenDiagramStateService {
       },
     };
 
-    const key: string = this._getLocalStorageKeyByUri(uri);
+    const key: string = this.getLocalStorageKeyByUri(uri);
     const value: string = JSON.stringify(diagramState);
 
     window.localStorage.setItem(key, value);
   }
 
   public updateDiagramState(uri: string, diagramState: IDiagramState): void {
-    const key: string = this._getLocalStorageKeyByUri(uri);
+    const key: string = this.getLocalStorageKeyByUri(uri);
     const value: string = JSON.stringify(diagramState);
 
     window.localStorage.setItem(key, value);
   }
 
   public loadDiagramState(uri: string): IDiagramState | null {
-    const key: string = this._getLocalStorageKeyByUri(uri);
+    const key: string = this.getLocalStorageKeyByUri(uri);
 
     const dataFromLocalStorage: string = window.localStorage.getItem(key);
 
@@ -52,7 +52,7 @@ export class OpenDiagramStateService {
   public loadDiagramStateForAllDiagrams(): IDiagramStateList {
     const diagramStateList: IDiagramStateList = [];
 
-    const uriForAllExistingDiagramStates: Array<string> = this._getUrisForAllDiagramStates();
+    const uriForAllExistingDiagramStates: Array<string> = this.getUrisForAllDiagramStates();
 
     for (const uri of uriForAllExistingDiagramStates) {
       const diagramState: IDiagramState = this.loadDiagramState(uri);
@@ -69,27 +69,27 @@ export class OpenDiagramStateService {
   }
 
   public deleteDiagramState(uri: string): void {
-    const key: string = this._getLocalStorageKeyByUri(uri);
+    const key: string = this.getLocalStorageKeyByUri(uri);
 
     window.localStorage.removeItem(key);
   }
 
-  private _getUrisForAllDiagramStates(): Array<string> {
+  private getUrisForAllDiagramStates(): Array<string> {
     const allLocalStorageKeys: Array<string> = Object.keys(localStorage);
     const localStorageKeysForAllDiagramStates: Array<string> = allLocalStorageKeys.filter((key: string) => {
-      return key.startsWith(this._getLocalStorageKeyByUri(''));
+      return key.startsWith(this.getLocalStorageKeyByUri(''));
     });
 
     const urisForAllDiagramStates: Array<string> = localStorageKeysForAllDiagramStates.map(
       (localStorageKey: string) => {
-        return localStorageKey.replace(this._getLocalStorageKeyByUri(''), '');
+        return localStorageKey.replace(this.getLocalStorageKeyByUri(''), '');
       },
     );
 
     return urisForAllDiagramStates;
   }
 
-  private _getLocalStorageKeyByUri(uri: string): string {
+  private getLocalStorageKeyByUri(uri: string): string {
     return `Open Diagram: ${uri}`;
   }
 }
