@@ -22,3 +22,12 @@
 .cronjob-list-item-modelname:hover {
   color: inherit;
 }
+
+.cronjob-list-header {
+  float: left;
+}
+
+.cronjob-list-total-count {
+  float: right;
+  margin-top: 7px;
+}
