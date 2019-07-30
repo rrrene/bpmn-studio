@@ -8,10 +8,10 @@ import {IDynamicUiService} from '../../contracts';
 
 @inject('ManagementApiClientService')
 export class DynamicUiService implements IDynamicUiService {
-  private _managementApiClient: ManagementApiClientService;
+  private managementApiClient: ManagementApiClientService;
 
   constructor(managmentApiClient: ManagementApiClientService) {
-    this._managementApiClient = managmentApiClient;
+    this.managementApiClient = managmentApiClient;
   }
 
   public finishUserTask(
@@ -21,7 +21,7 @@ export class DynamicUiService implements IDynamicUiService {
     userTaskInstanceId: string,
     userTaskResult: DataModels.UserTasks.UserTaskResult,
   ): Promise<void> {
-    return this._managementApiClient.finishUserTask(
+    return this.managementApiClient.finishUserTask(
       identity,
       processInstanceId,
       correlationId,
@@ -35,7 +35,7 @@ export class DynamicUiService implements IDynamicUiService {
     processInstanceId: string,
     userTaskId: string,
   ): Promise<DataModels.UserTasks.UserTask> {
-    const userTaskList: DataModels.UserTasks.UserTaskList = await this._managementApiClient.getUserTasksForProcessInstance(
+    const userTaskList: DataModels.UserTasks.UserTaskList = await this.managementApiClient.getUserTasksForProcessInstance(
       identity,
       processInstanceId,
     );
@@ -51,7 +51,7 @@ export class DynamicUiService implements IDynamicUiService {
     correlationId: string,
     manualTaskInstanceId: string,
   ): Promise<void> {
-    return this._managementApiClient.finishManualTask(identity, processInstanceId, correlationId, manualTaskInstanceId);
+    return this.managementApiClient.finishManualTask(identity, processInstanceId, correlationId, manualTaskInstanceId);
   }
 
   public async getManualTask(
@@ -59,7 +59,7 @@ export class DynamicUiService implements IDynamicUiService {
     processInstanceId: string,
     manualTaskId: string,
   ): Promise<DataModels.ManualTasks.ManualTask> {
-    const manualTaskList: DataModels.ManualTasks.ManualTaskList = await this._managementApiClient.getManualTasksForProcessInstance(
+    const manualTaskList: DataModels.ManualTasks.ManualTaskList = await this.managementApiClient.getManualTasksForProcessInstance(
       identity,
       processInstanceId,
     );
