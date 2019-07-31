@@ -46,6 +46,7 @@ export class InspectCorrelation {
     );
 
     this.noCorrelationsFound = this.correlations.length === 0;
+    this.eventAggregator.publish(environment.events.inspectCorrelation.noCorrelationsFound, this.noCorrelationsFound);
 
     this.eventAggregator.publish(environment.events.statusBar.showInspectCorrelationButtons, true);
 
@@ -119,6 +120,8 @@ export class InspectCorrelation {
       );
 
       this.noCorrelationsFound = this.correlations.length === 0;
+
+      this.eventAggregator.publish(environment.events.inspectCorrelation.noCorrelationsFound, this.noCorrelationsFound);
     }
   }
 
