@@ -167,7 +167,10 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     return openedDiagram;
   }
 
-  public watchFile(filepath: string, callback: (path: string) => void): void {
+  public watchFile(
+    filepath: string,
+    callback: (event: string, previousFilepath: string, newFilename: string) => void,
+  ): void {
     throw new Error('Method not supported.');
   }
 
