@@ -12,7 +12,7 @@ import {
 } from '@process-engine/bpmn-elements_contracts';
 
 import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
-import {IDiagram} from '@process-engine/solutionexplorer.contracts';
+import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 
 import {
   IElementRegistry,
@@ -55,7 +55,7 @@ export class DiagramDetail {
   public diagramIsInvalid: boolean = false;
   public showRemoteSolutionOnDeployModal: boolean = false;
   public remoteSolutions: Array<ISolutionEntry> = [];
-  public selectedRemoteSolution: ISolutionEntry;
+  @observable public selectedRemoteSolution: ISolutionEntry;
   public showDiagramExistingModal: boolean = false;
 
   private notificationService: NotificationService;
@@ -104,6 +104,8 @@ export class DiagramDetail {
   public attached(): void {
     this.diagramHasChanged = false;
 
+    this.selectedRemoteSolution = this.getPreviouslySelectedRemoteSolution();
+
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
     if (isRunningInElectron) {
       this.ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
@@ -143,6 +145,12 @@ export class DiagramDetail {
         this.electronOnSaveDiagramAs();
       }),
     ];
+  }
+
+  public selectedRemoteSolutionChanged(): void {
+    const selectedRemoteSolutionAsString: string = JSON.stringify(this.selectedRemoteSolution);
+
+    localStorage.setItem('selectedRemoteSolution', selectedRemoteSolutionAsString);
   }
 
   public correlationChanged(newValue: string): void {
@@ -522,6 +530,16 @@ export class DiagramDetail {
   public showCustomStartModal(): void {
     this.getTokenFromStartEventAnnotation();
     this.showStartWithOptionsModal = true;
+  }
+
+  private getPreviouslySelectedRemoteSolution(): ISolutionEntry {
+    const selectedRemoteSolutionFromLocalStorage: string = localStorage.getItem('selectedRemoteSolution');
+
+    if (selectedRemoteSolutionFromLocalStorage === null) {
+      return undefined;
+    }
+
+    return JSON.parse(selectedRemoteSolutionFromLocalStorage);
   }
 
   private getInitialTokenValues(token: any): any {
