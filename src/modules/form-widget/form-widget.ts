@@ -5,13 +5,13 @@ import {NotificationService} from '../../services/notification-service/notificat
 
 @inject('NotificationService')
 export class FormWidget {
-
   @bindable()
   public userTaskConfig: DataModels.UserTasks.UserTaskConfig;
-  private _notificationService: NotificationService;
+
+  private notificationService: NotificationService;
 
   constructor(notificationService: NotificationService) {
-    this._notificationService = notificationService;
+    this.notificationService = notificationService;
   }
 
   public getFieldControl(field: DataModels.UserTasks.UserTaskFormField): string {
@@ -25,12 +25,20 @@ export class FormWidget {
       case DataModels.UserTasks.UserTaskFormFieldType.long:
         return 'number';
       default:
-        const notSupportedType: string = field.type !== undefined ? field.type : 'Custom Type';
-        const errorMessage: string = `Not supported form field type: ${notSupportedType}.`
-                                   + `</br>Please change the form field type with id "${field.id}".`;
+        this.showNotSupportedMessage(field);
 
-        this._notificationService.showNotification(NotificationType.ERROR, errorMessage);
         return null;
     }
+  }
+
+  private showNotSupportedMessage(field: DataModels.UserTasks.UserTaskFormField): void {
+    const formFieldHasCustomType: boolean = field.type === undefined;
+    const notSupportedType: string = formFieldHasCustomType ? 'Custom Type' : field.type;
+
+    const errorMessage: string =
+      `Not supported form field type: ${notSupportedType}.` +
+      `</br>Please change the form field type with id "${field.id}".`;
+
+    this.notificationService.showNotification(NotificationType.ERROR, errorMessage);
   }
 }

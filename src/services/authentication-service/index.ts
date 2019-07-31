@@ -10,5 +10,4 @@ export async function configure(config: FrameworkConfiguration): Promise<void> {
   } else {
     config.container.registerSingleton('AuthenticationService', WebOidcAuthenticationService);
   }
-
 }

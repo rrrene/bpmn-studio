@@ -5,15 +5,14 @@ import {INotification, NotificationType} from '../../contracts/index';
 
 @inject(EventAggregator)
 export class NotificationService {
-
-  private _eventAggregator: EventAggregator;
-  private _toastrInstance: Toastr;
-  private _savedNotifications: Array<INotification> = [];
+  private eventAggregator: EventAggregator;
+  private toastrInstance: Toastr;
+  private savedNotifications: Array<INotification> = [];
 
   constructor(eventAggregator: EventAggregator) {
-    this._eventAggregator = eventAggregator;
-    this._eventAggregator.subscribeOnce('router:navigation:complete', () => {
-      this._setToastrInstance(toastr);
+    this.eventAggregator = eventAggregator;
+    this.eventAggregator.subscribeOnce('router:navigation:complete', () => {
+      this.setToastrInstance(toastr);
     });
   }
 
@@ -31,7 +30,7 @@ export class NotificationService {
       nonDisappearing: false,
       options: options,
     };
-    this._queueOrDisplay(notification);
+    this.queueOrDisplay(notification);
   }
 
   /**
@@ -48,58 +47,58 @@ export class NotificationService {
       nonDisappearing: true,
       options: options,
     };
-    this._queueOrDisplay(notification);
+    this.queueOrDisplay(notification);
   }
 
-  private _queueOrDisplay(notification: INotification): void {
-    if (this._toastrInstance === undefined) {
-      this._savedNotifications.push(notification);
+  private queueOrDisplay(notification: INotification): void {
+    if (this.toastrInstance === undefined) {
+      this.savedNotifications.push(notification);
       return;
     }
 
-    this._publishNotificationToToastr(notification);
+    this.publishNotificationToToastr(notification);
   }
 
-  private _setToastrInstance(toastrInstance: Toastr): void {
-    this._toastrInstance = toastrInstance;
+  private setToastrInstance(toastrInstance: Toastr): void {
+    this.toastrInstance = toastrInstance;
 
-    this._toastrInstance.options = {
+    this.toastrInstance.options = {
       positionClass: 'toast-bottom-left',
     };
 
-    this._initializeToastr();
-    for (const notification of this._savedNotifications) {
-      this._publishNotificationToToastr(notification);
+    this.initializeToastr();
+    for (const notification of this.savedNotifications) {
+      this.publishNotificationToToastr(notification);
     }
-    this._savedNotifications = [];
+    this.savedNotifications = [];
   }
 
-  private _publishNotificationToToastr(notification: INotification): void {
-    const toastrOptions: ToastrOptions = this._mapOptionsToToastrOptions(notification);
+  private publishNotificationToToastr(notification: INotification): void {
+    const toastrOptions: ToastrOptions = this.mapOptionsToToastrOptions(notification);
 
     switch (notification.type) {
       case NotificationType.SUCCESS:
-        this._toastrInstance.success(notification.message, undefined, toastrOptions);
+        this.toastrInstance.success(notification.message, undefined, toastrOptions);
         break;
       case NotificationType.ERROR:
-        this._toastrInstance.error(notification.message, undefined, toastrOptions);
+        this.toastrInstance.error(notification.message, undefined, toastrOptions);
         break;
       case NotificationType.INFO:
-        this._toastrInstance.info(notification.message, undefined, toastrOptions);
+        this.toastrInstance.info(notification.message, undefined, toastrOptions);
         break;
       case NotificationType.WARNING:
-        this._toastrInstance.warning(notification.message, undefined, toastrOptions);
+        this.toastrInstance.warning(notification.message, undefined, toastrOptions);
         break;
       default:
         break;
     }
   }
 
-  private _initializeToastr(): void {
-    this._toastrInstance.options.preventDuplicates = true;
+  private initializeToastr(): void {
+    this.toastrInstance.options.preventDuplicates = true;
   }
 
-  private _mapOptionsToToastrOptions(notification: INotification): ToastrOptions {
+  private mapOptionsToToastrOptions(notification: INotification): ToastrOptions {
     if (notification.nonDisappearing) {
       return {
         closeButton: true,

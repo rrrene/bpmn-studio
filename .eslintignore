@@ -1,0 +1,5 @@
+@fortawesome
+bootstrap
+dist
+node_modules
+scripts

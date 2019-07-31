@@ -1,5 +1,4 @@
 export interface IBpmnXmlSaveOptions {
-
   /**
    * Add the preamble to the outputted xml.
    *

@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable import/no-duplicates */
 import {bindable, inject} from 'aurelia-framework';
 
 import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
@@ -5,7 +7,6 @@ import * as spectrum from 'spectrum-colorpicker';
 import 'spectrum-colorpicker/spectrum';
 
 import {
-  defaultBpmnColors,
   ElementDistributeOptions,
   IBpmnFunction,
   IBpmnModeler,
@@ -16,19 +17,22 @@ import {
   IEventFunction,
   IModeling,
   NotificationType,
+  defaultBpmnColors,
 } from '../../../contracts/index';
 import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 
 @inject('NotificationService')
 export class DiagramToolsRight {
-
   @bindable()
   public modeler: IBpmnModeler;
+
   @bindable()
   public viewer: IBpmnModeler;
+
   @bindable()
   public solutionIsRemote: boolean;
+
   public colorSelectionDropdownToggle: HTMLElement;
   public colorSelectionDropdown: HTMLElement;
 
@@ -40,12 +44,12 @@ export class DiagramToolsRight {
   public fillColor: string;
   public borderColor: string;
 
-  private _preventColorSelectionFromHiding: boolean;
+  private preventColorSelectionFromHiding: boolean;
 
-  private _notificationService: NotificationService;
+  private notificationService: NotificationService;
 
   constructor(notificationService: NotificationService) {
-    this._notificationService = notificationService;
+    this.notificationService = notificationService;
   }
 
   public attached(): void {
@@ -59,7 +63,7 @@ export class DiagramToolsRight {
      * Element inside a Collaboration.
      */
     this.modeler.on('selection.changed', (event: IEvent) => {
-      const selectedElements: Array<IShape> = this._getSelectedElements();
+      const selectedElements: Array<IShape> = this.getSelectedElements();
       const userSelectedDiagramElement: boolean = selectedElements.length > 0;
 
       this.colorPickerEnabled = this.solutionIsRemote ? false : userSelectedDiagramElement;
@@ -73,7 +77,6 @@ export class DiagramToolsRight {
        * The distribute elements feature only can do it's thing, if the
        * user selects more than two elements.
        */
-      /*tslint:disable:no-magic-numbers*/
       this.distributeElementsEnabled = selectedElements.length > 2;
     });
 
@@ -97,52 +100,44 @@ export class DiagramToolsRight {
   }
 
   public setColorRed(): void {
-    this._setColor(defaultBpmnColors.red);
+    this.setColor(defaultBpmnColors.red);
   }
 
   public setColorBlue(): void {
-    this._setColor(defaultBpmnColors.blue);
+    this.setColor(defaultBpmnColors.blue);
   }
 
   public setColorGreen(): void {
-    this._setColor(defaultBpmnColors.green);
+    this.setColor(defaultBpmnColors.green);
   }
 
   public setColorPurple(): void {
-    this._setColor(defaultBpmnColors.purple);
+    this.setColor(defaultBpmnColors.purple);
   }
 
   public setColorOrange(): void {
-    this._setColor(defaultBpmnColors.orange);
+    this.setColor(defaultBpmnColors.orange);
   }
 
   public removeColor(): void {
-    this._setColor(defaultBpmnColors.none);
+    this.setColor(defaultBpmnColors.none);
   }
 
   public setPickedColor(): void {
     const customColor: IColorPickerColor = {fill: this.fillColor, border: this.borderColor};
 
-    this._setColor(customColor);
+    this.setColor(customColor);
   }
 
   public updateCustomColors(): void {
     if (!this.colorPickerLoaded) {
-      this._activateColorPicker();
+      this.activateColorPicker();
     }
 
-    [this.fillColor, this.borderColor] = this._getColors();
+    [this.fillColor, this.borderColor] = this.getColors();
 
     $(this.colorPickerFill).spectrum('set', this.fillColor);
     $(this.colorPickerBorder).spectrum('set', this.borderColor);
-  }
-
-  public distributeElementsVertically(): void {
-    this._distributeElementsVertically();
-  }
-
-  public distributeElementsHorizontally(): void {
-    this._distributeElementsHorizontally();
   }
 
   public fitDiagramToViewport(): void {
@@ -157,18 +152,19 @@ export class DiagramToolsRight {
     }
   }
 
-  private _setColor(color: IColorPickerColor): void {
+  private setColor(color: IColorPickerColor): void {
     const modeling: IModeling = this.modeler.get('modeling');
 
-    const selectedElements: Array<IShape> = this._getSelectedElements();
+    const selectedElements: Array<IShape> = this.getSelectedElements();
 
-    const elementIsNotValid: boolean = selectedElements.length < 1
-                                    || selectedElements.length === 1
-                                    && selectedElements[0].$type === 'bpmn:Collaboration';
+    const elementIsNotValid: boolean =
+      selectedElements.length < 1 ||
+      (selectedElements.length === 1 && selectedElements[0].$type === 'bpmn:Collaboration');
 
     if (elementIsNotValid) {
-      const notificationMessage: string = 'Unable to apply color. Please select an element and use the color picker again.';
-      this._notificationService.showNotification(NotificationType.INFO, notificationMessage);
+      const notificationMessage: string =
+        'Unable to apply color. Please select an element and use the color picker again.';
+      this.notificationService.showNotification(NotificationType.INFO, notificationMessage);
 
       return;
     }
@@ -182,8 +178,8 @@ export class DiagramToolsRight {
     });
   }
 
-  private _getColors(): Array<string> {
-    const selectedElements: Array<IShape> = this._getSelectedElements();
+  private getColors(): Array<string> {
+    const selectedElements: Array<IShape> = this.getSelectedElements();
 
     const noElementSelected: boolean = !selectedElements || !selectedElements[0] || !selectedElements[0].businessObject;
 
@@ -199,75 +195,73 @@ export class DiagramToolsRight {
     return [fillColor, borderColor];
   }
 
-  private _distributeElementsVertically(): void {
+  public distributeElementsVertically(): void {
     const distributor: IBpmnFunction = this.modeler.get('distributeElements');
 
-    const elements: Array<IShape> = this._getSelectedElements();
+    const elements: Array<IShape> = this.getSelectedElements();
 
-    distributor
-      .trigger(
-        elements,
-        ElementDistributeOptions.VERTICAL,
-      );
+    distributor.trigger(elements, ElementDistributeOptions.VERTICAL);
   }
 
-  private _distributeElementsHorizontally(): void {
+  public distributeElementsHorizontally(): void {
     const distributor: IBpmnFunction = this.modeler.get('distributeElements');
 
-    const elements: Array<IShape> = this._getSelectedElements();
+    const elements: Array<IShape> = this.getSelectedElements();
 
-    distributor
-      .trigger(
-        elements,
-        ElementDistributeOptions.HORIZONTAL,
-      );
+    distributor.trigger(elements, ElementDistributeOptions.HORIZONTAL);
   }
 
-  private _activateColorPicker(): void {
+  private activateColorPicker(): void {
     window.localStorage.removeItem('borderColors');
     window.localStorage.removeItem('fillColors');
 
     // Colorpicker bordercolor
     const borderMoveSetting: spectrum.Options = {
       move: (borderColor: spectrum.tinycolorInstance): void => {
-        this._updateBorderColor(borderColor);
+        this.updateBorderColor(borderColor);
       },
     };
 
-    const borderLocalStorageKey: spectrum.Options = { localStorageKey: 'borderColors' };
+    const borderLocalStorageKey: spectrum.Options = {localStorageKey: 'borderColors'};
 
-    const borderDefaultColors: Array<string> = [defaultBpmnColors.red.border,
-                                                defaultBpmnColors.blue.border,
-                                                defaultBpmnColors.green.border,
-                                                defaultBpmnColors.purple.border,
-                                                defaultBpmnColors.orange.border];
+    const borderDefaultColors: Array<string> = [
+      defaultBpmnColors.red.border,
+      defaultBpmnColors.blue.border,
+      defaultBpmnColors.green.border,
+      defaultBpmnColors.purple.border,
+      defaultBpmnColors.orange.border,
+    ];
 
-    const borderDefaultPalette: spectrum.Options = { palette: borderDefaultColors };
+    const borderDefaultPalette: spectrum.Options = {palette: borderDefaultColors};
 
-    const colorPickerBorderSettings: IColorPickerSettings = Object.assign({},
+    const colorPickerBorderSettings: IColorPickerSettings = Object.assign(
+      {},
       environment.colorPickerSettings,
       borderDefaultPalette,
       borderLocalStorageKey,
-      borderMoveSetting);
+      borderMoveSetting,
+    );
 
     $(this.colorPickerBorder).spectrum(colorPickerBorderSettings);
 
     // Colorpicker fillcolor
     const fillMoveSetting: spectrum.Options = {
       move: (fillColor: spectrum.tinycolorInstance): void => {
-        this._updateFillColor(fillColor);
+        this.updateFillColor(fillColor);
       },
     };
 
-    const fillLocalStorageKey: spectrum.Options = { localStorageKey: 'fillColors' };
+    const fillLocalStorageKey: spectrum.Options = {localStorageKey: 'fillColors'};
 
-    const fillDefaultColors: Array<string> = [defaultBpmnColors.red.fill,
-                                              defaultBpmnColors.blue.fill,
-                                              defaultBpmnColors.green.fill,
-                                              defaultBpmnColors.purple.fill,
-                                              defaultBpmnColors.orange.fill];
+    const fillDefaultColors: Array<string> = [
+      defaultBpmnColors.red.fill,
+      defaultBpmnColors.blue.fill,
+      defaultBpmnColors.green.fill,
+      defaultBpmnColors.purple.fill,
+      defaultBpmnColors.orange.fill,
+    ];
 
-    const fillDefaultPalette: spectrum.Options = { palette: fillDefaultColors };
+    const fillDefaultPalette: spectrum.Options = {palette: fillDefaultColors};
 
     const colorPickerFillSettings: IColorPickerSettings = Object.assign(
       {},
@@ -282,7 +276,7 @@ export class DiagramToolsRight {
     const changeColorSelectionHiding: (event: JQueryEventObject) => void = (event: Event): void => {
       const isDragStartEvent: boolean = event.type === 'dragstart';
 
-      this._preventColorSelectionFromHiding = isDragStartEvent;
+      this.preventColorSelectionFromHiding = isDragStartEvent;
       if (isDragStartEvent) {
         document.addEventListener('click', this.colorSelectionDropdownClickListener);
       }
@@ -298,7 +292,7 @@ export class DiagramToolsRight {
     this.colorPickerLoaded = true;
   }
 
-  private _updateFillColor(fillColor: spectrum.tinycolorInstance): void {
+  private updateFillColor(fillColor: spectrum.tinycolorInstance): void {
     if (fillColor) {
       this.fillColor = fillColor.toHexString();
     } else {
@@ -308,7 +302,7 @@ export class DiagramToolsRight {
     this.setPickedColor();
   }
 
-  private _updateBorderColor(borderColor: spectrum.tinycolorInstance): void {
+  private updateBorderColor(borderColor: spectrum.tinycolorInstance): void {
     if (borderColor) {
       this.borderColor = borderColor.toHexString();
     } else {
@@ -318,17 +312,18 @@ export class DiagramToolsRight {
     this.setPickedColor();
   }
 
-  private _getSelectedElements(): Array<IShape> {
+  private getSelectedElements(): Array<IShape> {
+    // eslint-disable-next-line no-underscore-dangle
     return this.modeler.get('selection')._selectedElements;
   }
 
-  public colorSelectionDropdownClickListener: IEventFunction =  (): void => {
-    if (this._preventColorSelectionFromHiding) {
+  public colorSelectionDropdownClickListener: IEventFunction = (): void => {
+    if (this.preventColorSelectionFromHiding) {
       this.colorSelectionDropdown.classList.add('color-selection-dropdown--show');
-      this._preventColorSelectionFromHiding = false;
+      this.preventColorSelectionFromHiding = false;
     } else {
       this.colorSelectionDropdown.classList.remove('color-selection-dropdown--show');
       document.removeEventListener('click', this.colorSelectionDropdownClickListener);
     }
-  }
+  };
 }

@@ -9,7 +9,6 @@ import environment from '../../environment';
 import {HttpClientProxy} from './HttpClientProxy';
 
 export async function configure(config: FrameworkConfiguration): Promise<void> {
-
   const httpClient: IHttpClient = config.container.get('HttpFetchClient');
 
   const configuredBaseRoute: string = window.localStorage.getItem('InternalProcessEngineRoute');

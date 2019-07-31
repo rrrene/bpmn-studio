@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {inject} from 'aurelia-framework';
 
@@ -24,39 +25,38 @@ import {GeneralService} from '../../service/general.service';
 
 @inject(GeneralService, EventAggregator)
 export class MessageEventSection implements ISection {
-
   public path: string = '/sections/message-event/message-event';
   public canHandleElement: boolean = false;
   public messages: Array<IMessage>;
   public selectedId: string;
   public selectedMessage: IMessage;
 
-  private _businessObjInPanel: IMessageEventElement;
-  private _moddle: IBpmnModdle;
-  private _modeler: IBpmnModeler;
-  private _linter: ILinting;
-  private _generalService: GeneralService;
-  private _eventAggregator: EventAggregator;
+  private businessObjInPanel: IMessageEventElement;
+  private moddle: IBpmnModdle;
+  private modeler: IBpmnModeler;
+  private linter: ILinting;
+  private generalService: GeneralService;
+  private eventAggregator: EventAggregator;
 
   constructor(generalService?: GeneralService, eventAggregator?: EventAggregator) {
-    this._generalService = generalService;
-    this._eventAggregator = eventAggregator;
+    this.generalService = generalService;
+    this.eventAggregator = eventAggregator;
   }
 
   public async activate(model: IPageModel): Promise<void> {
-    this._businessObjInPanel = model.elementInPanel.businessObject as IMessageEventElement;
+    this.businessObjInPanel = model.elementInPanel.businessObject as IMessageEventElement;
 
-    this._moddle = model.modeler.get('moddle');
-    this._modeler = model.modeler;
-    this._linter = model.modeler.get('linting');
+    this.moddle = model.modeler.get('moddle');
+    this.modeler = model.modeler;
+    this.linter = model.modeler.get('linting');
 
-    this.messages = await this._getMessages();
+    this.messages = await this.getMessages();
 
-    this._init();
+    this.init();
   }
 
   public isSuitableForElement(element: IShape): boolean {
-    return this._elementIsMessageEvent(element);
+    return this.elementIsMessageEvent(element);
   }
 
   public updateMessage(): void {
@@ -64,17 +64,18 @@ export class MessageEventSection implements ISection {
       return message.id === this.selectedId;
     });
 
-    const messageEventDefinition: IMessageEventDefinition = this._businessObjInPanel.eventDefinitions[0] as IMessageEventDefinition;
+    const messageEventDefinition: IMessageEventDefinition = this.businessObjInPanel
+      .eventDefinitions[0] as IMessageEventDefinition;
     messageEventDefinition.messageRef = this.selectedMessage;
-    this._publishDiagramChange();
+    this.publishDiagramChange();
 
-    if (this._linter.lintingActive()) {
-      this._linter.update();
+    if (this.linter.lintingActive()) {
+      this.linter.update();
     }
   }
 
   public updateName(): void {
-    const rootElements: Array<IModdleElement> = this._modeler._definitions.rootElements;
+    const rootElements: Array<IModdleElement> = this.modeler._definitions.rootElements;
     const selectedMessage: IMessage = rootElements.find((element: IModdleElement) => {
       const elementIsSelectedMessage: boolean = element.$type === 'bpmn:Message' && element.id === this.selectedId;
 
@@ -82,28 +83,28 @@ export class MessageEventSection implements ISection {
     });
 
     selectedMessage.name = this.selectedMessage.name;
-    this._publishDiagramChange();
+    this.publishDiagramChange();
   }
 
   public addMessage(): void {
-    const bpmnMessageProperty: {id: string, name: string} = {
-      id: `Message_${this._generalService.generateRandomId()}`,
+    const bpmnMessageProperty: {id: string; name: string} = {
+      id: `Message_${this.generalService.generateRandomId()}`,
       name: 'Message Name',
     };
-    const bpmnMessage: IMessage = this._moddle.create('bpmn:Message', bpmnMessageProperty);
+    const bpmnMessage: IMessage = this.moddle.create('bpmn:Message', bpmnMessageProperty);
 
-    this._modeler._definitions.rootElements.push(bpmnMessage);
+    this.modeler._definitions.rootElements.push(bpmnMessage);
 
-    this._moddle.toXML(this._modeler._definitions.rootElements, (toXMLError: Error, xmlStrUpdated: string) => {
-      this._modeler.importXML(xmlStrUpdated, async(importXMLError: Error) => {
-        await this._refreshMessages();
-        await this._setBusinessObj();
+    this.moddle.toXML(this.modeler._definitions.rootElements, (toXMLError: Error, xmlStrUpdated: string) => {
+      this.modeler.importXML(xmlStrUpdated, async (importXMLError: Error) => {
+        await this.refreshMessages();
+        await this.setBusinessObj();
 
         this.selectedId = bpmnMessage.id;
         this.updateMessage();
       });
     });
-    this._publishDiagramChange();
+    this.publishDiagramChange();
   }
 
   public removeSelectedMessage(): void {
@@ -117,14 +118,14 @@ export class MessageEventSection implements ISection {
     });
 
     this.messages.splice(messageIndex, 1);
-    this._modeler._definitions.rootElements.splice(this._getRootElementsIndex(this.selectedId), 1);
+    this.modeler._definitions.rootElements.splice(this.getRootElementsIndex(this.selectedId), 1);
 
     this.updateMessage();
-    this._publishDiagramChange();
+    this.publishDiagramChange();
   }
 
-  private _getRootElementsIndex(elementId: string): number {
-    const rootElements: Array<IModdleElement> = this._modeler._definitions.rootElements;
+  private getRootElementsIndex(elementId: string): number {
+    const rootElements: Array<IModdleElement> = this.modeler._definitions.rootElements;
 
     const rootElementsIndex: number = rootElements.findIndex((element: IModdleElement) => {
       return element.id === elementId;
@@ -133,7 +134,7 @@ export class MessageEventSection implements ISection {
     return rootElementsIndex;
   }
 
-  private _elementIsMessageEvent(element: IShape): boolean {
+  private elementIsMessageEvent(element: IShape): boolean {
     const elementHasNoBusinessObject: boolean = element === undefined || element.businessObject === undefined;
     if (elementHasNoBusinessObject) {
       return false;
@@ -141,23 +142,25 @@ export class MessageEventSection implements ISection {
 
     const eventElement: IEventElement = element.businessObject as IEventElement;
 
-    const elementIsMessageEvent: boolean = eventElement.eventDefinitions !== undefined
-                                        && eventElement.eventDefinitions[0] !== undefined
-                                        && eventElement.eventDefinitions[0].$type === 'bpmn:MessageEventDefinition';
+    const elementIsMessageEvent: boolean =
+      eventElement.eventDefinitions !== undefined &&
+      eventElement.eventDefinitions[0] !== undefined &&
+      eventElement.eventDefinitions[0].$type === 'bpmn:MessageEventDefinition';
 
     return elementIsMessageEvent;
   }
 
-  private _init(): void {
-    const eventDefinitions: Array<IMessageEventDefinition> = this._businessObjInPanel.eventDefinitions;
-    const businessObjectHasNoMessageEvents: boolean = eventDefinitions === undefined
-                                                   || eventDefinitions === null
-                                                   || eventDefinitions[0].$type !== 'bpmn:MessageEventDefinition';
+  private init(): void {
+    const eventDefinitions: Array<IMessageEventDefinition> = this.businessObjInPanel.eventDefinitions;
+    const businessObjectHasNoMessageEvents: boolean =
+      eventDefinitions === undefined ||
+      eventDefinitions === null ||
+      eventDefinitions[0].$type !== 'bpmn:MessageEventDefinition';
     if (businessObjectHasNoMessageEvents) {
       return;
     }
 
-    const messageEventDefinition: IMessageEventDefinition = this._businessObjInPanel.eventDefinitions[0];
+    const messageEventDefinition: IMessageEventDefinition = this.businessObjInPanel.eventDefinitions[0];
     const elementHasNoMessageRef: boolean = messageEventDefinition.messageRef === undefined;
 
     if (elementHasNoMessageRef) {
@@ -168,7 +171,7 @@ export class MessageEventSection implements ISection {
     }
 
     const messageRefId: string = messageEventDefinition.messageRef.id;
-    const elementReferencesMessage: boolean = this._getMessageById(messageRefId) !== undefined;
+    const elementReferencesMessage: boolean = this.getMessageById(messageRefId) !== undefined;
 
     if (elementReferencesMessage) {
       this.selectedId = messageRefId;
@@ -176,15 +179,14 @@ export class MessageEventSection implements ISection {
       this.selectedMessage = this.messages.find((message: IMessage) => {
         return message.id === this.selectedId;
       });
-
     } else {
       this.selectedMessage = undefined;
       this.selectedId = undefined;
     }
   }
 
-  private _getMessageById(messageId: string): IMessage {
-    const messages: Array<IMessage> = this._getMessages();
+  private getMessageById(messageId: string): IMessage {
+    const messages: Array<IMessage> = this.getMessages();
     const message: IMessage = messages.find((messageElement: IMessage) => {
       return messageElement.id === messageId;
     });
@@ -192,8 +194,8 @@ export class MessageEventSection implements ISection {
     return message;
   }
 
-  private _getMessages(): Array<IMessage> {
-    const rootElements: Array<IModdleElement> = this._modeler._definitions.rootElements;
+  private getMessages(): Array<IMessage> {
+    const rootElements: Array<IModdleElement> = this.modeler._definitions.rootElements;
     const messages: Array<IMessage> = rootElements.filter((element: IModdleElement) => {
       return element.$type === 'bpmn:Message';
     });
@@ -201,18 +203,18 @@ export class MessageEventSection implements ISection {
     return messages;
   }
 
-  private async _refreshMessages(): Promise<void> {
-    this.messages = await this._getMessages();
+  private async refreshMessages(): Promise<void> {
+    this.messages = await this.getMessages();
   }
 
-  private _setBusinessObj(): void {
-    const elementRegistry: IElementRegistry = this._modeler.get('elementRegistry');
-    const elementInPanel: IShape = elementRegistry.get(this._businessObjInPanel.id);
+  private setBusinessObj(): void {
+    const elementRegistry: IElementRegistry = this.modeler.get('elementRegistry');
+    const elementInPanel: IShape = elementRegistry.get(this.businessObjInPanel.id);
 
-    this._businessObjInPanel = elementInPanel.businessObject as IMessageEventElement;
+    this.businessObjInPanel = elementInPanel.businessObject as IMessageEventElement;
   }
 
-  private _publishDiagramChange(): void {
-    this._eventAggregator.publish(environment.events.diagramChange);
+  private publishDiagramChange(): void {
+    this.eventAggregator.publish(environment.events.diagramChange);
   }
 }

@@ -2,7 +2,6 @@ import {bindable} from 'aurelia-framework';
 import {IBooleanFormField} from '../../contracts/index';
 
 export class DynamicUiCheckboxElement {
-
   @bindable()
   public field: IBooleanFormField;
 
@@ -12,8 +11,7 @@ export class DynamicUiCheckboxElement {
     const fieldHasNoValue: boolean = this.field.value === undefined;
 
     if (fieldHasNoValue) {
-      this.field.value = this.field.defaultValue === 'true'
-                      || this.field.defaultValue === '1';
+      this.field.value = this.field.defaultValue === 'true' || this.field.defaultValue === '1';
     }
   }
 }

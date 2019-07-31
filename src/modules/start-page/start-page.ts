@@ -5,16 +5,15 @@ import environment from '../../environment';
 
 @inject(EventAggregator)
 export class StartPage {
-  private _eventAggregator: EventAggregator;
-
   public isRunningInElectron: boolean = (window as any).nodeRequire;
   public isRunningOnWindows: boolean = false;
   public isRunningOnMacOS: boolean = false;
 
-  private _ipcRenderer: any;
+  private eventAggregator: EventAggregator;
+  private ipcRenderer: any;
 
   constructor(eventAggregator: EventAggregator) {
-    this._eventAggregator = eventAggregator;
+    this.eventAggregator = eventAggregator;
   }
 
   public activate(): void {
@@ -22,31 +21,30 @@ export class StartPage {
       this.isRunningOnWindows = process.platform === 'win32';
       this.isRunningOnMacOS = process.platform === 'darwin';
 
-      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
-      this._ipcRenderer.on('menubar__start_close_diagram', this._closeBpmnStudio);
+      this.ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+      this.ipcRenderer.on('menubar__start_close_diagram', this.closeBpmnStudio);
     }
-
   }
 
   public deactivate(): void {
     if (this.isRunningInElectron) {
-      this._ipcRenderer.removeListener('menubar__start_close_diagram', this._closeBpmnStudio);
+      this.ipcRenderer.removeListener('menubar__start_close_diagram', this.closeBpmnStudio);
     }
   }
 
   public openLocalSolution(): void {
-    this._eventAggregator.publish(environment.events.startPage.openLocalSolution);
+    this.eventAggregator.publish(environment.events.startPage.openLocalSolution);
   }
 
   public openDiagram(): void {
-    this._eventAggregator.publish(environment.events.startPage.openDiagram);
+    this.eventAggregator.publish(environment.events.startPage.openDiagram);
   }
 
   public createNewDiagram(): void {
-    this._eventAggregator.publish(environment.events.startPage.createDiagram);
+    this.eventAggregator.publish(environment.events.startPage.createDiagram);
   }
 
-  private _closeBpmnStudio: Function = (): void => {
-    this._ipcRenderer.send('close_bpmn-studio');
-  }
+  private closeBpmnStudio: Function = (): void => {
+    this.ipcRenderer.send('close_bpmn-studio');
+  };
 }

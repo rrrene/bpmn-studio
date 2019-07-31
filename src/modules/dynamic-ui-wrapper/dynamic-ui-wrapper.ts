@@ -1,4 +1,3 @@
-
 import {bindable, inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 import {domEventDispatch} from 'dom-event-dispatch';
@@ -6,10 +5,7 @@ import {domEventDispatch} from 'dom-event-dispatch';
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
 
-import {
-  IDynamicUiService,
-  ISolutionEntry,
-} from '../../contracts';
+import {IDynamicUiService, ISolutionEntry} from '../../contracts';
 
 enum ButtonClickActions {
   cancel = 'cancel',
@@ -19,63 +15,52 @@ enum ButtonClickActions {
 
 @inject('DynamicUiService', Router, Element)
 export class DynamicUiWrapper {
-
   public onButtonClick: (action: ButtonClickActions) => void;
   @bindable() public currentUserTask: DataModels.UserTasks.UserTask;
   @bindable() public currentManualTask: DataModels.ManualTasks.ManualTask;
 
   @bindable() public isModal: boolean;
+  public identity: IIdentity;
+  public activeSolutionEntry: ISolutionEntry;
 
-  private _element: Element;
-  private _router: Router;
-  private _dynamicUiService: IDynamicUiService;
-  private _identity: IIdentity;
-  private _activeSolutionEntry: ISolutionEntry;
+  private element: Element;
+  private router: Router;
+  private dynamicUiService: IDynamicUiService;
 
-  constructor(dynamicUiService: IDynamicUiService,
-              router: Router,
-              element: Element) {
-
-    this._dynamicUiService = dynamicUiService;
-    this._router = router;
-    this._element = element;
+  constructor(dynamicUiService: IDynamicUiService, router: Router, element: Element) {
+    this.dynamicUiService = dynamicUiService;
+    this.router = router;
+    this.element = element;
 
     this.isModal = false;
   }
 
-  public set identity(identity: IIdentity) {
-    this._identity = identity;
-  }
-
-  public set activeSolutionEntry(solutionEntry: ISolutionEntry) {
-    this._activeSolutionEntry = solutionEntry;
-  }
-
-  public async handleUserTaskButtonClick(action: ButtonClickActions,
-                                         userTask: DataModels.UserTasks.UserTask,
-                                         results: DataModels.UserTasks.UserTaskResult): Promise<void> {
-
+  public async handleUserTaskButtonClick(
+    action: ButtonClickActions,
+    userTask: DataModels.UserTasks.UserTask,
+    results: DataModels.UserTasks.UserTaskResult,
+  ): Promise<void> {
     const actionCanceled: boolean = action === ButtonClickActions.cancel;
 
     if (actionCanceled) {
-      this._cancelTask();
+      this.cancelTask();
 
       return;
     }
 
-    this._finishUserTask(action, userTask, results);
+    this.finishUserTask(action, userTask, results);
   }
 
   public async handleManualTaskButtonClick(action: ButtonClickActions): Promise<void> {
     const actionCanceled: boolean = action === ButtonClickActions.cancel;
 
     if (actionCanceled) {
-      this._cancelTask();
+      this.cancelTask();
 
       return;
     }
 
-    this._finishManualTask();
+    this.finishManualTask();
   }
 
   public get isHandlingManualTask(): boolean {
@@ -86,25 +71,28 @@ export class DynamicUiWrapper {
     return this.currentUserTask !== undefined;
   }
 
-  private _cancelTask(): void {
+  private cancelTask(): void {
     if (this.isModal) {
-      domEventDispatch.dispatchEvent(this._element, 'close-modal', {bubbles: true});
+      domEventDispatch.dispatchEvent(this.element, 'close-modal', {bubbles: true});
 
       return;
     }
 
-    const correlationId: string = this.currentUserTask ? this.currentUserTask.correlationId : this.currentManualTask.correlationId;
+    const correlationId: string = this.currentUserTask
+      ? this.currentUserTask.correlationId
+      : this.currentManualTask.correlationId;
 
-    this._router.navigateToRoute('task-list-correlation', {
+    this.router.navigateToRoute('task-list-correlation', {
       correlationId: correlationId,
-      solutionUri: this._activeSolutionEntry.uri,
+      solutionUri: this.activeSolutionEntry.uri,
     });
   }
 
-  private _finishUserTask(action: ButtonClickActions,
-                          userTask: DataModels.UserTasks.UserTask,
-                          results: DataModels.UserTasks.UserTaskResult): Promise<void> {
-
+  private finishUserTask(
+    action: ButtonClickActions,
+    userTask: DataModels.UserTasks.UserTask,
+    results: DataModels.UserTasks.UserTaskResult,
+  ): Promise<void> {
     const noUserTaskKnown: boolean = !this.isHandlingUserTask;
 
     if (noUserTaskKnown) {
@@ -112,11 +100,13 @@ export class DynamicUiWrapper {
     }
 
     const {correlationId, processInstanceId, flowNodeInstanceId} = userTask;
-    this._dynamicUiService.finishUserTask(this._identity,
-                                          processInstanceId,
-                                          correlationId,
-                                          flowNodeInstanceId,
-                                          results);
+    this.dynamicUiService.finishUserTask(
+      this.identity,
+      processInstanceId,
+      correlationId,
+      flowNodeInstanceId,
+      results,
+    );
 
     this.currentUserTask = undefined;
 
@@ -126,7 +116,7 @@ export class DynamicUiWrapper {
     }
   }
 
-  private _finishManualTask(): Promise<void> {
+  private finishManualTask(): Promise<void> {
     const noManualTaskKnown: boolean = !this.isHandlingManualTask;
 
     if (noManualTaskKnown) {
@@ -137,10 +127,7 @@ export class DynamicUiWrapper {
     const processInstanceId: string = this.currentManualTask.processInstanceId;
     const manualTaskInstanceId: string = this.currentManualTask.flowNodeInstanceId;
 
-    this._dynamicUiService.finishManualTask(this._identity,
-                                            processInstanceId,
-                                            correlationId,
-                                            manualTaskInstanceId);
+    this.dynamicUiService.finishManualTask(this.identity, processInstanceId, correlationId, manualTaskInstanceId);
 
     this.currentManualTask = undefined;
 

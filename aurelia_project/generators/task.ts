@@ -1,28 +1,31 @@
 import {inject} from 'aurelia-dependency-injection';
-import {Project, ProjectItem, CLIOptions, UI} from 'aurelia-cli';
+import {CLIOptions, Project, ProjectItem, UI} from 'aurelia-cli';
 
 @inject(Project, CLIOptions, UI)
 export default class TaskGenerator {
-  constructor(private project: Project, private options: CLIOptions, private ui: UI) { }
+  private project: Project;
+  private options: CLIOptions;
+  private ui: UI;
 
-  execute() {
-    return this.ui
-      .ensureAnswer(this.options.args[0], 'What would you like to call the task?')
-      .then(name => {
-        let fileName = this.project.makeFileName(name);
-        let functionName = this.project.makeFunctionName(name);
-
-        this.project.tasks.add(
-          ProjectItem.text(`${fileName}.ts`, this.generateSource(functionName))
-        );
-
-        return this.project.commitChanges()
-          .then(() => this.ui.log(`Created ${fileName}.`));
-      });
+  constructor(project: Project, options: CLIOptions, ui: UI) {
+    this.project = project;
+    this.options = options;
+    this.ui = ui;
   }
 
-  generateSource(functionName) {
-return `import * as gulp from 'gulp';
+  public execute(): any {
+    return this.ui.ensureAnswer(this.options.args[0], 'What would you like to call the task?').then((name) => {
+      const fileName = this.project.makeFileName(name);
+      const functionName = this.project.makeFunctionName(name);
+
+      this.project.tasks.add(ProjectItem.text(`${fileName}.ts`, this.generateSource(functionName)));
+
+      return this.project.commitChanges().then(() => this.ui.log(`Created ${fileName}.`));
+    });
+  }
+
+  public generateSource(functionName): any {
+    return `import * as gulp from 'gulp';
 import * as changed from 'gulp-changed';
 import * as project from '../aurelia.json';
 
@@ -32,6 +35,6 @@ export default function ${functionName}() {
     .pipe(gulp.dest(project.paths.output));
 }
 
-`
+`;
   }
 }

@@ -5,14 +5,13 @@ import {DiagramDetail} from './pages/diagramDetail';
 import {RouterView} from './pages/routerView';
 
 describe('Diagram Detail', () => {
-
   let diagramDetail: DiagramDetail;
   let routerView: RouterView;
   let diagram: SimpleDiagram;
 
   const applicationUrl: string = browser.params.aureliaUrl;
 
-  beforeAll(async() => {
+  beforeAll(async () => {
     diagram = new SimpleDiagram();
     diagramDetail = new DiagramDetail(applicationUrl, diagram.name);
     routerView = new RouterView();
@@ -20,11 +19,11 @@ describe('Diagram Detail', () => {
     await diagram.deployDiagram();
   });
 
-  afterAll(async() => {
+  afterAll(async () => {
     await diagram.deleteDiagram();
   });
 
-  it('should contain the bpmn-io container.', async() => {
+  it('should contain the bpmn-io container.', async () => {
     await routerView.show();
     await diagramDetail.show();
 

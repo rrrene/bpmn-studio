@@ -16,33 +16,33 @@ export class CronjobList {
   public pageSize: number = 10;
   public paginationSize: number = 10;
 
-  private _managementApiService: ManagementApiClientService;
+  private managementApiService: ManagementApiClientService;
 
-  private _cronjobs: Array<DataModels.Cronjobs.CronjobConfiguration> = [];
-  private _pollingTimeout: NodeJS.Timeout;
-  private _isAttached: boolean;
-  private _notificationService: NotificationService;
+  private cronjobs: Array<DataModels.Cronjobs.CronjobConfiguration> = [];
+  private pollingTimeout: NodeJS.Timeout;
+  private isAttached: boolean;
+  private notificationService: NotificationService;
 
   constructor(managementApiService: ManagementApiClientService, notificationService: NotificationService) {
-    this._managementApiService = managementApiService;
-    this._notificationService = notificationService;
+    this.managementApiService = managementApiService;
+    this.notificationService = notificationService;
   }
 
   public async attached(): Promise<void> {
-    this._isAttached = true;
+    this.isAttached = true;
 
     await this.updateCronjobs();
-    this._startPolling();
+    this.startPolling();
   }
 
   public detached(): void {
-    this._isAttached = false;
-    this._stopPolling();
+    this.isAttached = false;
+    this.stopPolling();
   }
 
-  @computedFrom('_cronjobs.length')
+  @computedFrom('cronjobs.length')
   public get totalItems(): number {
-    return this._cronjobs.length;
+    return this.cronjobs.length;
   }
 
   @computedFrom('cronjobsToDisplay.length')
@@ -52,12 +52,11 @@ export class CronjobList {
 
   public get cronjobsToDisplay(): Array<DataModels.Cronjobs.CronjobConfiguration> {
     const firstCronjobIndex: number = (this.currentPage - 1) * this.pageSize;
-    const lastCronjobIndex: number = (this.pageSize * this.currentPage);
+    const lastCronjobIndex: number = this.pageSize * this.currentPage;
 
-    const cronjobsToDisplay: Array<DataModels.Cronjobs.CronjobConfiguration> =
-      [...this._cronjobs]
-        .sort(this._sortCronjobs)
-        .slice(firstCronjobIndex, lastCronjobIndex);
+    const cronjobsToDisplay: Array<DataModels.Cronjobs.CronjobConfiguration> = [...this.cronjobs]
+      .sort(this.sortCronjobs)
+      .slice(firstCronjobIndex, lastCronjobIndex);
 
     return cronjobsToDisplay;
   }
@@ -66,34 +65,37 @@ export class CronjobList {
     const beautifiedDate: string = getBeautifiedDate(date);
 
     return beautifiedDate;
-}
+  }
 
   public async updateCronjobs(): Promise<void> {
     try {
-      this._cronjobs = await this._managementApiService.getAllActiveCronjobs(this.activeSolutionEntry.identity);
+      this.cronjobs = await this.managementApiService.getAllActiveCronjobs(this.activeSolutionEntry.identity);
 
       this.requestSuccessful = true;
     } catch (error) {
-      this._notificationService.showNotification(NotificationType.ERROR, `Error receiving process list: ${error.message}`);
+      this.notificationService.showNotification(
+        NotificationType.ERROR,
+        `Error receiving process list: ${error.message}`,
+      );
       this.requestSuccessful = false;
     }
   }
 
-  private _startPolling(): void {
-    this._pollingTimeout = setTimeout(async() => {
+  private startPolling(): void {
+    this.pollingTimeout = setTimeout(async () => {
       await this.updateCronjobs();
 
-      if (this._isAttached) {
-        this._startPolling();
+      if (this.isAttached) {
+        this.startPolling();
       }
     }, environment.processengine.dashboardPollingIntervalInMs);
   }
 
-  private _stopPolling(): void {
-    clearTimeout(this._pollingTimeout);
+  private stopPolling(): void {
+    clearTimeout(this.pollingTimeout);
   }
 
-  private _sortCronjobs(
+  private sortCronjobs(
     firstCronjob: DataModels.Cronjobs.CronjobConfiguration,
     secondCronjob: DataModels.Cronjobs.CronjobConfiguration,
   ): number {

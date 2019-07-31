@@ -5,23 +5,23 @@
     <table else class="table table-striped table-hover correlation-table">
       <thead>
         <tr class="correlation-table__headlines">
-          <th class="correlation-table__headline--number" click.delegate="sortList(CorrelationListSortProperty.Number)">
-            Number <i if.bind="sortSettings.sortProperty === CorrelationListSortProperty.Number" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
+          <th class="correlation-table__headline--number" click.delegate="sortList(correlationListSortProperty.Number)">
+            Number <i if.bind="sortSettings.sortProperty === correlationListSortProperty.Number" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
           </th>
-          <th class="correlation-table__headline" click.delegate="sortList(CorrelationListSortProperty.StartedAt)">
-            Started at <i if.bind="sortSettings.sortProperty === CorrelationListSortProperty.StartedAt" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
+          <th class="correlation-table__headline" click.delegate="sortList(correlationListSortProperty.StartedAt)">
+            Started at <i if.bind="sortSettings.sortProperty === correlationListSortProperty.StartedAt" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
           </th>
-          <th class="correlation-table__headline" click.delegate="sortList(CorrelationListSortProperty.State)">
-            State <i if.bind="sortSettings.sortProperty == CorrelationListSortProperty.State" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
+          <th class="correlation-table__headline" click.delegate="sortList(correlationListSortProperty.State)">
+            State <i if.bind="sortSettings.sortProperty == correlationListSortProperty.State" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
           </th>
-          <th class="correlation-table__headline" if.bind="false" click.delegate="sortList(CorrelationListSortProperty.User)">
-            User <i if.bind="sortSettings.sortProperty === CorrelationListSortProperty.User" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
+          <th class="correlation-table__headline" if.bind="false" click.delegate="sortList(correlationListSortProperty.User)">
+            User <i if.bind="sortSettings.sortProperty === correlationListSortProperty.User" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
           </th>
-          <th class="correlation-table__headline" click.delegate="sortList(CorrelationListSortProperty.ProcessInstanceId)">
-            Process Instance ID <i if.bind="sortSettings.sortProperty === CorrelationListSortProperty.ProcessInstanceId" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
+          <th class="correlation-table__headline" click.delegate="sortList(correlationListSortProperty.ProcessInstanceId)">
+            Process Instance ID <i if.bind="sortSettings.sortProperty === correlationListSortProperty.ProcessInstanceId" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
           </th>
-          <th class="correlation-table__headline" click.delegate="sortList(CorrelationListSortProperty.CorrelationId)">
-            Correlation ID <i if.bind="sortSettings.sortProperty === CorrelationListSortProperty.CorrelationId" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
+          <th class="correlation-table__headline" click.delegate="sortList(correlationListSortProperty.CorrelationId)">
+            Correlation ID <i if.bind="sortSettings.sortProperty === correlationListSortProperty.CorrelationId" class.bind="sortSettings.ascending ? 'fas fa-caret-up' : ' fas fa-caret-down'"></i>
           </th>
         </tr>
       </thead>

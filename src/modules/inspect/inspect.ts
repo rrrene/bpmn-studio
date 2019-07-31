@@ -17,7 +17,6 @@ interface IInspectRouteParameters {
 
 @inject(EventAggregator, 'SolutionService', 'NotificationService')
 export class Inspect {
-
   @bindable() public showDashboard: boolean = true;
   @bindable() public activeDiagram: IDiagram;
   @bindable() public activeSolutionEntry: ISolutionEntry;
@@ -28,34 +27,36 @@ export class Inspect {
   public showTokenViewer: boolean = false;
   public tokenViewerButtonDisabled: boolean = false;
 
-  private _eventAggregator: EventAggregator;
-  private _subscriptions: Array<Subscription>;
-  private _solutionService: ISolutionService;
-  private _notificationService: NotificationService;
-  private _ipcRenderer: any;
+  private eventAggregator: EventAggregator;
+  private subscriptions: Array<Subscription>;
+  private solutionService: ISolutionService;
+  private notificationService: NotificationService;
+  private ipcRenderer: any;
 
-  constructor(eventAggregator: EventAggregator,
-              solutionService: ISolutionService,
-              notificationService: NotificationService) {
-    this._eventAggregator = eventAggregator;
-    this._solutionService = solutionService;
-    this._notificationService = notificationService;
+  constructor(
+    eventAggregator: EventAggregator,
+    solutionService: ISolutionService,
+    notificationService: NotificationService,
+  ) {
+    this.eventAggregator = eventAggregator;
+    this.solutionService = solutionService;
+    this.notificationService = notificationService;
   }
 
   public determineActivationStrategy(): string {
     return activationStrategy.invokeLifecycle;
- }
+  }
 
   public canActivate(routeParameters: IInspectRouteParameters): boolean {
     const solutionUri: string = routeParameters.solutionUri
-                              ? routeParameters.solutionUri
-                              : window.localStorage.getItem('InternalProcessEngineRoute');
+      ? routeParameters.solutionUri
+      : window.localStorage.getItem('InternalProcessEngineRoute');
 
-    this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(solutionUri);
+    this.activeSolutionEntry = this.solutionService.getSolutionEntryForUri(solutionUri);
 
     const noSolutionEntry: boolean = this.activeSolutionEntry === undefined;
     if (noSolutionEntry) {
-      this._notificationService.showNotification(NotificationType.INFO, 'Please open a solution first.');
+      this.notificationService.showNotification(NotificationType.INFO, 'Please open a solution first.');
 
       return false;
     }
@@ -67,7 +68,7 @@ export class Inspect {
     const solutionUri: string = routeParameters.solutionUri;
     const diagramName: string = routeParameters.diagramName;
 
-    await this._updateInspectView(diagramName, solutionUri);
+    await this.updateInspectView(diagramName, solutionUri);
 
     const routeViewIsDashboard: boolean = routeParameters.view === 'dashboard';
     const routeViewIsHeatmap: boolean = routeParameters.view === 'heatmap';
@@ -86,15 +87,15 @@ export class Inspect {
         }
       }, 0);
 
-      this._eventAggregator.publish(environment.events.navBar.toggleDashboardView);
+      this.eventAggregator.publish(environment.events.navBar.toggleDashboardView);
     } else if (routeViewIsHeatmap) {
-      this._eventAggregator.publish(environment.events.navBar.toggleHeatmapView);
+      this.eventAggregator.publish(environment.events.navBar.toggleHeatmapView);
 
       this.showDashboard = false;
       this.showHeatmap = true;
       this.showInspectCorrelation = false;
     } else if (routeViewIsInspectCorrelation) {
-      this._eventAggregator.publish(environment.events.navBar.toggleInspectCorrelationView);
+      this.eventAggregator.publish(environment.events.navBar.toggleInspectCorrelationView);
 
       this.showDashboard = false;
       this.showHeatmap = false;
@@ -104,8 +105,8 @@ export class Inspect {
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
 
     if (isRunningInElectron) {
-      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
-      this._ipcRenderer.on('menubar__start_close_diagram', this._closeBpmnStudio);
+      this.ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+      this.ipcRenderer.on('menubar__start_close_diagram', this.closeBpmnStudio);
     }
   }
 
@@ -113,7 +114,7 @@ export class Inspect {
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
 
     if (isRunningInElectron) {
-      this._ipcRenderer.removeListener('menubar__start_close_diagram', this._closeBpmnStudio);
+      this.ipcRenderer.removeListener('menubar__start_close_diagram', this.closeBpmnStudio);
     }
   }
 
@@ -124,17 +125,20 @@ export class Inspect {
       this.dashboard.canActivate(this.activeSolutionEntry);
     }
 
-    this._subscriptions = [
-      this._eventAggregator.subscribe(environment.events.inspect.shouldDisableTokenViewerButton, (tokenViewerButtonDisabled: boolean) => {
-        this.tokenViewerButtonDisabled = tokenViewerButtonDisabled;
-      }),
+    this.subscriptions = [
+      this.eventAggregator.subscribe(
+        environment.events.inspect.shouldDisableTokenViewerButton,
+        (tokenViewerButtonDisabled: boolean) => {
+          this.tokenViewerButtonDisabled = tokenViewerButtonDisabled;
+        },
+      ),
     ];
   }
 
   public detached(): void {
-    this._eventAggregator.publish(environment.events.navBar.inspectNavigateToDashboard);
+    this.eventAggregator.publish(environment.events.navBar.inspectNavigateToDashboard);
 
-    for (const subscription of this._subscriptions) {
+    for (const subscription of this.subscriptions) {
       subscription.dispose();
     }
   }
@@ -146,47 +150,49 @@ export class Inspect {
 
     this.showTokenViewer = !this.showTokenViewer;
 
-    this._eventAggregator.publish(environment.events.inspectCorrelation.showTokenViewer, this.showTokenViewer);
+    this.eventAggregator.publish(environment.events.inspectCorrelation.showTokenViewer, this.showTokenViewer);
   }
 
-  private async _updateInspectView(diagramName: string, solutionUri: string): Promise<void> {
-    const solutionUriIsNotSet: boolean = solutionUri === undefined;
-    if (solutionUriIsNotSet) {
-      solutionUri = window.localStorage.getItem('InternalProcessEngineRoute');
-    }
+  private async updateInspectView(diagramName: string, solutionUri?: string): Promise<void> {
+    const solutionUriIsSet: boolean = solutionUri !== undefined;
 
-    this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(solutionUri);
-    await this.activeSolutionEntry.service.openSolution(this.activeSolutionEntry.uri, this.activeSolutionEntry.identity);
+    const solutionUriToUse: string = solutionUriIsSet
+      ? solutionUri
+      : window.localStorage.getItem('InternalProcessEngineRoute');
 
-    const solutionIsRemote: boolean = solutionUri.startsWith('http');
+    this.activeSolutionEntry = this.solutionService.getSolutionEntryForUri(solutionUriToUse);
+    await this.activeSolutionEntry.service.openSolution(
+      this.activeSolutionEntry.uri,
+      this.activeSolutionEntry.identity,
+    );
+
+    const solutionIsRemote: boolean = solutionUriToUse.startsWith('http');
     if (solutionIsRemote) {
-      this._eventAggregator.publish(
+      this.eventAggregator.publish(
         environment.events.configPanel.solutionEntryChanged,
-        this._solutionService.getSolutionEntryForUri(solutionUri),
+        this.solutionService.getSolutionEntryForUri(solutionUriToUse),
       );
     }
 
     const diagramIsSet: boolean = diagramName !== undefined;
     if (diagramIsSet) {
-
-      const activeSolutionIsOpenSolution: boolean = solutionUri === 'about:open-diagrams';
+      const activeSolutionIsOpenSolution: boolean = solutionUriToUse === 'about:open-diagrams';
       if (activeSolutionIsOpenSolution) {
-        const persistedDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();
+        const persistedDiagrams: Array<IDiagram> = this.solutionService.getOpenDiagrams();
 
         this.activeDiagram = persistedDiagrams.find((diagram: IDiagram) => {
           return diagram.name === diagramName;
         });
       } else {
-
         this.activeDiagram = await this.activeSolutionEntry.service.loadDiagram(diagramName);
       }
     }
   }
 
-  private _closeBpmnStudio: Function = (): void => {
+  private closeBpmnStudio: Function = (): void => {
     const activeDiagramNotSet: boolean = this.activeDiagram === undefined;
     if (activeDiagramNotSet) {
-      this._ipcRenderer.send('close_bpmn-studio');
+      this.ipcRenderer.send('close_bpmn-studio');
     }
-  }
+  };
 }

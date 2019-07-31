@@ -328,7 +328,7 @@ Die folgenden Skripte, werden in unserem Tooling verwendet:
 
 * `lint`
 
-  Startet `tslint` für das gesamte Projekt.
+  Startet `eslint` für das gesamte Projekt.
 
 * `electron-build-macos`
 

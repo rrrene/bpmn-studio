@@ -9,68 +9,65 @@ import environment from '../../../environment';
 
 @inject(EventAggregator, Router)
 export class DiagramList {
-
   public allDiagrams: Array<IDiagram>;
   @bindable() public activeSolutionEntry: ISolutionEntry;
 
-  private _eventAggregator: EventAggregator;
-  private _router: Router;
-  private _subscriptions: Array<Subscription>;
-  private _pollingTimeout: NodeJS.Timer | number;
-  private _isAttached: boolean = false;
+  private eventAggregator: EventAggregator;
+  private router: Router;
+  private subscriptions: Array<Subscription>;
+  private pollingTimeout: NodeJS.Timer | number;
+  private isAttached: boolean = false;
 
-  constructor(eventAggregator: EventAggregator,
-              router: Router) {
-    this._eventAggregator = eventAggregator;
-    this._router = router;
+  constructor(eventAggregator: EventAggregator, router: Router) {
+    this.eventAggregator = eventAggregator;
+    this.router = router;
   }
 
   public async attached(): Promise<void> {
-    this._isAttached = true;
+    this.isAttached = true;
 
-    await this._updateDiagramList();
-    this._startPolling();
+    await this.updateDiagramList();
+    this.startPolling();
 
-    this._subscriptions = [
-      this._eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, () => {
-        this._updateDiagramList();
+    this.subscriptions = [
+      this.eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, () => {
+        this.updateDiagramList();
       }),
-      this._eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
-        this._updateDiagramList();
+      this.eventAggregator.subscribe(AuthenticationStateEvent.LOGOUT, () => {
+        this.updateDiagramList();
       }),
     ];
   }
 
   public detached(): void {
-    this._isAttached = false;
+    this.isAttached = false;
 
-    clearTimeout(this._pollingTimeout as NodeJS.Timer);
+    clearTimeout(this.pollingTimeout as NodeJS.Timer);
 
-    for (const subscription of this._subscriptions) {
+    for (const subscription of this.subscriptions) {
       subscription.dispose();
     }
   }
 
-  private _startPolling(): void {
-    this._pollingTimeout = setTimeout(async() => {
-      await this._updateDiagramList();
+  private startPolling(): void {
+    this.pollingTimeout = setTimeout(async () => {
+      await this.updateDiagramList();
 
-      if (this._isAttached) {
-        this._startPolling();
+      if (this.isAttached) {
+        this.startPolling();
       }
     }, environment.processengine.processDefListPollingIntervalInMs);
   }
 
   public showDetails(diagramName: string): void {
-
-    this._router.navigateToRoute('design', {
+    this.router.navigateToRoute('design', {
       diagramName: diagramName,
       solutionUri: this.activeSolutionEntry.uri,
       view: 'detail',
     });
   }
 
-  private async _updateDiagramList(): Promise<void> {
+  private async updateDiagramList(): Promise<void> {
     const solution: ISolution = await this.activeSolutionEntry.service.loadSolution();
     this.allDiagrams = solution.diagrams;
   }

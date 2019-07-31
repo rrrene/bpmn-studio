@@ -7,30 +7,31 @@ import {NotificationService} from '../../services/notification-service/notificat
 
 @inject('NotificationService')
 export class ConfirmWidget {
-
   @bindable()
   public userTaskConfig: DataModels.UserTasks.UserTaskConfig;
+
   public formFields: Array<DataModels.UserTasks.UserTaskFormField>;
   public confirmMessage: string;
 
-  private _notificationService: NotificationService;
+  private notificationService: NotificationService;
 
   constructor(notificationService: NotificationService) {
-    this._notificationService = notificationService;
+    this.notificationService = notificationService;
   }
 
   public attached(): void {
-    const firstBooleanFormField: DataModels.UserTasks.UserTaskFormField = this._getFirstBooleanFormField();
+    const firstBooleanFormField: DataModels.UserTasks.UserTaskFormField = this.getFirstBooleanFormField();
     const userTaskHasNoBooleanFormField: boolean = firstBooleanFormField === undefined;
 
     if (userTaskHasNoBooleanFormField) {
-      const errorMessage: string = 'Confirm UserTasks must have a form field of type boolean that should get confirmed.';
+      const errorMessage: string =
+        'Confirm UserTasks must have a form field of type boolean that should get confirmed.';
 
-      this._notificationService.showNotification(NotificationType.ERROR, errorMessage);
+      this.notificationService.showNotification(NotificationType.ERROR, errorMessage);
     }
 
     this.confirmMessage = firstBooleanFormField.label;
-    this.formFields = this._getAllOtherFormFields(firstBooleanFormField);
+    this.formFields = this.getAllOtherFormFields(firstBooleanFormField);
   }
 
   // TODO: Move this to a UserTaskControlFactory
@@ -44,17 +45,21 @@ export class ConfirmWidget {
         return 'checkbox';
       case DataModels.UserTasks.UserTaskFormFieldType.long:
         return 'number';
-      default:
+      default: {
         const notSupportedType: string = field.type !== undefined ? field.type : 'Custom Type';
-        const errorMessage: string = `Not supported form field type: ${notSupportedType}.`
-                                   + `</br>Please change the form field type with id "${field.id}".`;
+        const errorMessage: string =
+          `Not supported form field type: ${notSupportedType}.` +
+          `</br>Please change the form field type with id "${field.id}".`;
 
-        this._notificationService.showNotification(NotificationType.ERROR, errorMessage);
+        this.notificationService.showNotification(NotificationType.ERROR, errorMessage);
         return null;
+      }
     }
   }
 
-  private _getAllOtherFormFields(formField: DataModels.UserTasks.UserTaskFormField): Array<DataModels.UserTasks.UserTaskFormField> {
+  private getAllOtherFormFields(
+    formField: DataModels.UserTasks.UserTaskFormField,
+  ): Array<DataModels.UserTasks.UserTaskFormField> {
     const booleanFormFieldIndex: number = this.userTaskConfig.formFields.indexOf(formField);
 
     const otherFormFields: Array<DataModels.UserTasks.UserTaskFormField> = this.userTaskConfig.formFields.slice();
@@ -63,7 +68,7 @@ export class ConfirmWidget {
     return otherFormFields;
   }
 
-  private _getFirstBooleanFormField(): DataModels.UserTasks.UserTaskFormField {
+  private getFirstBooleanFormField(): DataModels.UserTasks.UserTaskFormField {
     const formFields: Array<DataModels.UserTasks.UserTaskFormField> = this.userTaskConfig.formFields;
 
     return formFields.find((formField: DataModels.UserTasks.UserTaskFormField): boolean => {

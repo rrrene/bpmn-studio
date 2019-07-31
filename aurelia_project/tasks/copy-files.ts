@@ -1,10 +1,11 @@
+/* eslint-disable guard-for-in */
+/* eslint-disable no-restricted-syntax */
 import * as gulp from 'gulp';
 import * as changedInPlace from 'gulp-changed-in-place';
 import * as minimatch from 'minimatch';
 import * as path from 'path';
 import * as project from '../aurelia.json';
 
-// tslint:disable-next-line:no-default-export
 export default function copyFiles(done: Function): void {
   if (typeof project.build.copyFiles !== 'object') {
     done();
@@ -14,13 +15,17 @@ export default function copyFiles(done: Function): void {
   const instruction: object = getNormalizedInstruction();
   const files: Array<string> = Object.keys(instruction);
 
-  return gulp.src(files)
-    .pipe(changedInPlace({ firstPass: true }))
-    .pipe(gulp.dest((x: any) => {
-      const filePath: string = prepareFilePath(x.path);
-      const key: any = files.find((f: any) => minimatch(filePath, f));
-      return instruction[key];
-    }));
+  // eslint-disable-next-line consistent-return
+  return gulp
+    .src(files)
+    .pipe(changedInPlace({firstPass: true}))
+    .pipe(
+      gulp.dest((x: any) => {
+        const filePath: string = prepareFilePath(x.path);
+        const key: any = files.find((f: any) => minimatch(filePath, f));
+        return instruction[key];
+      }),
+    );
 }
 
 function getNormalizedInstruction(): object {

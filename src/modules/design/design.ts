@@ -1,12 +1,11 @@
-/* tslint:disable:no-use-before-declare */
 /**
  * We are disabling this rule here because we need this kind of statement in the
  * functions used in the promise of the modal.
-*/
+ */
 
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
 import {bindable, bindingMode, inject, observable} from 'aurelia-framework';
-import {activationStrategy, NavigationInstruction, Redirect, Router} from 'aurelia-router';
+import {NavigationInstruction, Router, activationStrategy} from 'aurelia-router';
 
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 
@@ -23,14 +22,13 @@ export interface IDesignRouteParameters {
 }
 
 type DiagramWithSolution = {
-  diagram: IDiagram,
-  solutionName: string,
-  solutionUri: string,
+  diagram: IDiagram;
+  solutionName: string;
+  solutionUri: string;
 };
 
 @inject(EventAggregator, 'SolutionService', Router, 'NotificationService')
 export class Design {
-
   @observable() public activeDiagram: IDiagram;
   @bindable() public activeSolutionEntry: ISolutionEntry;
   @bindable() public xmlForDiff: string;
@@ -50,98 +48,104 @@ export class Design {
   public diagramArray: Array<IDiagram | object> = [];
   public selectedDiagram: DiagramWithSolution;
 
-  private _eventAggregator: EventAggregator;
-  private _notificationService: NotificationService;
-  private _solutionService: ISolutionService;
-  private _subscriptions: Array<Subscription>;
-  private _router: Router;
-  private _routeView: string;
-  private _ipcRenderer: any;
+  private eventAggregator: EventAggregator;
+  private notificationService: NotificationService;
+  private solutionService: ISolutionService;
+  private subscriptions: Array<Subscription>;
+  private router: Router;
+  private routeView: string;
+  private ipcRenderer: any;
 
-  constructor(eventAggregator: EventAggregator, solutionService: ISolutionService, router: Router, notificationService: NotificationService) {
-    this._eventAggregator = eventAggregator;
-    this._solutionService = solutionService;
-    this._router = router;
-    this._notificationService = notificationService;
+  constructor(
+    eventAggregator: EventAggregator,
+    solutionService: ISolutionService,
+    router: Router,
+    notificationService: NotificationService,
+  ) {
+    this.eventAggregator = eventAggregator;
+    this.solutionService = solutionService;
+    this.router = router;
+    this.notificationService = notificationService;
   }
 
   // TODO: Refactor this function
-  // tslint:disable-next-line cyclomatic-complexity
+  // eslint-disable-next-line complexity
   public async activate(routeParameters: IDesignRouteParameters): Promise<void> {
     const solutionIsSet: boolean = routeParameters.solutionUri !== undefined;
     const diagramNameIsSet: boolean = routeParameters.diagramName !== undefined;
 
-    const routerAndInstructionIsNotNull: boolean = this._router !== null
-                                                && this._router.currentInstruction !== null;
+    const routerAndInstructionIsNotNull: boolean = this.router !== null && this.router.currentInstruction !== null;
 
     const diagramNamesAreDifferent: boolean = routerAndInstructionIsNotNull
-                                              ? routeParameters.diagramName !== this._router.currentInstruction.params.diagramName
-                                              : true;
+      ? routeParameters.diagramName !== this.router.currentInstruction.params.diagramName
+      : true;
 
     const diagramUrisAreDifferent: boolean = routerAndInstructionIsNotNull
-                                             ? routeParameters.diagramUri !== this._router.currentInstruction.queryParams.diagramUri
-                                             || routeParameters.diagramUri === undefined
-                                             : false;
+      ? routeParameters.diagramUri !== this.router.currentInstruction.queryParams.diagramUri ||
+        routeParameters.diagramUri === undefined
+      : false;
 
     const solutionIsDifferent: boolean = routerAndInstructionIsNotNull
-                                        ? routeParameters.solutionUri !== this._router.currentInstruction.queryParams.solutionUri
-                                        : true;
+      ? routeParameters.solutionUri !== this.router.currentInstruction.queryParams.solutionUri
+      : true;
 
     const routeFromOtherView: boolean = routerAndInstructionIsNotNull
-                                      ? this._router.currentInstruction.config.name !== 'design'
-                                      : true;
+      ? this.router.currentInstruction.config.name !== 'design'
+      : true;
 
-    const navigateToAnotherDiagram: boolean = diagramNamesAreDifferent || diagramUrisAreDifferent || routeFromOtherView || solutionIsDifferent;
+    const navigateToAnotherDiagram: boolean =
+      diagramNamesAreDifferent || diagramUrisAreDifferent || routeFromOtherView || solutionIsDifferent;
 
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
     if (isRunningInElectron) {
-      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+      this.ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
     }
 
     if (solutionIsSet) {
-      this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(routeParameters.solutionUri);
+      this.activeSolutionEntry = this.solutionService.getSolutionEntryForUri(routeParameters.solutionUri);
 
       /**
        * We have to open the solution here again since if we come here after a
        * reload the solution might not be opened yet.
        */
-      await this.activeSolutionEntry.service.openSolution(this.activeSolutionEntry.uri, this.activeSolutionEntry.identity);
+      await this.activeSolutionEntry.service.openSolution(
+        this.activeSolutionEntry.uri,
+        this.activeSolutionEntry.identity,
+      );
 
       const solutionIsRemote: boolean = this.activeSolutionEntry.uri.startsWith('http');
       if (solutionIsRemote) {
         if (isRunningInElectron) {
-          this._ipcRenderer.send('menu_hide-diagram-entries');
+          this.ipcRenderer.send('menu_hide-diagram-entries');
         }
 
-        this._eventAggregator.publish(environment.events.configPanel.solutionEntryChanged, this.activeSolutionEntry);
-      } else {
-        if (isRunningInElectron) {
-          this._ipcRenderer.send('menu_show-all-menu-entries');
+        this.eventAggregator.publish(environment.events.configPanel.solutionEntryChanged, this.activeSolutionEntry);
+      } else if (isRunningInElectron) {
+          this.ipcRenderer.send('menu_show-all-menu-entries');
         }
-      }
 
       const isOpenDiagram: boolean = this.activeSolutionEntry.uri === 'about:open-diagrams';
 
       if (isOpenDiagram) {
-        const persistedDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();
+        const persistedDiagrams: Array<IDiagram> = this.solutionService.getOpenDiagrams();
 
         this.activeDiagram = persistedDiagrams.find((diagram: IDiagram) => {
-          return diagram.name === routeParameters.diagramName &&
-                 (diagram.uri === routeParameters.diagramUri || routeParameters.diagramUri === undefined);
+          return (
+            diagram.name === routeParameters.diagramName &&
+            (diagram.uri === routeParameters.diagramUri || routeParameters.diagramUri === undefined)
+          );
         });
-
       } else {
-
         this.activeDiagram = diagramNameIsSet
-                            ? await this.activeSolutionEntry.service.loadDiagram(routeParameters.diagramName)
-                            : undefined;
+          ? await this.activeSolutionEntry.service.loadDiagram(routeParameters.diagramName)
+          : undefined;
       }
 
       const diagramNotFound: boolean = this.activeDiagram === undefined;
 
       if (diagramNotFound) {
-        this._router.navigateToRoute('start-page');
-        this._notificationService.showNotification(NotificationType.INFO, 'Diagram could not be opened!');
+        this.router.navigateToRoute('start-page');
+        this.notificationService.showNotification(NotificationType.INFO, 'Diagram could not be opened!');
       }
 
       if (navigateToAnotherDiagram) {
@@ -152,7 +156,7 @@ export class Design {
     const routeViewIsDetail: boolean = routeParameters.view === 'detail';
     const routeViewIsXML: boolean = routeParameters.view === 'xml';
     const routeViewIsDiff: boolean = routeParameters.view === 'diff';
-    this._routeView = routeParameters.view;
+    this.routeView = routeParameters.view;
 
     if (routeViewIsDetail) {
       this.showDetail = true;
@@ -161,8 +165,7 @@ export class Design {
       this.showPropertyPanelButton = true;
       this.showDiffDestinationButton = false;
 
-      this._eventAggregator.publish(environment.events.bpmnio.bindKeyboard);
-
+      this.eventAggregator.publish(environment.events.bpmnio.bindKeyboard);
     } else if (routeViewIsXML) {
       this.showDetail = false;
       this.showXML = true;
@@ -170,9 +173,9 @@ export class Design {
       this.showDiffDestinationButton = false;
       this.showPropertyPanelButton = false;
 
-      this._eventAggregator.publish(environment.events.bpmnio.unbindKeyboard);
+      this.eventAggregator.publish(environment.events.bpmnio.unbindKeyboard);
     } else if (routeViewIsDiff) {
-      this._eventAggregator.publish(environment.events.bpmnio.unbindKeyboard);
+      this.eventAggregator.publish(environment.events.bpmnio.unbindKeyboard);
       /**
        * We need to check this, because after a reload the diagramdetail component is not attached yet.
        */
@@ -184,59 +187,54 @@ export class Design {
 
       this.xmlForDiff = await this.diagramDetail.getXML();
 
-      this._showDiff();
+      this.showDiffView();
     }
 
-    this._eventAggregator.publish(environment.events.navBar.noValidationError);
+    this.eventAggregator.publish(environment.events.navBar.noValidationError);
   }
 
   public async attached(): Promise<void> {
-    const routeViewIsDiff: boolean = this._routeView === 'diff';
-    const routeViewIsXML: boolean = this._routeView === 'xml';
+    const routeViewIsDiff: boolean = this.routeView === 'diff';
+    const routeViewIsXML: boolean = this.routeView === 'xml';
 
     if (routeViewIsDiff) {
-      this._showDiff();
+      this.showDiffView();
     }
 
     if (routeViewIsDiff || routeViewIsXML) {
-      this._eventAggregator.publish(environment.events.bpmnio.unbindKeyboard);
+      this.eventAggregator.publish(environment.events.bpmnio.unbindKeyboard);
     }
 
-    this._subscriptions = [
-      this._eventAggregator.subscribe(environment.events.bpmnio.propertyPanelActive, (showPanel: boolean) => {
+    this.subscriptions = [
+      this.eventAggregator.subscribe(environment.events.bpmnio.propertyPanelActive, (showPanel: boolean) => {
         this.propertyPanelShown = showPanel;
       }),
     ];
 
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
     if (isRunningInElectron) {
-      this._ipcRenderer.send('menu_show-all-menu-entries');
+      this.ipcRenderer.send('menu_show-all-menu-entries');
     }
 
-    this._eventAggregator.publish(environment.events.statusBar.showDiagramViewButtons);
+    this.eventAggregator.publish(environment.events.statusBar.showDiagramViewButtons);
   }
 
   public detached(): void {
-    this._eventAggregator.publish(environment.events.statusBar.hideDiagramViewButtons);
-    this._subscriptions.forEach((subscription: Subscription) => subscription.dispose());
+    this.eventAggregator.publish(environment.events.statusBar.hideDiagramViewButtons);
+    this.subscriptions.forEach((subscription: Subscription) => subscription.dispose());
 
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
     if (isRunningInElectron) {
-      this._ipcRenderer.send('menu_hide-diagram-entries');
+      this.ipcRenderer.send('menu_hide-diagram-entries');
     }
   }
 
   public determineActivationStrategy(): string {
-
     return activationStrategy.invokeLifecycle;
   }
 
   public setDiffDestination(diffDestination: string, diagramName?: string): void {
-    this._eventAggregator.publish(environment.events.diffView.setDiffDestination,
-      [
-        diffDestination,
-        diagramName,
-      ]);
+    this.eventAggregator.publish(environment.events.diffView.setDiffDestination, [diffDestination, diagramName]);
 
     this.showSelectDiagramModal = false;
   }
@@ -244,9 +242,9 @@ export class Design {
   public async openSelectDiagramModal(): Promise<void> {
     this.diagramArray = [];
 
-    const allSolutions: Array<ISolutionEntry> = this._solutionService.getAllSolutionEntries();
+    const allSolutions: Array<ISolutionEntry> = this.solutionService.getAllSolutionEntries();
 
-    const loadedSolutionPromises: Array<Promise<ISolution>> = allSolutions.map(async(value: ISolutionEntry) => {
+    const loadedSolutionPromises: Array<Promise<ISolution>> = allSolutions.map(async (value: ISolutionEntry) => {
       const loadedSolution: ISolution = await value.service.loadSolution();
 
       return loadedSolution;
@@ -254,7 +252,6 @@ export class Design {
 
     const loadedSolutions: Array<ISolution> = await Promise.all(loadedSolutionPromises);
     this.filteredSolutions = loadedSolutions.filter((solution: ISolution) => {
-
       return solution.diagrams.length !== 0;
     });
 
@@ -279,8 +276,8 @@ export class Design {
     this.diagramArray.unshift(lastSaved);
 
     const openedDiagramIndex: number = this.diagramArray.findIndex((diagram: DiagramWithSolution) => {
-      const diagramIsOpenedDiagram: boolean = diagram.solutionUri === this.activeSolutionEntry.uri
-                                           && diagram.diagram.name === this.activeDiagram.name;
+      const diagramIsOpenedDiagram: boolean =
+        diagram.solutionUri === this.activeSolutionEntry.uri && diagram.diagram.name === this.activeDiagram.name;
       return diagramIsOpenedDiagram;
     });
 
@@ -294,7 +291,7 @@ export class Design {
   }
 
   public togglePanel(): void {
-    this._eventAggregator.publish(environment.events.bpmnio.togglePropertyPanel);
+    this.eventAggregator.publish(environment.events.bpmnio.togglePropertyPanel);
   }
 
   public deactivate(): void {
@@ -307,8 +304,7 @@ export class Design {
       return;
     }
 
-    const activeDiagramDidNotChange: boolean = newValue.id === oldValue.id
-                                            && newValue.uri === oldValue.uri;
+    const activeDiagramDidNotChange: boolean = newValue.id === oldValue.id && newValue.uri === oldValue.uri;
     if (activeDiagramDidNotChange) {
       return;
     }
@@ -318,21 +314,25 @@ export class Design {
   }
 
   public get connectedRemoteSolutions(): Array<ISolutionEntry> {
-    const remoteSolutions: Array<ISolutionEntry> = this._solutionService.getRemoteSolutionEntries();
+    const remoteSolutions: Array<ISolutionEntry> = this.solutionService.getRemoteSolutionEntries();
 
-    const remoteSolutionsWithoutActive: Array<ISolutionEntry> = remoteSolutions.filter((remoteSolution: ISolutionEntry) => {
-      return remoteSolution.uri !== this.activeSolutionEntry.uri && remoteSolution.fontAwesomeIconClass !== 'fa-bolt';
-    });
+    const remoteSolutionsWithoutActive: Array<ISolutionEntry> = remoteSolutions.filter(
+      (remoteSolution: ISolutionEntry) => {
+        return remoteSolution.uri !== this.activeSolutionEntry.uri && remoteSolution.fontAwesomeIconClass !== 'fa-bolt';
+      },
+    );
 
     return remoteSolutionsWithoutActive;
   }
 
   public get remoteSolutions(): Array<ISolutionEntry> {
-    const remoteSolutions: Array<ISolutionEntry> = this._solutionService.getRemoteSolutionEntries();
+    const remoteSolutions: Array<ISolutionEntry> = this.solutionService.getRemoteSolutionEntries();
 
-    const remoteSolutionsWithoutActive: Array<ISolutionEntry> = remoteSolutions.filter((remoteSolution: ISolutionEntry) => {
-      return remoteSolution.uri !== this.activeSolutionEntry.uri;
-    });
+    const remoteSolutionsWithoutActive: Array<ISolutionEntry> = remoteSolutions.filter(
+      (remoteSolution: ISolutionEntry) => {
+        return remoteSolution.uri !== this.activeSolutionEntry.uri;
+      },
+    );
 
     return remoteSolutionsWithoutActive;
   }
@@ -361,7 +361,7 @@ export class Design {
     return this.diagramDetail.diagramHasChanged;
   }
 
-  private _showDiff(): void {
+  private showDiffView(): void {
     this.showDiff = true;
     this.showDetail = false;
     this.showXML = false;
@@ -385,16 +385,15 @@ export class Design {
    * @param destinationInstruction The current router instruction which contains
    * the destination router parameters.
    */
-  private _modalCanBeSuppressed(destinationInstruction: NavigationInstruction): boolean {
-    const oldView: string = this._router.currentInstruction.params.view;
+  private modalCanBeSuppressed(destinationInstruction: NavigationInstruction): boolean {
+    const oldView: string = this.router.currentInstruction.params.view;
     const destinationView: string = destinationInstruction.params.view;
 
     const navigatingBetween: Function = (routeA: string, routeB: string): boolean =>
       (routeA === oldView || routeA === destinationView) && (routeB === oldView || routeB === destinationView);
 
-    const shouldModalBeSuppressed: boolean = navigatingBetween('diff', 'xml')
-      || navigatingBetween('diff', 'detail')
-      || navigatingBetween('xml', 'detail');
+    const shouldModalBeSuppressed: boolean =
+      navigatingBetween('diff', 'xml') || navigatingBetween('diff', 'detail') || navigatingBetween('xml', 'detail');
 
     return shouldModalBeSuppressed;
   }

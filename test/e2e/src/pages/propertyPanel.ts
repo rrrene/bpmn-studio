@@ -1,149 +1,148 @@
-import {browser, by, element, ElementFinder, ExpectedConditions} from 'protractor';
+import {ElementFinder, ExpectedConditions, browser, by, element} from 'protractor';
 
 import {By} from 'selenium-webdriver';
 
 export class PropertyPanel {
-
-  private _propertyPanelContainerId: string = 'js-properties-panel';
-  private _generalBasicsSectionId: string = 'js-general-basics-section';
-  private _generalCallActivitySectionId: string = 'js-general-callActivity-section';
-  private _generalConditionalEventSectionId: string = 'js-general-conditionalEvent-section';
-  private _generalErrorEventSectionId: string = 'js-general-errorEvent-section';
-  private _generalEscalationEventSectionId: string = 'js-general-escalationEvent-section';
-  private _generalFlowSectionId: string = 'js-general-flow-section';
-  private _generalMessageEventSectionId: string = 'js-general-messageEvent-section';
-  private _generalMessageTaskSectionId: string = 'js-general-messageTask-section';
-  private _generalPoolSectionId: string = 'js-general-pool-section';
-  private _generalProcessSectionId: string = 'js-general-process-section';
-  private _generalScriptTaskSectionId: string = 'js-general-scriptTask-section';
-  private _generalServiceTaskSectionId: string = 'js-general-serviceTask-section';
-  private _generalSignalEventSectionId: string = 'js-general-signalEvent-section';
-  private _generalTimerEventSectionId: string = 'js-general-timerEvent-section';
-  private _extensionsBasicsSectionId: string = 'js-extensions-basics-section';
-  private _extensionsProcessSectionId: string = 'js-extensions-process-section';
-  private _formsBasicsSectionId: string = 'js-forms-basics-section';
+  private propertyPanelContainerId: string = 'js-properties-panel';
+  private generalBasicsSectionId: string = 'js-general-basics-section';
+  private generalCallActivitySectionId: string = 'js-general-callActivity-section';
+  private generalConditionalEventSectionId: string = 'js-general-conditionalEvent-section';
+  private generalErrorEventSectionId: string = 'js-general-errorEvent-section';
+  private generalEscalationEventSectionId: string = 'js-general-escalationEvent-section';
+  private generalFlowSectionId: string = 'js-general-flow-section';
+  private generalMessageEventSectionId: string = 'js-general-messageEvent-section';
+  private generalMessageTaskSectionId: string = 'js-general-messageTask-section';
+  private generalPoolSectionId: string = 'js-general-pool-section';
+  private generalProcessSectionId: string = 'js-general-process-section';
+  private generalScriptTaskSectionId: string = 'js-general-scriptTask-section';
+  private generalServiceTaskSectionId: string = 'js-general-serviceTask-section';
+  private generalSignalEventSectionId: string = 'js-general-signalEvent-section';
+  private generalTimerEventSectionId: string = 'js-general-timerEvent-section';
+  private extensionsBasicsSectionId: string = 'js-extensions-basics-section';
+  private extensionsProcessSectionId: string = 'js-extensions-process-section';
+  private formsBasicsSectionId: string = 'js-forms-basics-section';
 
   public async show(): Promise<void> {
-    const containerVisbility: Function = ExpectedConditions.visibilityOf(this._propertyPanelContainer);
+    const containerVisbility: Function = ExpectedConditions.visibilityOf(this.propertyPanelContainer);
 
     await browser.wait(containerVisbility, browser.params.defaultTimeoutMS);
   }
 
   public async getVisbilityOfPropertyPanelContainer(): Promise<boolean> {
-    this._waitForVisbilityOfElement(this._propertyPanelContainer);
+    this.waitForVisbilityOfElement(this.propertyPanelContainer);
 
-    return this._propertyPanelContainer.isDisplayed();
+    return this.propertyPanelContainer.isDisplayed();
   }
 
   public async getVisibilityOfGeneralBasicsSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._generalBasicsSection);
+    await this.waitForVisbilityOfElement(this.generalBasicsSection);
 
-    return this._generalBasicsSection.isDisplayed();
+    return this.generalBasicsSection.isDisplayed();
   }
 
   public async getVisibilityOfCallActivitySection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._callActivitySection);
+    await this.waitForVisbilityOfElement(this.callActivitySection);
 
-    return this._callActivitySection.isDisplayed();
+    return this.callActivitySection.isDisplayed();
   }
 
   public async getVisibilityOfConditionalEventSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._conditionalEventSection);
+    await this.waitForVisbilityOfElement(this.conditionalEventSection);
 
-    return this._conditionalEventSection.isDisplayed();
+    return this.conditionalEventSection.isDisplayed();
   }
 
   public async getVisibilityOfErrorEventSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._errorEventSection);
+    await this.waitForVisbilityOfElement(this.errorEventSection);
 
-    return this._errorEventSection.isDisplayed();
+    return this.errorEventSection.isDisplayed();
   }
 
   public async getVisibilityOfEscalationEventSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._escalationEventSection);
+    await this.waitForVisbilityOfElement(this.escalationEventSection);
 
-    return this._escalationEventSection.isDisplayed();
+    return this.escalationEventSection.isDisplayed();
   }
 
   public async getVisibilityOfFlowSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._flowSection);
+    await this.waitForVisbilityOfElement(this.flowSection);
 
-    return this._flowSection.isDisplayed();
+    return this.flowSection.isDisplayed();
   }
 
   public async getVisibilityOfMessageEventSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._messageEventSection);
+    await this.waitForVisbilityOfElement(this.messageEventSection);
 
-    return this._messageEventSection.isDisplayed();
+    return this.messageEventSection.isDisplayed();
   }
 
   public async getVisibilityOfMessageTaskSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._messageTaskSection);
+    await this.waitForVisbilityOfElement(this.messageTaskSection);
 
-    return this._messageTaskSection.isDisplayed();
+    return this.messageTaskSection.isDisplayed();
   }
 
   public async getVisibilityOfPoolSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._poolSection);
+    await this.waitForVisbilityOfElement(this.poolSection);
 
-    return this._poolSection.isDisplayed();
+    return this.poolSection.isDisplayed();
   }
 
   public async getVisibilityOfScriptTaskSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._scriptTaskSection);
+    await this.waitForVisbilityOfElement(this.scriptTaskSection);
 
-    return this._scriptTaskSection.isDisplayed();
+    return this.scriptTaskSection.isDisplayed();
   }
 
   public async getVisibilityOfGeneralProcessSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._generalProcessSection);
+    await this.waitForVisbilityOfElement(this.generalProcessSection);
 
-    return this._generalProcessSection.isDisplayed();
+    return this.generalProcessSection.isDisplayed();
   }
 
   public async getVisbilityOfServiceTaskSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._serviceTaskSection);
+    await this.waitForVisbilityOfElement(this.serviceTaskSection);
 
-    return this._serviceTaskSection.isDisplayed();
+    return this.serviceTaskSection.isDisplayed();
   }
 
   public async getVisbilityOfSignalEventSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._signalEventSection);
+    await this.waitForVisbilityOfElement(this.signalEventSection);
 
-    return this._signalEventSection.isDisplayed();
+    return this.signalEventSection.isDisplayed();
   }
 
   public async getVisbilityOfTimerEventSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._timerEventSection);
+    await this.waitForVisbilityOfElement(this.timerEventSection);
 
-    return this._timerEventSection.isDisplayed();
+    return this.timerEventSection.isDisplayed();
   }
 
   public async getVisbilityOfExtensionsBasicSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._extensionsBasicsSection);
+    await this.waitForVisbilityOfElement(this.extensionsBasicsSection);
 
-    return this._extensionsBasicsSection.isDisplayed();
+    return this.extensionsBasicsSection.isDisplayed();
   }
 
   public async getPresenceOfExtensionsBasicSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._extensionsBasicsSection);
+    await this.waitForVisbilityOfElement(this.extensionsBasicsSection);
 
-    return this._extensionsBasicsSection.isPresent();
+    return this.extensionsBasicsSection.isPresent();
   }
 
   public async getVisbilityOfExtensionsProcessSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._extensionsProcessSection);
+    await this.waitForVisbilityOfElement(this.extensionsProcessSection);
 
-    return this._extensionsProcessSection.isDisplayed();
+    return this.extensionsProcessSection.isDisplayed();
   }
 
   public async getVisbilityOfFormBasicsSection(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._formBasicsSection);
+    await this.waitForVisbilityOfElement(this.formBasicsSection);
 
-    return this._formBasicsSection.isDisplayed();
+    return this.formBasicsSection.isDisplayed();
   }
 
-  private async _waitForVisbilityOfElement(finder: ElementFinder): Promise<void> {
+  private async waitForVisbilityOfElement(finder: ElementFinder): Promise<void> {
     const finderVisibility: Function = ExpectedConditions.visibilityOf(finder);
 
     await browser.wait(finderVisibility, browser.params.defaultTimeoutMS).catch(() => {
@@ -153,112 +152,111 @@ export class PropertyPanel {
     });
   }
 
-  private get _propertyPanelContainer(): ElementFinder {
-    const propertyPanelContainerById: By = by.id(this._propertyPanelContainerId);
+  private get propertyPanelContainer(): ElementFinder {
+    const propertyPanelContainerById: By = by.id(this.propertyPanelContainerId);
 
     return element(propertyPanelContainerById);
   }
 
-  private get _generalBasicsSection(): ElementFinder {
-    const generalBasicsSectionById: By = by.id(this._generalBasicsSectionId);
+  private get generalBasicsSection(): ElementFinder {
+    const generalBasicsSectionById: By = by.id(this.generalBasicsSectionId);
 
     return element(generalBasicsSectionById);
   }
 
-  private get _callActivitySection(): ElementFinder {
-    const callActivitySectionById: By = by.id(this._generalCallActivitySectionId);
+  private get callActivitySection(): ElementFinder {
+    const callActivitySectionById: By = by.id(this.generalCallActivitySectionId);
 
     return element(callActivitySectionById);
   }
 
-  private get _conditionalEventSection(): ElementFinder {
-    const conditionalEventSectionById: By = by.id(this._generalConditionalEventSectionId);
+  private get conditionalEventSection(): ElementFinder {
+    const conditionalEventSectionById: By = by.id(this.generalConditionalEventSectionId);
 
     return element(conditionalEventSectionById);
   }
 
-  private get _errorEventSection(): ElementFinder {
-    const errorEventSectionById: By = by.id(this._generalErrorEventSectionId);
+  private get errorEventSection(): ElementFinder {
+    const errorEventSectionById: By = by.id(this.generalErrorEventSectionId);
 
     return element(errorEventSectionById);
   }
 
-  private get _escalationEventSection(): ElementFinder {
-    const escalationEventSectionById: By = by.id(this._generalEscalationEventSectionId);
+  private get escalationEventSection(): ElementFinder {
+    const escalationEventSectionById: By = by.id(this.generalEscalationEventSectionId);
 
     return element(escalationEventSectionById);
   }
 
-  private get _flowSection(): ElementFinder {
-    const flowSectionById: By = by.id(this._generalFlowSectionId);
+  private get flowSection(): ElementFinder {
+    const flowSectionById: By = by.id(this.generalFlowSectionId);
 
     return element(flowSectionById);
   }
 
-  private get _messageEventSection(): ElementFinder {
-    const messageEventSectionById: By = by.id(this._generalMessageEventSectionId);
+  private get messageEventSection(): ElementFinder {
+    const messageEventSectionById: By = by.id(this.generalMessageEventSectionId);
 
     return element(messageEventSectionById);
   }
 
-  private get _messageTaskSection(): ElementFinder {
-    const messageTaskSectionById: By = by.id(this._generalMessageTaskSectionId);
+  private get messageTaskSection(): ElementFinder {
+    const messageTaskSectionById: By = by.id(this.generalMessageTaskSectionId);
 
     return element(messageTaskSectionById);
   }
 
-  private get _poolSection(): ElementFinder {
-    const poolSectionById: By = by.id(this._generalPoolSectionId);
+  private get poolSection(): ElementFinder {
+    const poolSectionById: By = by.id(this.generalPoolSectionId);
 
     return element(poolSectionById);
   }
 
-  private get _generalProcessSection(): ElementFinder {
-    const processSectionById: By = by.id(this._generalProcessSectionId);
+  private get generalProcessSection(): ElementFinder {
+    const processSectionById: By = by.id(this.generalProcessSectionId);
 
     return element(processSectionById);
   }
 
-  private get _scriptTaskSection(): ElementFinder {
-    const scriptTaskSectionById: By = by.id(this._generalScriptTaskSectionId);
+  private get scriptTaskSection(): ElementFinder {
+    const scriptTaskSectionById: By = by.id(this.generalScriptTaskSectionId);
 
     return element(scriptTaskSectionById);
   }
 
-  private get _serviceTaskSection(): ElementFinder {
-    const serviceTaskSectionById: By = by.id(this._generalServiceTaskSectionId);
+  private get serviceTaskSection(): ElementFinder {
+    const serviceTaskSectionById: By = by.id(this.generalServiceTaskSectionId);
 
     return element(serviceTaskSectionById);
   }
 
-  private get _signalEventSection(): ElementFinder {
-    const signalEventSectionById: By = by.id(this._generalSignalEventSectionId);
+  private get signalEventSection(): ElementFinder {
+    const signalEventSectionById: By = by.id(this.generalSignalEventSectionId);
 
     return element(signalEventSectionById);
   }
 
-  private get _timerEventSection(): ElementFinder {
-    const timerEventSectionById: By = by.id(this._generalTimerEventSectionId);
+  private get timerEventSection(): ElementFinder {
+    const timerEventSectionById: By = by.id(this.generalTimerEventSectionId);
 
     return element(timerEventSectionById);
   }
 
-  private get _extensionsBasicsSection(): ElementFinder {
-    const extensionsBasicsSectionById: By = by.id(this._extensionsBasicsSectionId);
+  private get extensionsBasicsSection(): ElementFinder {
+    const extensionsBasicsSectionById: By = by.id(this.extensionsBasicsSectionId);
 
     return element(extensionsBasicsSectionById);
   }
 
-  private get _extensionsProcessSection(): ElementFinder {
-    const extensionsProcessSectionById: By = by.id(this._extensionsProcessSectionId);
+  private get extensionsProcessSection(): ElementFinder {
+    const extensionsProcessSectionById: By = by.id(this.extensionsProcessSectionId);
 
     return element(extensionsProcessSectionById);
   }
 
-  private get _formBasicsSection(): ElementFinder {
-    const formBasicsSection: By = by.id(this._formsBasicsSectionId);
+  private get formBasicsSection(): ElementFinder {
+    const formBasicsSection: By = by.id(this.formsBasicsSectionId);
 
     return element(formBasicsSection);
   }
-
 }

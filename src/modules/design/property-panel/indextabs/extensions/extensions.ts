@@ -11,18 +11,14 @@ export class Extensions implements IIndextab {
   public canHandleElement: boolean = true;
   public sections: Array<ISection>;
 
-  private _basicsSection: ISection = new BasicsSection();
-  private _processSection: ISection = new ProcessSection();
+  private basicsSection: ISection = new BasicsSection();
+  private processSection: ISection = new ProcessSection();
 
   constructor() {
-    this.sections = [
-      this._basicsSection,
-      this._processSection,
-    ];
+    this.sections = [this.basicsSection, this.processSection];
   }
 
   public isSuitableForElement(element: IShape): boolean {
-
     if (!element) {
       return false;
     }

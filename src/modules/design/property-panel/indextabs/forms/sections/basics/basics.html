@@ -58,11 +58,11 @@
               <option model.bind="FormfieldTypes.boolean">Truth Value</option>
               <option model.bind="FormfieldTypes.date">Date</option>
               <option model.bind="FormfieldTypes.enum">Enumeration</option>
-              <option model.bind="FormfieldTypes.custom_type">Custom</option>
+              <option model.bind="FormfieldTypes.customType">Custom</option>
             </select>
           </td>
         </tr>
-        <tr if.bind="selectedType === FormfieldTypes.custom_type">
+        <tr if.bind="selectedType === FormfieldTypes.customType">
           <th>Custom Type</th>
           <td>
             <input type="text" class="props-input" value.bind="customType" placeholder="Custom Type" change.delegate="updateType()" disabled.bind="!isEditable">

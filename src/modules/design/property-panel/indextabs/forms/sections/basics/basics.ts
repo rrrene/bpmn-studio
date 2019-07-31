@@ -11,13 +11,7 @@ import {
   IShape,
 } from '@process-engine/bpmn-elements_contracts';
 
-import {
-  IBpmnModdle,
-  IBpmnModeler,
-  IElementRegistry,
-  IPageModel,
-  ISection,
-} from '../../../../../../../contracts';
+import {IBpmnModdle, IBpmnModeler, IElementRegistry, IPageModel, ISection} from '../../../../../../../contracts';
 import environment from '../../../../../../../environment';
 
 enum FormfieldTypes {
@@ -27,12 +21,11 @@ enum FormfieldTypes {
   boolean = 'boolean',
   date = 'date',
   enum = 'enum',
-  custom_type = 'custom type',
+  customType = 'custom type',
 }
 
 @inject(ValidationController, EventAggregator)
 export class BasicsSection implements ISection {
-
   public path: string = '/sections/basics/basics';
   public canHandleElement: boolean = true;
   public validationError: boolean = false;
@@ -42,6 +35,7 @@ export class BasicsSection implements ISection {
   public forms: Array<IForm>;
   public selectedForm: IForm;
   public selectedType: string;
+  // eslint-disable-next-line @typescript-eslint/member-naming
   public FormfieldTypes: typeof FormfieldTypes = FormfieldTypes;
   public customType: string;
   public enumValues: Array<IEnumValue> = [];
@@ -49,45 +43,43 @@ export class BasicsSection implements ISection {
   public newEnumValueNames: Array<string> = [];
   public booleanDefaultValue: boolean;
 
-  private _bpmnModdle: IBpmnModdle;
-  private _modeler: IBpmnModeler;
-  private _selectedIndex: number;
-  private _formElement: IFormElement;
-  private _previousFormId: string;
-  private _previousForm: IForm;
-  private _eventAggregator: EventAggregator;
+  private bpmnModdle: IBpmnModdle;
+  private modeler: IBpmnModeler;
+  private selectedIndex: number;
+  private formElement: IFormElement;
+  private previousFormId: string;
+  private previousForm: IForm;
+  private eventAggregator: EventAggregator;
 
   constructor(controller?: ValidationController, eventAggregator?: EventAggregator) {
     this.validationController = controller;
-    this._eventAggregator = eventAggregator;
+    this.eventAggregator = eventAggregator;
   }
 
   public activate(model: IPageModel): void {
     this.businessObjInPanel = model.elementInPanel.businessObject;
 
-    this._modeler = model.modeler;
-    this._bpmnModdle = this._modeler.get('moddle');
+    this.modeler = model.modeler;
+    this.bpmnModdle = this.modeler.get('moddle');
 
     this.validationController.subscribe((event: ValidateEvent) => {
-      this._validateFormId(event);
+      this.validateFormId(event);
     });
 
-    this._init();
+    this.init();
 
     if (this.validationError) {
-      this._previousForm.id = this._previousFormId;
+      this.previousForm.id = this.previousFormId;
       this.validationController.validate();
     }
   }
 
   public detached(): void {
-    this._validateOnDetach();
+    this.validateOnDetach();
   }
 
   public isSuitableForElement(element: IShape): boolean {
-
-    const elementHasNoBusinessObject: boolean = element.businessObject === undefined
-                                             || element.businessObject === null;
+    const elementHasNoBusinessObject: boolean = element.businessObject === undefined || element.businessObject === null;
 
     if (elementHasNoBusinessObject) {
       return false;
@@ -97,34 +89,34 @@ export class BasicsSection implements ISection {
   }
 
   public addEnumValue(): void {
-    const enumValue: {id: string, value: string} = {
-      id: `Value_${this._generateRandomId()}`,
+    const enumValue: {id: string; value: string} = {
+      id: `Value_${this.generateRandomId()}`,
       value: '',
     };
-    const bpmnValue: IEnumValue = this._bpmnModdle.create('camunda:Value', enumValue);
+    const bpmnValue: IEnumValue = this.bpmnModdle.create('camunda:Value', enumValue);
 
     this.enumValues.push(bpmnValue);
-    Object.assign(this._formElement.fields[this._selectedIndex].values, this.enumValues);
-    this._reloadEnumValues();
-    this._publishDiagramChange();
+    Object.assign(this.formElement.fields[this.selectedIndex].values, this.enumValues);
+    this.reloadEnumValues();
+    this.publishDiagramChange();
   }
 
   public removeEnumValue(index: number): void {
-    this._formElement.fields[this._selectedIndex].values.splice(index, 1);
-    this._reloadEnumValues();
-    this._publishDiagramChange();
+    this.formElement.fields[this.selectedIndex].values.splice(index, 1);
+    this.reloadEnumValues();
+    this.publishDiagramChange();
   }
 
   public changeEnumValueId(index: number): void {
     this.enumValues[index].id = this.newEnumValueIds[index];
-    Object.assign(this._formElement.fields[this._selectedIndex].values, this.enumValues);
-    this._publishDiagramChange();
+    Object.assign(this.formElement.fields[this.selectedIndex].values, this.enumValues);
+    this.publishDiagramChange();
   }
 
   public changeEnumValueName(index: number): void {
     this.enumValues[index].name = this.newEnumValueNames[index];
-    Object.assign(this._formElement.fields[this._selectedIndex].values, this.enumValues);
-    this._publishDiagramChange();
+    Object.assign(this.formElement.fields[this.selectedIndex].values, this.enumValues);
+    this.publishDiagramChange();
   }
 
   public removeSelectedForm(): void {
@@ -133,35 +125,34 @@ export class BasicsSection implements ISection {
       return;
     }
 
-    this._formElement.fields.splice(this._selectedIndex, 1);
+    this.formElement.fields.splice(this.selectedIndex, 1);
 
     this.isFormSelected = false;
     this.selectedForm = undefined;
-    this._selectedIndex = undefined;
+    this.selectedIndex = undefined;
 
-    this._reloadForms();
-    this._publishDiagramChange();
+    this.reloadForms();
+    this.publishDiagramChange();
   }
 
   public async addForm(): Promise<void> {
-
-    const bpmnFormObject: IForm =  {
-      id: `Form_${this._generateRandomId()}`,
+    const bpmnFormObject: IForm = {
+      id: `Form_${this.generateRandomId()}`,
       label: '',
       defaultValue: '',
     };
-    const bpmnForm: IForm = this._bpmnModdle.create('camunda:FormField', bpmnFormObject);
+    const bpmnForm: IForm = this.bpmnModdle.create('camunda:FormField', bpmnFormObject);
 
-    if (this._formElement.fields === undefined || this._formElement.fields === null) {
-      this._formElement.fields = [];
+    if (this.formElement.fields === undefined || this.formElement.fields === null) {
+      this.formElement.fields = [];
     }
 
-    this._formElement.fields.push(bpmnForm);
+    this.formElement.fields.push(bpmnForm);
     this.forms.push(bpmnForm);
     this.selectedForm = bpmnForm;
 
     this.selectForm();
-    this._publishDiagramChange();
+    this.publishDiagramChange();
   }
 
   public updateId(): void {
@@ -169,7 +160,7 @@ export class BasicsSection implements ISection {
 
     const hasValidationErrors: boolean = this.validationController.errors.length > 0;
     if (hasValidationErrors) {
-      this._resetId();
+      this.resetId();
     }
 
     const isSelectedFormIdNotExisting: boolean = this.selectedForm === null || this.selectedForm.id === '';
@@ -177,31 +168,29 @@ export class BasicsSection implements ISection {
       return;
     }
 
-    this._formElement.fields[this._selectedIndex].id = this.selectedForm.id;
-    this._publishDiagramChange();
+    this.formElement.fields[this.selectedIndex].id = this.selectedForm.id;
+    this.publishDiagramChange();
   }
 
   public selectForm(): void {
     if (this.validationError) {
-      this._previousForm.id = this._previousFormId;
+      this.previousForm.id = this.previousFormId;
     }
 
-    this._previousFormId = this.selectedForm.id;
-    this._previousForm = this.selectedForm;
+    this.previousFormId = this.selectedForm.id;
+    this.previousForm = this.selectedForm;
 
     this.validationController.validate();
 
     this.isFormSelected = true;
 
     const selectedFormHasType: boolean = this.selectedForm.type !== undefined;
-    this.selectedType = selectedFormHasType
-                    ? this._getTypeAndHandleCustomType(this.selectedForm.type)
-                    : null;
+    this.selectedType = selectedFormHasType ? this.getTypeAndHandleCustomType(this.selectedForm.type) : null;
 
-    this._selectedIndex = this._getSelectedIndex();
+    this.selectedIndex = this.getSelectedIndex();
 
-    this._setValidationRules();
-    this._reloadEnumValues();
+    this.setValidationRules();
+    this.reloadEnumValues();
   }
 
   public updateType(): void {
@@ -211,98 +200,91 @@ export class BasicsSection implements ISection {
      * If the user selected a custom type, find out what type the user provided.
      */
     const type: string = ((): string => {
-      const selectedTypeIsNotCustomType: boolean =
-        this.selectedType !== FormfieldTypes.custom_type;
+      const selectedTypeIsNotCustomType: boolean = this.selectedType !== FormfieldTypes.customType;
 
       if (selectedTypeIsNotCustomType) {
         return this.selectedType;
       }
 
       const customTypeIsDefined: boolean = this.customType !== undefined;
-      return customTypeIsDefined
-                  ? this.customType
-                  : '';
+      return customTypeIsDefined ? this.customType : '';
     })();
 
-    this._formElement.fields[this._selectedIndex].type = type;
-    this._reloadEnumValues();
-    this._publishDiagramChange();
+    this.formElement.fields[this.selectedIndex].type = type;
+    this.reloadEnumValues();
+    this.publishDiagramChange();
   }
 
   public updateLabel(): void {
-    this._formElement.fields[this._selectedIndex].label = this.selectedForm.label;
-    this._publishDiagramChange();
+    this.formElement.fields[this.selectedIndex].label = this.selectedForm.label;
+    this.publishDiagramChange();
   }
 
   public updateDefaultValue(): void {
     const selectedTypeIsBoolean: boolean = this.selectedType === FormfieldTypes.boolean;
     if (selectedTypeIsBoolean) {
-      this._formElement.fields[this._selectedIndex].defaultValue = `${this.booleanDefaultValue}`;
+      this.formElement.fields[this.selectedIndex].defaultValue = `${this.booleanDefaultValue}`;
     } else {
-      this._formElement.fields[this._selectedIndex].defaultValue = this.selectedForm.defaultValue;
+      this.formElement.fields[this.selectedIndex].defaultValue = this.selectedForm.defaultValue;
     }
 
-    this._publishDiagramChange();
+    this.publishDiagramChange();
   }
 
-  private _validateOnDetach(): void {
+  private validateOnDetach(): void {
     if (!this.validationError) {
       return;
     }
 
     const bpmnFormFieldObject: IForm = {
-      id: `Form_${this._generateRandomId()}`,
+      id: `Form_${this.generateRandomId()}`,
       label: '',
       defaultValue: '',
     };
-    const bpmnForm: IForm = this._bpmnModdle.create('camunda:FormField', bpmnFormFieldObject);
+    this.bpmnModdle.create('camunda:FormField', bpmnFormFieldObject);
 
-    if (this._formElement.fields === undefined || this._formElement.fields === null) {
-      this._formElement.fields = [];
+    if (this.formElement.fields === undefined || this.formElement.fields === null) {
+      this.formElement.fields = [];
     }
 
-    this._resetIdOnSelectedOrPrevious();
+    this.resetIdOnSelectedOrPrevious();
 
     this.validationController.validate();
     this.updateId();
   }
 
-  private _resetIdOnSelectedOrPrevious(): void {
+  private resetIdOnSelectedOrPrevious(): void {
     if (this.selectedForm !== null) {
-      this.selectedForm.id = this._previousFormId;
+      this.selectedForm.id = this.previousFormId;
     } else {
-      this._previousForm.id = this._previousFormId;
+      this.previousForm.id = this.previousFormId;
     }
   }
 
-  private _init(): void {
+  private init(): void {
     this.isFormSelected = false;
     if (this.canHandleElement) {
-      this._formElement = this._getOrCreateFormElement();
-      this._reloadForms();
+      this.formElement = this.getOrCreateFormElement();
+      this.reloadForms();
     }
   }
 
-  private _resetId(): void {
-    this._resetIdOnSelectedOrPrevious();
+  private resetId(): void {
+    this.resetIdOnSelectedOrPrevious();
 
     this.validationController.validate();
   }
 
-  private _reloadEnumValues(): void {
+  private reloadEnumValues(): void {
     const formIsNotEnum: boolean = this.selectedForm.type !== FormfieldTypes.enum;
-    const noValuesInEnum: boolean = this.selectedForm.values === undefined
-                                 || this.selectedForm.values.length === 0;
+    const noValuesInEnum: boolean = this.selectedForm.values === undefined || this.selectedForm.values.length === 0;
 
     if (formIsNotEnum) {
       return;
     }
 
     if (noValuesInEnum) {
-      this
-        ._formElement
-        .fields[this._selectedIndex]
-        .values = [];
+      this.formElement.fields[this.selectedIndex].values = [];
     }
 
     /*
@@ -331,35 +313,37 @@ export class BasicsSection implements ISection {
     this.newEnumValueNames = newEnumValueNames;
   }
 
-  private _reloadForms(): void {
+  private reloadForms(): void {
     this.forms = [];
 
-    const noFormFieldsExist: boolean = this._formElement === undefined
-                                    || this._formElement === null
-                                    || this._formElement.fields === undefined
-                                    || this._formElement.fields === null
-                                    || this._formElement.fields.length === 0;
+    const noFormFieldsExist: boolean =
+      this.formElement === undefined ||
+      this.formElement === null ||
+      this.formElement.fields === undefined ||
+      this.formElement.fields === null ||
+      this.formElement.fields.length === 0;
 
     if (noFormFieldsExist) {
       return;
     }
 
-    this.forms = this._formElement.fields.filter((form: IForm) => {
+    this.forms = this.formElement.fields.filter((form: IForm) => {
       const formIsFormField: boolean = form.$type === 'camunda:FormField';
 
       return formIsFormField;
     });
   }
 
-  private _getTypeAndHandleCustomType(type: string): string {
-    const typeIsRegularType: boolean = type === FormfieldTypes.string
-                                    || type === FormfieldTypes.long
-                                    || type === FormfieldTypes.number
-                                    || type === FormfieldTypes.boolean
-                                    || type === FormfieldTypes.date
-                                    || type === FormfieldTypes.enum
-                                    || type === FormfieldTypes.custom_type
-                                    || type === null;
+  private getTypeAndHandleCustomType(type: string): string {
+    const typeIsRegularType: boolean =
+      type === FormfieldTypes.string ||
+      type === FormfieldTypes.long ||
+      type === FormfieldTypes.number ||
+      type === FormfieldTypes.boolean ||
+      type === FormfieldTypes.date ||
+      type === FormfieldTypes.enum ||
+      type === FormfieldTypes.customType ||
+      type === null;
 
     if (typeIsRegularType) {
       this.customType = '';
@@ -367,23 +351,23 @@ export class BasicsSection implements ISection {
     }
 
     this.customType = type;
-    return FormfieldTypes.custom_type;
+    return FormfieldTypes.customType;
   }
 
-  private _getSelectedIndex(): number {
-    return this._formElement.fields.findIndex((form: IForm) => {
+  private getSelectedIndex(): number {
+    return this.formElement.fields.findIndex((form: IForm) => {
       const formIsSelectedForm: boolean = form.id === this.selectedForm.id;
 
       return formIsSelectedForm;
     });
   }
 
-  private _getOrCreateFormElement(): IModdleElement {
-    const elementHasNoExtensionsElement: boolean = this.businessObjInPanel.extensionElements === undefined
-                                                || this.businessObjInPanel.extensionElements === null;
+  private getOrCreateFormElement(): IModdleElement {
+    const elementHasNoExtensionsElement: boolean =
+      this.businessObjInPanel.extensionElements === undefined || this.businessObjInPanel.extensionElements === null;
 
     if (elementHasNoExtensionsElement) {
-      this._createExtensionElement();
+      this.createExtensionElement();
     }
 
     const extensionsValues: Array<IModdleElement> = this.businessObjInPanel.extensionElements.values;
@@ -395,31 +379,31 @@ export class BasicsSection implements ISection {
     });
 
     if (formElement === undefined) {
-      this._createEmptyFormData();
-      return this._getOrCreateFormElement();
+      this.createEmptyFormData();
+      return this.getOrCreateFormElement();
     }
 
     return formElement;
   }
 
-  private _createExtensionElement(): void {
+  private createExtensionElement(): void {
     const values: Array<IFormElement> = [];
     const fields: Array<IForm> = [];
-    const formData: IFormElement = this._bpmnModdle.create('camunda:FormData', {fields: fields});
+    const formData: IFormElement = this.bpmnModdle.create('camunda:FormData', {fields: fields});
     values.push(formData);
 
     this.businessObjInPanel.formKey = 'Form Key';
-    const extensionElements: IModdleElement = this._bpmnModdle.create('bpmn:ExtensionElements', {values: values});
+    const extensionElements: IModdleElement = this.bpmnModdle.create('bpmn:ExtensionElements', {values: values});
     this.businessObjInPanel.extensionElements = extensionElements;
   }
 
-  private _createEmptyFormData(): void {
+  private createEmptyFormData(): void {
     const fields: Array<IModdleElement> = [];
-    const extensionFormElement: IModdleElement = this._bpmnModdle.create('camunda:FormData', {fields: fields});
+    const extensionFormElement: IModdleElement = this.bpmnModdle.create('camunda:FormData', {fields: fields});
     this.businessObjInPanel.extensionElements.values.push(extensionFormElement);
   }
 
-  private _generateRandomId(): string {
+  private generateRandomId(): string {
     let randomId: string = '';
     const possible: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -430,7 +414,7 @@ export class BasicsSection implements ISection {
     return randomId;
   }
 
-  private _validateFormId(event: ValidateEvent): void {
+  private validateFormId(event: ValidateEvent): void {
     if (event.type !== 'validate') {
       return;
     }
@@ -450,10 +434,8 @@ export class BasicsSection implements ISection {
     }
   }
 
-  private _hasFormSameIdAsSelected(forms: Array<IForm>): boolean {
-
+  private hasFormSameIdAsSelected(forms: Array<IForm>): boolean {
     const unselectedFormWithSameId: IForm = forms.find((form: IForm) => {
-
       const formHasSameIdAsSelectedForm: boolean = form.id === this.selectedForm.id;
       const formIsNotSelectedForm: boolean = form !== this.selectedForm;
 
@@ -463,11 +445,11 @@ export class BasicsSection implements ISection {
     return unselectedFormWithSameId !== undefined;
   }
 
-  private _getFormDataFromBusinessObject(businessObject: IModdleElement): IFormElement {
+  private getFormDataFromBusinessObject(businessObject: IModdleElement): IFormElement {
     const extensionElement: IExtensionElement = businessObject.extensionElements;
     const hasNoExtensionElements: boolean = extensionElement === undefined;
     if (hasNoExtensionElements) {
-      return;
+      return undefined;
     }
 
     const extensions: Array<IModdleElement> = extensionElement.values;
@@ -478,8 +460,8 @@ export class BasicsSection implements ISection {
     });
   }
 
-  private _getFormsById(id: string): Array<IShape> {
-    const elementRegistry: IElementRegistry = this._modeler.get('elementRegistry');
+  private getFormsById(id: string): Array<IShape> {
+    const elementRegistry: IElementRegistry = this.modeler.get('elementRegistry');
 
     const formsWithId: Array<IShape> = elementRegistry.filter((element: IShape) => {
       const currentBusinessObject: IModdleElement = element.businessObject;
@@ -488,45 +470,43 @@ export class BasicsSection implements ISection {
       if (isNoUserTask) {
         return false;
       }
-      const formData: IFormElement = this._getFormDataFromBusinessObject(currentBusinessObject);
+      const formData: IFormElement = this.getFormDataFromBusinessObject(currentBusinessObject);
       if (formData === undefined) {
         return false;
       }
 
       const forms: Array<IForm> = formData.fields;
 
-      return this._hasFormSameIdAsSelected(forms);
+      return this.hasFormSameIdAsSelected(forms);
     });
 
     const selectedTypeIsBoolean: boolean = this.selectedType === FormfieldTypes.boolean;
     if (selectedTypeIsBoolean) {
-      this.booleanDefaultValue = this.selectedForm.defaultValue === 'true'
-                              || this.selectedForm.defaultValue === '1';
+      this.booleanDefaultValue = this.selectedForm.defaultValue === 'true' || this.selectedForm.defaultValue === '1';
     }
 
     return formsWithId;
   }
 
-  private _formIdIsUnique(id: string): boolean {
-    const formsWithSameId: Array<IShape> = this._getFormsById(id);
+  private formIdIsUnique(id: string): boolean {
+    const formsWithSameId: Array<IShape> = this.getFormsById(id);
     const isIdUnique: boolean = formsWithSameId.length === 0;
 
     return isIdUnique;
   }
 
-  private _setValidationRules(): void {
-    ValidationRules
-      .ensure((form: IForm) => form.id)
+  private setValidationRules(): void {
+    ValidationRules.ensure((form: IForm) => form.id)
       .displayName('formId')
       .required()
       .withMessage('ID cannot be blank.')
       .then()
-      .satisfies((id: string) => this._formIdIsUnique(id))
+      .satisfies((id: string) => this.formIdIsUnique(id))
       .withMessage('ID already exists.')
       .on(this.selectedForm);
   }
 
-  private _publishDiagramChange(): void {
-    this._eventAggregator.publish(environment.events.diagramChange);
+  private publishDiagramChange(): void {
+    this.eventAggregator.publish(environment.events.diagramChange);
   }
 }

@@ -1,5 +1,8 @@
+/* eslint-disable no-undef */
 if (window.nodeRequire) {
-  define('path', function() { return window.nodeRequire('path'); });
+  define('path', () => {
+    return window.nodeRequire('path');
+  });
 } else {
-  define('path', function() { return; });
+  define('path', () => {});
 }

@@ -1,27 +1,29 @@
-'use strict';
-
+/* eslint-disable no-shadow */
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const queryString = require('querystring');
 const fetch = require('node-fetch');
 const nodeUrl = require('url');
 const electron = require('electron');
 const crypto = require('crypto');
+
 const BrowserWindow = electron.BrowserWindow || electron.remote.BrowserWindow;
 
-module.exports = function (config, windowParams) {
+module.exports = (config, windowParams) => {
   function getTokenObject(authorityUrl) {
     // Build the Url Params from the Config.
-    var urlParams = {
+    const urlParams = {
       client_id: config.clientId,
       redirect_uri: config.redirectUri,
       response_type: config.responseType,
       scope: config.scope,
-      state: _getRandomString(16),
-      nonce: _getRandomString(16),
+      state: getRandomString(16),
+      nonce: getRandomString(16),
     };
 
-    var url = `${authorityUrl}connect/authorize?${queryString.stringify(urlParams)}`;
+    const url = `${authorityUrl}connect/authorize?${queryString.stringify(urlParams)}`;
 
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
       // Open a new browser window and load the previously constructed url.
       const authWindow = new BrowserWindow(windowParams || {'use-content-size': true});
 
@@ -36,9 +38,9 @@ module.exports = function (config, windowParams) {
       // Handle the different callbacks.
       function onCallback(url) {
         // Parse callback url into its parts.
-        var url_parts = nodeUrl.parse(url, true);
-        var href = url_parts.href;
-        var error = url_parts.error;
+        const urlParts = nodeUrl.parse(url, true);
+        const href = urlParts.href;
+        const error = urlParts.error;
 
         /**
          * If there was an error:
@@ -57,16 +59,13 @@ module.exports = function (config, windowParams) {
         if (error !== undefined) {
           reject(error);
           authWindow.removeAllListeners('closed');
-          setImmediate(function () {
+          setImmediate(() => {
             authWindow.close();
           });
-
         } else if (href.includes('/connect/authorize/callback')) {
-
           authWindow.loadURL(href);
-
         } else if (href.includes(config.redirectUri)) {
-          const identityParameter = url_parts.hash;
+          const identityParameter = urlParts.hash;
           const parameterAsArray = identityParameter.split('&');
 
           const idToken = parameterAsArray[0].split('=')[1];
@@ -74,13 +73,13 @@ module.exports = function (config, windowParams) {
 
           const tokenObject = {
             idToken,
-            accessToken
-          }
+            accessToken,
+          };
 
           resolve(tokenObject);
           authWindow.removeAllListeners('closed');
 
-          setImmediate(function () {
+          setImmediate(() => {
             authWindow.close();
           });
         }
@@ -108,16 +107,14 @@ module.exports = function (config, windowParams) {
   }
 
   function logout(tokenObject, authorityUrl) {
-
     const urlParams = {
       id_token_hint: tokenObject.userId,
       post_logout_redirect_uri: config.logoutRedirectUri,
     };
 
-    const endSessionUrl = `${authorityUrl}connect/endsession?${queryString.stringify(urlParams)}`
+    const endSessionUrl = `${authorityUrl}connect/endsession?${queryString.stringify(urlParams)}`;
 
-    return new Promise(async function (resolve, reject) {
-
+    return new Promise(async (resolve, reject) => {
       const response = await fetch(endSessionUrl);
 
       const logoutWindow = new BrowserWindow(windowParams || {'use-content-size': true});
@@ -139,15 +136,16 @@ module.exports = function (config, windowParams) {
     });
   }
 
-  function _getRandomString(length) {
-    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._~'
-    let result = ''
+  function getRandomString(length) {
+    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._~';
+    let result = '';
 
     while (length > 0) {
       const randomValues = crypto.randomBytes(length);
 
+      // eslint-disable-next-line no-loop-func
       randomValues.forEach((value) => {
-        if (length == 0) {
+        if (length === 0) {
           return;
         }
 

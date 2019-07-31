@@ -8,7 +8,6 @@ import {StatusBar} from './pages/statusBar';
 import {XmlView} from './pages/xmlView';
 
 describe('Design view', () => {
-
   let routerView: RouterView;
   let diagram: SimpleDiagram;
   let statusBar: StatusBar;
@@ -18,7 +17,7 @@ describe('Design view', () => {
 
   const applicationUrl: string = browser.params.aureliaUrl;
 
-  beforeAll(async() => {
+  beforeAll(async () => {
     routerView = new RouterView();
     diagram = new SimpleDiagram();
     statusBar = new StatusBar();
@@ -29,11 +28,11 @@ describe('Design view', () => {
     await diagram.deployDiagram();
   });
 
-  afterAll(async() => {
+  afterAll(async () => {
     await diagram.deleteDiagram();
   });
 
-  it('should show the `detail view` after navigating to it.', async() => {
+  it('should show the `detail view` after navigating to it.', async () => {
     await routerView.show();
     await diagramDetail.show();
 
@@ -42,7 +41,7 @@ describe('Design view', () => {
     expect(visibilityOfDiagramDetailContainer).toBeTruthy();
   });
 
-  it('should show the `xml view` after navigating to it.', async() => {
+  it('should show the `xml view` after navigating to it.', async () => {
     await routerView.show();
     await xmlView.show();
 
@@ -51,7 +50,7 @@ describe('Design view', () => {
     expect(visibilityOfXmlViewContainer).toBeTruthy();
   });
 
-  it('should show the `diff view` after navigating to it.', async() => {
+  it('should show the `diff view` after navigating to it.', async () => {
     await routerView.show();
     await diffView.show();
 
@@ -60,7 +59,7 @@ describe('Design view', () => {
     expect(visibilityOfDiffViewContainer).toBeTruthy();
   });
 
-  it('should show the `xml view` after clicking on the button in the status bar.', async() => {
+  it('should show the `xml view` after clicking on the button in the status bar.', async () => {
     await routerView.show();
     await diagramDetail.show();
     await statusBar.show();
@@ -72,7 +71,7 @@ describe('Design view', () => {
     expect(visibilityOfXmlViewContainer).toBeTruthy();
   });
 
-  it('should switch from `xml view` to `detail view`, after clicking on the button in the status bar.', async() => {
+  it('should switch from `xml view` to `detail view`, after clicking on the button in the status bar.', async () => {
     await statusBar.clickOnDisableXmlViewButton();
 
     const visibilityOfDiagramDetailContainer: boolean = await diagramDetail.getVisibilityOfDiagramDetailContainer();
@@ -80,7 +79,7 @@ describe('Design view', () => {
     expect(visibilityOfDiagramDetailContainer).toBeTruthy();
   });
 
-  it('should show `diff view` after clicking on the button in the status bar.', async() => {
+  it('should show `diff view` after clicking on the button in the status bar.', async () => {
     await statusBar.clickOnEnableDiffViewButton();
 
     const visibilityOfDiffViewContainer: boolean = await diffView.getVisibilityOfDiffViewContainer();
@@ -88,7 +87,7 @@ describe('Design view', () => {
     expect(visibilityOfDiffViewContainer).toBeTruthy();
   });
 
-  it('should switch from `diff view` to `detail view` after clicking on the button in the status bar.', async() => {
+  it('should switch from `diff view` to `detail view` after clicking on the button in the status bar.', async () => {
     await statusBar.clickOnDisableDiffViewButton();
 
     const visibilityOfDiagramDetailContainer: boolean = await diagramDetail.getVisibilityOfDiagramDetailContainer();

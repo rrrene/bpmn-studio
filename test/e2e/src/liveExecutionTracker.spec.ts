@@ -6,7 +6,6 @@ import {LiveExecutionTracker} from './pages/liveExecutionTracker';
 import {RouterView} from './pages/routerView';
 
 describe('Live Execution Tracker', () => {
-
   let routerView: RouterView;
   let targetDiagram: DiagramWithUserTask;
   let diagram: LETTestDiagram;
@@ -14,7 +13,7 @@ describe('Live Execution Tracker', () => {
 
   const applicationUrl: string = browser.params.aureliaUrl;
 
-  beforeAll(async() => {
+  beforeAll(async () => {
     routerView = new RouterView();
     targetDiagram = new DiagramWithUserTask();
     diagram = new LETTestDiagram(targetDiagram.name);
@@ -22,17 +21,20 @@ describe('Live Execution Tracker', () => {
     await targetDiagram.deployDiagram();
     await diagram.deployDiagram();
     await diagram.startProcess();
-    liveExecutionTracker = new LiveExecutionTracker(applicationUrl, diagram.correlationId, diagram.name, diagram.processInstanceId);
+    liveExecutionTracker = new LiveExecutionTracker(
+      applicationUrl,
+      diagram.correlationId,
+      diagram.name,
+      diagram.processInstanceId,
+    );
   });
 
-  afterAll(async() => {
-
+  afterAll(async () => {
     await diagram.deleteDiagram();
     await targetDiagram.deleteDiagram();
   });
 
-  beforeEach(async() => {
-
+  beforeEach(async () => {
     await routerView.show();
     await liveExecutionTracker.show();
   });
@@ -64,5 +66,4 @@ describe('Live Execution Tracker', () => {
 
   //   expect(visibilityOfInactiveCallActivityOverlay).toBeTruthy();
   // });
-
 });

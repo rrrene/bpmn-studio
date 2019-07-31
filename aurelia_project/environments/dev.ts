@@ -3,13 +3,10 @@ const electronHost: string = 'bpmn-studio:/';
 
 const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
 
-// tslint:disable-next-line no-default-export
 export default {
   debug: true,
   testing: true,
-  appHost: isRunningInElectron
-    ? electronHost
-    : `http://${window.location.host}`,
+  appHost: isRunningInElectron ? electronHost : `http://${window.location.host}`,
   processlist: {
     pageLimit: 10,
   },
@@ -22,7 +19,7 @@ export default {
     solutionExplorerPollingIntervalInMs: 5000,
     processDefListPollingIntervalInMs: 5000,
     dashboardPollingIntervalInMs: 1500,
-      updateRemoteSolutionHistoryIntervalInMs: 3000,
+    updateRemoteSolutionHistoryIntervalInMs: 3000,
     routes: {
       processes: `${processEngineRoute}/datastore/ProcessDef`,
       startProcess: `${processEngineRoute}/processengine/start`,

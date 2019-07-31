@@ -1,20 +1,23 @@
 #!/usr/bin/env node
 
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-var-requires */
+
 const open = require('open');
 const argv = require('minimist')(process.argv.slice(2));
 const pushserve = require('pushserve');
 
 const defaultPort = 17290;
 const defaultHost = '127.0.0.1';
-const portUsed = _applicationPortIsValid(argv.port) ? argv.port : defaultPort;
-const hostUsed = _applicationHostIsValid(argv.host) ? argv.host : defaultHost;
+const portUsed = applicationPortIsValid(argv.port) ? argv.port : defaultPort;
+const hostUsed = applicationHostIsValid(argv.host) ? argv.host : defaultHost;
 
 const httpServerOptions = {
   noCors: false,
   noPushstate: false,
   hostname: hostUsed,
   port: portUsed,
-  path: __dirname + './..',
+  path: `${__dirname}./..`,
   indexPath: 'index.html',
 };
 
@@ -29,7 +32,7 @@ open(`http://${hostUsed}:${portUsed}`);
  * @param[in]: port The port, specified from argv.
  * @return true If the everything is okay; false otherwise.
  */
-function _applicationPortIsValid(port) {
+function applicationPortIsValid(port) {
   if (port === null || port === undefined) {
     return false;
   }
@@ -42,23 +45,23 @@ function _applicationPortIsValid(port) {
   // would require more priviledges
   const lowerPortBoundValid = portNumber > 1000;
   const upperPortBoundValid = portNumber < 65535;
-  const boundariesInvalid = (!lowerPortBoundValid || !upperPortBoundValid);
+  const boundariesInvalid = !lowerPortBoundValid || !upperPortBoundValid;
 
   if (boundariesInvalid) {
-    console.log("Port is not in the supported range [1000, 65535]. Using default port.\n");
+    console.log('Port is not in the supported range [1000, 65535]. Using default port.\n');
     return false;
   }
 
   return true;
 }
 
-function _applicationHostIsValid(host) {
+function applicationHostIsValid(host) {
   if (host === null || host === undefined) {
     return false;
   }
   if (!host.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/)) {
-    console.log("The specified host: '"+ host +"' is not a valid IP address, like: '0.0.0.0'.\n");
+    console.log(`The specified host: '${host}' is not a valid IP address, like: '0.0.0.0'.\n`);
     return false;
-  };
+  }
   return true;
 }

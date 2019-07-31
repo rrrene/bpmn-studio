@@ -7,11 +7,11 @@ export interface ICanvas {
   getRootElement(): IShape;
 
   /*
-  *  Gets or sets the viewbox of the canvas.
-  *
-  * @param viewbox The new viewbox for the canvas.
-  * @returns The current viewbox.
-  */
+   *  Gets or sets the viewbox of the canvas.
+   *
+   * @param viewbox The new viewbox for the canvas.
+   * @returns The current viewbox.
+   */
   viewbox(viewbox?: IViewbox): IViewbox;
 
   zoom(zoomLevel: number | string, element?: IShape | string): void;

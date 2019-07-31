@@ -2,15 +2,13 @@ import {bindable} from 'aurelia-framework';
 import {IEnumFormField} from '../../contracts';
 
 export class DynamicUiNumberElement {
-
   @bindable() public fieldValue: string;
   public field: IEnumFormField;
 
   public activate(field: IEnumFormField): void {
     this.field = field;
 
-    const fieldHasNoValue: boolean = this.field.value === undefined
-                                  || this.field.value === '';
+    const fieldHasNoValue: boolean = this.field.value === undefined || this.field.value === '';
 
     if (fieldHasNoValue) {
       this.field.value = this.field.defaultValue;
@@ -22,9 +20,7 @@ export class DynamicUiNumberElement {
 
     const valueHasNoValidPart: boolean = validPartsOfValue === null;
 
-    this.fieldValue = valueHasNoValidPart
-                    ? undefined
-                    : validPartsOfValue[0];
+    this.fieldValue = valueHasNoValidPart ? undefined : validPartsOfValue[0];
 
     this.field.value = this.fieldValue;
   }

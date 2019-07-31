@@ -9,22 +9,20 @@ import {NotificationService} from '../notification-service/notification.service'
 
 @inject('NotificationService')
 export class DiagramCreationService implements IDiagramCreationService {
-
-  private _notificationService: NotificationService;
+  private notificationService: NotificationService;
 
   constructor(notificationService: NotificationService) {
-    this._notificationService = notificationService;
+    this.notificationService = notificationService;
   }
 
   public async createNewDiagram(solutionBaseUri: string, withName: string, xml?: string): Promise<IDiagram> {
-
     const processName: string = withName.trim();
     const diagramUri: string = `${solutionBaseUri}/${processName}.bpmn`;
 
     const xmlGiven: boolean = xml !== undefined;
     const processXML: string = xmlGiven
-                             ? await this._renameDiagram(xml, withName)
-                             : this._getInitialProcessXML(processName);
+      ? await this.renameDiagram(xml, withName)
+      : this.getInitialProcessXML(processName);
 
     const diagram: IDiagram = {
       id: processName,
@@ -36,16 +34,20 @@ export class DiagramCreationService implements IDiagramCreationService {
     return diagram;
   }
 
-  private async _renameDiagram(xml: string, name: string): Promise<string> {
+  private async renameDiagram(xml: string, name: string): Promise<string> {
+    // eslint-disable-next-line 6river/new-cap
     const modeler: IBpmnModeler = new bundle.modeler({});
 
     modeler.importXML(xml, (error: Error) => {
-      this._notificationService.showNotification(NotificationType.ERROR, `Failed to copy diagram. ${error.message}`);
+      const errorOccured: boolean = error !== undefined;
+      if (errorOccured) {
+        this.notificationService.showNotification(NotificationType.ERROR, `Failed to copy diagram. ${error.message}`);
+      }
     });
 
     const promise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
       modeler.on('import.done', () => {
-
+        // eslint-disable-next-line no-underscore-dangle
         const rootElements: Array<IModdleElement> = modeler._definitions.rootElements;
         const process: IProcessRef = rootElements.find((element: IModdleElement) => {
           return element.$type === 'bpmn:Process';
@@ -65,21 +67,25 @@ export class DiagramCreationService implements IDiagramCreationService {
         modeler.saveXML({}, (error: Error, result: string) => {
           const errorOccured: boolean = error !== undefined;
           if (errorOccured) {
-            this._notificationService.showNotification(NotificationType.ERROR, `Failed to copy the diagram. Cause: ${error.message}`);
+            this.notificationService.showNotification(
+              NotificationType.ERROR,
+              `Failed to copy the diagram. Cause: ${error.message}`,
+            );
 
-            return reject(error);
+            reject(error);
+
+            return;
           }
 
           resolve(result);
         });
-
       });
     });
 
     return promise;
   }
 
-  private _getInitialProcessXML(processModelId: string): string {
+  private getInitialProcessXML(processModelId: string): string {
     return `<?xml version="1.0" encoding="UTF-8"?>
     <bpmn:definitions
       xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"

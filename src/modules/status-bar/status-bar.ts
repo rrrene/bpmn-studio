@@ -2,6 +2,8 @@ import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
 import {computedFrom, inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
+import $ from 'jquery';
+
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
 import {DiffMode, ISolutionEntry, ISolutionService, NotificationType} from '../../contracts/index';
@@ -9,16 +11,15 @@ import environment from '../../environment';
 import {NotificationService} from '../../services/notification-service/notification.service';
 
 type UpdateProgressData = {
-  bytesPerSecond: number
-  delta: number
-  percent: number
-  total: number
-  transferred: number,
+  bytesPerSecond: number;
+  delta: number;
+  percent: number;
+  total: number;
+  transferred: number;
 };
 
 @inject(EventAggregator, Router, 'SolutionService', 'NotificationService')
 export class StatusBar {
-
   public showDiagramViewButtons: boolean = false;
   public diffIsShown: boolean = false;
   public currentDiffMode: DiffMode;
@@ -38,56 +39,62 @@ export class StatusBar {
   public updateDownloadFinished: boolean = false;
   public updateStarted: boolean = false;
 
-  public DiffMode: typeof DiffMode = DiffMode;
+  public diffMode: typeof DiffMode = DiffMode;
 
-  private _eventAggregator: EventAggregator;
-  private _router: Router;
-  private _solutionService: ISolutionService;
-  private _subscriptions: Array<Subscription>;
-  private _designView: string;
-  private _ipcRenderer: any;
-  private _notificationService: NotificationService;
+  private eventAggregator: EventAggregator;
+  private router: Router;
+  private solutionService: ISolutionService;
+  private subscriptions: Array<Subscription>;
+  private designView: string;
+  private ipcRenderer: any;
+  private notificationService: NotificationService;
 
-  constructor(eventAggregator: EventAggregator, router: Router, solutionService: ISolutionService, notificationService: NotificationService) {
-    this._eventAggregator = eventAggregator;
-    this._router = router;
-    this._solutionService = solutionService;
-    this._notificationService = notificationService;
+  constructor(
+    eventAggregator: EventAggregator,
+    router: Router,
+    solutionService: ISolutionService,
+    notificationService: NotificationService,
+  ) {
+    this.eventAggregator = eventAggregator;
+    this.router = router;
+    this.solutionService = solutionService;
+    this.notificationService = notificationService;
 
     const applicationRunsInElectron: boolean = (window as any).nodeRequire !== undefined;
     if (applicationRunsInElectron) {
-      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+      this.ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
 
-      this._ipcRenderer.on('update_error', () => {
+      this.ipcRenderer.on('update_error', () => {
         notificationService.showNotification(NotificationType.INFO, 'Update Error!');
       });
 
-      this._ipcRenderer.on('update_available', (event: Event, version: string) => {
+      this.ipcRenderer.on('update_available', (event: Event, version: string) => {
         this.updateAvailable = true;
         this.updateVersion = version;
 
-        const message: string = `A new update is available.\nPlease click on the BPMN-Studio icon in the statusbar to start the download.`;
+        const message: string =
+          'A new update is available.\nPlease click on the BPMN-Studio icon in the statusbar to start the download.';
 
-        this._notificationService.showNonDisappearingNotification(NotificationType.INFO, message);
+        this.notificationService.showNonDisappearingNotification(NotificationType.INFO, message);
       });
 
-      this._ipcRenderer.on('update_download_progress', (event: Event, updateProgressData: UpdateProgressData) => {
+      this.ipcRenderer.on('update_download_progress', (event: Event, updateProgressData: UpdateProgressData) => {
         this.updateProgressData = updateProgressData;
       });
 
-      this._ipcRenderer.on('update_downloaded', () => {
+      this.ipcRenderer.on('update_downloaded', () => {
         this.updateDownloadFinished = true;
       });
     }
   }
 
   public async attached(): Promise<void> {
-    this._subscriptions = [
-      this._eventAggregator.subscribe(environment.events.statusBar.showDiagramViewButtons, () => {
+    this.subscriptions = [
+      this.eventAggregator.subscribe(environment.events.statusBar.showDiagramViewButtons, () => {
         this.showDiagramViewButtons = true;
       }),
 
-      this._eventAggregator.subscribe(environment.events.statusBar.hideDiagramViewButtons, () => {
+      this.eventAggregator.subscribe(environment.events.statusBar.hideDiagramViewButtons, () => {
         this.showDiagramViewButtons = false;
         this.xmlIsShown = false;
         this.diffIsShown = false;
@@ -95,17 +102,20 @@ export class StatusBar {
         this.currentDiffMode = DiffMode.NewVsOld;
       }),
 
-      this._eventAggregator.subscribe(environment.events.statusBar.setXmlIdentifier, (xmlIdentifier: Array<string>) => {
+      this.eventAggregator.subscribe(environment.events.statusBar.setXmlIdentifier, (xmlIdentifier: Array<string>) => {
         [this.previousXmlIdentifier, this.currentXmlIdentifier] = xmlIdentifier;
       }),
 
-      this._eventAggregator.subscribe(environment.events.statusBar.showInspectCorrelationButtons, (showInspectCorrelation: boolean) => {
-        this.showInspectCorrelationButtons = showInspectCorrelation;
-      }),
+      this.eventAggregator.subscribe(
+        environment.events.statusBar.showInspectCorrelationButtons,
+        (showInspectCorrelation: boolean) => {
+          this.showInspectCorrelationButtons = showInspectCorrelation;
+        },
+      ),
 
-      this._eventAggregator.subscribe('router:navigation:success', async() => {
-        await this._updateStatusBar();
-        this._refreshRightButtons();
+      this.eventAggregator.subscribe('router:navigation:success', async () => {
+        await this.updateStatusBar();
+        this.refreshRightButtons();
       }),
     ];
 
@@ -113,15 +123,15 @@ export class StatusBar {
       event.stopPropagation();
     });
 
-    await this._updateStatusBar();
+    await this.updateStatusBar();
 
-    this._refreshRightButtons();
+    this.refreshRightButtons();
 
     this.currentDiffMode = DiffMode.NewVsOld;
   }
 
   public detached(): void {
-    this._disposeAllSubscriptions();
+    this.disposeAllSubscriptions();
   }
 
   @computedFrom('updateProgressData')
@@ -134,13 +144,13 @@ export class StatusBar {
       this.toggleDiffView();
     }
 
-    this._designView = this.xmlIsShown ? 'detail' : 'xml';
+    this.designView = this.xmlIsShown ? 'detail' : 'xml';
 
-    this._router.navigateToRoute('design', {
+    this.router.navigateToRoute('design', {
       diagramName: this.activeDiagram ? this.activeDiagram.name : undefined,
       diagramUri: this.activeDiagram ? this.activeDiagram.uri : undefined,
       solutionUri: this.activeSolutionEntry.uri,
-      view: this._designView,
+      view: this.designView,
     });
 
     this.xmlIsShown = !this.xmlIsShown;
@@ -148,12 +158,12 @@ export class StatusBar {
 
   public changeDiffMode(mode: DiffMode): void {
     this.currentDiffMode = mode;
-    this._eventAggregator.publish(environment.events.diffView.changeDiffMode, mode);
+    this.eventAggregator.publish(environment.events.diffView.changeDiffMode, mode);
   }
 
   public toggleChangeList(): void {
     this.showChangeList = !this.showChangeList;
-    this._eventAggregator.publish(environment.events.diffView.toggleChangeList);
+    this.eventAggregator.publish(environment.events.diffView.toggleChangeList);
   }
 
   public toggleDiffView(): void {
@@ -161,13 +171,13 @@ export class StatusBar {
       this.toggleXMLView();
     }
 
-    this._designView = this.diffIsShown ? 'detail' : 'diff';
+    this.designView = this.diffIsShown ? 'detail' : 'diff';
 
-    this._router.navigateToRoute('design', {
+    this.router.navigateToRoute('design', {
       diagramName: this.activeDiagram ? this.activeDiagram.name : undefined,
       diagramUri: this.activeDiagram ? this.activeDiagram.uri : undefined,
       solutionUri: this.activeSolutionEntry.uri,
-      view: this._designView,
+      view: this.designView,
     });
 
     this.diffIsShown = !this.diffIsShown;
@@ -176,11 +186,11 @@ export class StatusBar {
   public toggleInspectPanel(): void {
     this.showInspectPanel = !this.showInspectPanel;
 
-    this._eventAggregator.publish(environment.events.inspectCorrelation.showInspectPanel, this.showInspectPanel);
+    this.eventAggregator.publish(environment.events.inspectCorrelation.showInspectPanel, this.showInspectPanel);
   }
 
   public showReleaseNotes(): void {
-    this._ipcRenderer.send('show_release_notes');
+    this.ipcRenderer.send('show_release_notes');
   }
 
   public hideDropdown(): void {
@@ -196,23 +206,23 @@ export class StatusBar {
       return;
     }
 
-    this._ipcRenderer.send('download_update');
+    this.ipcRenderer.send('download_update');
     this.updateStarted = true;
   }
 
   public installUpdate(): void {
-    this._ipcRenderer.send('quit_and_install');
+    this.ipcRenderer.send('quit_and_install');
   }
 
   public cancelUpdate(): void {
-    this._ipcRenderer.send('cancel_update');
+    this.ipcRenderer.send('cancel_update');
 
     this.updateProgressData = undefined;
     this.updateStarted = false;
   }
 
-  private _refreshRightButtons(): void {
-    const currentView: string = this._router.currentInstruction.params.view;
+  private refreshRightButtons(): void {
+    const currentView: string = this.router.currentInstruction.params.view;
     switch (currentView) {
       case 'xml':
         this.xmlIsShown = true;
@@ -227,33 +237,31 @@ export class StatusBar {
     }
   }
 
-  private _disposeAllSubscriptions(): void {
-    this._subscriptions.forEach((subscription: Subscription) => {
+  private disposeAllSubscriptions(): void {
+    this.subscriptions.forEach((subscription: Subscription) => {
       subscription.dispose();
     });
   }
 
-  private async _updateStatusBar(): Promise<void> {
-    const solutionUriFromNavigation: string = this._router.currentInstruction.queryParams.solutionUri;
+  private async updateStatusBar(): Promise<void> {
+    const solutionUriFromNavigation: string = this.router.currentInstruction.queryParams.solutionUri;
 
-    this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri(solutionUriFromNavigation);
+    this.activeSolutionEntry = this.solutionService.getSolutionEntryForUri(solutionUriFromNavigation);
 
     const solutionIsSet: boolean = this.activeSolutionEntry !== undefined;
-    const diagramName: string = this._router.currentInstruction.params.diagramName;
+    const diagramName: string = this.router.currentInstruction.params.diagramName;
     const diagramIsSet: boolean = diagramName !== undefined;
 
     if (solutionIsSet && diagramIsSet) {
       const activeSolutionIsOpenDiagramSolution: boolean = solutionUriFromNavigation === 'about:open-diagrams';
       if (activeSolutionIsOpenDiagramSolution) {
-        const persistedDiagrams: Array<IDiagram> = this._solutionService.getOpenDiagrams();
+        const persistedDiagrams: Array<IDiagram> = this.solutionService.getOpenDiagrams();
 
         this.activeDiagram = persistedDiagrams.find((diagram: IDiagram) => {
           return diagram.name === diagramName;
         });
       } else {
-        this.activeDiagram = await this.activeSolutionEntry
-          .service
-          .loadDiagram(diagramName);
+        this.activeDiagram = await this.activeSolutionEntry.service.loadDiagram(diagramName);
       }
     }
   }

@@ -1,5 +1,4 @@
 export interface IDiagramExportRepositoryContracts {
-
   /**
    * Saves the current diagram from the given format to the disk.
    *

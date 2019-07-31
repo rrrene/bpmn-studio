@@ -6,10 +6,9 @@ import 'highlightjs-line-numbers.js';
 const highlightEngine: hljs = hljs as hljs;
 
 export class BpmnXmlView {
-
   public codeElement: HTMLElement;
   @bindable() public xml: string;
-  @bindable({ defaultBindingMode: bindingMode.oneWay }) public newXML: string;
+  @bindable({defaultBindingMode: bindingMode.oneWay}) public newXML: string;
   public highlighted: boolean = false;
 
   public async attached(): Promise<void> {
@@ -17,7 +16,7 @@ export class BpmnXmlView {
       languages: ['xml'],
     });
 
-    setTimeout(async() => {
+    setTimeout(async () => {
       if (this.codeElement) {
         await this.highlight();
       }
@@ -40,5 +39,4 @@ export class BpmnXmlView {
       this.highlighted = true;
     }, 0);
   }
-
 }

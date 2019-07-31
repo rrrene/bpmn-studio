@@ -1,11 +1,7 @@
 import {bindable, inject} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
-import {
-  ForbiddenError,
-  isError,
-  UnauthorizedError,
-} from '@essential-projects/errors_ts';
+import {ForbiddenError, UnauthorizedError, isError} from '@essential-projects/errors_ts';
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {IManagementApi} from '@process-engine/management_api_contracts';
 
@@ -17,46 +13,44 @@ const versionRegex: RegExp = /(\d+)\.(\d+).(\d+)/;
 // tslint:disable: no-magic-numbers
 @inject('ManagementApiClientService', 'NotificationService', Router)
 export class Dashboard {
-
   @bindable() public activeSolutionEntry: ISolutionEntry;
   public showTaskList: boolean = false;
   public showProcessList: boolean = false;
   public showCronjobList: boolean = false;
 
-  private _managementApiService: IManagementApi;
-  private _notificationService: NotificationService;
-  private _router: Router;
+  private managementApiService: IManagementApi;
+  private notificationService: NotificationService;
+  private router: Router;
 
-  constructor(managementApiService: IManagementApi,
-              notificationService: NotificationService,
-              router: Router) {
-
-    this._managementApiService = managementApiService;
-    this._notificationService = notificationService;
-    this._router = router;
+  constructor(managementApiService: IManagementApi, notificationService: NotificationService, router: Router) {
+    this.managementApiService = managementApiService;
+    this.notificationService = notificationService;
+    this.router = router;
   }
 
   public async canActivate(activeSolutionEntry: ISolutionEntry): Promise<boolean> {
-
-    const hasClaimsForTaskList: boolean = await this._hasClaimsForTaskList(activeSolutionEntry.identity);
-    const hasClaimsForProcessList: boolean = await this._hasClaimsForProcessList(activeSolutionEntry.identity);
-    const hasClaimsForCronjobList: boolean = await this._hasClaimsForCronjobList(activeSolutionEntry.identity);
+    const hasClaimsForTaskList: boolean = await this.hasClaimsForTaskList(activeSolutionEntry.identity);
+    const hasClaimsForProcessList: boolean = await this.hasClaimsForProcessList(activeSolutionEntry.identity);
+    const hasClaimsForCronjobList: boolean = await this.hasClaimsForCronjobList(activeSolutionEntry.identity);
 
     if (!hasClaimsForProcessList && !hasClaimsForTaskList) {
-      this._notificationService.showNotification(NotificationType.ERROR, 'You don\'t have the permission to use the dashboard features.');
-      this._router.navigateToRoute('start-page');
+      this.notificationService.showNotification(
+        NotificationType.ERROR,
+        "You don't have the permission to use the dashboard features.",
+      );
+      this.router.navigateToRoute('start-page');
 
       return false;
     }
 
     this.showTaskList = hasClaimsForTaskList;
     this.showProcessList = hasClaimsForProcessList;
-    this.showCronjobList = hasClaimsForCronjobList && this._processEngineSupportsCronjob();
+    this.showCronjobList = hasClaimsForCronjobList && this.processEngineSupportsCronjob();
 
     return true;
   }
 
-  private _processEngineSupportsCronjob(): boolean {
+  private processEngineSupportsCronjob(): boolean {
     const processEngineVersion: string = this.activeSolutionEntry.processEngineVersion;
 
     const noProcessEngineVersionSet: boolean = processEngineVersion === undefined;
@@ -69,21 +63,18 @@ export class Dashboard {
     const minorVersion: number = parseInt(regexResult[2]);
 
     // The version must be 8.4.0 or later
-    const processEngineSupportsEvents: boolean = majorVersion > 8
-                                              || (majorVersion === 8
-                                               && minorVersion >= 4);
+    const processEngineSupportsEvents: boolean = majorVersion > 8 || (majorVersion === 8 && minorVersion >= 4);
 
     return processEngineSupportsEvents;
   }
 
-  private async _hasClaimsForTaskList(identity: IIdentity): Promise<boolean> {
+  private async hasClaimsForTaskList(identity: IIdentity): Promise<boolean> {
     try {
       // TODO: Refactor; this is not how we want to do our claim checks.
       // Talk to Sebastian or Christoph first.
 
-      await this._managementApiService.getProcessModels(identity);
-      await this._managementApiService.getActiveCorrelations(identity);
-
+      await this.managementApiService.getProcessModels(identity);
+      await this.managementApiService.getActiveCorrelations(identity);
     } catch (error) {
       const errorIsForbiddenError: boolean = isError(error, ForbiddenError);
       const errorIsUnauthorizedError: boolean = isError(error, UnauthorizedError);
@@ -96,11 +87,9 @@ export class Dashboard {
     return true;
   }
 
-  private async _hasClaimsForProcessList(identity: IIdentity): Promise<boolean> {
+  private async hasClaimsForProcessList(identity: IIdentity): Promise<boolean> {
     try {
-
-      await this._managementApiService.getActiveCorrelations(identity);
-
+      await this.managementApiService.getActiveCorrelations(identity);
     } catch (error) {
       const errorIsForbiddenError: boolean = isError(error, ForbiddenError);
       const errorIsUnauthorizedError: boolean = isError(error, UnauthorizedError);
@@ -113,11 +102,9 @@ export class Dashboard {
     return true;
   }
 
-  private async _hasClaimsForCronjobList(identity: IIdentity): Promise<boolean> {
+  private async hasClaimsForCronjobList(identity: IIdentity): Promise<boolean> {
     try {
-
-      await this._managementApiService.getAllActiveCronjobs(identity);
-
+      await this.managementApiService.getAllActiveCronjobs(identity);
     } catch (error) {
       const errorIsForbiddenError: boolean = isError(error, ForbiddenError);
       const errorIsUnauthorizedError: boolean = isError(error, UnauthorizedError);

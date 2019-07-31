@@ -7,18 +7,18 @@ import {ISolutionEntry, ISolutionService} from '../../../../../../contracts';
 
 @inject('SolutionService', Router)
 export class GeneralRepository {
-  private _solutionService: ISolutionService;
-  private _router: Router;
+  private solutionService: ISolutionService;
+  private router: Router;
 
   constructor(solutionService: ISolutionService, router: Router) {
-    this._solutionService = solutionService;
-    this._router = router;
+    this.solutionService = solutionService;
+    this.router = router;
   }
 
   public async getAllDiagrams(): Promise<Array<IDiagram>> {
-    const currentSolutionUri: string = this._router.currentInstruction.queryParams.solutionUri;
+    const currentSolutionUri: string = this.router.currentInstruction.queryParams.solutionUri;
 
-    const solutionEntry: ISolutionEntry = await this._solutionService.getSolutionEntryForUri(currentSolutionUri);
+    const solutionEntry: ISolutionEntry = await this.solutionService.getSolutionEntryForUri(currentSolutionUri);
     const solution: ISolution = await solutionEntry.service.loadSolution();
 
     const allDiagramsInSolution: Array<IDiagram> = solution.diagrams;

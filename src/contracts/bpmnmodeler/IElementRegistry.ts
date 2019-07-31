@@ -1,7 +1,6 @@
 import {IShape} from '@process-engine/bpmn-elements_contracts';
 
 export interface IElementRegistry {
-
   /**
    * Register a tuple of (element, gfx, (secondaryGFX)).
    *
@@ -42,7 +41,7 @@ export interface IElementRegistry {
    * @param filterMethod Filter function to apply.
    * @return The Elements that matches the filter function.
    */
-  filter(filterMethod: (element: IShape) => Boolean): Array<IShape>;
+  filter(filterMethod: (element: IShape) => boolean): Array<IShape>;
 
   /**
    * Returns all rendered model elements.
@@ -73,7 +72,7 @@ export interface IElementRegistry {
    *
    * @return {SVGElement}
    */
- getGraphics(filter: string | IShape, secondary?: boolean): SVGElement;
+  getGraphics(filter: string | IShape, secondary?: boolean): SVGElement;
 
   /**
    * Validate the suitability of the given ID; throws an exception
@@ -82,6 +81,5 @@ export interface IElementRegistry {
    * @param id ID of the Element, that should be validated.
    * @throws Error if the ID is empty or already assigned.
    */
- _validateId(id: string): void;
-
+  _validateId(id: string): void;
 }

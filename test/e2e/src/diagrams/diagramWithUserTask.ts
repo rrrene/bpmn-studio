@@ -4,23 +4,23 @@ import {HttpClient} from 'protractor-http-client';
 import {IRequestHeaders, IRequestPayload} from '../contracts/index';
 
 export class DiagramWithUserTask {
-    // tslint:disable-next-line:no-magic-numbers
-    public name: string =  'TA_' + Math.floor(Math.random() * 1000000);
-    public userTaskId: string = 'Task_1adxlm1';
-    public correlationId: string;
-    public processInstanceId: string;
-    public userTaskDynamicUiUrl: string;
+  // tslint:disable-next-line:no-magic-numbers
+  public name: string = `TA_${Math.floor(Math.random() * 1000000)}`;
+  public userTaskId: string = 'Task_1adxlm1';
+  public correlationId: string;
+  public processInstanceId: string;
+  public userTaskDynamicUiUrl: string;
 
-    // Define Instances
-    private _processEngineUrl: string = browser.params.processEngineUrl;
-    private _http: HttpClient = new HttpClient(this._processEngineUrl);
-    private _applicationUrl: string = browser.params.aureliaUrl;
-    private _processEngineActionTimeout: number = browser.params.processEngineActionTimeout;
+  // Define Instances
+  private processEngineUrl: string = browser.params.processEngineUrl;
+  private http: HttpClient = new HttpClient(this.processEngineUrl);
+  private applicationUrl: string = browser.params.aureliaUrl;
+  private processEngineActionTimeout: number = browser.params.processEngineActionTimeout;
 
-    public async deployDiagram(): Promise<void> {
-      const requestDestination: string = `/api/management/v1/process_models/${this.name}/update`;
-      const requestPayload: IRequestPayload = {
-        xml: `<?xml version="1.0" encoding="UTF-8"?>
+  public async deployDiagram(): Promise<void> {
+    const requestDestination: string = `/api/management/v1/process_models/${this.name}/update`;
+    const requestPayload: IRequestPayload = {
+      xml: `<?xml version="1.0" encoding="UTF-8"?>
         <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
         xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definition_1" targetNamespace="http://bpmn.io/schema/bpmn"
@@ -77,48 +77,43 @@ export class DiagramWithUserTask {
             </bpmndi:BPMNPlane>
           </bpmndi:BPMNDiagram>
         </bpmn:definitions>`,
-      };
+    };
 
-      const requestHeaders: IRequestHeaders = this._getRequestHeaders();
+    const requestHeaders: IRequestHeaders = this.getRequestHeaders();
 
-      await this._http.post(requestDestination, requestPayload, requestHeaders);
+    await this.http.post(requestDestination, requestPayload, requestHeaders);
 
-      await browser.sleep(this._processEngineActionTimeout);
-    }
+    await browser.sleep(this.processEngineActionTimeout);
+  }
 
-    public async deleteDiagram(): Promise<void> {
-      const requestDestination: string = `/api/management/v1/process_models/${this.name}/delete`;
-      const requestHeaders: IRequestHeaders = this._getRequestHeaders();
+  public async deleteDiagram(): Promise<void> {
+    const requestDestination: string = `/api/management/v1/process_models/${this.name}/delete`;
+    const requestHeaders: IRequestHeaders = this.getRequestHeaders();
 
-      await this._http.get(requestDestination, requestHeaders);
-    }
+    await this.http.get(requestDestination, requestHeaders);
+  }
 
-    public async startProcess(): Promise<void> {
-      const requestDestination: string =
-        `/api/management/v1/process_models/${this.name}/start?start_callback_type=1&start_event_id=StartEvent_1mox3jl`;
+  public async startProcess(): Promise<void> {
+    const requestDestination: string = `/api/management/v1/process_models/${this.name}/start?start_callback_type=1&start_event_id=StartEvent_1mox3jl`;
 
-      const requestPayload: IRequestPayload = {};
-      const requestHeaders: IRequestHeaders = this._getRequestHeaders();
+    const requestPayload: IRequestPayload = {};
+    const requestHeaders: IRequestHeaders = this.getRequestHeaders();
 
-      await this._http.post(requestDestination, requestPayload, requestHeaders).jsonBody.then((jsonBody: JSON) => {
-        this.correlationId = jsonBody['correlationId'];
-        this.processInstanceId = jsonBody['processInstanceId'];
-      });
+    await this.http.post(requestDestination, requestPayload, requestHeaders).jsonBody.then((jsonBody: JSON) => {
+      this.correlationId = jsonBody['correlationId'];
+      this.processInstanceId = jsonBody['processInstanceId'];
+    });
 
-      this.userTaskDynamicUiUrl = this._applicationUrl +
-                                  '/correlation/' + this.correlationId +
-                                  '/diagram/' + this.name +
-                                  '/instance/' + this.processInstanceId +
-                                  '/task/' + this.userTaskId;
+    this.userTaskDynamicUiUrl = `${this.applicationUrl}/correlation/${this.correlationId}/diagram/${this.name}/instance/${this.processInstanceId}/task/${this.userTaskId}`;
 
-      await browser.sleep(this._processEngineActionTimeout);
-    }
+    await browser.sleep(this.processEngineActionTimeout);
+  }
 
-    private _getRequestHeaders(): IRequestHeaders {
-      const requestHeaders: IRequestHeaders = {
-        authorization: 'Bearer ZHVtbXlfdG9rZW4=',
-      };
+  private getRequestHeaders(): IRequestHeaders {
+    const requestHeaders: IRequestHeaders = {
+      authorization: 'Bearer ZHVtbXlfdG9rZW4=',
+    };
 
-      return requestHeaders;
-    }
+    return requestHeaders;
+  }
 }

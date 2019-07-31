@@ -1,14 +1,14 @@
+/* eslint-disable no-underscore-dangle */
 import {inject} from 'aurelia-dependency-injection';
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
 import {bindable, computedFrom} from 'aurelia-framework';
 
-import {IShape} from '@process-engine/bpmn-elements_contracts';
+import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 import {diff} from 'bpmn-js-differ';
 
 import {
-  defaultBpmnColors,
   DiffMode,
   IBpmnModdle,
   IBpmnModeler,
@@ -26,17 +26,15 @@ import {
   ISolutionEntry,
   IViewbox,
   NotificationType,
+  defaultBpmnColors,
 } from '../../../contracts/index';
 import environment from '../../../environment';
 import {ElementNameService} from '../../../services/elementname-service/elementname.service';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 import {SolutionService} from '../../../services/solution-service/SolutionService';
 
-@inject('NotificationService',
-        EventAggregator,
-        'SolutionService')
+@inject('NotificationService', EventAggregator, 'SolutionService')
 export class BpmnDiffView {
-
   @bindable() public currentXml: string;
   @bindable() public previousXml: string;
   @bindable() public savedXml: string;
@@ -59,106 +57,109 @@ export class BpmnDiffView {
     added: [],
     layoutChanged: [],
   };
+
   public showSavedXml: boolean = true;
 
-  private _notificationService: NotificationService;
-  private _eventAggregator: EventAggregator;
-  private _leftViewer: IBpmnModeler;
-  private _rightViewer: IBpmnModeler;
-  private _lowerViewer: IBpmnModeler;
-  private _diffModeler: IBpmnModeler;
-  private _modeling: IModeling;
-  private _elementRegistry: IElementRegistry;
-  private _subscriptions: Array<Subscription>;
-  private _elementNameService: ElementNameService;
-  private _diffDestination: string = 'lastSaved';
-  private _diagramName: string | undefined;
-  private _solutionService: SolutionService;
+  private notificationService: NotificationService;
+  private eventAggregator: EventAggregator;
+  private leftViewer: IBpmnModeler;
+  private rightViewer: IBpmnModeler;
+  private lowerViewer: IBpmnModeler;
+  private diffModeler: IBpmnModeler;
+  private modeling: IModeling;
+  private elementRegistry: IElementRegistry;
+  private subscriptions: Array<Subscription>;
+  private elementNameService: ElementNameService;
+  private diffDestination: string = 'lastSaved';
+  private diagramName: string | undefined;
+  private solutionService: SolutionService;
 
-  constructor(notificationService: NotificationService,
-              eventAggregator: EventAggregator,
-              solutionService: SolutionService) {
-
-    this._notificationService = notificationService;
-    this._eventAggregator = eventAggregator;
-    this._elementNameService = new ElementNameService();
-    this._solutionService = solutionService;
+  constructor(
+    notificationService: NotificationService,
+    eventAggregator: EventAggregator,
+    solutionService: SolutionService,
+  ) {
+    this.notificationService = notificationService;
+    this.eventAggregator = eventAggregator;
+    this.elementNameService = new ElementNameService();
+    this.solutionService = solutionService;
   }
 
   public created(): void {
-    this._leftViewer = this._createNewViewer();
-    this._rightViewer = this._createNewViewer();
-    this._lowerViewer = this._createNewViewer();
+    this.leftViewer = this.createNewViewer();
+    this.rightViewer = this.createNewViewer();
+    this.lowerViewer = this.createNewViewer();
 
-    this._diffModeler = new bundle.modeler();
+    // eslint-disable-next-line 6river/new-cap
+    this.diffModeler = new bundle.modeler();
 
-    this._modeling = this._diffModeler.get('modeling');
-    this._elementRegistry = this._diffModeler.get('elementRegistry');
+    this.modeling = this.diffModeler.get('modeling');
+    this.elementRegistry = this.diffModeler.get('elementRegistry');
 
-    this._startSynchronizingViewers();
+    this.startSynchronizingViewers();
   }
 
   public async attached(): Promise<void> {
-    this._leftViewer.attachTo(this.leftCanvasModel);
-    this._rightViewer.attachTo(this.rightCanvasModel);
-    this._lowerViewer.attachTo(this.lowerCanvasModel);
+    this.leftViewer.attachTo(this.leftCanvasModel);
+    this.rightViewer.attachTo(this.rightCanvasModel);
+    this.lowerViewer.attachTo(this.lowerCanvasModel);
 
-    this._syncAllViewers();
-    await this._updateXmlChanges();
+    this.syncAllViewers();
+    await this.updateXmlChanges();
 
-    this._subscriptions = [
-      this._eventAggregator.subscribe(environment.events.diffView.changeDiffMode, (diffMode: DiffMode) => {
+    this.subscriptions = [
+      this.eventAggregator.subscribe(environment.events.diffView.changeDiffMode, (diffMode: DiffMode) => {
         this.currentDiffMode = diffMode;
 
-        this._updateDiffView();
+        this.updateDiffView();
       }),
 
-      this._eventAggregator.subscribe(environment.events.diffView.toggleChangeList, () => {
+      this.eventAggregator.subscribe(environment.events.diffView.toggleChangeList, () => {
         this.showChangeList = !this.showChangeList;
       }),
 
-      this._eventAggregator.subscribe(environment.events.diffView.setDiffDestination, async(data: Array<string>) => {
-        [this._diffDestination, this._diagramName] = data;
+      this.eventAggregator.subscribe(environment.events.diffView.setDiffDestination, async (data: Array<string>) => {
+        [this.diffDestination, this.diagramName] = data;
 
-        const diffLastSavedXml: boolean = this._diffDestination === 'lastSaved';
+        const diffLastSavedXml: boolean = this.diffDestination === 'lastSaved';
         if (diffLastSavedXml) {
-          this._setSavedProcessModelAsPreviousXml();
+          this.setSavedProcessModelAsPreviousXml();
         } else {
-          const updatingDeployedXmlWasSuccessful: boolean = await this._updateDeployedXml();
-          const diagramNameIsSet: boolean = this._diagramName !== undefined;
+          const updatingDeployedXmlWasSuccessful: boolean = await this.updateDeployedXml();
+          const diagramNameIsSet: boolean = this.diagramName !== undefined;
 
           if (updatingDeployedXmlWasSuccessful && diagramNameIsSet) {
-            this._setCustomProcessModelAsPreviousXml();
+            this.setCustomProcessModelAsPreviousXml();
 
             return;
           }
 
           if (updatingDeployedXmlWasSuccessful) {
-            this._setDeployedProcessModelAsPreviousXml();
+            this.setDeployedProcessModelAsPreviousXml();
           }
         }
       }),
     ];
 
-    this._updateDiffView();
+    this.updateDiffView();
   }
 
   public detached(): void {
-    for (const subscription of this._subscriptions) {
+    for (const subscription of this.subscriptions) {
       subscription.dispose();
     }
   }
 
   public async currentXmlChanged(): Promise<void> {
-    this._importXml(this.currentXml, this._leftViewer);
+    this.importXml(this.currentXml, this.leftViewer);
 
-    await this._updateXmlChanges();
-    this._updateDiffView();
+    await this.updateXmlChanges();
+    this.updateDiffView();
   }
 
   public savedXmlChanged(): void {
     if (this.showSavedXml) {
-      this._setSavedProcessModelAsPreviousXml();
+      this.setSavedProcessModelAsPreviousXml();
     }
   }
 
@@ -171,35 +172,35 @@ export class BpmnDiffView {
       return;
     }
 
-    const updatingDeploydedXmlWasSuccessfull: boolean = await this._updateDeployedXml();
+    const updatingDeploydedXmlWasSuccessfull: boolean = await this.updateDeployedXml();
     if (updatingDeploydedXmlWasSuccessfull) {
       return;
     }
 
-    this._diffDestination = 'lastSaved';
-    this._setSavedProcessModelAsPreviousXml();
+    this.diffDestination = 'lastSaved';
+    this.setSavedProcessModelAsPreviousXml();
   }
 
   public deployedXmlChanged(): void {
     const processModelIsDeployed: boolean = this.deployedXml !== undefined;
 
-    this._eventAggregator.publish(environment.events.bpmnio.showDiffDestinationButton, processModelIsDeployed);
+    this.eventAggregator.publish(environment.events.bpmnio.showDiffDestinationButton, processModelIsDeployed);
   }
 
   public async previousXmlChanged(): Promise<void> {
-    this._importXml(this.previousXml, this._rightViewer);
+    this.importXml(this.previousXml, this.rightViewer);
 
-    await this._updateXmlChanges();
-    this._updateDiffView();
+    await this.updateXmlChanges();
+    this.updateDiffView();
   }
 
   public togglePreviousXml(): void {
     this.showSavedXml = !this.showSavedXml;
 
     if (this.showSavedXml) {
-      this._setSavedProcessModelAsPreviousXml();
+      this.setSavedProcessModelAsPreviousXml();
     } else {
-      this._setDeployedProcessModelAsPreviousXml();
+      this.setDeployedProcessModelAsPreviousXml();
     }
   }
 
@@ -213,89 +214,84 @@ export class BpmnDiffView {
     return this.currentDiffMode === DiffMode.OldVsNew;
   }
 
-  private _syncAllViewers(): void {
-    const lowerCanvas: ICanvas = this._lowerViewer.get('canvas');
-    const leftCanvas: ICanvas = this._leftViewer.get('canvas');
-    const rightCanvas: ICanvas = this._rightViewer.get('canvas');
+  private syncAllViewers(): void {
+    const lowerCanvas: ICanvas = this.lowerViewer.get('canvas');
+    const leftCanvas: ICanvas = this.leftViewer.get('canvas');
+    const rightCanvas: ICanvas = this.rightViewer.get('canvas');
 
     const changedViewbox: IViewbox = lowerCanvas.viewbox();
     leftCanvas.viewbox(changedViewbox);
     rightCanvas.viewbox(changedViewbox);
   }
 
-  private _setDeployedProcessModelAsPreviousXml(): void {
+  private setDeployedProcessModelAsPreviousXml(): void {
     this.previousXml = this.deployedXml;
 
     this.previousXmlIdentifier = 'Deployed';
     this.currentXmlIdentifier = 'Filesystem';
 
-    this._eventAggregator.publish(environment.events.statusBar.setXmlIdentifier,
-      [
-        this.previousXmlIdentifier,
-        this.currentXmlIdentifier,
-      ]);
+    this.eventAggregator.publish(environment.events.statusBar.setXmlIdentifier, [
+      this.previousXmlIdentifier,
+      this.currentXmlIdentifier,
+    ]);
   }
 
-  private _setCustomProcessModelAsPreviousXml(): void {
+  private setCustomProcessModelAsPreviousXml(): void {
     this.previousXml = this.deployedXml;
 
-    this.previousXmlIdentifier = this._diagramName;
+    this.previousXmlIdentifier = this.diagramName;
     this.currentXmlIdentifier = this.processModelId;
 
-    this._eventAggregator.publish(environment.events.statusBar.setXmlIdentifier,
-      [
-        this.previousXmlIdentifier,
-        this.currentXmlIdentifier,
-      ]);
+    this.eventAggregator.publish(environment.events.statusBar.setXmlIdentifier, [
+      this.previousXmlIdentifier,
+      this.currentXmlIdentifier,
+    ]);
 
-    this._diagramName = undefined;
+    this.diagramName = undefined;
   }
 
-  private _setSavedProcessModelAsPreviousXml(): void {
+  private setSavedProcessModelAsPreviousXml(): void {
     this.previousXml = this.savedXml;
 
     this.previousXmlIdentifier = 'Old';
     this.currentXmlIdentifier = 'New';
 
-    this._eventAggregator.publish(environment.events.statusBar.setXmlIdentifier,
-      [
-        this.previousXmlIdentifier,
-        this.currentXmlIdentifier,
-      ]);
+    this.eventAggregator.publish(environment.events.statusBar.setXmlIdentifier, [
+      this.previousXmlIdentifier,
+      this.currentXmlIdentifier,
+    ]);
   }
 
-  private async _updateDeployedXml(): Promise<boolean> {
-    const activeSolutionEntry: ISolutionEntry = this._solutionService.getSolutionEntryForUri(this._diffDestination);
+  private async updateDeployedXml(): Promise<boolean> {
+    const activeSolutionEntry: ISolutionEntry = this.solutionService.getSolutionEntryForUri(this.diffDestination);
 
     const activeSolutionEntryNotFound: boolean = activeSolutionEntry === undefined;
     if (activeSolutionEntryNotFound) {
       return false;
     }
 
-    const diagramName: string = this._diagramName
-                              ? this._diagramName
-                              : this.processModelId;
+    const diagramName: string = this.diagramName ? this.diagramName : this.processModelId;
 
-    const getXmlFromDeployed: () => Promise<string> = (async(): Promise<string> => {
+    const getXmlFromDeployed: () => Promise<string> = async (): Promise<string> => {
       try {
         const diagram: IDiagram = await activeSolutionEntry.service.loadDiagram(diagramName);
 
         const diagramFound: boolean = diagram !== undefined;
 
         return diagramFound ? diagram.xml : undefined;
-
       } catch {
         return undefined;
       }
-    });
+    };
 
     this.deployedXml = await getXmlFromDeployed();
     const diagramIsNotDeployed: boolean = this.deployedXml === undefined;
 
-    const diffingAgainstDeployed: boolean = this._diffDestination !== 'lastSaved';
+    const diffingAgainstDeployed: boolean = this.diffDestination !== 'lastSaved';
     if (diagramIsNotDeployed && diffingAgainstDeployed) {
-      const errorMessage: string = 'Could not diff against the deployed version: This diagram is not deployed to the ProcessEngine.';
-      this._notificationService.showNotification(NotificationType.ERROR, errorMessage);
+      const errorMessage: string =
+        'Could not diff against the deployed version: This diagram is not deployed to the ProcessEngine.';
+      this.notificationService.showNotification(NotificationType.ERROR, errorMessage);
 
       return false;
     }
@@ -303,8 +299,7 @@ export class BpmnDiffView {
     return true;
   }
 
-  private async _updateXmlChanges(): Promise<void> {
-
+  private async updateXmlChanges(): Promise<void> {
     /**
      * TODO: This is a dirty fix, so that the model parser does not
      * get an undefined string.
@@ -317,17 +312,16 @@ export class BpmnDiffView {
       this.previousXml = this.currentXml;
     }
 
-    const previousDefinitions: IDefinition = await this._getDefintionsFromXml(this.previousXml);
-    const newDefinitions: IDefinition = await this._getDefintionsFromXml(this.currentXml);
+    const previousDefinitions: IDefinition = await this.getDefintionsFromXml(this.previousXml);
+    const newDefinitions: IDefinition = await this.getDefintionsFromXml(this.currentXml);
 
     this.xmlChanges = diff(previousDefinitions, newDefinitions);
-    this._prepareChangesForChangeList();
+    this.prepareChangesForChangeList();
   }
 
-  private async _getDefintionsFromXml(xml: string): Promise<any> {
-
+  private async getDefintionsFromXml(xml: string): Promise<any> {
     return new Promise((resolve: Function, reject: Function): void => {
-      const moddle: IBpmnModdle =  this._diffModeler.get('moddle');
+      const moddle: IBpmnModdle = this.diffModeler.get('moddle');
 
       moddle.fromXML(xml, (error: Error, definitions: IDefinition) => {
         if (error) {
@@ -339,7 +333,7 @@ export class BpmnDiffView {
     });
   }
 
-  private _getChangeListEntriesFromChanges(elementChanges: object): Array<IChangeListEntry> {
+  private getChangeListEntriesFromChanges(elementChanges: object): Array<IChangeListEntry> {
     const changeListEntries: Array<IChangeListEntry> = [];
     const elementIds: Array<string> = Object.keys(elementChanges);
 
@@ -347,9 +341,9 @@ export class BpmnDiffView {
       const elementChange: IElementChange = elementChanges[elementId];
 
       const isTypeInModel: boolean = elementChange.$type === undefined;
-      const changeListEntry: IChangeListEntry = isTypeInModel ?
-         this._createChangeListEntry(elementChange.model.name, elementChange.model.$type) :
-         this._createChangeListEntry(elementChange.name, elementChange.$type);
+      const changeListEntry: IChangeListEntry = isTypeInModel
+        ? this.createChangeListEntry(elementChange.model.name, elementChange.model.$type)
+        : this.createChangeListEntry(elementChange.name, elementChange.$type);
 
       changeListEntries.push(changeListEntry);
     }
@@ -358,42 +352,42 @@ export class BpmnDiffView {
   }
 
   /*
-  * This function converts the object from the bpmn-differ into an object with arrays
-  * to make it loopable in the html.
-  */
-  private _prepareChangesForChangeList(): void {
+   * This function converts the object from the bpmn-differ into an object with arrays
+   * to make it loopable in the html.
+   */
+  private prepareChangesForChangeList(): void {
     this.changeListData.removed = [];
     this.changeListData.changed = [];
     this.changeListData.added = [];
     this.changeListData.layoutChanged = [];
 
-    const changedElement: object = this._removeElementsWithoutChanges(this.xmlChanges._changed);
+    const changedElement: object = this.removeElementsWithoutChanges(this.xmlChanges._changed);
 
-    this.changeListData.removed = this._getChangeListEntriesFromChanges(this.xmlChanges._removed);
-    this.changeListData.changed = this._getChangeListEntriesFromChanges(changedElement);
-    this.changeListData.added = this._getChangeListEntriesFromChanges(this.xmlChanges._added);
-    this.changeListData.layoutChanged = this._getChangeListEntriesFromChanges(this.xmlChanges._layoutChanged);
+    this.changeListData.removed = this.getChangeListEntriesFromChanges(this.xmlChanges._removed);
+    this.changeListData.changed = this.getChangeListEntriesFromChanges(changedElement);
+    this.changeListData.added = this.getChangeListEntriesFromChanges(this.xmlChanges._added);
+    this.changeListData.layoutChanged = this.getChangeListEntriesFromChanges(this.xmlChanges._layoutChanged);
 
-    this.totalAmountOfChange = this.changeListData.removed.length +
-                                this.changeListData.changed.length +
-                                this.changeListData.added.length +
-                                this.changeListData.layoutChanged.length;
+    this.totalAmountOfChange =
+      this.changeListData.removed.length +
+      this.changeListData.changed.length +
+      this.changeListData.added.length +
+      this.changeListData.layoutChanged.length;
 
     this.noChangesExisting = this.totalAmountOfChange === 0;
 
     if (this.noChangesExisting) {
-      this._setNoChangesReason();
+      this.setNoChangesReason();
     } else {
       this.noChangesReason = '';
     }
   }
 
-  private _setNoChangesReason(): void {
-
+  private setNoChangesReason(): void {
     /*
-    * This Regex removes all newlines and spaces to make sure that both xml
-    * are not formatted.
-    */
+     * This Regex removes all newlines and spaces to make sure that both xml
+     * are not formatted.
+     */
     const whitespaceAndNewLineRegex: RegExp = /\r?\n|\r|\s/g;
 
     const unformattedXml: string = this.currentXml.replace(whitespaceAndNewLineRegex, '');
@@ -408,9 +402,9 @@ export class BpmnDiffView {
     }
   }
 
-  private _createChangeListEntry(elementName: string, elementType: string): IChangeListEntry {
-    const humanReadableElementName: string = this._elementNameService.getHumanReadableName(elementName);
-    const humanReadableElementType: string = this._elementNameService.getHumanReadableType(elementType);
+  private createChangeListEntry(elementName: string, elementType: string): IChangeListEntry {
+    const humanReadableElementName: string = this.elementNameService.getHumanReadableName(elementName);
+    const humanReadableElementType: string = this.elementNameService.getHumanReadableType(elementType);
 
     const changeListEntry: IChangeListEntry = {
       name: humanReadableElementName,
@@ -420,29 +414,29 @@ export class BpmnDiffView {
     return changeListEntry;
   }
 
-  private _markAddedElements(addedElements: object): void {
-    const elementsToColor: Array<IShape> = this._getElementsToColor(addedElements);
+  private markAddedElements(addedElements: object): void {
+    const elementsToColor: Array<IShape> = this.getElementsToColor(addedElements);
 
-    this._colorElements(elementsToColor, defaultBpmnColors.green);
+    this.colorElements(elementsToColor, defaultBpmnColors.green);
   }
 
-  private _markRemovedElements(deletedElements: object): void {
-    const elementsToColor: Array<IShape> = this._getElementsToColor(deletedElements);
+  private markRemovedElements(deletedElements: object): void {
+    const elementsToColor: Array<IShape> = this.getElementsToColor(deletedElements);
 
-    this._colorElements(elementsToColor, defaultBpmnColors.red);
+    this.colorElements(elementsToColor, defaultBpmnColors.red);
   }
 
-  private _startSynchronizingViewers(): void {
-    const lowerCanvas: ICanvas = this._lowerViewer.get('canvas');
-    const leftCanvas: ICanvas = this._leftViewer.get('canvas');
-    const rightCanvas: ICanvas = this._rightViewer.get('canvas');
+  private startSynchronizingViewers(): void {
+    const lowerCanvas: ICanvas = this.lowerViewer.get('canvas');
+    const leftCanvas: ICanvas = this.leftViewer.get('canvas');
+    const rightCanvas: ICanvas = this.rightViewer.get('canvas');
 
-    this._setEventFunctions(lowerCanvas, leftCanvas, rightCanvas);
-    this._setEventFunctions(leftCanvas, rightCanvas, lowerCanvas);
-    this._setEventFunctions(rightCanvas, lowerCanvas, leftCanvas);
+    this.setEventFunctions(lowerCanvas, leftCanvas, rightCanvas);
+    this.setEventFunctions(leftCanvas, rightCanvas, lowerCanvas);
+    this.setEventFunctions(rightCanvas, lowerCanvas, leftCanvas);
   }
 
-  private _setEventFunctions(changingCanvas: ICanvas, firstCanvas: ICanvas, secondCanvas: ICanvas): void {
+  private setEventFunctions(changingCanvas: ICanvas, firstCanvas: ICanvas, secondCanvas: ICanvas): void {
     const changingCanvasContainer: HTMLElement = changingCanvas._container;
 
     const adjustViewboxes: IEventFunction = (): void => {
@@ -463,91 +457,93 @@ export class BpmnDiffView {
     changingCanvasContainer.onmouseup = stopCheckingForMousemovement;
   }
 
-  private _markLayoutChangedElements(layoutChangedElements: object): void {
-    const elementsToColor: Array<IShape> = this._getElementsToColor(layoutChangedElements);
+  private markLayoutChangedElements(layoutChangedElements: object): void {
+    const elementsToColor: Array<IShape> = this.getElementsToColor(layoutChangedElements);
 
-    this._colorElements(elementsToColor, defaultBpmnColors.purple);
+    this.colorElements(elementsToColor, defaultBpmnColors.purple);
   }
 
-  private _markChangedElements(changedElements: object): void {
-    const changedElementsWithChanges: object = this._removeElementsWithoutChanges(changedElements);
+  private markChangedElements(changedElements: object): void {
+    const changedElementsWithChanges: object = this.removeElementsWithoutChanges(changedElements);
 
-    const elementsToColor: Array<IShape> = this._getElementsToColor(changedElementsWithChanges);
+    const elementsToColor: Array<IShape> = this.getElementsToColor(changedElementsWithChanges);
 
-    this._colorElements(elementsToColor, defaultBpmnColors.orange);
+    this.colorElements(elementsToColor, defaultBpmnColors.orange);
   }
 
   /*
-  * This function removes all elements without any changes from the changedElement object
-  * and returns an object without these elements.
-  *
-  *  This is needed because the diff function always adds the start event
-  *  to the changed Elements even though it has no changes.
-  *
-  * @param changedElement The _changed object of the object that gets returned by the bpmn-differ.
-  * @returns The same object without the elements that did not get changed.
-  */
-  private _removeElementsWithoutChanges(changedElements: object): object {
-    for (const elementId in changedElements) {
-      const currentElementHasNoChanges: boolean = Object.keys(changedElements[elementId].attrs).length === 0;
+   * This function removes all elements without any changes from the changedElement object
+   * and returns an object without these elements.
+   *
+   *  This is needed because the diff function always adds the start event
+   *  to the changed Elements even though it has no changes.
+   *
+   * @param changedElement The _changed object of the object that gets returned by the bpmn-differ.
+   * @returns The same object without the elements that did not get changed.
+   */
+  private removeElementsWithoutChanges(changedElements: object): object {
+    Object.keys(changedElements).forEach((element: string) => {
+      const currentElementHasNoChanges: boolean = Object.keys(changedElements[element].attrs).length === 0;
 
       if (currentElementHasNoChanges) {
-        delete changedElements[elementId];
+        delete changedElements[element];
       }
-    }
+    });
 
     return changedElements;
   }
 
-  private _updateDiffView(): void {
+  private updateDiffView(): void {
     if (this.diffModeIsNewVsOld) {
-      this._updateLowerDiff(this.currentXml);
+      this.updateLowerDiff(this.currentXml);
     } else if (this.diffModeIsOldVsNew) {
-      this._updateLowerDiff(this.previousXml);
+      this.updateLowerDiff(this.previousXml);
     }
   }
 
-  private async _updateLowerDiff(xml: string): Promise<void> {
-    const xmlIsNotLoaded: boolean = (xml === undefined || xml === null);
+  private async updateLowerDiff(xml: string): Promise<void> {
+    const xmlIsNotLoaded: boolean = xml === undefined || xml === null;
 
     if (xmlIsNotLoaded) {
-      const notificationMessage: string = 'The xml could not be loaded. Please try to reopen the Diff View or reload the Detail View.';
-      this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
+      const notificationMessage: string =
+        'The xml could not be loaded. Please try to reopen the Diff View or reload the Detail View.';
+      this.notificationService.showNotification(NotificationType.ERROR, notificationMessage);
 
       return;
     }
 
-    const addedElements: Object = this.xmlChanges._added;
+    const addedElements: object = this.xmlChanges._added;
     const removedElements: object = this.xmlChanges._removed;
     const changedElements: object = this.xmlChanges._changed;
     const layoutChangedElements: object = this.xmlChanges._layoutChanged;
 
     const diffModeIsCurrentVsPrevious: boolean = this.currentDiffMode === DiffMode.NewVsOld;
 
-    await this._importXml(xml, this._diffModeler);
-    this._clearColors();
+    await this.importXml(xml, this.diffModeler);
+    this.clearColors();
 
-    this._markLayoutChangedElements(layoutChangedElements);
-    this._markChangedElements(changedElements);
+    this.markLayoutChangedElements(layoutChangedElements);
+    this.markChangedElements(changedElements);
 
     if (diffModeIsCurrentVsPrevious) {
-      this._markAddedElements(addedElements);
+      this.markAddedElements(addedElements);
     } else {
-      this._markRemovedElements(removedElements);
+      this.markRemovedElements(removedElements);
     }
 
-    const coloredXml: string = await this._getXmlFromModeler();
-    await this._importXml(coloredXml, this._lowerViewer);
+    const coloredXml: string = await this.getXmlFromModeler();
+    await this.importXml(coloredXml, this.lowerViewer);
   }
 
-  private async _importXml(xml: string, viewer: IBpmnModeler): Promise<void> {
-    const xmlIsNotLoaded: boolean = (xml === undefined || xml === null);
+  private async importXml(xml: string, viewer: IBpmnModeler): Promise<void> {
+    const xmlIsNotLoaded: boolean = xml === undefined || xml === null;
 
     if (xmlIsNotLoaded) {
-      const notificationMessage: string = 'The xml could not be loaded. Please try to reopen the Diff View or reload the Detail View.';
-      this._notificationService.showNotification(NotificationType.ERROR, notificationMessage);
+      const notificationMessage: string =
+        'The xml could not be loaded. Please try to reopen the Diff View or reload the Detail View.';
+      this.notificationService.showNotification(NotificationType.ERROR, notificationMessage);
 
-      return;
+      return undefined;
     }
 
     const xmlImportPromise: Promise<void> = new Promise((resolve: Function, reject: Function): void => {
@@ -558,7 +554,7 @@ export class BpmnDiffView {
           return;
         }
 
-        this._fitDiagramToViewport(viewer);
+        this.fitDiagramToViewport(viewer);
 
         resolve();
       });
@@ -567,9 +563,9 @@ export class BpmnDiffView {
     return xmlImportPromise;
   }
 
-  private _fitDiagramToViewport(viewer: IBpmnModeler): void {
+  private fitDiagramToViewport(viewer: IBpmnModeler): void {
     const canvas: ICanvas = viewer.get('canvas');
-    const viewbox: IViewbox  = canvas.viewbox();
+    const viewbox: IViewbox = canvas.viewbox();
     const diagramIsVisible: boolean = viewbox.height > 0 && viewbox.width > 0;
 
     if (diagramIsVisible) {
@@ -577,13 +573,13 @@ export class BpmnDiffView {
     }
   }
 
-  private async _getXmlFromModeler(): Promise<string> {
-    const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void =>  {
+  private async getXmlFromModeler(): Promise<string> {
+    const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
       const xmlSaveOptions: IBpmnXmlSaveOptions = {
         format: true,
       };
 
-      this._diffModeler.saveXML(xmlSaveOptions, async(saveXmlError: Error, xml: string) => {
+      this.diffModeler.saveXML(xmlSaveOptions, async (saveXmlError: Error, xml: string) => {
         if (saveXmlError) {
           reject(saveXmlError);
 
@@ -597,30 +593,23 @@ export class BpmnDiffView {
     return saveXmlPromise;
   }
 
-  private _createNewViewer(): IBpmnModeler {
+  private createNewViewer(): IBpmnModeler {
+    // eslint-disable-next-line 6river/new-cap
     return new bundle.viewer({
-      additionalModules:
-      [
-        bundle.ZoomScrollModule,
-        bundle.MoveCanvasModule,
-      ],
+      additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule],
     });
   }
 
-  private _getElementsToColor(elements: object): Array<IShape> {
-    const elementsToColor: Array<IShape> = [];
+  private getElementsToColor(elements: object): Array<IShape> {
+    return Object.values(elements).map((element: IModdleElement) => {
+      const currentElement: IShape = this.elementRegistry.get(element.id);
 
-    for (const elementId in elements) {
-      const currentElement: IShape = this._elementRegistry.get(elementId);
-
-      elementsToColor.push(currentElement);
-    }
-
-    return elementsToColor;
+      return currentElement;
+    });
   }
 
-  private _clearColors(): void {
-    const elementsToColor: Array<IShape> = this._elementRegistry.filter((element: IShape): boolean => {
+  private clearColors(): void {
+    const elementsToColor: Array<IShape> = this.elementRegistry.filter((element: IShape): boolean => {
       const elementHasFillColor: boolean = element.businessObject.di.fill !== undefined;
       const elementHasBorderColor: boolean = element.businessObject.di.stroke !== undefined;
 
@@ -629,17 +618,17 @@ export class BpmnDiffView {
       return elementHasColor;
     });
 
-    this._colorElements(elementsToColor, defaultBpmnColors.none);
+    this.colorElements(elementsToColor, defaultBpmnColors.none);
   }
 
-  private _colorElements(elementsToColor: Array<IShape>, color: IColorPickerColor): void {
+  private colorElements(elementsToColor: Array<IShape>, color: IColorPickerColor): void {
     const noElementsToColorize: boolean = elementsToColor.length === 0;
 
     if (noElementsToColorize) {
       return;
     }
 
-    this._modeling.setColor(elementsToColor, {
+    this.modeling.setColor(elementsToColor, {
       stroke: color.border,
       fill: color.fill,
     });

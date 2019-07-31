@@ -4,42 +4,46 @@ import {bindable, inject} from 'aurelia-framework';
 import {DataModels} from '@process-engine/management_api_contracts';
 
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
-import {CorrelationListSortProperty, ICorrelationSortSettings, ICorrelationTableEntry} from '../../../../../../../contracts/index';
+import {
+  CorrelationListSortProperty,
+  ICorrelationSortSettings,
+  ICorrelationTableEntry,
+} from '../../../../../../../contracts/index';
 import environment from '../../../../../../../environment';
 import {getBeautifiedDate} from '../../../../../../../services/date-service/date.service';
 import {IProcessInstanceWithCorrelation} from '../../../../contracts/index';
 
 @inject(EventAggregator)
 export class CorrelationList {
-
   @bindable public selectedProcessInstance: DataModels.Correlations.CorrelationProcessInstance;
   @bindable public selectedCorrelation: DataModels.Correlations.Correlation;
   @bindable public correlations: Array<DataModels.Correlations.Correlation>;
   @bindable public processInstances: Array<DataModels.Correlations.CorrelationProcessInstance>;
   @bindable public activeDiagram: IDiagram;
   public sortedTableData: Array<ICorrelationTableEntry>;
-  public CorrelationListSortProperty: typeof CorrelationListSortProperty = CorrelationListSortProperty;
+  public correlationListSortProperty: typeof CorrelationListSortProperty = CorrelationListSortProperty;
   public sortSettings: ICorrelationSortSettings = {
     ascending: false,
     sortProperty: undefined,
   };
+
   public processInstancesWithCorrelation: Array<IProcessInstanceWithCorrelation> = [];
   public selectedTableEntry: ICorrelationTableEntry;
 
-  private _tableData: Array<ICorrelationTableEntry> = [];
-  private _eventAggregator: EventAggregator;
+  private tableData: Array<ICorrelationTableEntry> = [];
+  private eventAggregator: EventAggregator;
 
   constructor(eventAggregator: EventAggregator) {
-    this._eventAggregator = eventAggregator;
+    this.eventAggregator = eventAggregator;
   }
 
   public showLogViewer(): void {
-    this._eventAggregator.publish(environment.events.inspectCorrelation.showLogViewer);
+    this.eventAggregator.publish(environment.events.inspectCorrelation.showLogViewer);
   }
 
   public selectCorrelation(selectedTableEntry: ICorrelationTableEntry): void {
-    this.selectedProcessInstance = this._getProcessModelForTableEntry(selectedTableEntry);
-    this.selectedCorrelation = this._getCorrelationForTableEntry(selectedTableEntry);
+    this.selectedProcessInstance = this.getProcessModelForTableEntry(selectedTableEntry);
+    this.selectedCorrelation = this.getCorrelationForTableEntry(selectedTableEntry);
     this.selectedTableEntry = selectedTableEntry;
   }
 
@@ -65,13 +69,13 @@ export class CorrelationList {
       });
     });
 
-    this._convertCorrelationsIntoTableData();
+    this.convertCorrelationsIntoTableData();
 
     // Select latest process instance
-    const sortedTableData: Array<ICorrelationTableEntry> = this._sortListByStartDate();
+    const sortedTableData: Array<ICorrelationTableEntry> = this.sortListByStartDate();
     const tableDataIsExisiting: boolean = sortedTableData.length > 0;
 
-    if (tableDataIsExisiting ) {
+    if (tableDataIsExisiting) {
       const latestCorelationTableEntry: ICorrelationTableEntry = sortedTableData[sortedTableData.length - 1];
 
       this.selectCorrelation(latestCorelationTableEntry);
@@ -90,15 +94,16 @@ export class CorrelationList {
     }
   }
 
-  private _convertCorrelationsIntoTableData(): void {
-    this._tableData =
-      this.processInstancesWithCorrelation.map((processInstanceWithCorrelation: IProcessInstanceWithCorrelation) => {
+  private convertCorrelationsIntoTableData(): void {
+    this.tableData = this.processInstancesWithCorrelation.map(
+      (processInstanceWithCorrelation: IProcessInstanceWithCorrelation) => {
         const correlation: DataModels.Correlations.Correlation = processInstanceWithCorrelation.correlation;
-        const processInstance: DataModels.Correlations.CorrelationProcessInstance = processInstanceWithCorrelation.processInstance;
+        const processInstance: DataModels.Correlations.CorrelationProcessInstance =
+          processInstanceWithCorrelation.processInstance;
 
         const formattedStartedDate: string = getBeautifiedDate(processInstanceWithCorrelation.correlation.createdAt);
 
-        const index: number = this._getIndexForProcessInstance(processInstance);
+        const index: number = this.getIndexForProcessInstance(processInstance);
         const state: string = correlation.state.toUpperCase();
 
         const tableEntry: ICorrelationTableEntry = {
@@ -111,15 +116,15 @@ export class CorrelationList {
         };
 
         return tableEntry;
-      });
+      },
+    );
   }
 
   public sortList(property: CorrelationListSortProperty): void {
     this.sortedTableData = [];
 
     const isSameSortPropertyAsBefore: boolean = this.sortSettings.sortProperty === property;
-    const ascending: boolean = isSameSortPropertyAsBefore ? !this.sortSettings.ascending
-                                                          : true;
+    const ascending: boolean = isSameSortPropertyAsBefore ? !this.sortSettings.ascending : true;
 
     this.sortSettings.ascending = ascending;
     this.sortSettings.sortProperty = property;
@@ -127,17 +132,15 @@ export class CorrelationList {
     const sortByDate: boolean = property === CorrelationListSortProperty.StartedAt;
 
     const sortedTableData: Array<ICorrelationTableEntry> = sortByDate
-                                                                ? this._sortListByStartDate()
-                                                                : this._sortList(property);
+      ? this.sortListByStartDate()
+      : this.sortListByProperty(property);
 
-    this.sortedTableData = ascending
-                            ? sortedTableData
-                            : sortedTableData.reverse();
+    this.sortedTableData = ascending ? sortedTableData : sortedTableData.reverse();
   }
 
-  private _sortList(property: CorrelationListSortProperty): Array<ICorrelationTableEntry> {
-    const sortedTableData: Array<ICorrelationTableEntry> =
-      this._tableData.sort((firstEntry: ICorrelationTableEntry, secondEntry: ICorrelationTableEntry) => {
+  private sortListByProperty(property: CorrelationListSortProperty): Array<ICorrelationTableEntry> {
+    const sortedTableData: Array<ICorrelationTableEntry> = this.tableData.sort(
+      (firstEntry: ICorrelationTableEntry, secondEntry: ICorrelationTableEntry) => {
         const firstEntryIsBigger: boolean = firstEntry[property] > secondEntry[property];
         if (firstEntryIsBigger) {
           return 1;
@@ -149,16 +152,17 @@ export class CorrelationList {
         }
 
         return 0;
-      });
+      },
+    );
 
     return sortedTableData;
   }
 
-  private _sortListByStartDate(): Array<ICorrelationTableEntry> {
-    const sortedTableData: Array<ICorrelationTableEntry> =
-      this._tableData.sort((firstEntry: ICorrelationTableEntry, secondEntry: ICorrelationTableEntry) => {
-        const firstCorrelation: DataModels.Correlations.Correlation = this._getCorrelationForTableEntry(firstEntry);
-        const secondCorrelation: DataModels.Correlations.Correlation = this._getCorrelationForTableEntry(secondEntry);
+  private sortListByStartDate(): Array<ICorrelationTableEntry> {
+    const sortedTableData: Array<ICorrelationTableEntry> = this.tableData.sort(
+      (firstEntry: ICorrelationTableEntry, secondEntry: ICorrelationTableEntry) => {
+        const firstCorrelation: DataModels.Correlations.Correlation = this.getCorrelationForTableEntry(firstEntry);
+        const secondCorrelation: DataModels.Correlations.Correlation = this.getCorrelationForTableEntry(secondEntry);
 
         const firstCorrelationDate: Date = new Date(firstCorrelation.createdAt);
         const secondCorrelationDate: Date = new Date(secondCorrelation.createdAt);
@@ -174,44 +178,54 @@ export class CorrelationList {
         }
 
         return 0;
-      });
+      },
+    );
 
     return sortedTableData;
   }
 
-  private _getCorrelationForTableEntry(tableEntry: ICorrelationTableEntry): DataModels.Correlations.Correlation {
-    const correlationForTableEntry: DataModels.Correlations.Correlation =
-      this.correlations.find((correlation: DataModels.Correlations.Correlation) => {
+  private getCorrelationForTableEntry(tableEntry: ICorrelationTableEntry): DataModels.Correlations.Correlation {
+    const correlationForTableEntry: DataModels.Correlations.Correlation = this.correlations.find(
+      (correlation: DataModels.Correlations.Correlation) => {
         return correlation.id === tableEntry.correlationId;
-      });
+      },
+    );
 
     return correlationForTableEntry;
   }
 
-  private _getProcessModelForTableEntry(tableEntry: ICorrelationTableEntry): DataModels.Correlations.CorrelationProcessInstance {
-    const correlationForTableEntry: DataModels.Correlations.Correlation =
-      this.correlations.find((correlation: DataModels.Correlations.Correlation) => {
+  private getProcessModelForTableEntry(
+    tableEntry: ICorrelationTableEntry,
+  ): DataModels.Correlations.CorrelationProcessInstance {
+    const correlationForTableEntry: DataModels.Correlations.Correlation = this.correlations.find(
+      (correlation: DataModels.Correlations.Correlation) => {
         return correlation.id === tableEntry.correlationId;
-      });
+      },
+    );
 
-    const processModelForTableEntry: DataModels.Correlations.CorrelationProcessInstance =
-      correlationForTableEntry.processInstances.find((processModel: DataModels.Correlations.CorrelationProcessInstance) => {
+    const processModelForTableEntry: DataModels.Correlations.CorrelationProcessInstance = correlationForTableEntry.processInstances.find(
+      (processModel: DataModels.Correlations.CorrelationProcessInstance) => {
         return processModel.processInstanceId === tableEntry.processInstanceId;
-      });
+      },
+    );
 
     return processModelForTableEntry;
   }
 
-  private _getIndexForProcessInstance(processInstance: DataModels.Correlations.CorrelationProcessInstance): number {
+  private getIndexForProcessInstance(processInstance: DataModels.Correlations.CorrelationProcessInstance): number {
     const processInstanceStartTime: Date = new Date(processInstance.createdAt);
 
-    const earlierStartedProcessInstances: Array<IProcessInstanceWithCorrelation> =
-      this.processInstancesWithCorrelation.filter((processInstanceWithCorrelation: IProcessInstanceWithCorrelation) => {
-        const processInstanceEntry: DataModels.Correlations.CorrelationProcessInstance = processInstanceWithCorrelation.processInstance;
+    const earlierStartedProcessInstances: Array<
+      IProcessInstanceWithCorrelation
+    > = this.processInstancesWithCorrelation.filter(
+      (processInstanceWithCorrelation: IProcessInstanceWithCorrelation) => {
+        const processInstanceEntry: DataModels.Correlations.CorrelationProcessInstance =
+          processInstanceWithCorrelation.processInstance;
         const entryStartedDate: Date = new Date(processInstanceEntry.createdAt);
 
         return entryStartedDate.getTime() < processInstanceStartTime.getTime();
-      });
+      },
+    );
 
     const amountOfEarlierStartedProcessInstances: number = earlierStartedProcessInstances.length;
     const index: number = amountOfEarlierStartedProcessInstances + 1;

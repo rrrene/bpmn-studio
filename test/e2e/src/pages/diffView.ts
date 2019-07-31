@@ -1,4 +1,4 @@
-import {browser, by, element, ElementArrayFinder, ElementFinder, ExpectedConditions} from 'protractor';
+import {ElementArrayFinder, ElementFinder, ExpectedConditions, browser, by, element} from 'protractor';
 
 import {By} from 'selenium-webdriver';
 
@@ -11,7 +11,6 @@ const cancelButtonId: string = 'js-cancel-diagram-selection';
 const diffIdentifierId: string = 'js-diff-identifier';
 
 export class DiffView {
-
   public url: string;
   public urlWithoutQueryParams: string;
 
@@ -23,69 +22,69 @@ export class DiffView {
   public async show(): Promise<void> {
     await browser.get(this.url);
 
-    await browser.wait(ExpectedConditions.visibilityOf(this._diffViewContainer), browser.params.defaultTimeoutMS);
+    await browser.wait(ExpectedConditions.visibilityOf(this.diffViewContainer), browser.params.defaultTimeoutMS);
   }
 
   public async getVisibilityOfDiffViewContainer(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._diffViewContainer);
+    await this.waitForVisbilityOfElement(this.diffViewContainer);
 
-    return this._diffViewContainer.isDisplayed();
+    return this.diffViewContainer.isDisplayed();
   }
 
   public async getVisibilityOfDiffAgainstOtherDiagramButton(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._diffAgainstOtherDiagramButton);
+    await this.waitForVisbilityOfElement(this.diffAgainstOtherDiagramButton);
 
-    return this._diffAgainstOtherDiagramButton.isDisplayed();
+    return this.diffAgainstOtherDiagramButton.isDisplayed();
   }
 
   public clickOnDiffAgainstOtherDiagramButton(): void {
-    this._diffAgainstOtherDiagramButton.click();
+    this.diffAgainstOtherDiagramButton.click();
   }
 
   public clickOnModalCancelButton(): void {
-    this._cancelButton.click();
+    this.cancelButton.click();
   }
 
   public clickOnModalCompareButton(): void {
-    this._compareButton.click();
+    this.compareButton.click();
   }
 
   public async getDiffIdentifierText(): Promise<string> {
-    await this._waitForVisbilityOfElement(this._diffIdentifier);
-    const identifierString: string = await this._diffIdentifier.getText();
+    await this.waitForVisbilityOfElement(this.diffIdentifier);
+    const identifierString: string = await this.diffIdentifier.getText();
 
     return identifierString;
   }
 
   public async getVisibilityOfChooseDiagramModal(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._chooseDiagramModal);
+    await this.waitForVisbilityOfElement(this.chooseDiagramModal);
 
-    return this._chooseDiagramModal.isDisplayed();
+    return this.chooseDiagramModal.isDisplayed();
   }
 
   public async getVisibilityOfDiagramDropdown(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._diagramDropdown);
+    await this.waitForVisbilityOfElement(this.diagramDropdown);
 
-    return this._diagramDropdown.isDisplayed();
+    return this.diagramDropdown.isDisplayed();
   }
 
   public async getVisibilityOfCompareButton(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._compareButton);
+    await this.waitForVisbilityOfElement(this.compareButton);
 
-    return this._compareButton.isDisplayed();
+    return this.compareButton.isDisplayed();
   }
 
   public async getVisibilityOfCancelButton(): Promise<boolean> {
-    await this._waitForVisbilityOfElement(this._cancelButton);
+    await this.waitForVisbilityOfElement(this.cancelButton);
 
-    return this._cancelButton.isDisplayed();
+    return this.cancelButton.isDisplayed();
   }
 
   public async getDropdownOptions(): Promise<Array<ElementFinder>> {
-    await browser.wait(ExpectedConditions.visibilityOf(this._diagramDropdown), browser.params.defaultTimeoutMS);
-    await this._diagramDropdown.click();
+    await browser.wait(ExpectedConditions.visibilityOf(this.diagramDropdown), browser.params.defaultTimeoutMS);
+    await this.diagramDropdown.click();
 
-    const elements: ElementArrayFinder = this._diagramDropdown.all(by.tagName('option'));
+    const elements: ElementArrayFinder = this.diagramDropdown.all(by.tagName('option'));
     const options: Array<ElementFinder> = [];
 
     await elements.each((elementFinder: ElementFinder) => {
@@ -95,49 +94,49 @@ export class DiffView {
     return options;
   }
 
-  private get _diffViewContainer(): ElementFinder {
+  private get diffViewContainer(): ElementFinder {
     const diffViewContainerById: By = by.id(diffViewContainerId);
 
     return element(diffViewContainerById);
   }
 
-  private get _diffAgainstOtherDiagramButton(): ElementFinder {
+  private get diffAgainstOtherDiagramButton(): ElementFinder {
     const diffAgainstOtherDiagramButtonById: By = by.id(diffAgainstOtherDiagramButtonId);
 
     return element(diffAgainstOtherDiagramButtonById);
   }
 
-  private get _chooseDiagramModal(): ElementFinder {
+  private get chooseDiagramModal(): ElementFinder {
     const chooseDiagramModalById: By = by.id(chooseDiagramModalId);
 
     return element(chooseDiagramModalById);
   }
 
-  private get _diagramDropdown(): ElementFinder {
+  private get diagramDropdown(): ElementFinder {
     const diagramDropdownById: By = by.id(diagramDropdownId);
 
     return element(diagramDropdownById);
   }
 
-  private get _cancelButton(): ElementFinder {
+  private get cancelButton(): ElementFinder {
     const cancelButtonById: By = by.id(cancelButtonId);
 
     return element(cancelButtonById);
   }
 
-  private get _compareButton(): ElementFinder {
+  private get compareButton(): ElementFinder {
     const compareButtonById: By = by.id(compareButtonId);
 
     return element(compareButtonById);
   }
 
-  private get _diffIdentifier(): ElementFinder {
+  private get diffIdentifier(): ElementFinder {
     const diffIdentifierById: By = by.id(diffIdentifierId);
 
     return element(diffIdentifierById);
   }
 
-  private async _waitForVisbilityOfElement(finder: ElementFinder): Promise<void> {
+  private async waitForVisbilityOfElement(finder: ElementFinder): Promise<void> {
     const finderVisibility: Function = ExpectedConditions.visibilityOf(finder);
 
     await browser.wait(finderVisibility, browser.params.defaultTimeoutMS).catch(() => {

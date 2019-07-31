@@ -4,7 +4,7 @@ import {HttpClient} from 'protractor-http-client';
 import {IRequestHeaders, IRequestPayload} from '../contracts/index';
 
 export class PropertyPanelTestDiagram {
-  public name: string =  'PPTest';
+  public name: string = 'PPTest';
 
   public collaborationId: string = 'PPTest_Collaboration';
   public participantId: string = 'PPTest_Participant';
@@ -28,9 +28,9 @@ export class PropertyPanelTestDiagram {
   public messageStartEventId: string = 'PPTest_StartEvent_Message';
 
   // Define Instances
-  private _processEngineUrl: string = browser.params.processEngineUrl;
-  private _http: HttpClient = new HttpClient(this._processEngineUrl);
-  private _processEngineActionTimeout: number = browser.params.processEngineActionTimeout;
+  private processEngineUrl: string = browser.params.processEngineUrl;
+  private http: HttpClient = new HttpClient(this.processEngineUrl);
+  private processEngineActionTimeout: number = browser.params.processEngineActionTimeout;
 
   public async deployDiagram(): Promise<void> {
     const requestDestination: string = `/api/management/v1/process_models/${this.name}/update`;
@@ -319,21 +319,21 @@ export class PropertyPanelTestDiagram {
       </bpmn:definitions>`,
     };
 
-    const requestHeaders: IRequestHeaders = this._getRequestHeaders();
+    const requestHeaders: IRequestHeaders = this.getRequestHeaders();
 
-    await this._http.post(requestDestination, requestPayload, requestHeaders);
+    await this.http.post(requestDestination, requestPayload, requestHeaders);
 
-    await browser.sleep(this._processEngineActionTimeout);
+    await browser.sleep(this.processEngineActionTimeout);
   }
 
   public async deleteDiagram(): Promise<void> {
     const requestDestination: string = `/api/management/v1/process_models/${this.name}/delete`;
-    const requestHeaders: IRequestHeaders = this._getRequestHeaders();
+    const requestHeaders: IRequestHeaders = this.getRequestHeaders();
 
-    await this._http.get(requestDestination, requestHeaders);
+    await this.http.get(requestDestination, requestHeaders);
   }
 
-  private _getRequestHeaders(): IRequestHeaders {
+  private getRequestHeaders(): IRequestHeaders {
     const requestHeaders: IRequestHeaders = {
       authorization: 'Bearer ZHVtbXlfdG9rZW4=',
     };

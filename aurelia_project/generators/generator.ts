@@ -1,28 +1,31 @@
 import {inject} from 'aurelia-dependency-injection';
-import {Project, ProjectItem, CLIOptions, UI} from 'aurelia-cli';
+import {CLIOptions, Project, ProjectItem, UI} from 'aurelia-cli';
 
 @inject(Project, CLIOptions, UI)
 export default class GeneratorGenerator {
-  constructor(private project: Project, private options: CLIOptions, private ui: UI) { }
+  private project: Project;
+  private options: CLIOptions;
+  private ui: UI;
 
-  execute() {
-    return this.ui
-      .ensureAnswer(this.options.args[0], 'What would you like to call the generator?')
-      .then(name => {
-        let fileName = this.project.makeFileName(name);
-        let className = this.project.makeClassName(name);
-
-        this.project.generators.add(
-          ProjectItem.text(`${fileName}.ts`, this.generateSource(className))
-        );
-
-        return this.project.commitChanges()
-          .then(() => this.ui.log(`Created ${fileName}.`));
-      });
+  constructor(project: Project, options: CLIOptions, ui: UI) {
+    this.project = project;
+    this.options = options;
+    this.ui = ui;
   }
 
-  generateSource(className) {
-return `import {autoinject} from 'aurelia-dependency-injection';
+  public execute(): any {
+    return this.ui.ensureAnswer(this.options.args[0], 'What would you like to call the generator?').then((name) => {
+      const fileName = this.project.makeFileName(name);
+      const className = this.project.makeClassName(name);
+
+      this.project.generators.add(ProjectItem.text(`${fileName}.ts`, this.generateSource(className)));
+
+      return this.project.commitChanges().then(() => this.ui.log(`Created ${fileName}.`));
+    });
+  }
+
+  public generateSource(className): any {
+    return `import {autoinject} from 'aurelia-dependency-injection';
 import {Project, ProjectItem, CLIOptions, UI} from 'aurelia-cli';
 
 @autoinject()
@@ -60,6 +63,6 @@ export class \${className} {
   }
 }
 
-`
+`;
   }
 }

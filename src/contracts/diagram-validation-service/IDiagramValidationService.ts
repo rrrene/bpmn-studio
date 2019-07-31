@@ -1,7 +1,6 @@
 import {IDiagramValidator} from './index';
 
 export interface IDiagramValidationService {
-
   /**
    * Starts the validation of a XML string.
    *

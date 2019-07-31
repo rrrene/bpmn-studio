@@ -1,4 +1,5 @@
-export type EventName = 'attach'
+export type EventName =
+  | 'attach'
   | 'autoPlace'
   | 'autoPlace.end'
   | 'bendpoint.move.cancel'
@@ -230,23 +231,11 @@ export type EventName = 'attach'
 type EventNameType = string | EventName;
 
 export interface IEventBus {
-  on(events: Array<EventNameType> | EventNameType,
-     priority: number,
-     callback: Function,
-     callbackScope?: any): void;
-  on(events: Array<string> | string,
-     callback: Function,
-     callbackScope?: any): void;
+  on(events: Array<EventNameType> | EventNameType, priority: number, callback: Function, callbackScope?: any): void;
+  on(events: Array<string> | string, callback: Function, callbackScope?: any): void;
 
-  once(events: Array<EventNameType> | EventNameType,
-       priority: number,
-       callback: Function,
-       callbackScope: any): void;
-  once(events: Array<EventNameType> | EventNameType,
-       callback: Function,
-       callbackScope: any): void;
-  off(event: EventNameType,
-      callback?: Function): void;
-  fire(nameOrType: EventNameType | {type: EventNameType},
-       data?: any): any;
+  once(events: Array<EventNameType> | EventNameType, priority: number, callback: Function, callbackScope: any): void;
+  once(events: Array<EventNameType> | EventNameType, callback: Function, callbackScope: any): void;
+  off(event: EventNameType, callback?: Function): void;
+  fire(nameOrType: EventNameType | {type: EventNameType}, data?: any): any;
 }

@@ -7,7 +7,6 @@ import {RouterView} from './pages/routerView';
 import {TaskList} from './pages/taskList';
 
 describe('Process List', () => {
-
   let processList: ProcessList;
   let diagram: DiagramWithUserTask;
   let routerView: RouterView;
@@ -16,7 +15,7 @@ describe('Process List', () => {
 
   const applicationUrl: string = browser.params.aureliaUrl;
 
-  beforeAll(async() => {
+  beforeAll(async () => {
     processList = new ProcessList(applicationUrl);
     diagram = new DiagramWithUserTask();
     routerView = new RouterView();
@@ -28,11 +27,11 @@ describe('Process List', () => {
     taskList = new TaskList(applicationUrl, diagram.processInstanceId);
   });
 
-  afterAll(async() => {
+  afterAll(async () => {
     await diagram.deleteDiagram();
   });
 
-  it('should show the started process.', async() => {
+  it('should show the started process.', async () => {
     await routerView.show();
     await processList.show();
 
@@ -54,7 +53,7 @@ describe('Process List', () => {
   //   expect(visibilityOfDiagramDetail).toBeTruthy();
   // });
 
-  it('should navigate to the `task list`, after clicking on the corresponding link in the table.', async() => {
+  it('should navigate to the `task list`, after clicking on the corresponding link in the table.', async () => {
     await routerView.show();
     await processList.show();
 
@@ -66,5 +65,4 @@ describe('Process List', () => {
     const visibilityOfTaskListContainer: boolean = await taskList.getVisibilityOfTaskListContainer();
     expect(visibilityOfTaskListContainer).toBeTruthy();
   });
-
 });

@@ -5,149 +5,188 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 import {IModdleElement, IShape} from '@process-engine/bpmn-elements_contracts';
 import * as bundle from '@process-engine/bpmn-js-custom-bundle';
 import {DataModels} from '@process-engine/management_api_contracts';
-import {CorrelationProcessInstance} from '@process-engine/management_api_contracts/dist/data_models/correlation';
-import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_models/kpi';
-import {TokenHistoryEntry} from '@process-engine/management_api_contracts/dist/data_models/token_history';
 
-import {defaultBpmnColors, IBpmnModeler, IBpmnXmlSaveOptions, IColorPickerColor, IElementRegistry, IModeling} from '../../../contracts/index';
-import {ILiveExecutionTrackerRepository, ILiveExecutionTrackerService, RequestError} from '../contracts/index';
+import {
+  IBpmnModeler,
+  IBpmnXmlSaveOptions,
+  IColorPickerColor,
+  IElementRegistry,
+  IModeling,
+  defaultBpmnColors,
+} from '../../../contracts/index';
+import {ILiveExecutionTrackerRepository, ILiveExecutionTrackerService} from '../contracts/index';
 
 @inject('LiveExecutionTrackerRepository')
 export class LiveExecutionTrackerService implements ILiveExecutionTrackerService {
-  private _liveExecutionTrackerRepository: ILiveExecutionTrackerRepository;
+  private liveExecutionTrackerRepository: ILiveExecutionTrackerRepository;
 
-  private _diagramModeler: IBpmnModeler;
-  private _modeling: IModeling;
-  private _elementRegistry: IElementRegistry;
+  private diagramModeler: IBpmnModeler;
+  private modeling: IModeling;
+  private elementRegistry: IElementRegistry;
 
   constructor(liveExecutionTrackerRepository: ILiveExecutionTrackerRepository) {
-    this._liveExecutionTrackerRepository = liveExecutionTrackerRepository;
+    this.liveExecutionTrackerRepository = liveExecutionTrackerRepository;
 
-    this._diagramModeler = new bundle.modeler();
-    this._modeling = this._diagramModeler.get('modeling');
-    this._elementRegistry = this._diagramModeler.get('elementRegistry');
+    // eslint-disable-next-line 6river/new-cap
+    this.diagramModeler = new bundle.modeler();
+    this.modeling = this.diagramModeler.get('modeling');
+    this.elementRegistry = this.diagramModeler.get('elementRegistry');
   }
 
   public setIdentity(identity: IIdentity): void {
-    this._liveExecutionTrackerRepository.setIdentity(identity);
+    this.liveExecutionTrackerRepository.setIdentity(identity);
   }
 
   public isProcessInstanceActive(processInstanceId: string): Promise<boolean> {
-    return this._liveExecutionTrackerRepository.isProcessInstanceActive(processInstanceId);
+    return this.liveExecutionTrackerRepository.isProcessInstanceActive(processInstanceId);
   }
 
   public getCorrelationById(correlationId: string): Promise<DataModels.Correlations.Correlation> {
-    return this._liveExecutionTrackerRepository.getCorrelationById(correlationId);
+    return this.liveExecutionTrackerRepository.getCorrelationById(correlationId);
   }
 
-  public getTokenHistoryGroupForProcessInstance(processInstanceId: string): Promise<DataModels.TokenHistory.TokenHistoryGroup | null> {
-    return this._liveExecutionTrackerRepository.getTokenHistoryGroupForProcessInstance(processInstanceId);
+  public getTokenHistoryGroupForProcessInstance(
+    processInstanceId: string,
+  ): Promise<DataModels.TokenHistory.TokenHistoryGroup | null> {
+    return this.liveExecutionTrackerRepository.getTokenHistoryGroupForProcessInstance(processInstanceId);
   }
 
   public getActiveTokensForProcessInstance(processInstanceId: string): Promise<Array<DataModels.Kpi.ActiveToken>> {
-    return this._liveExecutionTrackerRepository.getActiveTokensForProcessInstance(processInstanceId);
+    return this.liveExecutionTrackerRepository.getActiveTokensForProcessInstance(processInstanceId);
   }
 
-  public getEmptyActivitiesForProcessInstance(processInstanceId: string): Promise<DataModels.EmptyActivities.EmptyActivityList | null> {
-    return this._liveExecutionTrackerRepository.getEmptyActivitiesForProcessInstance(processInstanceId);
+  public getEmptyActivitiesForProcessInstance(
+    processInstanceId: string,
+  ): Promise<DataModels.EmptyActivities.EmptyActivityList | null> {
+    return this.liveExecutionTrackerRepository.getEmptyActivitiesForProcessInstance(processInstanceId);
   }
 
   public getProcessModelById(processModelId: string): Promise<DataModels.ProcessModels.ProcessModel> {
-    return this._liveExecutionTrackerRepository.getProcessModelById(processModelId);
+    return this.liveExecutionTrackerRepository.getProcessModelById(processModelId);
   }
 
-  public finishEmptyActivity(processInstanceId: string,
-                             correlationId: string,
-                             emptyActivity: DataModels.EmptyActivities.EmptyActivity): Promise<void> {
-
-    return this._liveExecutionTrackerRepository.finishEmptyActivity(processInstanceId, correlationId, emptyActivity);
+  public finishEmptyActivity(
+    processInstanceId: string,
+    correlationId: string,
+    emptyActivity: DataModels.EmptyActivities.EmptyActivity,
+  ): Promise<void> {
+    return this.liveExecutionTrackerRepository.finishEmptyActivity(processInstanceId, correlationId, emptyActivity);
   }
 
   public createProcessEndedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createProcessEndedEventListener(processInstanceId, callback);
+    return this.liveExecutionTrackerRepository.createProcessEndedEventListener(processInstanceId, callback);
   }
 
   public createProcessTerminatedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createProcessTerminatedEventListener(processInstanceId, callback);
+    return this.liveExecutionTrackerRepository.createProcessTerminatedEventListener(processInstanceId, callback);
   }
 
   public createUserTaskWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createUserTaskWaitingEventListener(processInstanceId, callback);
+    return this.liveExecutionTrackerRepository.createUserTaskWaitingEventListener(processInstanceId, callback);
   }
 
   public createUserTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createUserTaskFinishedEventListener(processInstanceId, callback);
+    return this.liveExecutionTrackerRepository.createUserTaskFinishedEventListener(processInstanceId, callback);
   }
 
   public createManualTaskWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createManualTaskWaitingEventListener(processInstanceId, callback);
+    return this.liveExecutionTrackerRepository.createManualTaskWaitingEventListener(processInstanceId, callback);
   }
 
   public createManualTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createManualTaskFinishedEventListener(processInstanceId, callback);
+    return this.liveExecutionTrackerRepository.createManualTaskFinishedEventListener(processInstanceId, callback);
   }
 
   public createEmptyActivityWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createEmptyActivityWaitingEventListener(processInstanceId, callback);
+    return this.liveExecutionTrackerRepository.createEmptyActivityWaitingEventListener(processInstanceId, callback);
   }
 
-  public createEmptyActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createEmptyActivityFinishedEventListener(processInstanceId, callback);
+  public createEmptyActivityFinishedEventListener(
+    processInstanceId: string,
+    callback: Function,
+  ): Promise<Subscription> {
+    return this.liveExecutionTrackerRepository.createEmptyActivityFinishedEventListener(processInstanceId, callback);
   }
 
   public createActivityReachedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createActivityReachedEventListener(processInstanceId, callback);
+    return this.liveExecutionTrackerRepository.createActivityReachedEventListener(processInstanceId, callback);
   }
 
   public createActivityFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createActivityFinishedEventListener(processInstanceId, callback);
+    return this.liveExecutionTrackerRepository.createActivityFinishedEventListener(processInstanceId, callback);
   }
 
-  public createBoundaryEventTriggeredEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createBoundaryEventTriggeredEventListener(processInstanceId, callback);
+  public createBoundaryEventTriggeredEventListener(
+    processInstanceId: string,
+    callback: Function,
+  ): Promise<Subscription> {
+    return this.liveExecutionTrackerRepository.createBoundaryEventTriggeredEventListener(processInstanceId, callback);
   }
 
-  public createIntermediateThrowEventTriggeredEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createIntermediateThrowEventTriggeredEventListener(processInstanceId, callback);
+  public createIntermediateThrowEventTriggeredEventListener(
+    processInstanceId: string,
+    callback: Function,
+  ): Promise<Subscription> {
+    return this.liveExecutionTrackerRepository.createIntermediateThrowEventTriggeredEventListener(
+      processInstanceId,
+      callback,
+    );
   }
 
-  public createIntermediateCatchEventReachedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createIntermediateCatchEventReachedEventListener(processInstanceId, callback);
+  public createIntermediateCatchEventReachedEventListener(
+    processInstanceId: string,
+    callback: Function,
+  ): Promise<Subscription> {
+    return this.liveExecutionTrackerRepository.createIntermediateCatchEventReachedEventListener(
+      processInstanceId,
+      callback,
+    );
   }
 
-  public createIntermediateCatchEventFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription> {
-    return this._liveExecutionTrackerRepository.createIntermediateCatchEventFinishedEventListener(processInstanceId, callback);
+  public createIntermediateCatchEventFinishedEventListener(
+    processInstanceId: string,
+    callback: Function,
+  ): Promise<Subscription> {
+    return this.liveExecutionTrackerRepository.createIntermediateCatchEventFinishedEventListener(
+      processInstanceId,
+      callback,
+    );
   }
 
   public removeSubscription(subscription: Subscription): Promise<void> {
-    return this._liveExecutionTrackerRepository.removeSubscription(subscription);
+    return this.liveExecutionTrackerRepository.removeSubscription(subscription);
   }
 
   public async getElementsWithActiveToken(processInstanceId: string): Promise<Array<IShape> | null> {
     const elements: Array<IShape> = this.getAllElementsThatCanHaveAToken();
 
-    const activeTokens: Array<ActiveToken> | null = await this.getActiveTokensForProcessInstance(processInstanceId);
+    const activeTokens: Array<DataModels.Kpi.ActiveToken> | null = await this.getActiveTokensForProcessInstance(
+      processInstanceId,
+    );
     const couldNotGetActiveTokens: boolean = activeTokens === null;
     if (couldNotGetActiveTokens) {
       return null;
     }
 
-    const elementsWithActiveToken: Array<IShape> = activeTokens.map((activeToken: ActiveToken): IShape => {
-      const elementWithActiveToken: IShape = elements.find((element: IShape) => {
-        return element.id === activeToken.flowNodeId;
-      });
+    const elementsWithActiveToken: Array<IShape> = activeTokens.map(
+      (activeToken: DataModels.Kpi.ActiveToken): IShape => {
+        const elementWithActiveToken: IShape = elements.find((element: IShape) => {
+          return element.id === activeToken.flowNodeId;
+        });
 
-      return elementWithActiveToken;
-    });
+        return elementWithActiveToken;
+      },
+    );
 
     return elementsWithActiveToken;
   }
 
   public async getElementsWithTokenHistory(processInstanceId: string): Promise<Array<IShape>> {
-
     const elements: Array<IShape> = this.getAllElementsThatCanHaveAToken();
 
-    const tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup = await this.getTokenHistoryGroupForProcessInstance(processInstanceId);
+    const tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup = await this.getTokenHistoryGroupForProcessInstance(
+      processInstanceId,
+    );
 
     const couldNotGetTokenHistory: boolean = tokenHistoryGroups === null;
     if (couldNotGetTokenHistory) {
@@ -156,19 +195,25 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
     const elementsWithTokenHistory: Array<IShape> = [];
 
-    for (const flowNodeId in tokenHistoryGroups) {
+    const flowNodeIds: Array<string> = Object.keys(tokenHistoryGroups);
+
+    for (const flowNodeId of flowNodeIds) {
       const elementFromTokenHistory: IShape = elements.find((element: IShape) => {
         return element.id === flowNodeId;
       });
 
-      const elementFinished: boolean = tokenHistoryGroups[flowNodeId].find((tokenHistoryEntry: TokenHistoryEntry) => {
-        return tokenHistoryEntry.tokenEventType === DataModels.TokenHistory.TokenEventType.onExit;
-      }) !== undefined;
+      const elementFinished: boolean =
+        tokenHistoryGroups[flowNodeId].find((tokenHistoryEntry: DataModels.TokenHistory.TokenHistoryEntry) => {
+          return tokenHistoryEntry.tokenEventType === DataModels.TokenHistory.TokenEventType.onExit;
+        }) !== undefined;
 
       if (elementFinished) {
         elementsWithTokenHistory.push(elementFromTokenHistory);
 
-        const outgoingElements: Array<IShape> = this.getOutgoingElementsOfElement(elementFromTokenHistory, tokenHistoryGroups);
+        const outgoingElements: Array<IShape> = this.getOutgoingElementsOfElement(
+          elementFromTokenHistory,
+          tokenHistoryGroups,
+        );
 
         elementsWithTokenHistory.push(...outgoingElements);
       }
@@ -178,12 +223,13 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   }
 
   public getAllElementsThatCanHaveAToken(): Array<IShape> {
-    const allElementsThatCanHaveAToken: Array<IShape> = this._elementRegistry.filter((element: IShape): boolean => {
-      const elementCanHaveAToken: boolean = element.type !== 'bpmn:SequenceFlow'
-                                         && element.type !== 'bpmn:Collaboration'
-                                         && element.type !== 'bpmn:Participant'
-                                         && element.type !== 'bpmn:Lane'
-                                         && element.type !== 'label';
+    const allElementsThatCanHaveAToken: Array<IShape> = this.elementRegistry.filter((element: IShape): boolean => {
+      const elementCanHaveAToken: boolean =
+        element.type !== 'bpmn:SequenceFlow' &&
+        element.type !== 'bpmn:Collaboration' &&
+        element.type !== 'bpmn:Participant' &&
+        element.type !== 'bpmn:Lane' &&
+        element.type !== 'label';
 
       return elementCanHaveAToken;
     });
@@ -191,8 +237,10 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return allElementsThatCanHaveAToken;
   }
 
-  public getOutgoingElementsOfElement(element: IShape, tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup): Array<IShape> {
-
+  public getOutgoingElementsOfElement(
+    element: IShape,
+    tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup,
+  ): Array<IShape> {
     const outgoingElementsAsIModdleElement: Array<IModdleElement> = element.businessObject.outgoing;
 
     const elementHasNoOutgoingElements: boolean = outgoingElementsAsIModdleElement === undefined;
@@ -203,7 +251,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     const elementsWithOutgoingElements: Array<IShape> = [];
 
     for (const outgoingElement of outgoingElementsAsIModdleElement) {
-      const outgoingElementAsShape: IShape = this._elementRegistry.get(outgoingElement.id);
+      const outgoingElementAsShape: IShape = this.elementRegistry.get(outgoingElement.id);
       const targetOfOutgoingElement: IShape = outgoingElementAsShape.target;
 
       const outgoingElementHasNoTarget: boolean = targetOfOutgoingElement === undefined;
@@ -212,7 +260,10 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
         continue;
       }
 
-      const targetOfOutgoingElementHasNoTokenHistory: boolean = !this.elementHasTokenHistory(targetOfOutgoingElement.id, tokenHistoryGroups);
+      const targetOfOutgoingElementHasNoTokenHistory: boolean = !this.elementHasTokenHistory(
+        targetOfOutgoingElement.id,
+        tokenHistoryGroups,
+      );
 
       if (targetOfOutgoingElementHasNoTokenHistory) {
         continue;
@@ -220,17 +271,18 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
 
       const outgoingElementIsSequenceFlow: boolean = outgoingElementAsShape.type === 'bpmn:SequenceFlow';
       if (outgoingElementIsSequenceFlow) {
-        const tokenHistoryForTarget: TokenHistoryEntry = tokenHistoryGroups[targetOfOutgoingElement.id][0];
+        const tokenHistoryForTarget: DataModels.TokenHistory.TokenHistoryEntry =
+          tokenHistoryGroups[targetOfOutgoingElement.id][0];
         const previousFlowNodeInstanceIdOfTarget: string = tokenHistoryForTarget.previousFlowNodeInstanceId;
 
-        const tokenHistoryForElement: TokenHistoryEntry = tokenHistoryGroups[element.id][0];
+        const tokenHistoryForElement: DataModels.TokenHistory.TokenHistoryEntry = tokenHistoryGroups[element.id][0];
         const flowNodeInstanceIdOfElement: string = tokenHistoryForElement.flowNodeInstanceId;
 
         // This is needed because the ParallelGateway only knows the flowNodeId of the first element that reaches the ParallelGateway
         const targetOfOutgoingElementIsGateway: boolean = targetOfOutgoingElement.type === 'bpmn:ParallelGateway';
         const sequenceFlowWasExecuted: boolean = previousFlowNodeInstanceIdOfTarget === flowNodeInstanceIdOfElement;
 
-        const outgoingElementWasUsed: boolean  = sequenceFlowWasExecuted || targetOfOutgoingElementIsGateway;
+        const outgoingElementWasUsed: boolean = sequenceFlowWasExecuted || targetOfOutgoingElementIsGateway;
         if (outgoingElementWasUsed) {
           elementsWithOutgoingElements.push(outgoingElementAsShape);
         }
@@ -244,24 +296,29 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return elementsWithOutgoingElements;
   }
 
-  public elementHasTokenHistory(elementId: string, tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup): boolean {
+  public elementHasTokenHistory(
+    elementId: string,
+    tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup,
+  ): boolean {
     const tokenHistoryFromFlowNodeInstanceFound: boolean = tokenHistoryGroups[elementId] !== undefined;
 
     return tokenHistoryFromFlowNodeInstanceFound;
   }
 
-  public elementHasActiveToken(elementId: string, activeTokens: Array<ActiveToken>): boolean {
-    const activeTokenForFlowNodeInstance: ActiveToken = activeTokens.find((activeToken: ActiveToken) => {
-      const activeTokenIsFromFlowNodeInstance: boolean = activeToken.flowNodeId === elementId;
+  public elementHasActiveToken(elementId: string, activeTokens: Array<DataModels.Kpi.ActiveToken>): boolean {
+    const activeTokenForFlowNodeInstance: DataModels.Kpi.ActiveToken = activeTokens.find(
+      (activeToken: DataModels.Kpi.ActiveToken) => {
+        const activeTokenIsFromFlowNodeInstance: boolean = activeToken.flowNodeId === elementId;
 
-      return activeTokenIsFromFlowNodeInstance;
-    });
+        return activeTokenIsFromFlowNodeInstance;
+      },
+    );
 
     return activeTokenForFlowNodeInstance !== undefined;
   }
 
   public getCallActivities(): Array<IShape> {
-    const callActivities: Array<IShape> = this._elementRegistry.filter((element: IShape): boolean => {
+    const callActivities: Array<IShape> = this.elementRegistry.filter((element: IShape): boolean => {
       return element.type === 'bpmn:CallActivity';
     });
 
@@ -269,7 +326,9 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   }
 
   public async getActiveCallActivities(processInstanceId: string): Promise<Array<IShape>> {
-    const activeTokens: Array<ActiveToken> = await this._liveExecutionTrackerRepository.getActiveTokensForProcessInstance(processInstanceId);
+    const activeTokens: Array<
+      DataModels.Kpi.ActiveToken
+    > = await this.liveExecutionTrackerRepository.getActiveTokensForProcessInstance(processInstanceId);
 
     const callActivities: Array<IShape> = this.getCallActivities();
 
@@ -281,7 +340,9 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   }
 
   public async getInactiveCallActivities(processInstanceId: string): Promise<Array<IShape>> {
-    const activeTokens: Array<ActiveToken> = await this._liveExecutionTrackerRepository.getActiveTokensForProcessInstance(processInstanceId);
+    const activeTokens: Array<
+      DataModels.Kpi.ActiveToken
+    > = await this.liveExecutionTrackerRepository.getActiveTokensForProcessInstance(processInstanceId);
 
     const callActivities: Array<IShape> = this.getCallActivities();
 
@@ -292,34 +353,10 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
     return inactiveCallActivities;
   }
 
-  public async getProcessModelByProcessInstanceId(correlationId: string,
-                                                  processInstanceId: string): Promise<DataModels.Correlations.CorrelationProcessInstance> {
-
-    const correlation: DataModels.Correlations.Correlation = await  this.getCorrelationById(correlationId);
-
-    const errorGettingCorrelation: boolean = correlation === undefined;
-    if (errorGettingCorrelation) {
-      return undefined;
-    }
-
-    const processModel: DataModels.Correlations.CorrelationProcessInstance =
-      correlation.processInstances.find((correlationProcessInstance: DataModels.Correlations.CorrelationProcessInstance): boolean => {
-        const processModelFound: boolean = correlationProcessInstance.processInstanceId === processInstanceId;
-
-        return processModelFound;
-      });
-
-    return processModel;
-  }
-
-  public getElementById(elementId: string): IShape {
-    return this._elementRegistry.get(elementId);
-  }
-
-  public async getProcessInstanceIdOfCallActivityTarget(correlationId: string,
-                                                        processInstanceIdOfOrigin: string,
-                                                        callActivityTargetId: string): Promise<string> {
-
+  public async getProcessModelByProcessInstanceId(
+    correlationId: string,
+    processInstanceId: string,
+  ): Promise<DataModels.Correlations.CorrelationProcessInstance> {
     const correlation: DataModels.Correlations.Correlation = await this.getCorrelationById(correlationId);
 
     const errorGettingCorrelation: boolean = correlation === undefined;
@@ -327,20 +364,49 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
       return undefined;
     }
 
-    const {processInstanceId} = correlation.processInstances
-      .find((correlationProcessInstance: CorrelationProcessInstance): boolean => {
-        const targetProcessModelFound: boolean = correlationProcessInstance.parentProcessInstanceId === processInstanceIdOfOrigin
-                                              && correlationProcessInstance.processModelId === callActivityTargetId;
+    const processModel: DataModels.Correlations.CorrelationProcessInstance = correlation.processInstances.find(
+      (correlationProcessInstance: DataModels.Correlations.CorrelationProcessInstance): boolean => {
+        const processModelFound: boolean = correlationProcessInstance.processInstanceId === processInstanceId;
+
+        return processModelFound;
+      },
+    );
+
+    return processModel;
+  }
+
+  public getElementById(elementId: string): IShape {
+    return this.elementRegistry.get(elementId);
+  }
+
+  public async getProcessInstanceIdOfCallActivityTarget(
+    correlationId: string,
+    processInstanceIdOfOrigin: string,
+    callActivityTargetId: string,
+  ): Promise<string> {
+    const correlation: DataModels.Correlations.Correlation = await this.getCorrelationById(correlationId);
+
+    const errorGettingCorrelation: boolean = correlation === undefined;
+    if (errorGettingCorrelation) {
+      return undefined;
+    }
+
+    const {processInstanceId} = correlation.processInstances.find(
+      (correlationProcessInstance: DataModels.Correlations.CorrelationProcessInstance): boolean => {
+        const targetProcessModelFound: boolean =
+          correlationProcessInstance.parentProcessInstanceId === processInstanceIdOfOrigin &&
+          correlationProcessInstance.processModelId === callActivityTargetId;
 
         return targetProcessModelFound;
-      });
+      },
+    );
 
     return processInstanceId;
   }
 
   public async importXmlIntoDiagramModeler(xml: string): Promise<void> {
     const xmlImportPromise: Promise<void> = new Promise((resolve: Function, reject: Function): void => {
-      this._diagramModeler.importXML(xml, (importXmlError: Error) => {
+      this.diagramModeler.importXML(xml, (importXmlError: Error) => {
         if (importXmlError) {
           reject(importXmlError);
 
@@ -354,12 +420,12 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   }
 
   public async exportXmlFromDiagramModeler(): Promise<string> {
-    const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void =>  {
+    const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
       const xmlSaveOptions: IBpmnXmlSaveOptions = {
         format: true,
       };
 
-      this._diagramModeler.saveXML(xmlSaveOptions, async(saveXmlError: Error, xml: string) => {
+      this.diagramModeler.saveXML(xmlSaveOptions, async (saveXmlError: Error, xml: string) => {
         if (saveXmlError) {
           reject(saveXmlError);
 
@@ -374,7 +440,7 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   }
 
   public clearDiagramColors(): void {
-    const elementsWithColor: Array<IShape> = this._elementRegistry.filter((element: IShape): boolean => {
+    const elementsWithColor: Array<IShape> = this.elementRegistry.filter((element: IShape): boolean => {
       const elementHasFillColor: boolean = element.businessObject.di.fill !== undefined;
       const elementHasBorderColor: boolean = element.businessObject.di.stroke !== undefined;
 
@@ -388,22 +454,25 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
       return;
     }
 
-    this._modeling.setColor(elementsWithColor, {
+    this.modeling.setColor(elementsWithColor, {
       stroke: defaultBpmnColors.none.border,
       fill: defaultBpmnColors.none.fill,
     });
   }
 
-  public async getColorizedDiagram(processInstanceId: string, processEngineSupportsGettingFlowNodeInstances?: boolean): Promise<string> {
+  public async getColorizedDiagram(
+    processInstanceId: string,
+    processEngineSupportsGettingFlowNodeInstances?: boolean,
+  ): Promise<string> {
     const elementsWithActiveToken: Array<IShape> = await this.getElementsWithActiveToken(processInstanceId);
     const elementsWithTokenHistory: Array<IShape> = await this.getElementsWithTokenHistory(processInstanceId);
 
-    this._colorizeElements(elementsWithTokenHistory, defaultBpmnColors.green);
-    this._colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
+    this.colorizeElements(elementsWithTokenHistory, defaultBpmnColors.green);
+    this.colorizeElements(elementsWithActiveToken, defaultBpmnColors.orange);
 
     if (processEngineSupportsGettingFlowNodeInstances) {
       const elementsWithError: Array<IShape> = await this.getElementsWithError(processInstanceId);
-      this._colorizeElements(elementsWithError, defaultBpmnColors.red);
+      this.colorizeElements(elementsWithError, defaultBpmnColors.red);
     }
 
     const colorizedXml: string = await this.exportXmlFromDiagramModeler();
@@ -412,29 +481,30 @@ export class LiveExecutionTrackerService implements ILiveExecutionTrackerService
   }
 
   public terminateProcess(processInstanceId: string): Promise<void> {
-    return this._liveExecutionTrackerRepository.terminateProcess(processInstanceId);
+    return this.liveExecutionTrackerRepository.terminateProcess(processInstanceId);
   }
 
   private async getElementsWithError(processInstanceId: string): Promise<Array<IShape>> {
-    const flowNodeInstances: Array<DataModels.FlowNodeInstances.FlowNodeInstance> =
-      await this._liveExecutionTrackerRepository.getFlowNodeInstancesForProcessInstance(processInstanceId);
+    const flowNodeInstances: Array<
+      DataModels.FlowNodeInstances.FlowNodeInstance
+    > = await this.liveExecutionTrackerRepository.getFlowNodeInstancesForProcessInstance(processInstanceId);
 
     return flowNodeInstances
       .filter((flowNodeInstance: DataModels.FlowNodeInstances.FlowNodeInstance) => {
         return flowNodeInstance.state === 'error';
       })
       .map((flowNodeInstance: DataModels.FlowNodeInstances.FlowNodeInstance) => {
-        return this._elementRegistry.get(flowNodeInstance.flowNodeId);
+        return this.elementRegistry.get(flowNodeInstance.flowNodeId);
       });
   }
 
-  private _colorizeElements(elements: Array<IShape>, color: IColorPickerColor): void {
+  private colorizeElements(elements: Array<IShape>, color: IColorPickerColor): void {
     const noElementsToColorize: boolean = elements === undefined || elements.length === 0;
     if (noElementsToColorize) {
       return;
     }
 
-    this._modeling.setColor(elements, {
+    this.modeling.setColor(elements, {
       stroke: color.border,
       fill: color.fill,
     });

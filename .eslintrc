@@ -1,0 +1,30 @@
+{
+  "extends": "@essential-projects/eslint-config",
+  "env": {
+      "browser": true,
+      "node": true,
+      "protractor": true,
+      "jasmine": true
+  },
+  "rules": {
+    "@typescript-eslint/camelcase": ["error", { "properties": "never" }],
+    "@typescript-eslint/indent": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-inferrable-types": "off",
+    "@typescript-eslint/explicit-function-return-type": ["error", {"allowTypedFunctionExpressions": true}],
+    "no-param-reassign": "off",
+    "6river/new-cap": "warn",
+    "dot-notation": "off",
+    "function-paren-newline": "off",
+    "max-len": "off",
+    "no-console": "off",
+    "import/no-unresolved": "off",
+    "no-lonely-if": "warn",
+    "no-null/no-null": "off",
+    "no-plusplus": "off",
+    "object-curly-newline": "off",
+    "object-curly-spacing": "off",
+    "object-shorthand": "off",
+    "padded-blocks": "off"
+  }
+}

@@ -11,10 +11,10 @@ export class Forms implements IIndextab {
   public canHandleElement: boolean = false;
   public sections: Array<ISection>;
 
-  private _basicsSection: ISection = new BasicsSection();
+  private basicsSection: ISection = new BasicsSection();
 
   constructor() {
-    this.sections = [this._basicsSection];
+    this.sections = [this.basicsSection];
   }
 
   public activate(model: IPageModel): void {
@@ -35,5 +35,4 @@ export class Forms implements IIndextab {
       return section.canHandleElement;
     });
   }
-
 }

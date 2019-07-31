@@ -1,10 +1,7 @@
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {bindable, inject} from 'aurelia-framework';
 
-import {
-  IProperty,
-  IServiceTaskElement,
-} from '@process-engine/bpmn-elements_contracts';
+import {IProperty, IServiceTaskElement} from '@process-engine/bpmn-elements_contracts';
 
 import {IPageModel} from '../../../../../../../../../contracts';
 import environment from '../../../../../../../../../environment';
@@ -12,14 +9,13 @@ import {ServiceTaskService} from '../service-task-service/service-task-service';
 
 interface IAuthParameters {
   headers: {
-    'Content-Type'?: string,
-    Authorization?: string,
+    'Content-Type'?: string;
+    Authorization?: string;
   };
 }
 
 @inject(EventAggregator)
 export class HttpServiceTask {
-
   @bindable() public model: IPageModel;
   public businessObjInPanel: IServiceTaskElement;
   public selectedHttpMethod: string;
@@ -28,18 +24,18 @@ export class HttpServiceTask {
   public selectedHttpAuth: string;
   public selectedHttpContentType: string;
 
-  private _eventAggregator: EventAggregator;
-  private _serviceTaskService: ServiceTaskService;
+  private eventAggregator: EventAggregator;
+  private serviceTaskService: ServiceTaskService;
 
   constructor(eventAggregator?: EventAggregator) {
-    this._eventAggregator = eventAggregator;
+    this.eventAggregator = eventAggregator;
   }
 
   public modelChanged(): void {
-    this._serviceTaskService = new ServiceTaskService(this.model);
+    this.serviceTaskService = new ServiceTaskService(this.model);
     this.businessObjInPanel = this.model.elementInPanel.businessObject;
 
-    this._initHttpServiceTask();
+    this.initHttpServiceTask();
   }
 
   public selectedHttpParamsChanged(): void {
@@ -58,48 +54,48 @@ export class HttpServiceTask {
       this.selectedHttpContentType = undefined;
     }
 
-    this._serviceTaskService.getProperty('params').value = this._getParamsFromInput();
-    this._publishDiagramChange();
+    this.serviceTaskService.getProperty('params').value = this.getParamsFromInput();
+    this.publishDiagramChange();
   }
 
   public httpMethodChanged(): void {
-    const property: IProperty = this._serviceTaskService.getProperty('method');
+    const property: IProperty = this.serviceTaskService.getProperty('method');
     property.value = this.selectedHttpMethod;
 
-    this._getParamsFromInput();
-    this._publishDiagramChange();
+    this.getParamsFromInput();
+    this.publishDiagramChange();
   }
 
-  private _initHttpServiceTask(): void {
-    const methodPropertyExists: boolean = this._serviceTaskService.getProperty('method') !== undefined;
-    const paramPropertyExists: boolean = this._serviceTaskService.getProperty('params') !== undefined;
+  private initHttpServiceTask(): void {
+    const methodPropertyExists: boolean = this.serviceTaskService.getProperty('method') !== undefined;
+    const paramPropertyExists: boolean = this.serviceTaskService.getProperty('params') !== undefined;
 
     if (methodPropertyExists) {
-      this.selectedHttpMethod = this._serviceTaskService.getProperty('method').value;
+      this.selectedHttpMethod = this.serviceTaskService.getProperty('method').value;
     } else {
-      this._serviceTaskService.createProperty('method');
+      this.serviceTaskService.createProperty('method');
     }
 
     if (paramPropertyExists) {
-      this._fillVariablesFromParam(this._serviceTaskService.getProperty('params').value);
+      this.fillVariablesFromParam(this.serviceTaskService.getProperty('params').value);
     } else {
-      this._serviceTaskService.createProperty('params');
+      this.serviceTaskService.createProperty('params');
     }
   }
 
-  private _publishDiagramChange(): void {
-    this._eventAggregator.publish(environment.events.diagramChange);
+  private publishDiagramChange(): void {
+    this.eventAggregator.publish(environment.events.diagramChange);
   }
 
-  private _getParamsFromInput(): string {
+  private getParamsFromInput(): string {
     let params: string = '';
 
-    params = params + '"' + this.selectedHttpUrl + '"';
+    params = `${params}"${this.selectedHttpUrl}"`;
 
     const httpBodySelected: boolean = this.selectedHttpBody !== undefined;
 
     if (httpBodySelected) {
-      params = params + ', ' + this.selectedHttpBody + '';
+      params = `${params}, ${this.selectedHttpBody}`;
     }
 
     let header: IAuthParameters;
@@ -116,7 +112,7 @@ export class HttpServiceTask {
       };
 
       const stringifiedHeader: string = JSON.stringify(header);
-      params = params + ', ' + stringifiedHeader;
+      params = `${params}, ${stringifiedHeader}`;
     }
 
     if (httpAuthorizationSelected && noHttpContentTypeSelected) {
@@ -128,7 +124,7 @@ export class HttpServiceTask {
 
       const stringifiedHeader: string = JSON.stringify(header);
 
-      params = params + ', ' + stringifiedHeader;
+      params = `${params}, ${stringifiedHeader}`;
     }
 
     if (httpContentTypeSelected && httpAuthorizationSelected) {
@@ -141,30 +137,35 @@ export class HttpServiceTask {
 
       const stringifiedHeader: string = JSON.stringify(header);
 
-      params = params + ', ' + stringifiedHeader;
+      params = `${params}, ${stringifiedHeader}`;
     }
 
-    params = '[' + params + ']';
+    params = `[${params}]`;
 
     return params;
   }
 
-  private _fillVariablesFromParam(params: string): void {
-
-    const regex: RegExp = new RegExp(',(?=[^\}]*(?:\{|$))');
+  private fillVariablesFromParam(params: string): void {
+    const regex: RegExp = new RegExp(',(?=[^}]*(?:{|$))');
 
     const splittedParamString: Array<string> = params.split(regex);
 
     const urlParamsGiven: boolean = splittedParamString.length > 0;
     if (urlParamsGiven) {
       const hasDoubleQuotationMarks: boolean = splittedParamString[0].search('"') > 0;
-      const hasSingleQuotationMarks: boolean = splittedParamString[0].search('\'') > 0;
+      const hasSingleQuotationMarks: boolean = splittedParamString[0].search("'") > 0;
 
       let urlParam: string;
       if (hasDoubleQuotationMarks) {
-        urlParam = splittedParamString[0].slice(splittedParamString[0].search('"') + 1, splittedParamString[0].lastIndexOf('"'));
+        urlParam = splittedParamString[0].slice(
+          splittedParamString[0].search('"') + 1,
+          splittedParamString[0].lastIndexOf('"'),
+        );
       } else if (hasSingleQuotationMarks) {
-        urlParam = splittedParamString[0].slice(splittedParamString[0].search('\'') + 1, splittedParamString[0].lastIndexOf('\''));
+        urlParam = splittedParamString[0].slice(
+          splittedParamString[0].search("'") + 1,
+          splittedParamString[0].lastIndexOf("'"),
+        );
       }
 
       this.selectedHttpUrl = urlParam;
@@ -185,7 +186,6 @@ export class HttpServiceTask {
     const headerParamsPosition: number = 2;
     const headerParamsGiven: boolean = splittedParamString.length > headerParamsPosition;
     if (headerParamsGiven) {
-
       let headerParam: string = splittedParamString[headerParamsPosition];
       const headerIsLastParameter: boolean = headerParam.endsWith(']');
       if (headerIsLastParameter) {
@@ -197,7 +197,10 @@ export class HttpServiceTask {
        * quotes to non quotet keys.
        * This way we make sure that JSON.parse() can handle the given string.
        */
-      const headerParamDoubleQuoted: string = headerParam.replace(/(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g, '$1"$3":');
+      const headerParamDoubleQuoted: string = headerParam.replace(
+        /(\s*?{\s*?|\s*?,\s*?)(['"])?([a-zA-Z0-9]+)(['"])?:/g,
+        '$1"$3":',
+      );
 
       const headerObject: IAuthParameters = JSON.parse(headerParamDoubleQuoted);
 
@@ -205,5 +208,4 @@ export class HttpServiceTask {
       this.selectedHttpAuth = headerObject.headers['Authorization'];
     }
   }
-
 }

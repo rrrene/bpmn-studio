@@ -1,16 +1,15 @@
 import {Aurelia} from 'aurelia-framework';
 
+import process from 'process';
 import {NotificationType} from './contracts/index';
 import environment from './environment';
 import {NotificationService} from './services/notification-service/notification.service';
 
 import {oidcConfig} from './open-id-connect-configuration';
 
-import process from 'process';
-
 export function configure(aurelia: Aurelia): void {
-
   if (navigator.cookieEnabled === false) {
+    // eslint-disable-next-line no-restricted-globals
     const url: string = location.href;
     throw new Error(`In order to use the web version of BPMN Studio please enable cookies for this URL: ${url}.`);
   }
@@ -71,7 +70,6 @@ export function configure(aurelia: Aurelia): void {
 
     const applicationRunsInElectron: boolean = (window as any).nodeRequire !== undefined;
     if (applicationRunsInElectron) {
-
       const ipcRenderer: any = (window as any).nodeRequire('electron').ipcRenderer;
       // subscribe to processengine status
       ipcRenderer.send('add_internal_processengine_status_listener');
@@ -88,8 +86,8 @@ export function configure(aurelia: Aurelia): void {
          *
          * TODO: Implement a proper FAQ section and link to that.
          */
-        // tslint:disable-next-line: max-line-length
-        const targetHref: string = `<a href="javascript:nodeRequire('open')('https://github.com/process-engine/bpmn-studio/issues/316')">click here</a>`;
+        const targetHref: string =
+          "<a href=\"javascript:nodeRequire('open')('https://github.com/process-engine/bpmn-studio/issues/316')\">click here</a>";
 
         const errorMessage: string = `Failed to start ProcessEngine. For further information ${targetHref}.`;
         const notificationService: NotificationService = aurelia.container.get('NotificationService');

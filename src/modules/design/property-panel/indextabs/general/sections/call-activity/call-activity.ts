@@ -11,59 +11,59 @@ import {GeneralService} from '../../service/general.service';
 
 @inject(GeneralService, Router, EventAggregator)
 export class CallActivitySection implements ISection {
-
   public path: string = '/sections/call-activity/call-activity';
   public canHandleElement: boolean = false;
   public allDiagrams: Array<IDiagram>;
   public selectedDiagramId: string;
 
-  private _businessObjInPanel: ICallActivityElement;
-  private _generalService: GeneralService;
-  private _router: Router;
-  private _eventAggregator: EventAggregator;
-  private _activeSolutionUri: string;
+  private businessObjInPanel: ICallActivityElement;
+  private generalService: GeneralService;
+  private router: Router;
+  private eventAggregator: EventAggregator;
+  private activeSolutionUri: string;
 
   constructor(generalService?: GeneralService, router?: Router, eventAggregator?: EventAggregator) {
-    this._generalService = generalService;
-    this._router = router;
-    this._eventAggregator = eventAggregator;
+    this.generalService = generalService;
+    this.router = router;
+    this.eventAggregator = eventAggregator;
   }
 
   public async activate(model: IPageModel): Promise<void> {
-    this._activeSolutionUri = this._router.currentInstruction.queryParams.solutionUri;
-    this._businessObjInPanel = model.elementInPanel.businessObject;
+    this.activeSolutionUri = this.router.currentInstruction.queryParams.solutionUri;
+    this.businessObjInPanel = model.elementInPanel.businessObject;
 
-    await this._getAllDiagrams();
+    await this.getAllDiagrams();
 
-    this.selectedDiagramId = this._businessObjInPanel.calledElement;
+    this.selectedDiagramId = this.businessObjInPanel.calledElement;
   }
 
   public isSuitableForElement(element: IShape): boolean {
-    const elementIsCallActivity: boolean = element !== undefined
-                                        && element.businessObject !== undefined
-                                        && element.businessObject.$type === 'bpmn:CallActivity';
+    const elementIsCallActivity: boolean =
+      element !== undefined &&
+      element.businessObject !== undefined &&
+      element.businessObject.$type === 'bpmn:CallActivity';
 
     return elementIsCallActivity;
   }
 
   public navigateToCalledDiagram(): void {
-    this._router.navigateToRoute('design', {
+    this.router.navigateToRoute('design', {
       diagramName: this.selectedDiagramId,
-      solutionUri: this._activeSolutionUri,
+      solutionUri: this.activeSolutionUri,
       view: 'detail',
     });
   }
 
   public updateCalledDiagram(): void {
-    this._businessObjInPanel.calledElement = this.selectedDiagramId;
+    this.businessObjInPanel.calledElement = this.selectedDiagramId;
 
-    this._publishDiagramChange();
+    this.publishDiagramChange();
   }
 
-  private async _getAllDiagrams(): Promise<void> {
-    const allDiagramsInSolution: Array<IDiagram> = await this._generalService.getAllDiagrams();
+  private async getAllDiagrams(): Promise<void> {
+    const allDiagramsInSolution: Array<IDiagram> = await this.generalService.getAllDiagrams();
 
-    const currentDiagramName: string = this._router.currentInstruction.params.diagramName;
+    const currentDiagramName: string = this.router.currentInstruction.params.diagramName;
     const allDiagramWithoutCurrentOne: Array<IDiagram> = allDiagramsInSolution.filter((diagram: IDiagram) => {
       return diagram.name !== currentDiagramName;
     });
@@ -71,7 +71,7 @@ export class CallActivitySection implements ISection {
     this.allDiagrams = allDiagramWithoutCurrentOne;
   }
 
-  private _publishDiagramChange(): void {
-    this._eventAggregator.publish(environment.events.diagramChange);
+  private publishDiagramChange(): void {
+    this.eventAggregator.publish(environment.events.diagramChange);
   }
 }

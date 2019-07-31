@@ -4,7 +4,12 @@ import * as clipboard from 'clipboard-polyfill';
 
 import {DataModels} from '@process-engine/management_api_contracts';
 
-import {ILogSortSettings, ISolutionEntry, LogSortProperty, NotificationType} from '../../../../../../../contracts/index';
+import {
+  ILogSortSettings,
+  ISolutionEntry,
+  LogSortProperty,
+  NotificationType,
+} from '../../../../../../../contracts/index';
 import {getBeautifiedDate} from '../../../../../../../services/date-service/date.service';
 import {NotificationService} from '../../../../../../../services/notification-service/notification.service';
 import {IInspectCorrelationService} from '../../../../contracts';
@@ -18,29 +23,28 @@ export class LogViewer {
   @bindable public log: Array<DataModels.Logging.LogEntry>;
   @bindable public processInstance: DataModels.Correlations.CorrelationProcessInstance;
   @bindable public activeSolutionEntry: ISolutionEntry;
-  public LogSortProperty: typeof LogSortProperty = LogSortProperty;
+  public logSortProperty: typeof LogSortProperty = LogSortProperty;
   public sortedLog: Array<DataModels.Logging.LogEntry>;
   public sortSettings: ILogSortSettings = {
     ascending: false,
     sortProperty: undefined,
   };
 
-  private _notificationService: NotificationService;
-  private _inspectCorrelationService: IInspectCorrelationService;
+  private notificationService: NotificationService;
+  private inspectCorrelationService: IInspectCorrelationService;
 
-  constructor(
-    notificationService: NotificationService,
-    inspectCorrelationService: IInspectCorrelationService,
-  ) {
-    this._notificationService = notificationService;
-    this._inspectCorrelationService = inspectCorrelationService;
+  constructor(notificationService: NotificationService, inspectCorrelationService: IInspectCorrelationService) {
+    this.notificationService = notificationService;
+    this.inspectCorrelationService = inspectCorrelationService;
   }
 
   public async processInstanceChanged(): Promise<void> {
-    setTimeout(async() => {
-      this.log = await this._inspectCorrelationService.getLogsForProcessInstance(this.processInstance.processModelId,
-                                                                                 this.processInstance.processInstanceId,
-                                                                                 this.activeSolutionEntry.identity);
+    setTimeout(async () => {
+      this.log = await this.inspectCorrelationService.getLogsForProcessInstance(
+        this.processInstance.processModelId,
+        this.processInstance.processInstanceId,
+        this.activeSolutionEntry.identity,
+      );
 
       this.sortSettings = {
         ascending: false,
@@ -54,7 +58,7 @@ export class LogViewer {
   public copyToClipboard(textToCopy: string): void {
     (clipboard as IClipboard).writeText(textToCopy);
 
-    this._notificationService.showNotification(NotificationType.SUCCESS, 'Successfully copied to clipboard.');
+    this.notificationService.showNotification(NotificationType.SUCCESS, 'Successfully copied to clipboard.');
   }
 
   public getDateStringFromTimestamp(timestamp: string): string {
@@ -66,9 +70,7 @@ export class LogViewer {
   public sortList(property: LogSortProperty): void {
     this.sortedLog = [];
     const isSamePropertyAsPrevious: boolean = this.sortSettings.sortProperty === property;
-    const ascending: boolean = isSamePropertyAsPrevious
-                                ? !this.sortSettings.ascending
-                                : true;
+    const ascending: boolean = isSamePropertyAsPrevious ? !this.sortSettings.ascending : true;
 
     this.sortSettings.ascending = ascending;
     this.sortSettings.sortProperty = property;
@@ -76,18 +78,15 @@ export class LogViewer {
     const sortPropertyIsTime: boolean = property === LogSortProperty.Time;
 
     const sortedLog: Array<DataModels.Logging.LogEntry> = sortPropertyIsTime
-                                        ? this._getSortedLogByDate()
-                                        : this._getSortedLogByProperty(property);
+      ? this.getSortedLogByDate()
+      : this.getSortedLogByProperty(property);
 
-    this.sortedLog = ascending
-                      ? sortedLog
-                      : sortedLog.reverse();
+    this.sortedLog = ascending ? sortedLog : sortedLog.reverse();
   }
 
-  private _getSortedLogByProperty(property: LogSortProperty): Array<DataModels.Logging.LogEntry> {
-    const sortedLog: Array<DataModels.Logging.LogEntry> =
-      this.log.sort((firstEntry: DataModels.Logging.LogEntry, secondEntry: DataModels.Logging.LogEntry) => {
-
+  private getSortedLogByProperty(property: LogSortProperty): Array<DataModels.Logging.LogEntry> {
+    const sortedLog: Array<DataModels.Logging.LogEntry> = this.log.sort(
+      (firstEntry: DataModels.Logging.LogEntry, secondEntry: DataModels.Logging.LogEntry) => {
         // FlowNodeId and FlowNodeInstanceId can be 'undefined', if the LogEntry is for a ProcessInstance.
         // Using 'greaterThan' in conjunction with 'undefined' will always be "false", which will mess up the sorting.
         // So these cases must be handled separately.
@@ -112,30 +111,31 @@ export class LogViewer {
         }
 
         return 0;
-      });
+      },
+    );
 
     return sortedLog;
   }
 
-  private _getSortedLogByDate(): Array<DataModels.Logging.LogEntry> {
-    const sortedLog: Array<DataModels.Logging.LogEntry> =
-    this.log.sort((firstEntry: DataModels.Logging.LogEntry, secondEntry: DataModels.Logging.LogEntry) => {
+  private getSortedLogByDate(): Array<DataModels.Logging.LogEntry> {
+    const sortedLog: Array<DataModels.Logging.LogEntry> = this.log.sort(
+      (firstEntry: DataModels.Logging.LogEntry, secondEntry: DataModels.Logging.LogEntry) => {
+        const firstCorrelationDate: Date = new Date(firstEntry.timeStamp);
+        const secondCorrelationDate: Date = new Date(secondEntry.timeStamp);
 
-      const firstCorrelationDate: Date = new Date(firstEntry.timeStamp);
-      const secondCorrelationDate: Date = new Date(secondEntry.timeStamp);
+        const firstEntryIsBigger: boolean = firstCorrelationDate.getTime() > secondCorrelationDate.getTime();
+        if (firstEntryIsBigger) {
+          return 1;
+        }
 
-      const firstEntryIsBigger: boolean = firstCorrelationDate.getTime() > secondCorrelationDate.getTime();
-      if (firstEntryIsBigger) {
-        return 1;
-      }
+        const secondEntryIsBigger: boolean = firstCorrelationDate.getTime() < secondCorrelationDate.getTime();
+        if (secondEntryIsBigger) {
+          return -1;
+        }
 
-      const secondEntryIsBigger: boolean = firstCorrelationDate.getTime() < secondCorrelationDate.getTime();
-      if (secondEntryIsBigger) {
-        return -1;
-      }
-
-      return 0;
-    });
+        return 0;
+      },
+    );
 
     return sortedLog;
   }

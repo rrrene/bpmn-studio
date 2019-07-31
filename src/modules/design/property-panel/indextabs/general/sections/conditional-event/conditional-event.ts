@@ -8,36 +8,35 @@ import environment from '../../../../../../../environment';
 
 @inject(EventAggregator)
 export class ConditionalEventSection implements ISection {
-
   public path: string = '/sections/conditional-event/conditional-event';
   public canHandleElement: boolean = false;
   public conditionBody: string;
   public variableName: string;
   public variableEvent: string;
 
-  private _businessObjInPanel: IConditionalEventElement;
-  private _moddle: IBpmnModdle;
-  private _linter: ILinting;
-  private _conditionObject: IModdleElement;
-  private _eventAggregator: EventAggregator;
+  private businessObjInPanel: IConditionalEventElement;
+  private moddle: IBpmnModdle;
+  private linter: ILinting;
+  private conditionObject: IModdleElement;
+  private eventAggregator: EventAggregator;
 
   constructor(eventAggregator?: EventAggregator) {
-    this._eventAggregator = eventAggregator;
+    this.eventAggregator = eventAggregator;
   }
 
   public activate(model: IPageModel): void {
-    this._moddle = model.modeler.get('moddle');
-    this._linter = model.modeler.get('linting');
-    this._businessObjInPanel = model.elementInPanel.businessObject as IConditionalEventElement;
+    this.moddle = model.modeler.get('moddle');
+    this.linter = model.modeler.get('linting');
+    this.businessObjInPanel = model.elementInPanel.businessObject as IConditionalEventElement;
 
-    const {variableName, variableEvent, condition} = this._businessObjInPanel.eventDefinitions[0];
+    const {variableName, variableEvent, condition} = this.businessObjInPanel.eventDefinitions[0];
 
-    this.variableEvent = (variableEvent === undefined) ? '' : variableEvent;
-    this.variableName = (variableName === undefined) ? '' : variableName;
-    this.conditionBody = (condition === undefined) ? '' : condition.body;
+    this.variableEvent = variableEvent === undefined ? '' : variableEvent;
+    this.variableName = variableName === undefined ? '' : variableName;
+    this.conditionBody = condition === undefined ? '' : condition.body;
 
-    this._conditionObject = this._moddle.create('bpmn:FormalExpression', {body: this.conditionBody});
-    this._businessObjInPanel.eventDefinitions[0].condition = this._conditionObject;
+    this.conditionObject = this.moddle.create('bpmn:FormalExpression', {body: this.conditionBody});
+    this.businessObjInPanel.eventDefinitions[0].condition = this.conditionObject;
   }
 
   public isSuitableForElement(element: IShape): boolean {
@@ -48,33 +47,34 @@ export class ConditionalEventSection implements ISection {
 
     const eventElement: IEventElement = element.businessObject as IEventElement;
 
-    const elementIsConditionalEvent: boolean = eventElement.eventDefinitions !== undefined
-                                            && eventElement.eventDefinitions[0] !== undefined
-                                            && eventElement.eventDefinitions[0].$type === 'bpmn:ConditionalEventDefinition';
+    const elementIsConditionalEvent: boolean =
+      eventElement.eventDefinitions !== undefined &&
+      eventElement.eventDefinitions[0] !== undefined &&
+      eventElement.eventDefinitions[0].$type === 'bpmn:ConditionalEventDefinition';
 
     return elementIsConditionalEvent;
   }
 
   public updateCondition(): void {
-    this._businessObjInPanel.eventDefinitions[0].condition.body = this.conditionBody;
-    this._publishDiagramChange();
+    this.businessObjInPanel.eventDefinitions[0].condition.body = this.conditionBody;
+    this.publishDiagramChange();
 
-    if (this._linter.lintingActive()) {
-      this._linter.update();
+    if (this.linter.lintingActive()) {
+      this.linter.update();
     }
   }
 
   public updateVariableName(): void {
-    this._businessObjInPanel.eventDefinitions[0].variableName = this.variableName;
-    this._publishDiagramChange();
+    this.businessObjInPanel.eventDefinitions[0].variableName = this.variableName;
+    this.publishDiagramChange();
   }
 
   public updateVariableEvent(): void {
-    this._businessObjInPanel.eventDefinitions[0].variableEvent = this.variableEvent;
-    this._publishDiagramChange();
+    this.businessObjInPanel.eventDefinitions[0].variableEvent = this.variableEvent;
+    this.publishDiagramChange();
   }
 
-  private _publishDiagramChange(): void {
-    this._eventAggregator.publish(environment.events.diagramChange);
+  private publishDiagramChange(): void {
+    this.eventAggregator.publish(environment.events.diagramChange);
   }
 }

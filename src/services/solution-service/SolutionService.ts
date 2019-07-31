@@ -7,32 +7,32 @@ import {SolutionExplorerServiceFactory} from '../solution-explorer-services/Solu
 
 @inject('SolutionExplorerServiceFactory')
 export class SolutionService implements ISolutionService {
-  private _allSolutionEntries: Array<ISolutionEntry> = [];
-  private _serviceFactory: SolutionExplorerServiceFactory;
-  private _persistedEntries: Array<ISolutionEntry> = [];
-  private _persistedOpenDiagrams: Array<IDiagram> = [];
+  private allSolutionEntries: Array<ISolutionEntry> = [];
+  private serviceFactory: SolutionExplorerServiceFactory;
+  private persistedEntries: Array<ISolutionEntry> = [];
+  private persistedOpenDiagrams: Array<IDiagram> = [];
 
   constructor(serviceFactory: SolutionExplorerServiceFactory) {
-    this._serviceFactory = serviceFactory;
+    this.serviceFactory = serviceFactory;
 
-    const openedSolutions: Array<ISolutionEntry> = this._getSolutionFromLocalStorage();
-    this._persistedOpenDiagrams = this._getOpenDiagramsFromLocalStorage();
+    const openedSolutions: Array<ISolutionEntry> = this.getSolutionFromLocalStorage();
+    this.persistedOpenDiagrams = this.getOpenDiagramsFromLocalStorage();
 
     const openedSolutionsAreNotSet: boolean = openedSolutions === null;
     if (openedSolutionsAreNotSet) {
       return;
     }
 
-    openedSolutions.forEach(async(solution: ISolutionEntry) => {
+    openedSolutions.forEach(async (solution: ISolutionEntry) => {
       const solutionIsRemote: boolean = solution.uri.startsWith('http');
 
       solution.service = solutionIsRemote
-        ? await this._serviceFactory.newManagementApiSolutionExplorer()
-        : await this._serviceFactory.newFileSystemSolutionExplorer();
+        ? await this.serviceFactory.newManagementApiSolutionExplorer()
+        : await this.serviceFactory.newFileSystemSolutionExplorer();
     });
 
-    this._persistedEntries = openedSolutions;
-    this._allSolutionEntries = this._allSolutionEntries.concat(openedSolutions);
+    this.persistedEntries = openedSolutions;
+    this.allSolutionEntries = this.allSolutionEntries.concat(openedSolutions);
   }
 
   /**
@@ -40,8 +40,7 @@ export class SolutionService implements ISolutionService {
    */
 
   public addSolutionEntry(solutionEntry: ISolutionEntry): void {
-
-    const solutionWithSameUri: ISolutionEntry = this._allSolutionEntries.find((entry: ISolutionEntry) => {
+    const solutionWithSameUri: ISolutionEntry = this.allSolutionEntries.find((entry: ISolutionEntry) => {
       const entryHasSameUri: boolean = entry.uri === solutionEntry.uri;
 
       return entryHasSameUri;
@@ -51,16 +50,16 @@ export class SolutionService implements ISolutionService {
       this.removeSolutionEntryByUri(solutionWithSameUri.uri);
     }
 
-    this._allSolutionEntries.push(solutionEntry);
+    this.allSolutionEntries.push(solutionEntry);
     this.persistSolutionsInLocalStorage();
   }
 
   public getPersistedEntries(): Array<ISolutionEntry> {
-    return this._persistedEntries;
+    return this.persistedEntries;
   }
 
   public getSolutionEntryForUri(uri: string): ISolutionEntry {
-    const solutionEntry: ISolutionEntry = this._allSolutionEntries.find((entry: ISolutionEntry) => {
+    const solutionEntry: ISolutionEntry = this.allSolutionEntries.find((entry: ISolutionEntry) => {
       const entryUriIsSearchedUri: boolean = entry.uri === uri;
 
       return entryUriIsSearchedUri;
@@ -70,7 +69,7 @@ export class SolutionService implements ISolutionService {
   }
 
   public getRemoteSolutionEntries(): Array<ISolutionEntry> {
-    const remoteEntries: Array<ISolutionEntry> = this._allSolutionEntries.filter((entry: ISolutionEntry) => {
+    const remoteEntries: Array<ISolutionEntry> = this.allSolutionEntries.filter((entry: ISolutionEntry) => {
       return entry.uri.startsWith('http');
     });
 
@@ -78,11 +77,11 @@ export class SolutionService implements ISolutionService {
   }
 
   public getAllSolutionEntries(): Array<ISolutionEntry> {
-    return this._allSolutionEntries;
+    return this.allSolutionEntries;
   }
 
   public removeSolutionEntryByUri(uri: string): void {
-    const solutionToRemove: ISolutionEntry = this._allSolutionEntries.find((entry: ISolutionEntry) => {
+    const solutionToRemove: ISolutionEntry = this.allSolutionEntries.find((entry: ISolutionEntry) => {
       return entry.uri === uri;
     });
 
@@ -91,7 +90,7 @@ export class SolutionService implements ISolutionService {
       return;
     }
 
-    this._allSolutionEntries.splice(this._allSolutionEntries.indexOf(solutionToRemove), 1);
+    this.allSolutionEntries.splice(this.allSolutionEntries.indexOf(solutionToRemove), 1);
     this.persistSolutionsInLocalStorage();
   }
 
@@ -100,60 +99,61 @@ export class SolutionService implements ISolutionService {
    */
 
   public addOpenDiagram(diagramToAdd: IDiagram): void {
-    const indexOfDiagram: number = this._persistedOpenDiagrams.findIndex((diagram: IDiagram) => diagram.uri === diagramToAdd.uri);
+    const indexOfDiagram: number = this.persistedOpenDiagrams.findIndex(
+      (diagram: IDiagram) => diagram.uri === diagramToAdd.uri,
+    );
     const diagramIsPersisted: boolean = indexOfDiagram >= 0;
 
     if (diagramIsPersisted) {
-      this._persistedOpenDiagrams[indexOfDiagram] = diagramToAdd;
+      this.persistedOpenDiagrams[indexOfDiagram] = diagramToAdd;
     } else {
-      this._persistedOpenDiagrams.push(diagramToAdd);
+      this.persistedOpenDiagrams.push(diagramToAdd);
     }
 
-    this._persistOpenDiagramsInLocalStorage();
+    this.persistOpenDiagramsInLocalStorage();
   }
 
   public removeOpenDiagramByUri(diagramUri: string): void {
-    const indexOfDiagramToRemove: number = this._persistedOpenDiagrams.findIndex((diagram: IDiagram) => {
+    const indexOfDiagramToRemove: number = this.persistedOpenDiagrams.findIndex((diagram: IDiagram) => {
       return diagram.uri === diagramUri;
     });
 
-    this._persistedOpenDiagrams.splice(indexOfDiagramToRemove, 1);
-    this._persistOpenDiagramsInLocalStorage();
+    this.persistedOpenDiagrams.splice(indexOfDiagramToRemove, 1);
+    this.persistOpenDiagramsInLocalStorage();
   }
 
   public getOpenDiagrams(): Array<IDiagram> {
-    return this._persistedOpenDiagrams;
+    return this.persistedOpenDiagrams;
   }
 
   public persistSolutionsInLocalStorage(): void {
     /**
      * Right now the open diagram solution entry doesn't get persisted.
      */
-    const entriesToPersist: Array<ISolutionEntry> = this._allSolutionEntries.filter((entry: ISolutionEntry) => {
+    const entriesToPersist: Array<ISolutionEntry> = this.allSolutionEntries.filter((entry: ISolutionEntry) => {
       const entryIsNotOpenDiagramSolution: boolean = entry.uri !== 'about:open-diagrams';
 
       return entryIsNotOpenDiagramSolution;
     });
 
     window.localStorage.setItem('openedSolutions', JSON.stringify(entriesToPersist));
-    this._persistedEntries = entriesToPersist;
+    this.persistedEntries = entriesToPersist;
   }
 
-  private _getSolutionFromLocalStorage(): Array<ISolutionEntry> {
+  private getSolutionFromLocalStorage(): Array<ISolutionEntry> {
     const openedSolutions: Array<ISolutionEntry> = JSON.parse(window.localStorage.getItem('openedSolutions'));
 
     return openedSolutions;
   }
 
-  private _getOpenDiagramsFromLocalStorage(): Array<IDiagram> {
+  private getOpenDiagramsFromLocalStorage(): Array<IDiagram> {
     const openDiagrams: Array<IDiagram> = JSON.parse(window.localStorage.getItem('OpenDiagrams'));
     const openDiagramsWerePersisted: boolean = openDiagrams !== null;
 
     return openDiagramsWerePersisted ? openDiagrams : [];
   }
 
-  private _persistOpenDiagramsInLocalStorage(): void {
-
-    window.localStorage.setItem('OpenDiagrams', JSON.stringify(this._persistedOpenDiagrams));
+  private persistOpenDiagramsInLocalStorage(): void {
+    window.localStorage.setItem('OpenDiagrams', JSON.stringify(this.persistedOpenDiagrams));
   }
 }

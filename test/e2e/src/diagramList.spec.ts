@@ -6,7 +6,6 @@ import {DiagramList} from './pages/diagramList';
 import {RouterView} from './pages/routerView';
 
 describe('Diagram List', () => {
-
   let diagramList: DiagramList;
   let routerView: RouterView;
   let diagram: SimpleDiagram;
@@ -14,8 +13,7 @@ describe('Diagram List', () => {
 
   const applicationUrl: string = browser.params.aureliaUrl;
 
-  beforeAll(async() => {
-
+  beforeAll(async () => {
     diagram = new SimpleDiagram();
     diagramList = new DiagramList(applicationUrl);
     routerView = new RouterView();
@@ -27,11 +25,11 @@ describe('Diagram List', () => {
     await diagramList.show();
   });
 
-  afterAll(async() => {
+  afterAll(async () => {
     await diagram.deleteDiagram();
   });
 
-  it('should contain the deployed diagram.', async() => {
+  it('should contain the deployed diagram.', async () => {
     const visibilityOfDiagramListEntry: boolean = await diagramList.getVisibilityOfDiagramListEntry(diagram.name);
 
     expect(visibilityOfDiagramListEntry).toBeTruthy();

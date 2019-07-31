@@ -1,4 +1,5 @@
-
+/* eslint-disable max-lines */
+/* eslint-disable no-underscore-dangle */
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
 import {bindable, bindingMode, inject, observable} from 'aurelia-framework';
 
@@ -61,23 +62,6 @@ export class BpmnIo {
   public diagramHasChanged: boolean = false;
   public saveStateForNewUri: boolean = false;
 
-  private _bpmnLintButton: HTMLElement;
-  private _linting: ILinting;
-
-  private _propertyPanelShouldOpen: boolean = false;
-  private _propertyPanelHiddenForSpaceReasons: boolean = false;
-  private _propertyPanelHasNoSpace: boolean = false;
-
-  private _notificationService: NotificationService;
-  private _eventAggregator: EventAggregator;
-  private _subscriptions: Array<Subscription>;
-  private _diagramExportService: IDiagramExportService;
-  private _diagramPrintService: IDiagramPrintService;
-  private _openDiagramStateService: OpenDiagramStateService;
-  private _solutionService: ISolutionService;
-
-  private _tempProcess: IProcessRef;
-  private _diagramHasChanges: boolean = false;
   /**
    * We are using the direct reference of a container element to place the tools of bpmn-js
    * in the left sidebar (bpmn-io-layout__tools-left).
@@ -90,19 +74,38 @@ export class BpmnIo {
    */
   public paletteContainer: HTMLDivElement;
 
+  private bpmnLintButton: HTMLElement;
+  private linting: ILinting;
+
+  private propertyPanelShouldOpen: boolean = false;
+  private propertyPanelHiddenForSpaceReasons: boolean = false;
+  private propertyPanelHasNoSpace: boolean = false;
+
+  private notificationService: NotificationService;
+  private eventAggregator: EventAggregator;
+  private subscriptions: Array<Subscription>;
+  private diagramExportService: IDiagramExportService;
+  private diagramPrintService: IDiagramPrintService;
+  private openDiagramStateService: OpenDiagramStateService;
+  private solutionService: ISolutionService;
+
+  private tempProcess: IProcessRef;
+  private diagramHasChanges: boolean = false;
+
   constructor(
     notificationService: NotificationService,
     eventAggregator: EventAggregator,
     openDiagramStateService: OpenDiagramStateService,
     solutionService: ISolutionService,
   ) {
-    this._notificationService = notificationService;
-    this._eventAggregator = eventAggregator;
-    this._openDiagramStateService = openDiagramStateService;
-    this._solutionService = solutionService;
+    this.notificationService = notificationService;
+    this.eventAggregator = eventAggregator;
+    this.openDiagramStateService = openDiagramStateService;
+    this.solutionService = solutionService;
   }
 
   public created(): void {
+    // eslint-disable-next-line 6river/new-cap
     this.modeler = new bundle.modeler({
       additionalModules: [
         bundle.MiniMap,
@@ -122,18 +125,20 @@ export class BpmnIo {
       },
     });
 
-    this._linting = this.modeler.get('linting');
+    this.linting = this.modeler.get('linting');
 
     /**
      * Subscribe to the "elements.paste.rejected"-event to show a helpful
      * message to the user.
      */
     this.modeler.on('elements.paste.rejected', () => {
-      this._notificationService
-        .showNotification(NotificationType.INFO, 'In order to paste an element you have to place your cursor outside of the element.');
+      this.notificationService.showNotification(
+        NotificationType.INFO,
+        'In order to paste an element you have to place your cursor outside of the element.',
+      );
     });
 
-    this._addRemoveWithBackspaceKeyboardListener();
+    this.addRemoveWithBackspaceKeyboardListener();
 
     /**
      * Subscribe to "commandStack.changed"-event to have a simple indicator of
@@ -141,13 +146,17 @@ export class BpmnIo {
      */
     const handlerPriority: number = 1000;
 
-    this.modeler.on('commandStack.changed', async() => {
-      if (!this.solutionIsRemote) {
-        this._eventAggregator.publish(environment.events.diagramChange);
-      }
+    this.modeler.on(
+      'commandStack.changed',
+      async () => {
+        if (!this.solutionIsRemote) {
+          this.eventAggregator.publish(environment.events.diagramChange);
+        }
 
-      this.xml = await this.getXML();
-    }, handlerPriority);
+        this.xml = await this.getXML();
+      },
+      handlerPriority,
+    );
 
     this.modeler.on('contextPad.create', (event: IInternalEvent) => {
       if (this.solutionIsRemote) {
@@ -167,61 +176,68 @@ export class BpmnIo {
 
     this.modeler.on(['shape.added', 'shape.removed'], (event: IInternalEvent) => {
       if (!this.solutionIsRemote) {
-
         const shapeIsParticipant: boolean = event.element.type === 'bpmn:Participant';
 
         if (shapeIsParticipant) {
-          return this._checkForMultipleParticipants(event);
+          return this.checkForMultipleParticipants(event);
         }
       }
+      return false;
     });
 
-    this.modeler.on('import.done', async() => {
-      this._fitDiagramToViewport();
+    this.modeler.on(
+      'import.done',
+      async () => {
+        this.fitDiagramToViewport();
 
-      if (!this.solutionIsRemote) {
-        await this._validateDiagram();
-        this._linting.update();
-      }
-    }, 1);
+        if (!this.solutionIsRemote) {
+          await this.validateDiagram();
+          this.linting.update();
+        }
+      },
+      1,
+    );
 
     this.modeler.on('shape.remove', (event: IInternalEvent) => {
       if (!this.solutionIsRemote) {
         const shapeIsParticipant: boolean = event.element.type === 'bpmn:Participant';
         if (shapeIsParticipant) {
           const rootElements: Array<IProcessRef> = this.modeler._definitions.rootElements;
-          this._tempProcess = rootElements.find((element: IProcessRef) => {
+          this.tempProcess = rootElements.find((element: IProcessRef) => {
             return element.$type === 'bpmn:Process';
           });
 
           return event;
         }
       }
+
+      return false;
     });
 
     this.modeler.on('element.paste', (event: IInternalEvent) => {
       if (!this.solutionIsRemote) {
         const elementToPasteIsUserTask: boolean = event.descriptor.type === 'bpmn:UserTask';
         if (elementToPasteIsUserTask) {
-          return this._renameFormFields(event);
+          return this.renameFormFields(event);
         }
       }
+
+      return false;
     });
 
-    this._diagramPrintService = new DiagramPrintService();
-    this._diagramExportService = new DiagramExportService();
+    this.diagramPrintService = new DiagramPrintService();
+    this.diagramExportService = new DiagramExportService();
   }
 
   public async attached(): Promise<void> {
-    if (this._diagramHasState(this.diagramUri)) {
-      const diagramState: IDiagramState = this._loadDiagramState(this.diagramUri);
+    if (this.diagramHasState(this.diagramUri)) {
+      const diagramState: IDiagramState = this.loadDiagramState(this.diagramUri);
 
-      await this._importXmlIntoModeler(diagramState.data.xml);
+      await this.importXmlIntoModeler(diagramState.data.xml);
     } else {
-
       const xmlIsNotEmpty: boolean = this.xml !== undefined && this.xml !== null;
       if (xmlIsNotEmpty) {
-        this.modeler.importXML(this.xml, async(err: Error) => {
+        this.modeler.importXML(this.xml, async (err: Error) => {
           this.savedXml = await this.getXML();
         });
       }
@@ -229,10 +245,10 @@ export class BpmnIo {
 
     // Wait until the HTML is rendered
     setTimeout(() => {
-      this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
+      this.bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
 
-      if (this._bpmnLintButton) {
-        this._bpmnLintButton.style.display = 'none';
+      if (this.bpmnLintButton) {
+        this.bpmnLintButton.style.display = 'none';
       }
     }, 0);
 
@@ -245,7 +261,7 @@ export class BpmnIo {
       this.attachPaletteContainer();
     }
 
-    window.addEventListener('resize', this._resizeEventHandler);
+    window.addEventListener('resize', this.resizeEventHandler);
 
     this.resizeButton.addEventListener('mousedown', (e: Event) => {
       const windowEvent: Event = e || window.event;
@@ -265,117 +281,129 @@ export class BpmnIo {
       document.addEventListener('mouseup', mouseUpFunction);
     });
 
-    document.addEventListener('keydown', this._printHotkeyEventHandler);
+    document.addEventListener('keydown', this.printHotkeyEventHandler);
 
-    if (!this._isRunningInElectron) {
-     document.addEventListener('keydown', this._saveHotkeyEventHandler);
+    if (!this.isRunningInElectron) {
+      document.addEventListener('keydown', this.saveHotkeyEventHandler);
     }
 
-    this._hideOrShowPpForSpaceReasons();
+    this.hideOrShowPpForSpaceReasons();
 
-    this._subscriptions = [
-      this._eventAggregator.subscribe(environment.events.processSolutionPanel.toggleProcessSolutionExplorer, () => {
-        this._hideOrShowPpForSpaceReasons();
+    this.subscriptions = [
+      this.eventAggregator.subscribe(environment.events.processSolutionPanel.toggleProcessSolutionExplorer, () => {
+        this.hideOrShowPpForSpaceReasons();
       }),
 
-      this._eventAggregator.subscribe(`${environment.events.diagramDetail.exportDiagramAs}:BPMN`, async() => {
+      this.eventAggregator.subscribe(`${environment.events.diagramDetail.exportDiagramAs}:BPMN`, async () => {
         try {
           const exportName: string = `${this.name}.bpmn`;
           const xmlToExport: string = await this.getXML();
 
-          await this._diagramExportService
+          await this.diagramExportService
             .loadXML(xmlToExport)
             .asBpmn()
             .export(exportName);
         } catch {
-          this._notificationService.showNotification(NotificationType.ERROR, 'An error occurred while preparing the diagram for exporting');
+          this.notificationService.showNotification(
+            NotificationType.ERROR,
+            'An error occurred while preparing the diagram for exporting',
+          );
         }
       }),
 
-      this._eventAggregator.subscribe(`${environment.events.diagramDetail.exportDiagramAs}:SVG`, async() => {
+      this.eventAggregator.subscribe(`${environment.events.diagramDetail.exportDiagramAs}:SVG`, async () => {
         try {
           const exportName: string = `${this.name}.svg`;
-          await this._diagramExportService
+          await this.diagramExportService
             .loadSVG(await this.getSVG())
             .asSVG()
             .export(exportName);
         } catch (error) {
-          this._notificationService.showNotification(NotificationType.ERROR, 'An error occurred while preparing the diagram for exporting');
+          this.notificationService.showNotification(
+            NotificationType.ERROR,
+            'An error occurred while preparing the diagram for exporting',
+          );
         }
       }),
 
-      this._eventAggregator.subscribe(`${environment.events.diagramDetail.exportDiagramAs}:PNG`, async() => {
+      this.eventAggregator.subscribe(`${environment.events.diagramDetail.exportDiagramAs}:PNG`, async () => {
         try {
           const exportName: string = `${this.name}.png`;
-          await this._diagramExportService
+          await this.diagramExportService
             .loadSVG(await this.getSVG())
             .asPNG()
             .export(exportName);
         } catch (error) {
-          this._notificationService.showNotification(NotificationType.ERROR, 'An error occurred while preparing the diagram for exporting');
+          this.notificationService.showNotification(
+            NotificationType.ERROR,
+            'An error occurred while preparing the diagram for exporting',
+          );
         }
       }),
 
-      this._eventAggregator.subscribe(`${environment.events.diagramDetail.exportDiagramAs}:JPEG`, async() => {
+      this.eventAggregator.subscribe(`${environment.events.diagramDetail.exportDiagramAs}:JPEG`, async () => {
         try {
           const exportName: string = `${this.name}.jpeg`;
-          await this._diagramExportService
-          .loadSVG(await this.getSVG())
-          .asJPEG()
-          .export(exportName);
+          await this.diagramExportService
+            .loadSVG(await this.getSVG())
+            .asJPEG()
+            .export(exportName);
         } catch (error) {
-          this._notificationService.showNotification(NotificationType.ERROR, 'An error occurred while preparing the diagram for exporting');
+          this.notificationService.showNotification(
+            NotificationType.ERROR,
+            'An error occurred while preparing the diagram for exporting',
+          );
         }
       }),
 
-      this._eventAggregator.subscribe(`${environment.events.diagramDetail.printDiagram}`, async() => {
-        await this._printHandler();
+      this.eventAggregator.subscribe(`${environment.events.diagramDetail.printDiagram}`, async () => {
+        await this.printHandler();
       }),
 
-      this._eventAggregator.subscribe(environment.events.diagramDetail.saveDiagram, async() => {
+      this.eventAggregator.subscribe(environment.events.diagramDetail.saveDiagram, async () => {
         this.savedXml = await this.getXML();
-        this._diagramHasChanges = false;
+        this.diagramHasChanges = false;
 
-        await this._saveDiagramState(this.diagramUri);
+        await this.saveDiagramState(this.diagramUri);
       }),
 
-      this._eventAggregator.subscribe(environment.events.diagramChange, async() => {
+      this.eventAggregator.subscribe(environment.events.diagramChange, async () => {
         this.xml = await this.getXML();
 
-        const diagramIsChanged: boolean = !this._areXmlsIdentical(this.xml, this.savedXml);
+        const diagramIsChanged: boolean = !this.areXmlsIdentical(this.xml, this.savedXml);
 
-        this._validateDiagram();
+        this.validateDiagram();
 
-        this._eventAggregator.publish(environment.events.differsFromOriginal, diagramIsChanged);
+        this.eventAggregator.publish(environment.events.differsFromOriginal, diagramIsChanged);
       }),
 
-      this._eventAggregator.subscribe(environment.events.navBar.validationError, () => {
+      this.eventAggregator.subscribe(environment.events.navBar.validationError, () => {
         this.diagramIsInvalid = true;
       }),
 
-      this._eventAggregator.subscribe(environment.events.navBar.noValidationError, () => {
+      this.eventAggregator.subscribe(environment.events.navBar.noValidationError, () => {
         this.diagramIsInvalid = false;
       }),
 
-      this._eventAggregator.subscribe(environment.events.bpmnio.togglePropertyPanel, () => {
-        this._togglePanel();
+      this.eventAggregator.subscribe(environment.events.bpmnio.togglePropertyPanel, () => {
+        this.togglePanel();
       }),
 
-      this._eventAggregator.subscribe(environment.events.bpmnio.bindKeyboard, () => {
+      this.eventAggregator.subscribe(environment.events.bpmnio.bindKeyboard, () => {
         const keyboard: IKeyboard = this.modeler.get('keyboard');
 
         const element: Document | any = document;
         keyboard.bind(element);
       }),
 
-      this._eventAggregator.subscribe(environment.events.bpmnio.unbindKeyboard, () => {
+      this.eventAggregator.subscribe(environment.events.bpmnio.unbindKeyboard, () => {
         const keyboard: IKeyboard = this.modeler.get('keyboard');
 
         keyboard.unbind();
       }),
 
-      this._eventAggregator.subscribe(environment.events.differsFromOriginal, (changes: boolean) => {
-       this._diagramHasChanges = changes;
+      this.eventAggregator.subscribe(environment.events.differsFromOriginal, (changes: boolean) => {
+        this.diagramHasChanges = changes;
       }),
     ];
 
@@ -385,27 +413,28 @@ export class BpmnIo {
      * Update the property panel width;
      * if no previous width was found, take the configured one.
      */
-    this.propertyPanelWidth = (previousPropertyPanelWidth !== undefined) ?
-                              parseInt(previousPropertyPanelWidth) :
-                              environment.propertyPanel.defaultWidth;
+    this.propertyPanelWidth =
+      previousPropertyPanelWidth !== undefined
+        ? parseInt(previousPropertyPanelWidth)
+        : environment.propertyPanel.defaultWidth;
 
     const propertyPanelHideState: string = window.localStorage.getItem('propertyPanelHideState');
     const wasPropertyPanelVisible: boolean = propertyPanelHideState === null || propertyPanelHideState === 'show';
-    this._propertyPanelShouldOpen = wasPropertyPanelVisible;
-    this._togglePanel();
+    this.propertyPanelShouldOpen = wasPropertyPanelVisible;
+    this.togglePanel();
   }
 
   public detached(): void {
     this.modeler.detach();
     this.modeler.destroy();
-    window.removeEventListener('resize', this._resizeEventHandler);
-    document.removeEventListener('keydown', this._printHotkeyEventHandler);
+    window.removeEventListener('resize', this.resizeEventHandler);
+    document.removeEventListener('keydown', this.printHotkeyEventHandler);
 
-    if (!this._isRunningInElectron) {
-      document.removeEventListener('keydown', this._saveHotkeyEventHandler);
+    if (!this.isRunningInElectron) {
+      document.removeEventListener('keydown', this.saveHotkeyEventHandler);
     }
 
-    for (const subscription of this._subscriptions) {
+    for (const subscription of this.subscriptions) {
       subscription.dispose();
     }
   }
@@ -419,7 +448,7 @@ export class BpmnIo {
 
   public async saveCurrentXML(): Promise<void> {
     this.savedXml = await this.getXML();
-    this._tempProcess = undefined;
+    this.tempProcess = undefined;
   }
 
   public async xmlChanged(newValue: string, oldValue?: string): Promise<void> {
@@ -430,21 +459,21 @@ export class BpmnIo {
         this.viewer.importXML(this.xml);
       }
 
-      if (this._diagramHasState(this.diagramUri)) {
-        this._recoverDiagramState();
+      if (this.diagramHasState(this.diagramUri)) {
+        this.recoverDiagramState();
       } else {
-        await this._importXmlIntoModeler(this.xml);
+        await this.importXmlIntoModeler(this.xml);
       }
 
-      const diagramState: IDiagramState = this._loadDiagramState(this.diagramUri);
+      const diagramState: IDiagramState = this.loadDiagramState(this.diagramUri);
       const diagramContainsChanges: boolean = diagramState !== null && diagramState.metaData.isChanged;
 
-      this._eventAggregator.publish(environment.events.differsFromOriginal, diagramContainsChanges);
+      this.eventAggregator.publish(environment.events.differsFromOriginal, diagramContainsChanges);
     }
 
     const oldValueExists: boolean = oldValue !== undefined;
     if (!this.diagramHasChanged && oldValueExists && !this.solutionIsRemote) {
-      await this._saveDiagramState(this.diagramUri);
+      await this.saveDiagramState(this.diagramUri);
     }
 
     this.diagramHasChanged = false;
@@ -452,26 +481,24 @@ export class BpmnIo {
 
   public async diagramChanged(newUri: string, previousUri: string): Promise<void> {
     this.diagramHasChanged = true;
-    this._tempProcess = undefined;
+    this.tempProcess = undefined;
 
     const previousDiagramExists: boolean = previousUri !== undefined;
     if (!this.solutionIsRemote && previousDiagramExists) {
-
       if (this.saveStateForNewUri) {
         this.saveStateForNewUri = false;
 
         const previousDiagramWasNoNewDiagram: boolean = !previousUri.startsWith('about:open-diagrams');
         if (previousDiagramWasNoNewDiagram) {
-          await this._saveDiagramState(newUri);
+          await this.saveDiagramState(newUri);
         }
       } else {
-
-        const previousDiagramIsNotDeleted: boolean = this._solutionService
+        const previousDiagramIsNotDeleted: boolean = this.solutionService
           .getOpenDiagrams()
           .some((diagram: IDiagram) => diagram.uri === previousUri);
 
         if (previousDiagramIsNotDeleted) {
-          await this._saveDiagramState(previousUri);
+          await this.saveDiagramState(previousUri);
         }
       }
     }
@@ -480,13 +507,9 @@ export class BpmnIo {
     if (this.solutionIsRemote) {
       const viewerNotInitialized: boolean = this.viewer === undefined;
       if (viewerNotInitialized) {
+        // eslint-disable-next-line 6river/new-cap
         this.viewer = new bundle.viewer({
-          additionalModules:
-          [
-            bundle.ZoomScrollModule,
-            bundle.MoveCanvasModule,
-            bundle.MiniMap,
-          ],
+          additionalModules: [bundle.ZoomScrollModule, bundle.MoveCanvasModule, bundle.MiniMap],
         });
 
         this.viewer.on('selection.changed', (event: IEvent) => {
@@ -503,7 +526,7 @@ export class BpmnIo {
         });
 
         this.viewer.on('import.done', () => {
-          this._fitDiagramToViewport();
+          this.fitDiagramToViewport();
         });
       }
 
@@ -521,9 +544,8 @@ export class BpmnIo {
           this.viewer.importXML(this.xml);
         }
 
-        this._linting.deactivateLinting();
+        this.linting.deactivateLinting();
       }, 0);
-
     } else {
       const xmlExists: boolean = this.xml !== undefined;
       if (xmlExists) {
@@ -534,15 +556,15 @@ export class BpmnIo {
       setTimeout(() => {
         this.modeler.attachTo(this.canvasModel);
         this.attachPaletteContainer();
-        this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
+        this.bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
 
-        if (this._bpmnLintButton) {
-          this._bpmnLintButton.style.display = 'none';
+        if (this.bpmnLintButton) {
+          this.bpmnLintButton.style.display = 'none';
         }
       }, 0);
     }
 
-    this._diagramHasChanges = false;
+    this.diagramHasChanges = false;
   }
 
   public nameChanged(newValue: string): void {
@@ -553,22 +575,22 @@ export class BpmnIo {
 
   public propertyPanelWidthChanged(newValue: number): void {
     if (newValue !== undefined) {
-      window.localStorage.setItem('propertyPanelWidth', '' + this.propertyPanelWidth);
+      window.localStorage.setItem('propertyPanelWidth', `${this.propertyPanelWidth}`);
     }
   }
 
-  private _diagramHasState(uri: string): boolean {
-    const diagramState: IDiagramState = this._loadDiagramState(uri);
+  private diagramHasState(uri: string): boolean {
+    const diagramState: IDiagramState = this.loadDiagramState(uri);
 
     return diagramState !== null;
   }
 
-  private _loadDiagramState(diagramUri: string): IDiagramState {
-    return this._openDiagramStateService.loadDiagramState(diagramUri);
+  private loadDiagramState(diagramUri: string): IDiagramState {
+    return this.openDiagramStateService.loadDiagramState(diagramUri);
   }
 
-  private async _recoverDiagramState(): Promise<void> {
-    const diagramState: IDiagramState = this._loadDiagramState(this.diagramUri);
+  private async recoverDiagramState(): Promise<void> {
+    const diagramState: IDiagramState = this.loadDiagramState(this.diagramUri);
 
     const diagramHasNoState: boolean = diagramState === null;
     if (diagramHasNoState) {
@@ -578,16 +600,16 @@ export class BpmnIo {
     const xml: string = diagramState.data.xml;
     const viewbox: IViewbox = diagramState.metaData.location;
 
-    await this._importXmlIntoModeler(xml);
+    await this.importXmlIntoModeler(xml);
 
     setTimeout(() => {
       this.modeler.get('canvas').viewbox(viewbox);
     }, 0);
   }
 
-  private async _validateDiagram(): Promise<void> {
-    const validationResult: IValidateResult = await this._linting.lint();
-    this._linting.update();
+  private async validateDiagram(): Promise<void> {
+    const validationResult: IValidateResult = await this.linting.lint();
+    this.linting.update();
 
     let validationResultContainsErrors: boolean = false;
 
@@ -604,24 +626,26 @@ export class BpmnIo {
     this.diagramIsInvalid = validationResultContainsErrors;
   }
 
-  public _togglePanel(): void {
-    if (this._propertyPanelShouldOpen) {
-      if (this._propertyPanelHasNoSpace) {
-        this._notificationService.showNotification(NotificationType.ERROR, 'There is not enough space for the property panel!');
+  public togglePanel(): void {
+    if (this.propertyPanelShouldOpen) {
+      if (this.propertyPanelHasNoSpace) {
+        this.notificationService.showNotification(
+          NotificationType.ERROR,
+          'There is not enough space for the property panel!',
+        );
         return;
       }
 
       document.getElementById('toggleButtonPropertyPanel').classList.add('design-layout__tool--active');
       this.showPropertyPanel = true;
-      this._eventAggregator.publish(environment.events.bpmnio.propertyPanelActive, true);
-      this._propertyPanelShouldOpen = false;
+      this.eventAggregator.publish(environment.events.bpmnio.propertyPanelActive, true);
+      this.propertyPanelShouldOpen = false;
       window.localStorage.setItem('propertyPanelHideState', 'show');
     } else {
-
       document.getElementById('toggleButtonPropertyPanel').classList.remove('design-layout__tool--active');
       this.showPropertyPanel = false;
-      this._eventAggregator.publish(environment.events.bpmnio.propertyPanelActive, false);
-      this._propertyPanelShouldOpen = true;
+      this.eventAggregator.publish(environment.events.bpmnio.propertyPanelActive, false);
+      this.propertyPanelShouldOpen = true;
       window.localStorage.setItem('propertyPanelHideState', 'hide');
     }
   }
@@ -629,7 +653,7 @@ export class BpmnIo {
   public resize(event: MouseEvent): void {
     const mousePosition: number = event.clientX;
 
-    this._setNewPropertyPanelWidthFromMousePosition(mousePosition);
+    this.setNewPropertyPanelWidthFromMousePosition(mousePosition);
   }
 
   public async getXML(): Promise<string> {
@@ -654,44 +678,44 @@ export class BpmnIo {
 
   public toggleLinter(): void {
     this.showLinter = !this.showLinter;
-    this._bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
+    this.bpmnLintButton = document.querySelector('.bpmn-js-bpmnlint-button');
 
     if (this.showLinter) {
-      this._bpmnLintButton.style.display = 'block';
+      this.bpmnLintButton.style.display = 'block';
 
-      this._linting.activateLinting();
+      this.linting.activateLinting();
     } else {
-      this._bpmnLintButton.style.display = 'none';
+      this.bpmnLintButton.style.display = 'none';
 
-      this._linting.deactivateLinting();
+      this.linting.deactivateLinting();
     }
   }
 
-  private get _isRunningInElectron(): boolean {
+  private get isRunningInElectron(): boolean {
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
 
     return isRunningInElectron;
   }
 
-  private async _saveDiagramState(diagramUri: string): Promise<void> {
+  private async saveDiagramState(diagramUri: string): Promise<void> {
     const savedXml: string = this.savedXml;
     const modelerCanvas: ICanvas = this.modeler.get('canvas');
 
     const isUnsavedDiagram: boolean = diagramUri.startsWith('about:open-diagrams');
 
     const selectedElement: Array<IShape> = this.modeler.get('selection')._selectedElements;
-    const viewbox: IViewbox  = modelerCanvas.viewbox();
+    const viewbox: IViewbox = modelerCanvas.viewbox();
     const xml: string = await this.getXML();
-    const isChanged: boolean = isUnsavedDiagram ? true : !this._areXmlsIdentical(xml, savedXml);
+    const isChanged: boolean = isUnsavedDiagram ? true : !this.areXmlsIdentical(xml, savedXml);
 
-    this._openDiagramStateService.saveDiagramState(diagramUri, xml, viewbox, selectedElement, isChanged);
+    this.openDiagramStateService.saveDiagramState(diagramUri, xml, viewbox, selectedElement, isChanged);
   }
 
-  private _areXmlsIdentical(firstXml: string, secondXml: string): boolean {
+  private areXmlsIdentical(firstXml: string, secondXml: string): boolean {
     /*
-    * This Regex removes all newlines and spaces to make sure that both xml
-    * are not formatted.
-    */
+     * This Regex removes all newlines and spaces to make sure that both xml
+     * are not formatted.
+     */
     const whitespaceAndNewLineRegex: RegExp = /\r?\n|\r|\s/g;
 
     const unformattedXml: string = firstXml.replace(whitespaceAndNewLineRegex, '');
@@ -700,7 +724,7 @@ export class BpmnIo {
     return unformattedSaveXml === unformattedXml;
   }
 
-  private _importXmlIntoModeler(xml: string): Promise<void> {
+  private importXmlIntoModeler(xml: string): Promise<void> {
     return new Promise((resolve: Function, reject: Function): void => {
       this.modeler.importXML(xml, (error: Error) => {
         const errorOccured: boolean = error !== undefined;
@@ -715,47 +739,44 @@ export class BpmnIo {
     });
   }
 
-  private _fitDiagramToViewport(): void {
+  private fitDiagramToViewport(): void {
     const modelerCanvas: ICanvas = this.modeler.get('canvas');
-    const modelerViewbox: IViewbox  = modelerCanvas.viewbox();
+    const modelerViewbox: IViewbox = modelerCanvas.viewbox();
     const modelerDiagramIsVisible: boolean = modelerViewbox.height > 0 && modelerViewbox.width > 0;
 
     if (this.solutionIsRemote) {
       const viewerCanvas: ICanvas = this.viewer.get('canvas');
-      const viewerViewbox: IViewbox  = viewerCanvas.viewbox();
+      const viewerViewbox: IViewbox = viewerCanvas.viewbox();
       const viewerDiagramIsVisible: boolean = viewerViewbox.height > 0 && viewerViewbox.width > 0;
 
       if (viewerDiagramIsVisible) {
         viewerCanvas.zoom('fit-viewport', 'auto');
       }
-    } else {
-      if (modelerDiagramIsVisible) {
-        modelerCanvas.zoom('fit-viewport', 'auto');
-      }
+    } else if (modelerDiagramIsVisible) {
+      modelerCanvas.zoom('fit-viewport', 'auto');
     }
   }
 
-  private _renameFormFields(event: IInternalEvent): IInternalEvent {
+  private renameFormFields(event: IInternalEvent): IInternalEvent {
     const allFields: Array<IPropertiesElement> = event.descriptor.businessObject.extensionElements.values;
 
     const formDataObject: IPropertiesElement = allFields.find((field: IModdleElement) => {
       return field.$type === 'camunda:FormData';
     });
 
-    const noFieldsSpecified: boolean = formDataObject.fields === undefined
-                                    || formDataObject.fields === null;
+    const noFieldsSpecified: boolean = formDataObject.fields === undefined || formDataObject.fields === null;
     if (noFieldsSpecified) {
-      return;
+      return undefined;
     }
 
     formDataObject.fields.forEach((formField: IModdleElement) => {
-      formField.id = `Form_${this._generateRandomId()}`;
+      formField.id = `Form_${this.generateRandomId()}`;
     });
 
     return event;
   }
 
-  private _generateRandomId(): string {
+  private generateRandomId(): string {
     let randomId: string = '';
     const possible: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -767,7 +788,7 @@ export class BpmnIo {
     return randomId;
   }
 
-  private _checkForMultipleParticipants(event: IInternalEvent): IInternalEvent {
+  private checkForMultipleParticipants(event: IInternalEvent): IInternalEvent {
     const elementRegistry: IElementRegistry = this.modeler.get('elementRegistry');
 
     setTimeout(() => {
@@ -775,19 +796,18 @@ export class BpmnIo {
         return element.type === 'bpmn:Participant';
       });
 
-      if (this._diagramHasChanges) {
+      if (this.diagramHasChanges) {
         participants.forEach((participant: IShape) => {
-          participant.businessObject.processRef.id = this._tempProcess.id;
-          participant.businessObject.processRef.isExecutable = this._tempProcess.isExecutable;
+          participant.businessObject.processRef.id = this.tempProcess.id;
+          participant.businessObject.processRef.isExecutable = this.tempProcess.isExecutable;
         });
       }
-
     }, elementRegistryTimeoutMilliseconds);
 
     return event;
   }
 
-  private _setNewPropertyPanelWidthFromMousePosition(mousePosition: number): void {
+  private setNewPropertyPanelWidthFromMousePosition(mousePosition: number): void {
     const propertyPanelMaxWidth: number = this.propertyPanel.parentElement.offsetWidth - this.minCanvasWidth;
     const mousePositionFromRight: number = document.body.clientWidth - mousePosition;
     const resizedWidth: number = mousePositionFromRight - sideBarRightSize;
@@ -803,33 +823,33 @@ export class BpmnIo {
     this.propertyPanelWidth = newPropertyPanelWidth;
   }
 
-  private _hidePropertyPanelForSpaceReasons(): void {
-    this._propertyPanelHasNoSpace = true;
-    const propertyPanelIsOpen: boolean = !this._propertyPanelShouldOpen;
+  private hidePropertyPanelForSpaceReasons(): void {
+    this.propertyPanelHasNoSpace = true;
+    const propertyPanelIsOpen: boolean = !this.propertyPanelShouldOpen;
 
     if (propertyPanelIsOpen) {
-      this._propertyPanelHiddenForSpaceReasons = true;
-      this._togglePanel();
+      this.propertyPanelHiddenForSpaceReasons = true;
+      this.togglePanel();
     }
   }
 
-  private _showPropertyPanelForSpaceReasons(): void {
-    this._propertyPanelHasNoSpace = false;
-    this._propertyPanelHiddenForSpaceReasons = false;
+  private showPropertyPanelForSpaceReasons(): void {
+    this.propertyPanelHasNoSpace = false;
+    this.propertyPanelHiddenForSpaceReasons = false;
 
-    this._propertyPanelShouldOpen = true;
-    this._togglePanel();
+    this.propertyPanelShouldOpen = true;
+    this.togglePanel();
   }
 
-  private _resizeEventHandler = (event: MouseEvent): void => {
-    this._hideOrShowPpForSpaceReasons();
+  private resizeEventHandler = (event: MouseEvent): void => {
+    this.hideOrShowPpForSpaceReasons();
 
     const mousePosition: number = event.clientX;
 
-    this._setNewPropertyPanelWidthFromMousePosition(mousePosition);
-  }
+    this.setNewPropertyPanelWidthFromMousePosition(mousePosition);
+  };
 
-  private _hideOrShowPpForSpaceReasons(): void {
+  private hideOrShowPpForSpaceReasons(): void {
     const minModelerWidthForPropertyPanel: number = this.minCanvasWidth + this.minPropertyPanelWidth;
     const modelerWidth: number = this.propertyPanel.parentElement.offsetWidth;
 
@@ -837,23 +857,26 @@ export class BpmnIo {
       return;
     }
 
-    this._propertyPanelHasNoSpace = modelerWidth < minModelerWidthForPropertyPanel;
-    if (this._propertyPanelHasNoSpace) {
-      this._hidePropertyPanelForSpaceReasons();
-    } else if (this._propertyPanelHiddenForSpaceReasons) {
-      this._showPropertyPanelForSpaceReasons();
+    this.propertyPanelHasNoSpace = modelerWidth < minModelerWidthForPropertyPanel;
+    if (this.propertyPanelHasNoSpace) {
+      this.hidePropertyPanelForSpaceReasons();
+    } else if (this.propertyPanelHiddenForSpaceReasons) {
+      this.showPropertyPanelForSpaceReasons();
     }
   }
 
   /**
    * Handles an incoming printDiagram message.
    */
-  private async _printHandler(): Promise<void> {
+  private async printHandler(): Promise<void> {
     try {
       const svgToPrint: string = await this.getSVG();
-      this._diagramPrintService.printDiagram(svgToPrint);
+      this.diagramPrintService.printDiagram(svgToPrint);
     } catch (error) {
-      this._notificationService.showNotification(NotificationType.ERROR, `An error while trying to print the diagram occurred.`);
+      this.notificationService.showNotification(
+        NotificationType.ERROR,
+        'An error while trying to print the diagram occurred.',
+      );
     }
   }
 
@@ -867,19 +890,19 @@ export class BpmnIo {
    * @param event Passed key event.
    * @return void
    */
-  private _saveHotkeyEventHandler = (event: KeyboardEvent): void  => {
+  private saveHotkeyEventHandler = (event: KeyboardEvent): void => {
     // On macOS the 'common control key' is the meta instead of the control key. So on a mac we need to find
     // out, if the meta key instead of the control key is pressed.
-    const currentPlatformIsMac: boolean = this._checkIfCurrentPlatformIsMac();
+    const currentPlatformIsMac: boolean = this.checkIfCurrentPlatformIsMac();
     const metaKeyIsPressed: boolean = currentPlatformIsMac ? event.metaKey : event.ctrlKey;
     const shiftKeyIsPressed: boolean = event.shiftKey;
 
     /*
-    * If both keys (meta and s) are pressed, save the diagram.
-    * A diagram is saved, by throwing a saveDiagram event.
-    *
-    * @see environment.events.diagramDetail.saveDiagram
-    */
+     * If both keys (meta and s) are pressed, save the diagram.
+     * A diagram is saved, by throwing a saveDiagram event.
+     *
+     * @see environment.events.diagramDetail.saveDiagram
+     */
     const sKeyIsPressed: boolean = event.key === 's';
     const userWantsToSave: boolean = metaKeyIsPressed && sKeyIsPressed && !shiftKeyIsPressed;
     const userWantsToSaveAs: boolean = metaKeyIsPressed && sKeyIsPressed && shiftKeyIsPressed;
@@ -887,24 +910,23 @@ export class BpmnIo {
     if (userWantsToSave) {
       event.preventDefault();
 
-      this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
+      this.eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
       return;
     }
 
     if (userWantsToSaveAs) {
       event.preventDefault();
-      this._eventAggregator.publish(environment.events.diagramDetail.saveDiagramAs);
-      return;
+      this.eventAggregator.publish(environment.events.diagramDetail.saveDiagramAs);
     }
-  }
+  };
 
   /**
    * On macOS it is typically to remove elements with the backspace instead
    * of the delete key. This Method binds the removal of a selected
    * element to the backspace key, if the current platform is macOS.
    */
-  private _addRemoveWithBackspaceKeyboardListener(): void {
-    const currentPlatformIsNotMac: boolean = !this._checkIfCurrentPlatformIsMac();
+  private addRemoveWithBackspaceKeyboardListener(): void {
+    const currentPlatformIsNotMac: boolean = !this.checkIfCurrentPlatformIsMac();
 
     if (currentPlatformIsNotMac) {
       return;
@@ -914,16 +936,17 @@ export class BpmnIo {
     const editorActions: IEditorActions = this.modeler.get('editorActions');
     const backSpaceKeyCode: number = 8;
 
-    // tslint:disable-next-line:typedef
     const removeSelectedElements = (key: IInternalEvent, modifiers: KeyboardEvent): boolean => {
-        const backspaceWasPressed: boolean = key.keyEvent.keyCode === backSpaceKeyCode;
+      const backspaceWasPressed: boolean = key.keyEvent.keyCode === backSpaceKeyCode;
 
-        if (backspaceWasPressed) {
-          editorActions.trigger('removeSelection');
+      if (backspaceWasPressed) {
+        editorActions.trigger('removeSelection');
 
-          return true;
-        }
-      };
+        return true;
+      }
+
+      return false;
+    };
 
     keyboard.addListener(removeSelectedElements);
   }
@@ -938,10 +961,10 @@ export class BpmnIo {
    * @param event Passed key event.
    * @return void
    */
-  private _printHotkeyEventHandler = (event: KeyboardEvent): void  => {
+  private printHotkeyEventHandler = (event: KeyboardEvent): void => {
     // On macOS the 'common control key' is the meta instead of the control key. So on a mac we need to find
     // out, if the meta key instead of the control key is pressed.
-    const currentPlatformIsMac: boolean = this._checkIfCurrentPlatformIsMac();
+    const currentPlatformIsMac: boolean = this.checkIfCurrentPlatformIsMac();
     const metaKeyIsPressed: boolean = currentPlatformIsMac ? event.metaKey : event.ctrlKey;
 
     /*
@@ -959,23 +982,23 @@ export class BpmnIo {
 
       // TODO: Handle the promise properly
       this.getSVG().then((svg: string): void => {
-        this._diagramPrintService.printDiagram(svg);
+        this.diagramPrintService.printDiagram(svg);
       });
     }
-  }
+  };
 
   /**
    * Checks, if the current platform is a macOS.
    *
    * @returns true, if the current platform is macOS
    */
-  private _checkIfCurrentPlatformIsMac = (): boolean => {
+  private checkIfCurrentPlatformIsMac = (): boolean => {
     const macRegex: RegExp = /.*mac*./i;
     const currentPlatform: string = navigator.platform;
     const currentPlatformIsMac: boolean = macRegex.test(currentPlatform);
 
     return currentPlatformIsMac;
-  }
+  };
 
   private async getSVG(): Promise<string> {
     const returnPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {

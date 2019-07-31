@@ -1,19 +1,18 @@
-import {browser, by, element, ElementFinder, ExpectedConditions} from 'protractor';
+import {ElementFinder, ExpectedConditions, browser, by, element} from 'protractor';
 
 import {By} from 'selenium-webdriver';
 
 export class DynamicUi {
-
-  private _dynamicUiWrapperTag: string = 'dynamic-ui-wrapper';
+  private dynamicUiWrapperTag: string = 'dynamic-ui-wrapper';
 
   public async getVisibilityOfDynamicUiWrapper(): Promise<boolean> {
-    await browser.wait(ExpectedConditions.visibilityOf(this._dynamicUiWrapper), browser.params.defaultTimeoutMS);
+    await browser.wait(ExpectedConditions.visibilityOf(this.dynamicUiWrapper), browser.params.defaultTimeoutMS);
 
-    return this._dynamicUiWrapper.isDisplayed();
+    return this.dynamicUiWrapper.isDisplayed();
   }
 
-  private get _dynamicUiWrapper(): ElementFinder {
-    const dynamicUiWrapperByTag: By = by.tagName(this._dynamicUiWrapperTag);
+  private get dynamicUiWrapper(): ElementFinder {
+    const dynamicUiWrapperByTag: By = by.tagName(this.dynamicUiWrapperTag);
 
     return element(dynamicUiWrapperByTag);
   }

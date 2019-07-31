@@ -6,7 +6,8 @@ export interface ITokenViewerService {
     processModelId: string,
     correlationId: string,
     flowNodeId: string,
-    identity: IIdentity): Promise<DataModels.TokenHistory.TokenHistoryGroup | undefined>;
+    identity: IIdentity,
+  ): Promise<DataModels.TokenHistory.TokenHistoryGroup | undefined>;
   getTokenForFlowNodeByProcessInstanceId(
     processInstanceId: string,
     flowNodeId: string,

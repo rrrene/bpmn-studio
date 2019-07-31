@@ -21,7 +21,14 @@ interface IUriToViewModelMap {
   [key: string]: SolutionExplorerSolution;
 }
 
-@inject(Router, EventAggregator, 'SolutionExplorerServiceFactory', 'AuthenticationService', 'SolutionService', 'OpenDiagramService')
+@inject(
+  Router,
+  EventAggregator,
+  'SolutionExplorerServiceFactory',
+  'AuthenticationService',
+  'SolutionService',
+  'OpenDiagramService',
+)
 export class SolutionExplorerList {
   public internalSolutionUri: string;
   /**
@@ -30,21 +37,22 @@ export class SolutionExplorerList {
    */
   public openDiagramService: OpenDiagramsSolutionExplorerService;
 
-  private _router: Router;
-  private _eventAggregator: EventAggregator;
-  private _solutionExplorerServiceFactory: SolutionExplorerServiceFactory;
-  private _authenticationService: IAuthenticationService;
-  private _solutionService: ISolutionService;
-  /*
-   * Contains all opened solutions.
-   */
-  private _openedSolutions: Array<ISolutionEntry> = [];
   /*
    * Keep a seperate map of all viewmodels for the solutions entries.
    * The uri maps to the viewmodel. The contents of this map get set by aurelia
    * in the html view.
    */
   public solutionEntryViewModels: IUriToViewModelMap = {};
+
+  private router: Router;
+  private eventAggregator: EventAggregator;
+  private solutionExplorerServiceFactory: SolutionExplorerServiceFactory;
+  private authenticationService: IAuthenticationService;
+  private solutionService: ISolutionService;
+  /*
+   * Contains all opened solutions.
+   */
+  private openedSolutions: Array<ISolutionEntry> = [];
 
   constructor(
     router: Router,
@@ -54,16 +62,16 @@ export class SolutionExplorerList {
     solutionService: ISolutionService,
     openDiagramService: OpenDiagramsSolutionExplorerService,
   ) {
-    this._router = router;
-    this._eventAggregator = eventAggregator;
-    this._solutionExplorerServiceFactory = solutionExplorerServiceFactory;
-    this._authenticationService = authenticationService;
-    this._solutionService = solutionService;
+    this.router = router;
+    this.eventAggregator = eventAggregator;
+    this.solutionExplorerServiceFactory = solutionExplorerServiceFactory;
+    this.authenticationService = authenticationService;
+    this.solutionService = solutionService;
     this.openDiagramService = openDiagramService;
 
     const canReadFromFileSystem: boolean = (window as any).nodeRequire;
     if (canReadFromFileSystem) {
-      this._createOpenDiagramServiceEntry();
+      this.createOpenDiagramServiceEntry();
     }
 
     // Allows us to debug the solution explorer list.
@@ -81,9 +89,11 @@ export class SolutionExplorerList {
         const viewModelExists: boolean = viewModel !== undefined && viewModel !== null;
         return viewModelExists;
       })
-      .map((viewModel: SolutionExplorerSolution): Promise<void> => {
-        return viewModel.updateSolution();
-      });
+      .map(
+        (viewModel: SolutionExplorerSolution): Promise<void> => {
+          return viewModel.updateSolution();
+        },
+      );
 
     await Promise.all(refreshPromises);
   }
@@ -94,7 +104,7 @@ export class SolutionExplorerList {
     }
 
     solutionEntry.hidden = !solutionEntry.hidden;
-    this._solutionService.persistSolutionsInLocalStorage();
+    this.solutionService.persistSolutionsInLocalStorage();
   }
 
   public solutionIsInternalSolution(solution: ISolutionEntry): boolean {
@@ -104,11 +114,11 @@ export class SolutionExplorerList {
   }
 
   public openSettings(): void {
-    this._router.navigateToRoute('settings');
+    this.router.navigateToRoute('settings');
   }
 
   public async openDiagram(uri: string): Promise<IDiagram> {
-    const identity: IIdentity = this._createIdentityForSolutionExplorer();
+    const identity: IIdentity = this.createIdentityForSolutionExplorer();
 
     const diagram: IDiagram = await this.openDiagramService.openDiagram(uri, identity);
 
@@ -124,7 +134,7 @@ export class SolutionExplorerList {
   }
 
   public getOpenDiagramSolutionEntry(): ISolutionEntry {
-    return this._openedSolutions.find((entry: ISolutionEntry) => {
+    return this.openedSolutions.find((entry: ISolutionEntry) => {
       return entry.uri === 'about:open-diagrams';
     });
   }
@@ -135,15 +145,14 @@ export class SolutionExplorerList {
     let solutionExplorer: ISolutionExplorerService;
 
     if (uriIsRemote) {
-      solutionExplorer = await this._solutionExplorerServiceFactory.newManagementApiSolutionExplorer();
+      solutionExplorer = await this.solutionExplorerServiceFactory.newManagementApiSolutionExplorer();
     } else {
-      solutionExplorer = await this._solutionExplorerServiceFactory.newFileSystemSolutionExplorer();
+      solutionExplorer = await this.solutionExplorerServiceFactory.newFileSystemSolutionExplorer();
     }
 
-    const identityIsNotSet: boolean = identity === undefined || identity === null;
-    if (identityIsNotSet) {
-      identity = this._createIdentityForSolutionExplorer();
-    }
+    const identityIsSet: boolean = identity !== undefined && identity !== null;
+
+    const identityToUse: IIdentity = identityIsSet ? identity : this.createIdentityForSolutionExplorer();
 
     let processEngineVersion: string;
     const internalProcessEngineRoute: string = window.localStorage.getItem('InternalProcessEngineRoute');
@@ -163,12 +172,13 @@ export class SolutionExplorerList {
         processEngineVersion = responseJSON.version;
       }
 
-      await solutionExplorer.openSolution(uri, identity);
+      await solutionExplorer.openSolution(uri, identityToUse);
     } catch (error) {
-      this._solutionService.removeSolutionEntryByUri(uri);
+      this.solutionService.removeSolutionEntryByUri(uri);
 
-      const errorIsNoProcessEngine: boolean = error.message === 'The response was not send by a ProcessEngine.'
-                                           || error.message === 'Unexpected token < in JSON at position 0';
+      const errorIsNoProcessEngine: boolean =
+        error.message === 'The response was not send by a ProcessEngine.' ||
+        error.message === 'Unexpected token < in JSON at position 0';
       if (errorIsNoProcessEngine) {
         throw new Error('There is no processengine running on this uri.');
       }
@@ -176,8 +186,10 @@ export class SolutionExplorerList {
       const openSolutionFailedWithFailedToFetch: boolean = error.message === 'Failed to fetch';
       if (openSolutionFailedWithFailedToFetch) {
         if (!uriIsNotInternalProcessEngine) {
-          const processEngineHasStarted: string = await this._getProcessEngineVersionFromInternalPE(uri);
-          this.openSolution(uri, insertAtBeginning, identity);
+          await this.getProcessEngineVersionFromInternalPE(uri);
+
+          this.openSolution(uri, insertAtBeginning, identityToUse);
+
           return;
         }
         /**
@@ -194,17 +206,17 @@ export class SolutionExplorerList {
     const newOpenedSolution: ISolution = await solutionExplorer.loadSolution();
     const solutionURI: string = newOpenedSolution.uri;
 
-    const arrayAlreadyContainedURI: boolean = this._getIndexOfSolution(solutionURI) >= 0;
+    const arrayAlreadyContainedURI: boolean = this.getIndexOfSolution(solutionURI) >= 0;
 
     if (arrayAlreadyContainedURI) {
       throw new Error('Solution is already opened.');
     }
 
     if (!processEngineVersion && !uriIsNotInternalProcessEngine) {
-      processEngineVersion = await this._getProcessEngineVersionFromInternalPE(uri);
+      processEngineVersion = await this.getProcessEngineVersionFromInternalPE(uri);
     }
 
-    this._addSolutionEntry(uri, solutionExplorer, identity, insertAtBeginning, processEngineVersion);
+    this.addSolutionEntry(uri, solutionExplorer, identityToUse, insertAtBeginning, processEngineVersion);
   }
 
   /**
@@ -214,12 +226,11 @@ export class SolutionExplorerList {
    * @param uri the uri of the solution to close.
    */
   public async closeSolution(uri: string): Promise<void> {
-
     /**
      * If the user closes the Solution which contains the diagram, which he still
      * has opened, he gets navigated to the start page.
      */
-    const currentOpenDiagram: string = this._router.currentInstruction.queryParams.solutionUri;
+    const currentOpenDiagram: string = this.router.currentInstruction.queryParams.solutionUri;
     const diagramOfClosedSolutionOpen: boolean = uri.includes(currentOpenDiagram);
 
     if (diagramOfClosedSolutionOpen) {
@@ -227,30 +238,27 @@ export class SolutionExplorerList {
        * We only want to close the open Solution, if the user does not have
        * unsaved changes.
        */
-      const subscription: Subscription = this._eventAggregator.subscribe('router:navigation:success', () => {
-        this._cleanupSolution(uri);
+      const subscription: Subscription = this.eventAggregator.subscribe('router:navigation:success', () => {
+        this.cleanupSolution(uri);
         subscription.dispose();
       });
 
-      this._router.navigateToRoute('start-page');
-
+      this.router.navigateToRoute('start-page');
     } else {
-      this._cleanupSolution(uri);
+      this.cleanupSolution(uri);
     }
   }
 
   public async login(solutionEntry: ISolutionEntry): Promise<void> {
-    const result: ILoginResult = await this._authenticationService.login(solutionEntry.authority);
+    const result: ILoginResult = await this.authenticationService.login(solutionEntry.authority);
 
     const couldNotConnectToAuthority: boolean = result === undefined;
     if (couldNotConnectToAuthority) {
-
       return;
     }
 
     const userIsNotLoggedIn: boolean = result.idToken === 'access_denied';
     if (userIsNotLoggedIn) {
-
       return;
     }
 
@@ -264,20 +272,20 @@ export class SolutionExplorerList {
     solutionEntry.userName = result.identity.name;
 
     await solutionEntry.service.openSolution(solutionEntry.uri, solutionEntry.identity);
-    this._solutionService.persistSolutionsInLocalStorage();
+    this.solutionService.persistSolutionsInLocalStorage();
   }
 
   public async logout(solutionEntry: ISolutionEntry): Promise<void> {
-    await this._authenticationService.logout(solutionEntry.authority, solutionEntry.identity);
+    await this.authenticationService.logout(solutionEntry.authority, solutionEntry.identity);
 
-    solutionEntry.identity = this._createIdentityForSolutionExplorer();
+    solutionEntry.identity = this.createIdentityForSolutionExplorer();
     solutionEntry.isLoggedIn = false;
     solutionEntry.userName = undefined;
 
     await solutionEntry.service.openSolution(solutionEntry.uri, solutionEntry.identity);
-    this._solutionService.persistSolutionsInLocalStorage();
+    this.solutionService.persistSolutionsInLocalStorage();
 
-    this._router.navigateToRoute('start-page');
+    this.router.navigateToRoute('start-page');
   }
 
   /**
@@ -353,33 +361,37 @@ export class SolutionExplorerList {
    * `openDiagramService._openedDiagrams.length` observed because
    * aurelia cannot see the business rules happening in this._shouldDisplaySolution().
    */
-  @computedFrom('_openedSolutions.length', 'openDiagramService._openedDiagrams.length', 'openDiagramService.isCreatingDiagram')
-  public get openedSolutions(): Array<ISolutionEntry> {
-    const filteredEntries: Array<ISolutionEntry> = this._openedSolutions
-      .filter(this._shouldDisplaySolution);
+  @computedFrom(
+    'openedSolutions.length',
+    'openDiagramService.openedDiagrams.length',
+    'openDiagramService.isCreatingDiagram',
+  )
+  public get openedSolutionsToDisplay(): Array<ISolutionEntry> {
+    const filteredEntries: Array<ISolutionEntry> = this.openedSolutions.filter(this.shouldDisplaySolution);
 
-    const sortedEntries: Array<ISolutionEntry> = filteredEntries.sort((solutionA: ISolutionEntry, solutionB: ISolutionEntry) => {
-      if (solutionA.isOpenDiagramService) {
-        return -1;
-      }
+    const sortedEntries: Array<ISolutionEntry> = filteredEntries.sort(
+      (solutionA: ISolutionEntry, solutionB: ISolutionEntry) => {
+        if (solutionA.isOpenDiagramService) {
+          return -1;
+        }
 
-      const solutionAIsInternalProcessEngine: boolean = solutionA.uri === window.localStorage.getItem('InternalProcessEngineRoute');
-      if (solutionAIsInternalProcessEngine) {
-        return 1;
-      }
+        const solutionAIsInternalProcessEngine: boolean =
+          solutionA.uri === window.localStorage.getItem('InternalProcessEngineRoute');
+        if (solutionAIsInternalProcessEngine) {
+          return 1;
+        }
 
-      return solutionA.uri.startsWith('http') && !solutionB.uri.startsWith('http')
-              ? 1
-              : -1;
-    });
+        return solutionA.uri.startsWith('http') && !solutionB.uri.startsWith('http') ? 1 : -1;
+      },
+    );
 
     return sortedEntries;
   }
 
-  private _getProcessEngineVersionFromInternalPE(uri: string): Promise<string> {
+  private getProcessEngineVersionFromInternalPE(uri: string): Promise<string> {
     return new Promise((resolve: Function): void => {
-      const makeRequest: Function = ((): void => {
-        setTimeout(async() => {
+      const makeRequest: Function = (): void => {
+        setTimeout(async () => {
           try {
             const response: Response = await fetch(uri);
             const responseJSON: any = await response.json();
@@ -390,36 +402,35 @@ export class SolutionExplorerList {
           }
           // tslint:disable-next-line: no-magic-numbers
         }, 100);
-      });
+      };
 
       makeRequest();
     });
   }
 
-  private _cleanupSolution(uri: string): void {
-   const indexOfSolutionToBeRemoved: number = this._getIndexOfSolution(uri);
+  private cleanupSolution(uri: string): void {
+    const indexOfSolutionToBeRemoved: number = this.getIndexOfSolution(uri);
 
-   const uriNotFound: boolean = indexOfSolutionToBeRemoved < 0;
-   if (uriNotFound) {
-
+    const uriNotFound: boolean = indexOfSolutionToBeRemoved < 0;
+    if (uriNotFound) {
       return;
     }
-   this._openedSolutions.splice(indexOfSolutionToBeRemoved, 1);
+    this.openedSolutions.splice(indexOfSolutionToBeRemoved, 1);
 
-   const entryToRemove: ISolutionEntry = this._solutionService.getSolutionEntryForUri(uri);
-   this._solutionService.removeSolutionEntryByUri(entryToRemove.uri);
+    const entryToRemove: ISolutionEntry = this.solutionService.getSolutionEntryForUri(uri);
+    this.solutionService.removeSolutionEntryByUri(entryToRemove.uri);
   }
   /**
    * Add entry for single file service.
    */
 
-  private _createOpenDiagramServiceEntry(): void {
-    const identity: IIdentity = this._createIdentityForSolutionExplorer();
+  private createOpenDiagramServiceEntry(): void {
+    const identity: IIdentity = this.createIdentityForSolutionExplorer();
 
-    this._addSolutionEntry('about:open-diagrams', this.openDiagramService, identity, true);
+    this.addSolutionEntry('about:open-diagrams', this.openDiagramService, identity, true);
   }
 
-  private _getFontAwesomeIconForSolution(service: ISolutionExplorerService, uri: string): string {
+  private getFontAwesomeIconForSolution(service: ISolutionExplorerService, uri: string): string {
     const solutionIsOpenedFromRemote: boolean = uri.startsWith('http');
     if (solutionIsOpenedFromRemote) {
       return 'fa-database';
@@ -433,15 +444,15 @@ export class SolutionExplorerList {
     return 'fa-folder';
   }
 
-  private _canCreateNewDiagramsInSolution(service: ISolutionExplorerService, uri: string): boolean {
+  private canCreateNewDiagramsInSolution(service: ISolutionExplorerService, uri: string): boolean {
     const solutionIsNotOpenedFromRemote: boolean = !uri.startsWith('http');
     const solutionIsNotOpenDiagrams: boolean = service !== this.openDiagramService;
 
     return solutionIsNotOpenedFromRemote && solutionIsNotOpenDiagrams;
   }
 
-  private _canCloseSolution(service: ISolutionExplorerService, uri: string): boolean {
-    const solutionIsNotOpenDiagrams: boolean = !this._isOpenDiagramService(service);
+  private canCloseSolution(service: ISolutionExplorerService, uri: string): boolean {
+    const solutionIsNotOpenDiagrams: boolean = !this.isOpenDiagramService(service);
 
     const internalProcessEngineRoute: string = window.localStorage.getItem('InternalProcessEngineRoute');
     const solutionIsNotInternalSolution: boolean = uri !== internalProcessEngineRoute;
@@ -449,58 +460,60 @@ export class SolutionExplorerList {
     return solutionIsNotOpenDiagrams && solutionIsNotInternalSolution;
   }
 
-  private _isOpenDiagramService(service: ISolutionExplorerService): boolean {
+  private isOpenDiagramService(service: ISolutionExplorerService): boolean {
     return service === this.openDiagramService;
   }
 
-  private _shouldDisplaySolution: (value: ISolutionEntry, index: number, array: Array<ISolutionEntry>) => boolean =
-    (entry: ISolutionEntry): boolean => {
-      const service: ISolutionExplorerService = entry.service;
+  private shouldDisplaySolution: (value: ISolutionEntry, index: number, array: Array<ISolutionEntry>) => boolean = (
+    entry: ISolutionEntry,
+  ): boolean => {
+    const service: ISolutionExplorerService = entry.service;
 
-      const isOpenDiagramService: boolean = (service as any).getOpenedDiagrams !== undefined;
-      if (isOpenDiagramService) {
-        const openDiagramService: OpenDiagramsSolutionExplorerService = service as OpenDiagramsSolutionExplorerService;
+    const isOpenDiagramService: boolean = (service as any).getOpenedDiagrams !== undefined;
+    if (isOpenDiagramService) {
+      const openDiagramService: OpenDiagramsSolutionExplorerService = service as OpenDiagramsSolutionExplorerService;
 
-        const someDiagramsAreOpened: boolean = openDiagramService.getOpenedDiagrams().length > 0;
-        const isCreatingDiagram: boolean = this.openDiagramService.isCreatingDiagram;
+      const someDiagramsAreOpened: boolean = openDiagramService.getOpenedDiagrams().length > 0;
+      const isCreatingDiagram: boolean = this.openDiagramService.isCreatingDiagram;
 
-        return someDiagramsAreOpened || isCreatingDiagram;
-      }
-
-      return true;
+      return someDiagramsAreOpened || isCreatingDiagram;
     }
 
-  private _getIndexOfSolution(uri: string): number {
-    const indexOfSolutionWithURI: number = this._openedSolutions.findIndex((element: ISolutionEntry): boolean => {
+    return true;
+  };
+
+  private getIndexOfSolution(uri: string): number {
+    const indexOfSolutionWithURI: number = this.openedSolutions.findIndex((element: ISolutionEntry): boolean => {
       return element.uri === uri;
     });
 
     return indexOfSolutionWithURI;
   }
 
-  private async _addSolutionEntry(
-    uri: string, service: ISolutionExplorerService,
+  private async addSolutionEntry(
+    uri: string,
+    service: ISolutionExplorerService,
     identity: IIdentity,
     insertAtBeginning: boolean,
     processEngineVersion?: string,
   ): Promise<void> {
-    const isOpenDiagramService: boolean = this._isOpenDiagramService(service);
-    const fontAwesomeIconClass: string = this._getFontAwesomeIconForSolution(service, uri);
-    const canCloseSolution: boolean = this._canCloseSolution(service, uri);
-    const canCreateNewDiagramsInSolution: boolean = this._canCreateNewDiagramsInSolution(service, uri);
-    const authority: string = await this._getAuthorityForSolution(uri);
-    const hidden: boolean = this._getHiddenStateForSolutionUri(uri);
+    const isOpenDiagramService: boolean = this.isOpenDiagramService(service);
+    const fontAwesomeIconClass: string = this.getFontAwesomeIconForSolution(service, uri);
+    const canCloseSolution: boolean = this.canCloseSolution(service, uri);
+    const canCreateNewDiagramsInSolution: boolean = this.canCreateNewDiagramsInSolution(service, uri);
+    const authority: string = await this.getAuthorityForSolution(uri);
+    const hidden: boolean = this.getHiddenStateForSolutionUri(uri);
 
     const authorityIsUndefined: boolean = authority === undefined;
 
     const isLoggedIn: boolean = authorityIsUndefined
-                                ? false
-                                : await this._authenticationService.isLoggedIn(authority, identity);
+      ? false
+      : await this.authenticationService.isLoggedIn(authority, identity);
 
     let userName: string;
 
     if (isLoggedIn) {
-      const userIdentity: IUserIdentity = await this._authenticationService.getUserIdentity(authority, identity);
+      const userIdentity: IUserIdentity = await this.authenticationService.getUserIdentity(authority, identity);
       userName = userIdentity.name;
     }
 
@@ -519,17 +532,17 @@ export class SolutionExplorerList {
       hidden,
     };
 
-    this._solutionService.addSolutionEntry(entry);
+    this.solutionService.addSolutionEntry(entry);
 
     if (insertAtBeginning) {
-      this._openedSolutions.splice(1, 0, entry);
+      this.openedSolutions.splice(1, 0, entry);
     } else {
-      this._openedSolutions.push(entry);
+      this.openedSolutions.push(entry);
     }
   }
 
-  private _getHiddenStateForSolutionUri(uri: string): boolean {
-    const persistedSolutions: Array<ISolutionEntry> = this._solutionService.getPersistedEntries();
+  private getHiddenStateForSolutionUri(uri: string): boolean {
+    const persistedSolutions: Array<ISolutionEntry> = this.solutionService.getPersistedEntries();
     const solutionToLoad: ISolutionEntry = persistedSolutions.find((solution: ISolutionEntry) => solution.uri === uri);
 
     if (!solutionToLoad) {
@@ -539,9 +552,8 @@ export class SolutionExplorerList {
     return solutionToLoad.hidden ? solutionToLoad.hidden : false;
   }
 
-  private _createIdentityForSolutionExplorer(): IIdentity {
-
-    const accessToken: string = this._createDummyAccessToken();
+  private createIdentityForSolutionExplorer(): IIdentity {
+    const accessToken: string = this.createDummyAccessToken();
     // TODO: Get the identity from the IdentityService of `@process-engine/iam`
     const identity: IIdentity = {
       token: accessToken,
@@ -551,33 +563,33 @@ export class SolutionExplorerList {
     return identity;
   }
 
-  private async _getAuthorityForSolution(solutionUri: string): Promise<string> {
-    const solutionIsRemote: boolean = solutionUri.startsWith('http');
+  private async getAuthorityForSolution(solutionUri: string): Promise<string> {
+    const solutionIsNotRemote: boolean = !solutionUri.startsWith('http');
 
-    if (solutionIsRemote) {
-      const request: Request = new Request(`${solutionUri}/security/authority`, {
-        method: 'GET',
-        mode: 'cors',
-        referrer: 'no-referrer',
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const response: Response = await fetch(request);
-      const authority: string = (await response.json()).authority;
-
-      return authority;
+    if (solutionIsNotRemote) {
+      return undefined;
     }
 
+    const request: Request = new Request(`${solutionUri}/security/authority`, {
+      method: 'GET',
+      mode: 'cors',
+      referrer: 'no-referrer',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const response: Response = await fetch(request);
+    const authority: string = (await response.json()).authority;
+
+    return authority;
   }
 
-  private _createDummyAccessToken(): string {
+  private createDummyAccessToken(): string {
     const dummyAccessTokenString: string = 'dummy_token';
     const base64EncodedString: string = btoa(dummyAccessTokenString);
 
     return base64EncodedString;
   }
-
 }

@@ -5,20 +5,20 @@ import {IConnection, IShape} from '@process-engine/bpmn-elements_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
 
 import {
-  defaultBpmnColors,
   IBpmnModeler,
   IColorPickerColor,
   IElementRegistry,
   IModeling,
   IOverlayManager,
   IOverlayPosition,
+  defaultBpmnColors,
 } from '../../../../contracts/index';
 import {
-  defaultOverlayPositions,
   IFlowNodeAssociation,
   IHeatmapRepository,
   IHeatmapService,
   ITokenPositionAndCount,
+  defaultOverlayPositions,
 } from '../contracts/index';
 
 // maximalTokenCount is used to sanitise the displayed number to "99+"
@@ -26,22 +26,24 @@ const maximalTokenCount: number = 100;
 
 @inject('HeatmapRepository')
 export class HeatmapService implements IHeatmapService {
-  private _heatmapRepository: IHeatmapRepository;
+  private heatmapRepository: IHeatmapRepository;
 
   constructor(heatmapRepository: IHeatmapRepository) {
-    this._heatmapRepository = heatmapRepository;
+    this.heatmapRepository = heatmapRepository;
   }
 
   public setIdentity(identity: IIdentity): void {
-    this._heatmapRepository.setIdentity(identity);
+    this.heatmapRepository.setIdentity(identity);
   }
 
-  public getRuntimeInformationForProcessModel(processModelId: string): Promise<Array<DataModels.Kpi.FlowNodeRuntimeInformation>> {
-    return this._heatmapRepository.getRuntimeInformationForProcessModel(processModelId);
+  public getRuntimeInformationForProcessModel(
+    processModelId: string,
+  ): Promise<Array<DataModels.Kpi.FlowNodeRuntimeInformation>> {
+    return this.heatmapRepository.getRuntimeInformationForProcessModel(processModelId);
   }
 
   public getActiveTokensForFlowNode(flowNodeId: string): Promise<Array<DataModels.Kpi.ActiveToken>> {
-    return this._heatmapRepository.getActiveTokensForFlowNode(flowNodeId);
+    return this.heatmapRepository.getActiveTokensForFlowNode(flowNodeId);
   }
 
   /**
@@ -51,35 +53,45 @@ export class HeatmapService implements IHeatmapService {
    *
    * This method adds overlays for the activeTokens to the diagram viewer.
    */
-  public async addOverlays(overlays: IOverlayManager, elementRegistry: IElementRegistry, processModelId: string): Promise<void> {
-
+  public async addOverlays(
+    overlays: IOverlayManager,
+    elementRegistry: IElementRegistry,
+    processModelId: string,
+  ): Promise<void> {
     let participantsTokenCount: number = 0;
 
-    const addOverlay: ((elementId: string, count: number, position: IOverlayPosition) => void ) =
-      ((elementId: string, count: number, position: IOverlayPosition): void => {
+    const addOverlay: (elementId: string, count: number, position: IOverlayPosition) => void = (
+      elementId: string,
+      count: number,
+      position: IOverlayPosition,
+    ): void => {
+      const countIsTooHigh: boolean = count >= maximalTokenCount;
 
-        const countIsTooHigh: boolean = count >=  maximalTokenCount;
-
-        overlays.add(elementId, {
-          position: {
-            left: position.left,
-            top: position.top,
-          },
-          html: `<div class="heatmap__overlay" title="This element has actual ${count} token.">${countIsTooHigh ? '99+' : count}</div>`,
-        });
+      overlays.add(elementId, {
+        position: {
+          left: position.left,
+          top: position.top,
+        },
+        html: `<div class="heatmap__overlay" title="This element has actual ${count} token.">${
+          countIsTooHigh ? '99+' : count
+        }</div>`,
       });
+    };
 
-    const elementsForOverlays: Array<IShape> = this._getElementsForOverlays(elementRegistry);
-    const activeTokenListArray: Array<Array<DataModels.Kpi.ActiveToken>> = await this._getActiveTokenListArray(elementsForOverlays, processModelId);
+    const elementsForOverlays: Array<IShape> = this.getElementsForOverlays(elementRegistry);
+    const activeTokenListArray: Array<Array<DataModels.Kpi.ActiveToken>> = await this.getActiveTokenListArray(
+      elementsForOverlays,
+      processModelId,
+    );
 
-    this._addShapeTypeToActiveToken(activeTokenListArray, elementsForOverlays);
+    this.addShapeTypeToActiveToken(activeTokenListArray, elementsForOverlays);
 
-    const elementsWithoutToken: Array<IShape> = this._getElementsWithoutToken(elementsForOverlays, activeTokenListArray);
+    const elementsWithoutToken: Array<IShape> = this.getElementsWithoutToken(elementsForOverlays, activeTokenListArray);
 
-    activeTokenListArray.forEach((activeTokenArray: Array<DataModels.Kpi.ActiveToken & { type: string }>) => {
-      const elementIsEvent: boolean = this._elementIsEvent(activeTokenArray[0].type);
-      const elementIsGateway: boolean = this._elementIsGateway(activeTokenArray[0].type);
-      const elementIsTask: boolean = this._elementIsTask(activeTokenArray[0].type);
+    activeTokenListArray.forEach((activeTokenArray: Array<DataModels.Kpi.ActiveToken & {type: string}>) => {
+      const elementIsEvent: boolean = this.elementIsEvent(activeTokenArray[0].type);
+      const elementIsGateway: boolean = this.elementIsGateway(activeTokenArray[0].type);
+      const elementIsTask: boolean = this.elementIsTask(activeTokenArray[0].type);
 
       if (elementIsGateway) {
         addOverlay(activeTokenArray[0].flowNodeId, activeTokenArray.length, defaultOverlayPositions.gateways);
@@ -93,9 +105,9 @@ export class HeatmapService implements IHeatmapService {
     });
 
     elementsWithoutToken.forEach((element: IShape) => {
-      const elementIsEvent: boolean = this._elementIsEvent(element.type);
-      const elementIsGateway: boolean = this._elementIsGateway(element.type);
-      const elementIsTask: boolean = this._elementIsTask(element.type);
+      const elementIsEvent: boolean = this.elementIsEvent(element.type);
+      const elementIsGateway: boolean = this.elementIsGateway(element.type);
+      const elementIsTask: boolean = this.elementIsTask(element.type);
 
       if (elementIsGateway) {
         addOverlay(element.id, 0, defaultOverlayPositions.gateways);
@@ -106,7 +118,7 @@ export class HeatmapService implements IHeatmapService {
       }
     });
 
-    const participantShape: IShape = this._getParticipantShape(elementRegistry);
+    const participantShape: IShape = this.getParticipantShape(elementRegistry);
     addOverlay(participantShape.id, participantsTokenCount, {
       left: participantShape.width - defaultOverlayPositions.participants.left,
       top: participantShape.height - defaultOverlayPositions.participants.top,
@@ -114,7 +126,7 @@ export class HeatmapService implements IHeatmapService {
   }
 
   public getProcess(processModelId: string): Promise<DataModels.ProcessModels.ProcessModel> {
-    return this._heatmapRepository.getProcess(processModelId);
+    return this.heatmapRepository.getProcess(processModelId);
   }
 
   /**
@@ -129,13 +141,13 @@ export class HeatmapService implements IHeatmapService {
    *
    */
   public getFlowNodeAssociations(elementRegistry: IElementRegistry): Array<IFlowNodeAssociation> {
-
     const flowNodeAssociations: Array<IFlowNodeAssociation> = [];
 
     const associations: Array<IConnection> = elementRegistry.filter((element: IShape) => {
-      const elementIsNoValidAssociation: boolean = element.target === undefined ||
-                                                   element.target.businessObject === undefined ||
-                                                   element.target.businessObject.text === undefined;
+      const elementIsNoValidAssociation: boolean =
+        element.target === undefined ||
+        element.target.businessObject === undefined ||
+        element.target.businessObject.text === undefined;
 
       if (elementIsNoValidAssociation) {
         return false;
@@ -148,8 +160,7 @@ export class HeatmapService implements IHeatmapService {
     });
 
     associations.forEach((association: IConnection) => {
-
-      const medianRunTime: number = this._getMedianRunTimeForAssociation(association);
+      const medianRunTime: number = this.getMedianRunTimeForAssociation(association);
 
       const flowNodeAssociation: IFlowNodeAssociation = {
         associationId: association.id,
@@ -184,13 +195,17 @@ export class HeatmapService implements IHeatmapService {
     const elementRegistry: IElementRegistry = modeler.get('elementRegistry');
     const modeling: IModeling = modeler.get('modeling');
 
-    const elementsToColor: Array<DataModels.Kpi.FlowNodeRuntimeInformation> = this._getElementsToColor(associations, flowNodeRuntimeInformation);
+    const elementsToColor: Array<DataModels.Kpi.FlowNodeRuntimeInformation> = this.getElementsToColor(
+      associations,
+      flowNodeRuntimeInformation,
+    );
 
     associations.forEach((association: IFlowNodeAssociation) => {
-      const elementToColor: DataModels.Kpi.FlowNodeRuntimeInformation =
-        elementsToColor.find((element: DataModels.Kpi.FlowNodeRuntimeInformation) => {
+      const elementToColor: DataModels.Kpi.FlowNodeRuntimeInformation = elementsToColor.find(
+        (element: DataModels.Kpi.FlowNodeRuntimeInformation) => {
           return element.flowNodeId === association.sourceId;
-        });
+        },
+      );
 
       const elementToColorIsUndefined: boolean = elementToColor === undefined;
 
@@ -198,18 +213,18 @@ export class HeatmapService implements IHeatmapService {
         return;
       }
 
-      const shapeToColor: IShape = this._getShape(elementRegistry, elementToColor);
-      const flowNodeRuntimeIsGreaterThanExpected: boolean = elementToColor.medianRuntimeInMs > association.runtime_medianInMs;
+      const shapeToColor: IShape = this.getShape(elementRegistry, elementToColor);
+      const flowNodeRuntimeIsGreaterThanExpected: boolean =
+        elementToColor.medianRuntimeInMs > association.runtime_medianInMs;
 
       if (flowNodeRuntimeIsGreaterThanExpected) {
         this.colorElement(modeling, shapeToColor, defaultBpmnColors.red);
       } else {
         this.colorElement(modeling, shapeToColor, defaultBpmnColors.green);
       }
-
     });
 
-    const xml: string = await this._getXmlFromModeler(modeler);
+    const xml: string = await this.getXmlFromModeler(modeler);
 
     return xml;
   }
@@ -228,19 +243,19 @@ export class HeatmapService implements IHeatmapService {
    *
    * Returns the flowNodeRuntimeInformation from the elements which must get colored.
    */
-  private _getElementsToColor(
+  private getElementsToColor(
     associations: Array<IFlowNodeAssociation>,
     flowNodeRuntimeInformation: Array<DataModels.Kpi.FlowNodeRuntimeInformation>,
   ): Array<DataModels.Kpi.FlowNodeRuntimeInformation> {
-
-    const elementsToColor: Array<DataModels.Kpi.FlowNodeRuntimeInformation> =
-      flowNodeRuntimeInformation.filter((information: DataModels.Kpi.FlowNodeRuntimeInformation) => {
+    const elementsToColor: Array<DataModels.Kpi.FlowNodeRuntimeInformation> = flowNodeRuntimeInformation.filter(
+      (information: DataModels.Kpi.FlowNodeRuntimeInformation) => {
         const associationWithSameId: IFlowNodeAssociation = associations.find((association: IFlowNodeAssociation) => {
           return association.sourceId === information.flowNodeId;
         });
 
         return associationWithSameId;
-      });
+      },
+    );
 
     return elementsToColor;
   }
@@ -253,7 +268,7 @@ export class HeatmapService implements IHeatmapService {
    * Returns the IShape of an element.
    * The IShape is needed by the IModeling module from bpmn-js to color an element.
    */
-  private _getShape(
+  private getShape(
     elementRegistry: IElementRegistry,
     elementToColor: DataModels.Kpi.FlowNodeRuntimeInformation | ITokenPositionAndCount | DataModels.Kpi.ActiveToken,
   ): IShape {
@@ -262,7 +277,7 @@ export class HeatmapService implements IHeatmapService {
     return elementShape;
   }
 
-  private _getParticipantShape(elementRegistry: IElementRegistry): IShape {
+  private getParticipantShape(elementRegistry: IElementRegistry): IShape {
     const allElements: Array<IShape> = elementRegistry.getAll();
 
     const participantShape: IShape = allElements.find((element: IShape) => {
@@ -274,16 +289,17 @@ export class HeatmapService implements IHeatmapService {
     return participantShape;
   }
 
-  private _getElementsForOverlays(elementRegistry: IElementRegistry): Array<IShape> {
+  private getElementsForOverlays(elementRegistry: IElementRegistry): Array<IShape> {
     const allElements: Array<IShape> = elementRegistry.getAll();
     const filteredElements: Array<IShape> = allElements.filter((element: IShape) => {
-      const condition: boolean = element.type !== 'bpmn:Association'
-                              && element.type !== 'bpmn:SequenceFlow'
-                              && element.type !== 'bpmn:TextAnnotation'
-                              && element.type !== 'bpmn:Participant'
-                              && element.type !== 'bpmn:Collaboration'
-                              && element.type !== 'bpmn:Lane'
-                              && element.type !== 'label';
+      const condition: boolean =
+        element.type !== 'bpmn:Association' &&
+        element.type !== 'bpmn:SequenceFlow' &&
+        element.type !== 'bpmn:TextAnnotation' &&
+        element.type !== 'bpmn:Participant' &&
+        element.type !== 'bpmn:Collaboration' &&
+        element.type !== 'bpmn:Lane' &&
+        element.type !== 'label';
 
       return condition;
     });
@@ -291,9 +307,9 @@ export class HeatmapService implements IHeatmapService {
     return filteredElements;
   }
 
-  private async _getXmlFromModeler(modeler: IBpmnModeler): Promise<string> {
-    const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void =>  {
-      modeler.saveXML({format: true}, async(saveXmlError: Error, xml: string) => {
+  private async getXmlFromModeler(modeler: IBpmnModeler): Promise<string> {
+    const saveXmlPromise: Promise<string> = new Promise((resolve: Function, reject: Function): void => {
+      modeler.saveXML({format: true}, async (saveXmlError: Error, xml: string) => {
         if (saveXmlError) {
           reject(saveXmlError);
 
@@ -307,69 +323,81 @@ export class HeatmapService implements IHeatmapService {
     return saveXmlPromise;
   }
 
-  private _getMedianRunTimeForAssociation(association: IConnection): number {
+  private getMedianRunTimeForAssociation(association: IConnection): number {
     const annotationText: string = association.target.businessObject.text;
     const lengthOfRTStamp: number = 4;
     const startRunTimeText: number = annotationText.search('RT:') + lengthOfRTStamp;
     const lengthOfRunTimeText: number = 12;
     const runTimeTimeStamp: string = annotationText.substr(startRunTimeText, lengthOfRunTimeText);
-    const date: Date = new Date('1970-01-01T' + runTimeTimeStamp + 'Z');
+    const date: Date = new Date(`1970-01-01T${runTimeTimeStamp}Z`);
     const medianRunTimeInMs: number = date.getTime();
 
     return medianRunTimeInMs;
   }
 
-  private async _getActiveTokenListArray(
+  private async getActiveTokenListArray(
     elementsForOverlays: Array<IShape>,
     processModelId: string,
   ): Promise<Array<Array<DataModels.Kpi.ActiveToken>>> {
-    const promisesForElements: Array<Promise<Array<DataModels.Kpi.ActiveToken>>> = elementsForOverlays.map(async(element: IShape) => {
-      const elementsActiveTokens: Array<DataModels.Kpi.ActiveToken> = await this.getActiveTokensForFlowNode(element.id);
+    const promisesForElements: Array<Promise<Array<DataModels.Kpi.ActiveToken>>> = elementsForOverlays.map(
+      async (element: IShape) => {
+        const elementsActiveTokens: Array<DataModels.Kpi.ActiveToken> = await this.getActiveTokensForFlowNode(
+          element.id,
+        );
 
-      const elementActiveTokensForProcessModel: Array<DataModels.Kpi.ActiveToken> =
-        elementsActiveTokens.filter((token: DataModels.Kpi.ActiveToken) => {
-          const tokenIsInProcessModel: boolean = token.processModelId === processModelId;
+        const elementActiveTokensForProcessModel: Array<DataModels.Kpi.ActiveToken> = elementsActiveTokens.filter(
+          (token: DataModels.Kpi.ActiveToken) => {
+            const tokenIsInProcessModel: boolean = token.processModelId === processModelId;
 
-          return tokenIsInProcessModel;
-        });
+            return tokenIsInProcessModel;
+          },
+        );
 
-      return elementActiveTokensForProcessModel;
+        return elementActiveTokensForProcessModel;
+      },
+    );
+
+    const activeTokenListArrayForAllElements: Array<Array<DataModels.Kpi.ActiveToken>> = await Promise.all(
+      promisesForElements,
+    );
+
+    const filteredActiveTokenListArray: Array<
+      Array<DataModels.Kpi.ActiveToken>
+    > = activeTokenListArrayForAllElements.filter((element: Array<DataModels.Kpi.ActiveToken>) => {
+      const arrayIsEmpty: boolean = element.length !== 0;
+
+      return arrayIsEmpty;
     });
-
-    const activeTokenListArrayForAllElements: Array<Array<DataModels.Kpi.ActiveToken>> = await Promise.all(promisesForElements);
-
-    const filteredActiveTokenListArray: Array<Array<DataModels.Kpi.ActiveToken>> =
-      activeTokenListArrayForAllElements.filter((element: Array<DataModels.Kpi.ActiveToken>) => {
-        const arrayIsEmpty: boolean = element.length !== 0;
-
-        return arrayIsEmpty;
-      });
 
     return filteredActiveTokenListArray;
   }
 
-  private _addShapeTypeToActiveToken(activeTokenListArray: Array<Array<DataModels.Kpi.ActiveToken>>, elementsForOverlays: Array<IShape>): void {
-    activeTokenListArray.forEach((activeTokenArray: Array<DataModels.Kpi.ActiveToken & { type: string }>) => {
+  private addShapeTypeToActiveToken(
+    activeTokenListArray: Array<Array<DataModels.Kpi.ActiveToken>>,
+    elementsForOverlays: Array<IShape>,
+  ): void {
+    activeTokenListArray.forEach((activeTokenArray: Array<DataModels.Kpi.ActiveToken & {type: string}>) => {
       const elementOfActiveToken: IShape = elementsForOverlays.find((element: IShape) => {
         const isCorrectElement: boolean = element.id === activeTokenArray[0].flowNodeId;
 
         return isCorrectElement;
       });
 
+      // eslint-disable-next-line no-param-reassign
       activeTokenArray[0].type = elementOfActiveToken.type;
     });
   }
 
-  private _getElementsWithoutToken(
+  private getElementsWithoutToken(
     elementsForOverlays: Array<IShape>,
     activeTokenListArray: Array<Array<DataModels.Kpi.ActiveToken>>,
   ): Array<IShape> {
-
     const elementsWithoutToken: Array<IShape> = elementsForOverlays.filter((element: IShape) => {
-      const activeTokenForElement: Array<DataModels.Kpi.ActiveToken> =
-        activeTokenListArray.find((activeTokenArray: Array<DataModels.Kpi.ActiveToken>) => {
+      const activeTokenForElement: Array<DataModels.Kpi.ActiveToken> = activeTokenListArray.find(
+        (activeTokenArray: Array<DataModels.Kpi.ActiveToken>) => {
           return activeTokenArray[0].flowNodeId === element.id;
-        });
+        },
+      );
 
       const noActiveTokenForElement: boolean = activeTokenForElement === undefined;
 
@@ -379,39 +407,41 @@ export class HeatmapService implements IHeatmapService {
     return elementsWithoutToken;
   }
 
-  private _elementIsEvent(type: string): boolean {
-    const elementTypeIsEvent: boolean = type === 'bpmn:StartEvent'
-                                     || type === 'bpmn:EndEvent'
-                                     || type === 'bpmn:IntermediateThrowEvent'
-                                     || type === 'bpmn:IntermediateCatchEvent'
-                                     || type === 'bpmn:BoundaryEvent';
+  private elementIsEvent(type: string): boolean {
+    const elementTypeIsEvent: boolean =
+      type === 'bpmn:StartEvent' ||
+      type === 'bpmn:EndEvent' ||
+      type === 'bpmn:IntermediateThrowEvent' ||
+      type === 'bpmn:IntermediateCatchEvent' ||
+      type === 'bpmn:BoundaryEvent';
 
     return elementTypeIsEvent;
   }
 
-  private _elementIsGateway(type: string): boolean {
-    const elementTypeIsGateway: boolean = type === 'bpmn:ExclusiveGateway'
-                                       || type === 'bpmn:ParallelGateway'
-                                       || type === 'bpmn:InclusiveGateway'
-                                       || type === 'bpmn:ComplexGateway'
-                                       || type === 'bpmn:EventBasedGateway';
+  private elementIsGateway(type: string): boolean {
+    const elementTypeIsGateway: boolean =
+      type === 'bpmn:ExclusiveGateway' ||
+      type === 'bpmn:ParallelGateway' ||
+      type === 'bpmn:InclusiveGateway' ||
+      type === 'bpmn:ComplexGateway' ||
+      type === 'bpmn:EventBasedGateway';
 
     return elementTypeIsGateway;
   }
 
-  private _elementIsTask(type: string): boolean {
-    const elementTypeIsTask: boolean = type === 'bpmn:UserTask'
-                                    || type === 'bpmn:ScriptTask'
-                                    || type === 'bpmn:ServiceTask'
-                                    || type === 'bpmn:Task'
-                                    || type === 'bpmn:SendTask'
-                                    || type === 'bpmn:ReceiveTask'
-                                    || type === 'bpmn:ManualTask'
-                                    || type === 'bpmn:BusinessRuleTask'
-                                    || type === 'bpmn:CallActivity'
-                                    || type === 'bpmn:SubProcess';
+  private elementIsTask(type: string): boolean {
+    const elementTypeIsTask: boolean =
+      type === 'bpmn:UserTask' ||
+      type === 'bpmn:ScriptTask' ||
+      type === 'bpmn:ServiceTask' ||
+      type === 'bpmn:Task' ||
+      type === 'bpmn:SendTask' ||
+      type === 'bpmn:ReceiveTask' ||
+      type === 'bpmn:ManualTask' ||
+      type === 'bpmn:BusinessRuleTask' ||
+      type === 'bpmn:CallActivity' ||
+      type === 'bpmn:SubProcess';
 
     return elementTypeIsTask;
   }
-
 }

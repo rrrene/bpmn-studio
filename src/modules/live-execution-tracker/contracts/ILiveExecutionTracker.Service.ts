@@ -2,20 +2,34 @@ import {Subscription} from '@essential-projects/event_aggregator_contracts';
 import {IIdentity} from '@essential-projects/iam_contracts';
 import {IShape} from '@process-engine/bpmn-elements_contracts';
 import {DataModels} from '@process-engine/management_api_contracts';
-import {ActiveToken} from '@process-engine/management_api_contracts/dist/data_models/kpi';
 
 export interface ILiveExecutionTrackerService {
-  finishEmptyActivity(processInstanceId: string, correlationId: string, emptyActivity: DataModels.EmptyActivities.EmptyActivity): Promise<void>;
+  finishEmptyActivity(
+    processInstanceId: string,
+    correlationId: string,
+    emptyActivity: DataModels.EmptyActivities.EmptyActivity,
+  ): Promise<void>;
   terminateProcess(processInstanceId: string): Promise<void>;
 
-  getActiveTokensForProcessInstance(processInstanceId: string): Promise<Array<ActiveToken> | null>;
+  getActiveTokensForProcessInstance(processInstanceId: string): Promise<Array<DataModels.Kpi.ActiveToken> | null>;
   getCorrelationById(correlationId: string): Promise<DataModels.Correlations.Correlation>;
-  getEmptyActivitiesForProcessInstance(processInstanceId: string): Promise<DataModels.EmptyActivities.EmptyActivityList | null>;
-  getProcessModelByProcessInstanceId(correlationId: string, processInstanceId: string): Promise<DataModels.Correlations.CorrelationProcessInstance>;
+  getEmptyActivitiesForProcessInstance(
+    processInstanceId: string,
+  ): Promise<DataModels.EmptyActivities.EmptyActivityList | null>;
+  getProcessModelByProcessInstanceId(
+    correlationId: string,
+    processInstanceId: string,
+  ): Promise<DataModels.Correlations.CorrelationProcessInstance>;
   getProcessModelById(processModelId: string): Promise<DataModels.ProcessModels.ProcessModel>;
-  getTokenHistoryGroupForProcessInstance(processInstanceId: string): Promise<DataModels.TokenHistory.TokenHistoryGroup | null>;
+  getTokenHistoryGroupForProcessInstance(
+    processInstanceId: string,
+  ): Promise<DataModels.TokenHistory.TokenHistoryGroup | null>;
 
-  getProcessInstanceIdOfCallActivityTarget(correlationId: string, processInstanceIdOfOrigin: string, callActivityTargetId: string): Promise<string>;
+  getProcessInstanceIdOfCallActivityTarget(
+    correlationId: string,
+    processInstanceIdOfOrigin: string,
+    callActivityTargetId: string,
+  ): Promise<string>;
   getElementById(elementId: string): IShape;
   getAllElementsThatCanHaveAToken(): Array<IShape>;
   getElementsWithActiveToken(processInstanceId: string): Promise<Array<IShape> | null>;
@@ -23,9 +37,12 @@ export interface ILiveExecutionTrackerService {
   getCallActivities(): Array<IShape>;
   getActiveCallActivities(processInstanceId: string): Promise<Array<IShape>>;
   getInactiveCallActivities(processInstanceId: string): Promise<Array<IShape>>;
-  getOutgoingElementsOfElement(element: IShape, tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup): Array<IShape>;
+  getOutgoingElementsOfElement(
+    element: IShape,
+    tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup,
+  ): Array<IShape>;
 
-  elementHasActiveToken(elementId: string, activeTokens: Array<ActiveToken>): boolean;
+  elementHasActiveToken(elementId: string, activeTokens: Array<DataModels.Kpi.ActiveToken>): boolean;
   elementHasTokenHistory(elementId: string, tokenHistoryGroups: DataModels.TokenHistory.TokenHistoryGroup): boolean;
 
   setIdentity(identity: IIdentity): void;
@@ -33,7 +50,10 @@ export interface ILiveExecutionTrackerService {
   importXmlIntoDiagramModeler(xml: string): Promise<void>;
   exportXmlFromDiagramModeler(): Promise<string>;
   clearDiagramColors(): void;
-  getColorizedDiagram(processInstanceId: string, processEngineSupportsGettingFlowNodeInstances?: boolean): Promise<string>;
+  getColorizedDiagram(
+    processInstanceId: string,
+    processEngineSupportsGettingFlowNodeInstances?: boolean,
+  ): Promise<string>;
 
   isProcessInstanceActive(processInstanceId: string): Promise<boolean>;
 
@@ -49,9 +69,18 @@ export interface ILiveExecutionTrackerService {
   createUserTaskWaitingEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
   createUserTaskFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
   createBoundaryEventTriggeredEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
-  createIntermediateThrowEventTriggeredEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
-  createIntermediateCatchEventReachedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
-  createIntermediateCatchEventFinishedEventListener(processInstanceId: string, callback: Function): Promise<Subscription>;
+  createIntermediateThrowEventTriggeredEventListener(
+    processInstanceId: string,
+    callback: Function,
+  ): Promise<Subscription>;
+  createIntermediateCatchEventReachedEventListener(
+    processInstanceId: string,
+    callback: Function,
+  ): Promise<Subscription>;
+  createIntermediateCatchEventFinishedEventListener(
+    processInstanceId: string,
+    callback: Function,
+  ): Promise<Subscription>;
 
   removeSubscription(subscription: Subscription): Promise<void>;
 }

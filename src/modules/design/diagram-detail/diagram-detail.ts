@@ -27,15 +27,16 @@ import {NotificationService} from '../../../services/notification-service/notifi
 import {OpenDiagramsSolutionExplorerService} from '../../../services/solution-explorer-services/OpenDiagramsSolutionExplorerService';
 import {BpmnIo} from '../bpmn-io/bpmn-io';
 
-@inject('ManagementApiClientService',
-        'NotificationService',
-        'SolutionService',
-        EventAggregator,
-        Router,
-        ValidationController,
-        'OpenDiagramService')
+@inject(
+  'ManagementApiClientService',
+  'NotificationService',
+  'SolutionService',
+  EventAggregator,
+  Router,
+  ValidationController,
+  'OpenDiagramService',
+)
 export class DiagramDetail {
-
   @bindable() public activeDiagram: IDiagram;
   @bindable() public activeSolutionEntry: ISolutionEntry;
   @observable({changeHandler: 'correlationChanged'}) public customCorrelationId: string;
@@ -57,36 +58,39 @@ export class DiagramDetail {
   public selectedRemoteSolution: ISolutionEntry;
   public showDiagramExistingModal: boolean = false;
 
-  private _notificationService: NotificationService;
-  private _eventAggregator: EventAggregator;
-  private _subscriptions: Array<Subscription>;
-  private _router: Router;
-  private _validationController: ValidationController;
-  private _ipcRenderer: any;
-  private _solutionService: ISolutionService;
-  private _managementApiClient: IManagementApi;
-  private _correlationIdValidationRegExpList: IUserInputValidationRule = {
+  private notificationService: NotificationService;
+  private eventAggregator: EventAggregator;
+  private subscriptions: Array<Subscription>;
+  private router: Router;
+  private validationController: ValidationController;
+  private ipcRenderer: any;
+  private solutionService: ISolutionService;
+  private managementApiClient: IManagementApi;
+  private correlationIdValidationRegExpList: IUserInputValidationRule = {
     alphanumeric: /^[a-z0-9]/i,
     specialCharacters: /^[._ -]/i,
     german: /^[äöüß]/i,
   };
-  private _clickedOnCustomStart: boolean = false;
-  private _openDiagramService: OpenDiagramsSolutionExplorerService;
 
-  constructor(managementApiClient: IManagementApi,
-              notificationService: NotificationService,
-              solutionService: ISolutionService,
-              eventAggregator: EventAggregator,
-              router: Router,
-              validationController: ValidationController,
-              openDiagramService: OpenDiagramsSolutionExplorerService) {
-    this._notificationService = notificationService;
-    this._solutionService = solutionService;
-    this._eventAggregator = eventAggregator;
-    this._router = router;
-    this._validationController = validationController;
-    this._managementApiClient = managementApiClient;
-    this._openDiagramService = openDiagramService;
+  private clickedOnCustomStart: boolean = false;
+  private openDiagramService: OpenDiagramsSolutionExplorerService;
+
+  constructor(
+    managementApiClient: IManagementApi,
+    notificationService: NotificationService,
+    solutionService: ISolutionService,
+    eventAggregator: EventAggregator,
+    router: Router,
+    validationController: ValidationController,
+    openDiagramService: OpenDiagramsSolutionExplorerService,
+  ) {
+    this.notificationService = notificationService;
+    this.solutionService = solutionService;
+    this.eventAggregator = eventAggregator;
+    this.router = router;
+    this.validationController = validationController;
+    this.managementApiClient = managementApiClient;
+    this.openDiagramService = openDiagramService;
   }
 
   public determineActivationStrategy(): string {
@@ -102,65 +106,68 @@ export class DiagramDetail {
 
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
     if (isRunningInElectron) {
-      this._ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
-      this._ipcRenderer.on('menubar__start_save_diagram_as', this._electronOnSaveDiagramAs);
-      this._ipcRenderer.on('menubar__start_save_diagram', this._electronOnSaveDiagram);
+      this.ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
+      this.ipcRenderer.on('menubar__start_save_diagram_as', this.electronOnSaveDiagramAs);
+      this.ipcRenderer.on('menubar__start_save_diagram', this.electronOnSaveDiagram);
     }
 
-    this._eventAggregator.publish(environment.events.navBar.showTools);
+    this.eventAggregator.publish(environment.events.navBar.showTools);
 
-    this._subscriptions = [
-      this._validationController.subscribe((event: ValidateEvent) => {
-        this._handleFormValidateEvents(event);
+    this.subscriptions = [
+      this.validationController.subscribe((event: ValidateEvent) => {
+        this.handleFormValidateEvents(event);
       }),
-      this._eventAggregator.subscribe(environment.events.diagramDetail.saveDiagram, () => {
+      this.eventAggregator.subscribe(environment.events.diagramDetail.saveDiagram, () => {
         this.saveDiagram();
       }),
-      this._eventAggregator.subscribe(environment.events.diagramDetail.uploadProcess, () => {
-        this._checkIfDiagramIsSavedBeforeDeploy();
+      this.eventAggregator.subscribe(environment.events.diagramDetail.uploadProcess, () => {
+        this.checkIfDiagramIsSavedBeforeDeploy();
       }),
-      this._eventAggregator.subscribe(environment.events.differsFromOriginal, (savingNeeded: boolean) => {
+      this.eventAggregator.subscribe(environment.events.differsFromOriginal, (savingNeeded: boolean) => {
         this.diagramHasChanged = savingNeeded;
       }),
-      this._eventAggregator.subscribe(environment.events.navBar.validationError, () => {
+      this.eventAggregator.subscribe(environment.events.navBar.validationError, () => {
         this.diagramIsInvalid = true;
       }),
-      this._eventAggregator.subscribe(environment.events.navBar.noValidationError, () => {
+      this.eventAggregator.subscribe(environment.events.navBar.noValidationError, () => {
         this.diagramIsInvalid = false;
       }),
-      this._eventAggregator.subscribe(environment.events.diagramDetail.startProcess, () => {
-        this._showStartDialog();
+      this.eventAggregator.subscribe(environment.events.diagramDetail.startProcess, () => {
+        this.showStartDialog();
       }),
-      this._eventAggregator.subscribe(environment.events.diagramDetail.startProcessWithOptions, async() => {
-        this._clickedOnCustomStart = true;
+      this.eventAggregator.subscribe(environment.events.diagramDetail.startProcessWithOptions, async () => {
+        this.clickedOnCustomStart = true;
         await this.showSelectStartEventDialog();
       }),
-      this._eventAggregator.subscribe(environment.events.diagramDetail.saveDiagramAs, () => {
-        this._electronOnSaveDiagramAs();
+      this.eventAggregator.subscribe(environment.events.diagramDetail.saveDiagramAs, () => {
+        this.electronOnSaveDiagramAs();
       }),
     ];
-
   }
 
   public correlationChanged(newValue: string): void {
     const inputAsCharArray: Array<string> = newValue.split('');
 
     const correlationIdPassesIdCheck: boolean = !inputAsCharArray.some((letter: string) => {
-      for (const regExIndex in this._correlationIdValidationRegExpList) {
-        const letterIsInvalid: boolean = letter.match(this._correlationIdValidationRegExpList[regExIndex]) !== null;
+      return Object.values(this.correlationIdValidationRegExpList).forEach((regEx: RegExp, index: number) => {
+        const letterIsInvalid: boolean = letter.match(this.correlationIdValidationRegExpList[index]) !== null;
 
         if (letterIsInvalid) {
           return false;
         }
-      }
 
-      return true;
+        return true;
+      });
     });
 
     const correlationIdDoesNotStartWithWhitespace: boolean = !newValue.match(/^\s/);
     const correlationIdDoesNotEndWithWhitespace: boolean = !newValue.match(/\s+$/);
 
-    if (correlationIdDoesNotStartWithWhitespace && correlationIdPassesIdCheck && correlationIdDoesNotEndWithWhitespace) {
+    if (
+      correlationIdDoesNotStartWithWhitespace &&
+      correlationIdPassesIdCheck &&
+      correlationIdDoesNotEndWithWhitespace
+    ) {
       this.hasValidationError = false;
     } else {
       this.hasValidationError = true;
@@ -168,17 +175,17 @@ export class DiagramDetail {
   }
 
   public deactivate(): void {
-    this._eventAggregator.publish(environment.events.navBar.hideTools);
+    this.eventAggregator.publish(environment.events.navBar.hideTools);
   }
 
   public detached(): void {
     const isRunningInElectron: boolean = Boolean((window as any).nodeRequire);
     if (isRunningInElectron) {
-      this._ipcRenderer.removeListener('menubar__start_save_diagram', this._electronOnSaveDiagram);
-      this._ipcRenderer.removeListener('menubar__start_save_diagram_as', this._electronOnSaveDiagramAs);
+      this.ipcRenderer.removeListener('menubar__start_save_diagram', this.electronOnSaveDiagram);
+      this.ipcRenderer.removeListener('menubar__start_save_diagram_as', this.electronOnSaveDiagramAs);
     }
 
-    for (const subscription of this._subscriptions) {
+    for (const subscription of this.subscriptions) {
       subscription.dispose();
     }
   }
@@ -196,7 +203,7 @@ export class DiagramDetail {
     this.showSaveBeforeDeployModal = false;
     await this.saveDiagram();
 
-    this._checkForMultipleRemoteSolutions();
+    this.checkForMultipleRemoteSolutions();
   }
 
   /**
@@ -211,6 +218,7 @@ export class DiagramDetail {
    */
   public async uploadProcess(solutionToDeployTo: ISolutionEntry): Promise<void> {
     this.cancelDialog();
+    // eslint-disable-next-line no-underscore-dangle
     const rootElements: Array<IModdleElement> = this.bpmnio.modeler._definitions.rootElements;
 
     const processModel: IModdleElement = rootElements.find((definition: IModdleElement) => {
@@ -223,13 +231,14 @@ export class DiagramDetail {
 
       this.showDiagramExistingModal = true;
 
-      const modalResultPromise: Promise<boolean> = new Promise((resolve: Function, reject: Function): boolean | void => {
+      const modalResultPromise: Promise<boolean> = new Promise((resolve: Function, reject: Function):
+        | boolean
+        | void => {
         const cancelModal: EventListenerOrEventListenerObject = (): void => {
           this.showDiagramExistingModal = false;
           resolve(false);
 
           document.getElementById('cancelDiagramDeploy').removeEventListener('click', cancelModal);
-          // tslint:disable-next-line: no-use-before-declare
           document.getElementById('overrideDiagramOnSolution').removeEventListener('click', proceedUpload);
         };
 
@@ -251,13 +260,11 @@ export class DiagramDetail {
       if (!modalResult) {
         return;
       }
-
     } catch {
       //
     }
 
     try {
-
       this.activeDiagram.id = processModelId;
 
       const bpmnFileSuffix: string = '.bpmn';
@@ -280,24 +287,23 @@ export class DiagramDetail {
 
       this.activeDiagram = await solutionToDeployTo.service.loadDiagram(processModelId);
 
-      this._router.navigateToRoute('design', {
+      this.router.navigateToRoute('design', {
         diagramName: this.activeDiagram.name,
         solutionUri: solutionToDeployTo.uri,
       });
 
-      this._notificationService
-          .showNotification(NotificationType.SUCCESS, 'Diagram was successfully uploaded to the connected ProcessEngine.');
+      this.notificationService.showNotification(
+        NotificationType.SUCCESS,
+        'Diagram was successfully uploaded to the connected ProcessEngine.',
+      );
 
-      this._eventAggregator.publish(environment.events.diagramDetail.onDiagramDeployed, processModelId);
-
+      this.eventAggregator.publish(environment.events.diagramDetail.onDiagramDeployed, processModelId);
     } catch (error) {
-      this._notificationService
-          .showNotification(NotificationType.ERROR, `Unable to update diagram: ${error}.`);
+      this.notificationService.showNotification(NotificationType.ERROR, `Unable to update diagram: ${error}.`);
     }
   }
 
   public async setOptionsAndStart(): Promise<void> {
-
     if (this.hasValidationError) {
       return;
     }
@@ -306,18 +312,17 @@ export class DiagramDetail {
       await this.saveDiagram();
     }
 
-    const parsedInitialToken: any = this._getInitialTokenValues(this.initialToken);
+    const parsedInitialToken: any = this.getInitialTokenValues(this.initialToken);
 
     await this.startProcess(parsedInitialToken);
   }
 
   public async startProcess(parsedInitialToken?: any): Promise<void> {
-
     if (this.selectedStartEventId === null) {
       return;
     }
 
-    this._dropInvalidFormData();
+    this.dropInvalidFormData();
 
     const startRequestPayload: DataModels.ProcessModels.ProcessStartRequestPayload = {
       inputValues: parsedInitialToken,
@@ -328,33 +333,28 @@ export class DiagramDetail {
       const useDefaultStartCallbackType: undefined = undefined;
       const doNotAwaitEndEvent: undefined = undefined;
 
-      const response: DataModels.ProcessModels.ProcessStartResponsePayload = await this._managementApiClient
-        .startProcessInstance(this.activeSolutionEntry.identity,
-                              this.activeDiagram.id,
-                              startRequestPayload,
-                              useDefaultStartCallbackType,
-                              this.selectedStartEventId,
-                              doNotAwaitEndEvent);
+      const response: DataModels.ProcessModels.ProcessStartResponsePayload = await this.managementApiClient.startProcessInstance(
+        this.activeSolutionEntry.identity,
+        this.activeDiagram.id,
+        startRequestPayload,
+        useDefaultStartCallbackType,
+        this.selectedStartEventId,
+        doNotAwaitEndEvent,
+      );
 
       const {correlationId, processInstanceId} = response;
 
-      this._router.navigateToRoute('live-execution-tracker', {
+      this.router.navigateToRoute('live-execution-tracker', {
         diagramName: this.activeDiagram.id,
         solutionUri: this.activeSolutionEntry.uri,
         correlationId: correlationId,
         processInstanceId: processInstanceId,
       });
     } catch (error) {
-      this.
-        _notificationService
-        .showNotification(
-          NotificationType.ERROR,
-          error.message,
-        );
+      this.notificationService.showNotification(NotificationType.ERROR, error.message);
     }
 
-    this._clickedOnCustomStart = false;
-
+    this.clickedOnCustomStart = false;
   }
 
   public async saveChangesBeforeStart(): Promise<void> {
@@ -375,7 +375,7 @@ export class DiagramDetail {
 
     const diagramIsUnsavedDiagram: boolean = this.activeDiagramUri.startsWith('about:open-diagrams');
     if (diagramIsUnsavedDiagram) {
-      await this._electronOnSaveDiagramAs();
+      await this.electronOnSaveDiagramAs();
 
       return;
     }
@@ -390,10 +390,10 @@ export class DiagramDetail {
 
       this.bpmnio.saveCurrentXML();
 
-      this._notificationService.showNotification(NotificationType.SUCCESS, `File saved!`);
-      this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
+      this.notificationService.showNotification(NotificationType.SUCCESS, 'File saved!');
+      this.eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
     } catch (error) {
-      this._notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
+      this.notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
       throw error;
     }
   }
@@ -403,7 +403,7 @@ export class DiagramDetail {
       return;
     }
 
-    let xml: string = await this._getXML();
+    let xml: string = await this.getXMLOrDisplayError();
 
     if (!xml) {
       return;
@@ -415,13 +415,11 @@ export class DiagramDetail {
       const lastIndexOfBackSlash: number = path.lastIndexOf('\\');
       const indexBeforeFilename: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash) + 1;
 
-      const filename: string = path
-                                .slice(indexBeforeFilename, path.length)
-                                .replace('.bpmn', '');
+      const filename: string = path.slice(indexBeforeFilename, path.length).replace('.bpmn', '');
 
       const temporaryDiagramName: string = this.activeDiagramUri
-                                                  .replace('about:open-diagrams/', '')
-                                                  .replace('.bpmn', '');
+        .replace('about:open-diagrams/', '')
+        .replace('.bpmn', '');
 
       xml = xml.replace(new RegExp(temporaryDiagramName, 'g'), filename);
     }
@@ -435,45 +433,45 @@ export class DiagramDetail {
 
     try {
       await this.activeSolutionEntry.service.saveDiagram(diagram, path);
-      this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
+      this.eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
     } catch (error) {
-      this._notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
+      this.notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
 
       throw error;
     }
 
-    await this._openDiagramService.closeDiagram(this.activeDiagram);
-    this._solutionService.removeOpenDiagramByUri(this.activeDiagram.uri);
+    await this.openDiagramService.closeDiagram(this.activeDiagram);
+    this.solutionService.removeOpenDiagramByUri(this.activeDiagram.uri);
     this.bpmnio.saveStateForNewUri = true;
 
     try {
-      this.activeDiagram = await this._openDiagramService.openDiagram(path, this.activeSolutionEntry.identity);
-      this._solutionService.addOpenDiagram(this.activeDiagram);
+      this.activeDiagram = await this.openDiagramService.openDiagram(path, this.activeSolutionEntry.identity);
+      this.solutionService.addOpenDiagram(this.activeDiagram);
     } catch {
-      const alreadyOpenedDiagram: IDiagram = await this._openDiagramService.getOpenedDiagramByURI(path);
+      const alreadyOpenedDiagram: IDiagram = await this.openDiagramService.getOpenedDiagramByURI(path);
 
-      await this._openDiagramService.closeDiagram(alreadyOpenedDiagram);
+      await this.openDiagramService.closeDiagram(alreadyOpenedDiagram);
 
-      this.activeDiagram = await this._openDiagramService.openDiagram(path, this.activeSolutionEntry.identity);
+      this.activeDiagram = await this.openDiagramService.openDiagram(path, this.activeSolutionEntry.identity);
     }
 
     this.xml = this.activeDiagram.xml;
-    this.activeSolutionEntry = this._solutionService.getSolutionEntryForUri('about:open-diagrams');
+    this.activeSolutionEntry = this.solutionService.getSolutionEntryForUri('about:open-diagrams');
 
     this.bpmnio.saveCurrentXML();
 
     this.diagramHasChanged = false;
 
-    await this._router.navigateToRoute('design', {
+    await this.router.navigateToRoute('design', {
       diagramName: this.activeDiagram.name,
       diagramUri: this.activeDiagram.uri,
       solutionUri: this.activeSolutionEntry.uri,
     });
 
-    this._notificationService.showNotification(NotificationType.SUCCESS, `File saved!`);
+    this.notificationService.showNotification(NotificationType.SUCCESS, 'File saved!');
 
-    this._eventAggregator.subscribeOnce('router:navigation:success', () => {
-      this._eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
+    this.eventAggregator.subscribeOnce('router:navigation:success', () => {
+      this.eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
     });
   }
 
@@ -485,7 +483,7 @@ export class DiagramDetail {
    * default.
    */
   public async showSelectStartEventDialog(): Promise<void> {
-    await this._updateProcessStartEvents();
+    await this.updateProcessStartEvents();
 
     const onlyOneStarteventAvailable: boolean = this.processesStartEvents.length === 1;
 
@@ -502,10 +500,10 @@ export class DiagramDetail {
   }
 
   public continueStarting(): void {
-    const functionCallDoesNotComeFromCustomModal: boolean = this._clickedOnCustomStart === false;
+    const functionCallDoesNotComeFromCustomModal: boolean = this.clickedOnCustomStart === false;
     if (functionCallDoesNotComeFromCustomModal) {
       this.startProcess();
-      this._clickedOnCustomStart = false;
+      this.clickedOnCustomStart = false;
     } else {
       this.showCustomStartModal();
     }
@@ -518,15 +516,15 @@ export class DiagramDetail {
     this.showStartEventModal = false;
     this.showStartWithOptionsModal = false;
     this.showRemoteSolutionOnDeployModal = false;
-    this._clickedOnCustomStart = false;
+    this.clickedOnCustomStart = false;
   }
 
   public showCustomStartModal(): void {
-    this._getTokenFromStartEventAnnotation();
+    this.getTokenFromStartEventAnnotation();
     this.showStartWithOptionsModal = true;
   }
 
-  private _getInitialTokenValues(token: any): any {
+  private getInitialTokenValues(token: any): any {
     try {
       // If successful, the token is an object
       return JSON.parse(token);
@@ -536,17 +534,16 @@ export class DiagramDetail {
     }
   }
 
-  private async _getXML(): Promise<string> {
+  private async getXMLOrDisplayError(): Promise<string> {
     try {
       return await this.bpmnio.getXML();
     } catch (error) {
-      this._notificationService.showNotification(NotificationType.ERROR, `Unable to get the XML: ${error}.`);
+      this.notificationService.showNotification(NotificationType.ERROR, `Unable to get the XML: ${error}.`);
       return undefined;
     }
   }
 
-  private _getTokenFromStartEventAnnotation(): void {
-
+  private getTokenFromStartEventAnnotation(): void {
     const elementRegistry: IElementRegistry = this.bpmnio.modeler.get('elementRegistry');
     const noStartEventId: boolean = this.selectedStartEventId === undefined;
     let startEvent: IShape;
@@ -568,8 +565,7 @@ export class DiagramDetail {
     const associationWithStartToken: IConnection = startEventAssociations.find((connection: IConnection) => {
       const associationText: string = connection.target.businessObject.text;
 
-      const associationTextIsEmpty: boolean = associationText === undefined
-                                           || associationText === null;
+      const associationTextIsEmpty: boolean = associationText === undefined || associationText === null;
       if (associationTextIsEmpty) {
         return undefined;
       }
@@ -590,11 +586,9 @@ export class DiagramDetail {
         return;
       }
 
-      const initialToken: string = untrimmedInitialToken
-                                    .replace('StartToken:', '')
-                                    .trim();
+      const initialToken: string = untrimmedInitialToken.replace('StartToken:', '').trim();
 
-       /**
+      /**
        * This Regex replaces all single quotes with double quotes and adds double
        * quotes to non quotet keys.
        * This way we make sure that JSON.parse() can handle the given string.
@@ -607,9 +601,11 @@ export class DiagramDetail {
     this.initialToken = '';
   }
 
-  private async _updateProcessStartEvents(): Promise<void> {
-    const startEventResponse: DataModels.Events.EventList = await this._managementApiClient
-      .getStartEventsForProcessModel(this.activeSolutionEntry.identity, this.activeDiagram.id);
+  private async updateProcessStartEvents(): Promise<void> {
+    const startEventResponse: DataModels.Events.EventList = await this.managementApiClient.getStartEventsForProcessModel(
+      this.activeSolutionEntry.identity,
+      this.activeDiagram.id,
+    );
 
     this.processesStartEvents = startEventResponse.events;
   }
@@ -619,16 +615,16 @@ export class DiagramDetail {
    *
    * If not, the user will be ask to save the diagram.
    */
-  private async _checkIfDiagramIsSavedBeforeDeploy(): Promise<void> {
+  private async checkIfDiagramIsSavedBeforeDeploy(): Promise<void> {
     if (this.diagramHasChanged) {
       this.showSaveBeforeDeployModal = true;
     } else {
-      await this._checkForMultipleRemoteSolutions();
+      await this.checkForMultipleRemoteSolutions();
     }
   }
 
-  private async _checkForMultipleRemoteSolutions(): Promise<void> {
-    this.remoteSolutions = this._solutionService.getRemoteSolutionEntries();
+  private async checkForMultipleRemoteSolutions(): Promise<void> {
+    this.remoteSolutions = this.solutionService.getRemoteSolutionEntries();
 
     const multipleRemoteSolutionsConnected: boolean = this.remoteSolutions.length > 1;
     if (multipleRemoteSolutionsConnected) {
@@ -636,7 +632,6 @@ export class DiagramDetail {
     } else {
       await this.uploadProcess(this.remoteSolutions[0]);
     }
-
   }
 
   /**
@@ -646,22 +641,23 @@ export class DiagramDetail {
    *
    * If there are no unsaved changes, no modal will be displayed.
    */
-  private async _showStartDialog(): Promise<void> {
-
-    this.diagramHasChanged
-      ? this.showSaveForStartModal = true
-      : await this.showSelectStartEventDialog();
+  private async showStartDialog(): Promise<void> {
+    if (this.diagramHasChanged) {
+      this.showSaveForStartModal = true;
+    } else {
+      await this.showSelectStartEventDialog();
+    }
   }
 
-  private _electronOnSaveDiagramAs = async(_?: Event): Promise<void> => {
+  private electronOnSaveDiagramAs = async (_?: Event): Promise<void> => {
     const isRemoteSolution: boolean = this.activeDiagramUri.startsWith('http');
     if (isRemoteSolution) {
       return;
     }
 
-    this._ipcRenderer.send('open_save-diagram-as_dialog');
+    this.ipcRenderer.send('open_save-diagram-as_dialog');
 
-    this._ipcRenderer.once('save_diagram_as', async(event: Event, savePath: string) => {
+    this.ipcRenderer.once('save_diagram_as', async (event: Event, savePath: string) => {
       const noFileSelected: boolean = savePath === null;
       if (noFileSelected) {
         return;
@@ -669,13 +665,13 @@ export class DiagramDetail {
 
       await this.saveDiagramAs(savePath);
     });
-  }
+  };
 
-  private _electronOnSaveDiagram = async(_?: Event): Promise<void> => {
-    this._eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
-  }
+  private electronOnSaveDiagram = async (_?: Event): Promise<void> => {
+    this.eventAggregator.publish(environment.events.diagramDetail.saveDiagram);
+  };
 
-  private _handleFormValidateEvents(event: ValidateEvent): void {
+  private handleFormValidateEvents(event: ValidateEvent): void {
     const eventIsValidateEvent: boolean = event.type !== 'validate';
 
     if (eventIsValidateEvent) {
@@ -686,16 +682,14 @@ export class DiagramDetail {
       const resultIsNotValid: boolean = result.valid === false;
 
       if (resultIsNotValid) {
-        this._eventAggregator
-          .publish(environment.events.navBar.validationError);
+        this.eventAggregator.publish(environment.events.navBar.validationError);
         this.diagramIsInvalid = true;
 
         return;
       }
     }
 
-    this._eventAggregator
-      .publish(environment.events.navBar.noValidationError);
+    this.eventAggregator.publish(environment.events.navBar.noValidationError);
     this.diagramIsInvalid = false;
   }
 
@@ -709,10 +703,9 @@ export class DiagramDetail {
    * TODO: Look further into this if this method is not better placed at the FormsSection
    * in the Property Panel, also split this into two methods and name them right.
    */
-  private _dropInvalidFormData(): void {
+  private dropInvalidFormData(): void {
     const registry: IElementRegistry = this.bpmnio.modeler.get('elementRegistry');
     registry.forEach((element: IShape) => {
-
       const elementIsUserTask: boolean = element.type === 'bpmn:UserTask';
 
       if (elementIsUserTask) {
@@ -724,7 +717,7 @@ export class DiagramDetail {
 
           extensions.values = extensions.values.filter((value: IFormElement) => {
             const typeIsNotCamundaFormData: boolean = value.$type !== 'camunda:FormData';
-            const elementContainsFields: boolean = (value.fields !== undefined) && (value.fields.length > 0);
+            const elementContainsFields: boolean = value.fields !== undefined && value.fields.length > 0;
 
             const keepThisValue: boolean = typeIsNotCamundaFormData || elementContainsFields;
             return keepThisValue;

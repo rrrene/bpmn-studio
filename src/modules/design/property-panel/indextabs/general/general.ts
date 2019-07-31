@@ -68,5 +68,4 @@ export class General implements IIndextab {
   public activate(model: IPageModel): void {
     this.elementInPanel = model.elementInPanel;
   }
-
 }

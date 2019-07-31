@@ -28,7 +28,9 @@ function registerFileSystem(container: Container): void {
   const diagramTrashFolderService: DiagramTrashFolderService = new DiagramTrashFolderService();
   const diagramTrashFolder: string = diagramTrashFolderService.getDiagramTrashFolder();
 
-  const fileSystemRepository: SolutionExplorerFileSystemRepository = new SolutionExplorerFileSystemRepository(diagramTrashFolder);
+  const fileSystemRepository: SolutionExplorerFileSystemRepository = new SolutionExplorerFileSystemRepository(
+    diagramTrashFolder,
+  );
   const filesystemSolutionexplorerService: SolutionExplorerService = new SolutionExplorerService(fileSystemRepository);
 
   container.registerInstance('SolutionExplorerServiceFileSystem', filesystemSolutionexplorerService);
@@ -36,7 +38,9 @@ function registerFileSystem(container: Container): void {
 
 function registerManagementApi(container: Container): void {
   const httpClient: IHttpClient = container.get('HttpFetchClient');
-  const managementApiRepository: SolutionExplorerManagementApiRepository = new SolutionExplorerManagementApiRepository(httpClient);
+  const managementApiRepository: SolutionExplorerManagementApiRepository = new SolutionExplorerManagementApiRepository(
+    httpClient,
+  );
   const solutionexplorerService: SolutionExplorerService = new SolutionExplorerService(managementApiRepository);
 
   container.registerInstance('SolutionExplorerServiceManagementApi_NotRefreshing', solutionexplorerService);

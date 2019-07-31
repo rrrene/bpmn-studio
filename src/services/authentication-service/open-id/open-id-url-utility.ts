@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
@@ -37,7 +38,7 @@ export class UrlUtility {
 
     let counter: number = 0;
     // tslint:disable-next-line:no-conditional-assignment
-    while (m = regex.exec(url)) {
+    while ((m = regex.exec(url))) {
       params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
 
       if (counter++ > 50) {

@@ -18,45 +18,51 @@ import {oidcConfig} from './open-id-connect-configuration';
 export class App {
   public showSolutionExplorer: boolean = false;
 
-  private _openIdConnect: OpenIdConnect | any;
-  private _authenticationService: IAuthenticationService;
-  private _notificationService: NotificationService;
-  private _eventAggregator: EventAggregator;
-  private _subscriptions: Array<Subscription>;
+  private openIdConnect: OpenIdConnect | any;
+  private authenticationService: IAuthenticationService;
+  private notificationService: NotificationService;
+  private eventAggregator: EventAggregator;
+  private subscriptions: Array<Subscription>;
 
-  private _preventDefaultBehaviour: EventListener;
+  private preventDefaultBehaviour: EventListener;
 
-  constructor(openIdConnect: OpenIdConnect,
-              authenticationService: IAuthenticationService,
-              notificationService: NotificationService,
-              eventAggregator: EventAggregator) {
-    this._openIdConnect = openIdConnect;
-    this._authenticationService = authenticationService;
-    this._notificationService = notificationService;
-    this._eventAggregator = eventAggregator;
+  constructor(
+    openIdConnect: OpenIdConnect,
+    authenticationService: IAuthenticationService,
+    notificationService: NotificationService,
+    eventAggregator: EventAggregator,
+  ) {
+    this.openIdConnect = openIdConnect;
+    this.authenticationService = authenticationService;
+    this.notificationService = notificationService;
+    this.eventAggregator = eventAggregator;
   }
 
   public activate(): void {
-    this._preventDefaultBehaviour = (event: Event): boolean => {
+    this.preventDefaultBehaviour = (event: Event): boolean => {
       event.preventDefault();
 
       const isRunningInBrowser: boolean = Boolean(!(window as any).nodeRequire);
 
       if (isRunningInBrowser) {
-        this._notificationService.showNotification(NotificationType.INFO, 'Drag-and-Drop is currently only available for the Electron application.');
+        this.notificationService.showNotification(
+          NotificationType.INFO,
+          'Drag-and-Drop is currently only available for the Electron application.',
+        );
       }
 
       return false;
     };
 
-    this.showSolutionExplorer = window.localStorage.getItem('SolutionExplorerVisibility') === 'true'
-                              || window.localStorage.getItem('SolutionExplorerVisibility') === null;
+    this.showSolutionExplorer =
+      window.localStorage.getItem('SolutionExplorerVisibility') === 'true' ||
+      window.localStorage.getItem('SolutionExplorerVisibility') === null;
 
     const showSolutionExplorer: string = this.showSolutionExplorer ? 'true' : 'false';
     window.localStorage.setItem('SolutionExplorerVisibility', showSolutionExplorer);
 
-    this._subscriptions = [
-      this._eventAggregator.subscribe(environment.events.processSolutionPanel.toggleProcessSolutionExplorer, () => {
+    this.subscriptions = [
+      this.eventAggregator.subscribe(environment.events.processSolutionPanel.toggleProcessSolutionExplorer, () => {
         this.showSolutionExplorer = !this.showSolutionExplorer;
         if (this.showSolutionExplorer) {
           window.localStorage.setItem('SolutionExplorerVisibility', 'true');
@@ -67,41 +73,41 @@ export class App {
     ];
 
     /*
-    * These EventListeners are used to prevent the BPMN-Studio from redirecting after
-    * trying to drop a file to the BPMN-Studio.
-    */
-    document.addEventListener('dragover', this._preventDefaultBehaviour);
-    document.addEventListener('drop', this._preventDefaultBehaviour);
+     * These EventListeners are used to prevent the BPMN-Studio from redirecting after
+     * trying to drop a file to the BPMN-Studio.
+     */
+    document.addEventListener('dragover', this.preventDefaultBehaviour);
+    document.addEventListener('drop', this.preventDefaultBehaviour);
 
     const openIdConnectRoute: string = window.localStorage.getItem('openIdRoute');
 
-    const openIdConnectRouteIsCustom: boolean = openIdConnectRoute !== null
-                                             && openIdConnectRoute !== undefined
-                                             && openIdConnectRoute !== '';
+    const openIdConnectRouteIsCustom: boolean =
+      openIdConnectRoute !== null && openIdConnectRoute !== undefined && openIdConnectRoute !== '';
 
     if (openIdConnectRouteIsCustom) {
       /*
-      * TODO: The environment variables should not carry state. This should be done via a configurationService.
-      * https://github.com/process-engine/bpmn-studio/issues/673
-      */
+       * TODO: The environment variables should not carry state. This should be done via a configurationService.
+       * https://github.com/process-engine/bpmn-studio/issues/673
+       */
       environment.openIdConnect.authority = openIdConnectRoute;
 
-      this._openIdConnect.configuration.userManagerSettings.authority = openIdConnectRoute;
-      this._openIdConnect.userManager._settings._authority = openIdConnectRoute;
+      this.openIdConnect.configuration.userManagerSettings.authority = openIdConnectRoute;
+      // eslint-disable-next-line no-underscore-dangle
+      this.openIdConnect.userManager._settings._authority = openIdConnectRoute;
 
       oidcConfig.userManagerSettings.authority = openIdConnectRoute;
     }
   }
 
   public deactivate(): void {
-    document.removeEventListener('dragover', this._preventDefaultBehaviour);
-    document.removeEventListener('drop', this._preventDefaultBehaviour);
+    document.removeEventListener('dragover', this.preventDefaultBehaviour);
+    document.removeEventListener('drop', this.preventDefaultBehaviour);
 
-    this._disposeAllSubscriptions();
+    this.disposeAllSubscriptions();
   }
 
-  private _disposeAllSubscriptions(): void {
-    this._subscriptions.forEach((subscription: Subscription) => {
+  private disposeAllSubscriptions(): void {
+    this.subscriptions.forEach((subscription: Subscription) => {
       subscription.dispose();
     });
   }
@@ -208,6 +214,6 @@ export class App {
       },
     ]);
 
-    this._openIdConnect.configure(config);
+    this.openIdConnect.configure(config);
   }
 }

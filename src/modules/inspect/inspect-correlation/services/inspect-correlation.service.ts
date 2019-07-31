@@ -7,36 +7,50 @@ import {IInspectCorrelationRepository, IInspectCorrelationService} from '../cont
 
 @inject('InspectCorrelationRepository')
 export class InspectCorrelationService implements IInspectCorrelationService {
-  private _inspectCorrelationRepository: IInspectCorrelationRepository;
+  private inspectCorrelationRepository: IInspectCorrelationRepository;
 
   constructor(inspectCorrelationRepository: IInspectCorrelationRepository) {
-    this._inspectCorrelationRepository = inspectCorrelationRepository;
+    this.inspectCorrelationRepository = inspectCorrelationRepository;
   }
 
-  public getAllCorrelationsForProcessModelId(processModelId: string, identity: IIdentity): Promise<Array<DataModels.Correlations.Correlation>> {
-    return this._inspectCorrelationRepository.getAllCorrelationsForProcessModelId(processModelId, identity);
+  public getAllCorrelationsForProcessModelId(
+    processModelId: string,
+    identity: IIdentity,
+  ): Promise<Array<DataModels.Correlations.Correlation>> {
+    return this.inspectCorrelationRepository.getAllCorrelationsForProcessModelId(processModelId, identity);
   }
 
-  public getLogsForCorrelation(correlation: DataModels.Correlations.Correlation, identity: IIdentity): Promise<Array<DataModels.Logging.LogEntry>> {
-    return this._inspectCorrelationRepository.getLogsForCorrelation(correlation, identity);
+  public getLogsForCorrelation(
+    correlation: DataModels.Correlations.Correlation,
+    identity: IIdentity,
+  ): Promise<Array<DataModels.Logging.LogEntry>> {
+    return this.inspectCorrelationRepository.getLogsForCorrelation(correlation, identity);
   }
 
-  public getLogsForProcessInstance(processModelId: string,
-                                   processInstanceId: string,
-                                   identity: IIdentity): Promise<Array<DataModels.Logging.LogEntry>> {
-
-    return this._inspectCorrelationRepository.getLogsForProcessInstance(processModelId, processInstanceId, identity);
+  public getLogsForProcessInstance(
+    processModelId: string,
+    processInstanceId: string,
+    identity: IIdentity,
+  ): Promise<Array<DataModels.Logging.LogEntry>> {
+    return this.inspectCorrelationRepository.getLogsForProcessInstance(processModelId, processInstanceId, identity);
   }
 
   public async getTokenForFlowNodeInstance(
-                              processModelId: string,
-                              correlationId: string,
-                              flowNodeId: string,
-                              identity: IIdentity): Promise<DataModels.TokenHistory.TokenHistoryGroup | undefined> {
+    processModelId: string,
+    correlationId: string,
+    flowNodeId: string,
+    identity: IIdentity,
+  ): Promise<DataModels.TokenHistory.TokenHistoryGroup | undefined> {
     try {
       const tokenHistory: DataModels.TokenHistory.TokenHistoryGroup = {};
-      const tokenForFlowNodeInstance: Array<DataModels.TokenHistory.TokenHistoryEntry> = await this._inspectCorrelationRepository
-          .getTokenForFlowNodeInstance(processModelId, correlationId, flowNodeId, identity);
+      const tokenForFlowNodeInstance: Array<
+        DataModels.TokenHistory.TokenHistoryEntry
+      > = await this.inspectCorrelationRepository.getTokenForFlowNodeInstance(
+        processModelId,
+        correlationId,
+        flowNodeId,
+        identity,
+      );
 
       tokenHistory[tokenForFlowNodeInstance[0].flowNodeId] = tokenForFlowNodeInstance;
       return tokenHistory;
@@ -46,11 +60,16 @@ export class InspectCorrelationService implements IInspectCorrelationService {
   }
 
   public async getTokenForFlowNodeByProcessInstanceId(
-                                           processInstanceId: string,
-                                           flowNodeId: string,
-                                           identity: IIdentity): Promise<DataModels.TokenHistory.TokenHistoryGroup | undefined> {
+    processInstanceId: string,
+    flowNodeId: string,
+    identity: IIdentity,
+  ): Promise<DataModels.TokenHistory.TokenHistoryGroup | undefined> {
     try {
-      return await this._inspectCorrelationRepository.getTokenForFlowNodeByProcessInstanceId(processInstanceId, flowNodeId, identity);
+      return await this.inspectCorrelationRepository.getTokenForFlowNodeByProcessInstanceId(
+        processInstanceId,
+        flowNodeId,
+        identity,
+      );
     } catch (error) {
       return undefined;
     }

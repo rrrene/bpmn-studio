@@ -4,7 +4,7 @@ import {bindable, inject} from 'aurelia-framework';
 import {DataModels} from '@process-engine/management_api_contracts';
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
-import {InspectPanelTab, ISolutionEntry} from '../../../../../contracts/index';
+import {ISolutionEntry, InspectPanelTab} from '../../../../../contracts/index';
 import environment from '../../../../../environment';
 
 @inject(EventAggregator)
@@ -16,27 +16,27 @@ export class InspectPanel {
   @bindable public fullscreen: boolean = false;
   @bindable public activeDiagram: IDiagram;
   @bindable public activeSolutionEntry: ISolutionEntry;
-  public InspectPanelTab: typeof InspectPanelTab = InspectPanelTab;
+  public inspectPanelTab: typeof InspectPanelTab = InspectPanelTab;
   public showCorrelationList: boolean = true;
   public showLogViewer: boolean;
 
-  private _eventAggregator: EventAggregator;
-  private _subscriptions: Array<Subscription>;
+  private eventAggregator: EventAggregator;
+  private subscriptions: Array<Subscription>;
 
   constructor(eventAggregator: EventAggregator) {
-    this._eventAggregator = eventAggregator;
+    this.eventAggregator = eventAggregator;
   }
 
   public attached(): void {
-    this._subscriptions = [
-      this._eventAggregator.subscribe(environment.events.inspectCorrelation.showLogViewer, () => {
+    this.subscriptions = [
+      this.eventAggregator.subscribe(environment.events.inspectCorrelation.showLogViewer, () => {
         this.changeTab(InspectPanelTab.LogViewer);
       }),
     ];
   }
 
   public detached(): void {
-    for (const subscription of this._subscriptions) {
+    for (const subscription of this.subscriptions) {
       subscription.dispose();
     }
   }
@@ -44,7 +44,7 @@ export class InspectPanel {
   public toggleFullscreen(): void {
     this.fullscreen = !this.fullscreen;
 
-    this._eventAggregator.publish(environment.events.inspect.shouldDisableTokenViewerButton, this.fullscreen);
+    this.eventAggregator.publish(environment.events.inspect.shouldDisableTokenViewerButton, this.fullscreen);
   }
 
   public activeDiagramChanged(): void {
@@ -62,13 +62,15 @@ export class InspectPanel {
     this.showLogViewer = shouldShowLogViewer;
   }
 
-  public correlationChanged(newCorrelation: DataModels.Correlations.Correlation, oldCorrelation: DataModels.Correlations.Correlation): void {
+  public correlationChanged(
+    newCorrelation: DataModels.Correlations.Correlation,
+    oldCorrelation: DataModels.Correlations.Correlation,
+  ): void {
     const firstCorrelationGotSelected: boolean = oldCorrelation !== undefined;
-    const shouldEnableTokenViewerButton: boolean = !(firstCorrelationGotSelected
-                                                   || this.fullscreen);
+    const shouldEnableTokenViewerButton: boolean = !(firstCorrelationGotSelected || this.fullscreen);
 
     if (shouldEnableTokenViewerButton) {
-      this._eventAggregator.publish(environment.events.inspect.shouldDisableTokenViewerButton, false);
+      this.eventAggregator.publish(environment.events.inspect.shouldDisableTokenViewerButton, false);
     }
   }
 }

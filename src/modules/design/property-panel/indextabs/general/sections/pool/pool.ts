@@ -9,7 +9,6 @@ import environment from '../../../../../../../environment';
 
 @inject(ValidationController, EventAggregator)
 export class PoolSection implements ISection {
-
   public path: string = '/sections/pool/pool';
   public canHandleElement: boolean = false;
   public validationController: ValidationController;
@@ -19,13 +18,13 @@ export class PoolSection implements ISection {
   public showModal: boolean = false;
   public showProcessIdWarningModal: boolean = false;
 
-  private _modeler: IBpmnModeler;
-  private _previousProcessRefId: string;
-  private _eventAggregator: EventAggregator;
+  private modeler: IBpmnModeler;
+  private previousProcessRefId: string;
+  private eventAggregator: EventAggregator;
 
   constructor(controller?: ValidationController, eventAggregator?: EventAggregator) {
     this.validationController = controller;
-    this._eventAggregator = eventAggregator;
+    this.eventAggregator = eventAggregator;
   }
 
   public activate(model: IPageModel): void {
@@ -35,27 +34,27 @@ export class PoolSection implements ISection {
     }
 
     if (this.validationError) {
-      this.businessObjInPanel.processRef.id = this._previousProcessRefId;
+      this.businessObjInPanel.processRef.id = this.previousProcessRefId;
       this.validationController.validate();
     }
 
     this.businessObjInPanel = model.elementInPanel.businessObject;
-    this._previousProcessRefId = this.businessObjInPanel.processRef.id;
+    this.previousProcessRefId = this.businessObjInPanel.processRef.id;
 
-    this._modeler = model.modeler;
+    this.modeler = model.modeler;
 
     this.validationController.subscribe((event: ValidateEvent) => {
-      this._validateId(event);
+      this.validateId(event);
     });
 
-    this._setValidationRules();
+    this.setValidationRules();
 
     this.showProcessIdWarningModal = Boolean(window.localStorage.getItem('showProcessIdWarningModal'));
   }
 
   public detached(): void {
     if (this.validationError) {
-      this.businessObjInPanel.processRef.id = this._previousProcessRefId;
+      this.businessObjInPanel.processRef.id = this.previousProcessRefId;
       this.validationController.validate();
     }
   }
@@ -70,11 +69,11 @@ export class PoolSection implements ISection {
 
   public closeModal(): void {
     this.showModal = false;
-    this._persistModalOptionToLocalStorage();
+    this.persistModalOptionToLocalStorage();
   }
 
   public isSuitableForElement(element: IShape): boolean {
-    return this._elementIsParticipant(element);
+    return this.elementIsParticipant(element);
   }
 
   public validate(): void {
@@ -83,16 +82,18 @@ export class PoolSection implements ISection {
   }
 
   public publishDiagramChange(): void {
-    this._eventAggregator.publish(environment.events.diagramChange);
+    this.eventAggregator.publish(environment.events.diagramChange);
   }
 
-  private _elementIsParticipant(element: IShape): boolean {
-    return element !== undefined
-        && element.businessObject !== undefined
-        && element.businessObject.$type === 'bpmn:Participant';
+  private elementIsParticipant(element: IShape): boolean {
+    return (
+      element !== undefined &&
+      element.businessObject !== undefined &&
+      element.businessObject.$type === 'bpmn:Participant'
+    );
   }
 
-  private _validateId(event: ValidateEvent): void {
+  private validateId(event: ValidateEvent): void {
     if (event.type !== 'validate') {
       return;
     }
@@ -111,17 +112,18 @@ export class PoolSection implements ISection {
     }
   }
 
-  private _formIdIsUnique(id: string): boolean {
-    const elementRegistry: IElementRegistry = this._modeler.get('elementRegistry');
-    const elementsWithSameId: Array<IShape> =  elementRegistry.filter((element: IShape) => {
-        return element.businessObject.id === this.businessObjInPanel.processRef.id;
+  private formIdIsUnique(id: string): boolean {
+    const elementRegistry: IElementRegistry = this.modeler.get('elementRegistry');
+    const elementsWithSameId: Array<IShape> = elementRegistry.filter((element: IShape) => {
+      return element.businessObject.id === this.businessObjInPanel.processRef.id;
     });
 
     return elementsWithSameId.length === 0;
   }
 
-  private _isProcessIdUnique(id: string): boolean {
-    const elementIds: Array<string> = this._modeler._definitions.rootElements.map((rootElement: IModdleElement) => {
+  private isProcessIdUnique(id: string): boolean {
+    // eslint-disable-next-line no-underscore-dangle
+    const elementIds: Array<string> = this.modeler._definitions.rootElements.map((rootElement: IModdleElement) => {
       return rootElement.id;
     });
 
@@ -131,18 +133,18 @@ export class PoolSection implements ISection {
     return !elementIds.includes(id);
   }
 
-  private _setValidationRules(): void {
+  private setValidationRules(): void {
     ValidationRules.ensure((businessObject: IModdleElement) => businessObject.id)
-    .displayName('processId')
-    .required()
-    .withMessage('Process-ID cannot be blank.')
-    .then()
-    .satisfies((id: string) => this._formIdIsUnique(id) && this._isProcessIdUnique(id))
-    .withMessage('Process-ID already exists.')
-    .on(this.businessObjInPanel.processRef);
+      .displayName('processId')
+      .required()
+      .withMessage('Process-ID cannot be blank.')
+      .then()
+      .satisfies((id: string) => this.formIdIsUnique(id) && this.isProcessIdUnique(id))
+      .withMessage('Process-ID already exists.')
+      .on(this.businessObjInPanel.processRef);
   }
 
-  private _persistModalOptionToLocalStorage(): void {
+  private persistModalOptionToLocalStorage(): void {
     window.localStorage.setItem('showProcessIdWarningModal', this.showProcessIdWarningModal.toString());
   }
 }

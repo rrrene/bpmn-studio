@@ -7,30 +7,28 @@ import {IHeatmapRepository} from '../contracts/IHeatmap.Repository';
 
 @inject('ManagementApiClientService')
 export class HeatmapRepository implements IHeatmapRepository {
-
-  private _managementApiClientService: IManagementApi;
-  private _identity: IIdentity;
+  private managementApiClientService: IManagementApi;
+  private identity: IIdentity;
 
   constructor(managementApiClientService: IManagementApi) {
-    this._managementApiClientService = managementApiClientService;
+    this.managementApiClientService = managementApiClientService;
   }
 
-  public getRuntimeInformationForProcessModel(processModelId: string): Promise<Array<DataModels.Kpi.FlowNodeRuntimeInformation>> {
-
-    return this._managementApiClientService.getRuntimeInformationForProcessModel(this._identity, processModelId);
+  public getRuntimeInformationForProcessModel(
+    processModelId: string,
+  ): Promise<Array<DataModels.Kpi.FlowNodeRuntimeInformation>> {
+    return this.managementApiClientService.getRuntimeInformationForProcessModel(this.identity, processModelId);
   }
 
   public getProcess(processModelId: string): Promise<DataModels.ProcessModels.ProcessModel> {
-
-    return this._managementApiClientService.getProcessModelById(this._identity, processModelId);
+    return this.managementApiClientService.getProcessModelById(this.identity, processModelId);
   }
 
   public getActiveTokensForFlowNode(flowNodeId: string): Promise<Array<DataModels.Kpi.ActiveToken>> {
-
-    return this._managementApiClientService.getActiveTokensForFlowNode(this._identity, flowNodeId);
+    return this.managementApiClientService.getActiveTokensForFlowNode(this.identity, flowNodeId);
   }
 
   public setIdentity(identity: IIdentity): void {
-    this._identity = identity;
+    this.identity = identity;
   }
 }
