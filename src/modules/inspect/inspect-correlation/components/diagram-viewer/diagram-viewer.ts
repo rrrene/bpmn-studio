@@ -128,6 +128,10 @@ export class DiagramViewer {
           );
         }
       }),
+
+      this._eventAggregator.subscribe(environment.events.inspectCorrelation.noCorrelationsFound, (noCorrelationsFound: boolean) => {
+        this.noCorrelationsFound = noCorrelationsFound;
+      })
     ];
   }
 
@@ -157,12 +161,6 @@ export class DiagramViewer {
     }
 
     this.subscriptions.forEach((subscription: Subscription) => subscription.dispose());
-  }
-
-  public noCorrelationsFoundChanged(): void {
-    if (this.noCorrelationsFound) {
-      this.xmlIsNotSelected = false;
-    }
   }
   
   public async processInstanceChanged(): Promise<void> {
