@@ -15,7 +15,17 @@
 .diagram-viewer__empty-message {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 60%;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  user-select: none;
+}
+
+.loading-spinner {
+  display: inline-block;
+  position: absolute;
+  left: 50%;
+  top: 15%;
   white-space: nowrap;
   transform: translate(-50%, -50%);
   user-select: none;

@@ -28,6 +28,7 @@ export class DiagramViewer {
   @bindable public xml: string;
   @bindable public activeDiagram: IDiagram;
   @bindable public selectedFlowNode: IShape;
+  public noCorrelationsFound: boolean;
   public xmlIsNotSelected: boolean = true;
   public canvasModel: HTMLElement;
 
@@ -127,6 +128,13 @@ export class DiagramViewer {
           );
         }
       }),
+
+      this.eventAggregator.subscribe(
+        environment.events.inspectCorrelation.noCorrelationsFound,
+        (noCorrelationsFound: boolean) => {
+          this.noCorrelationsFound = noCorrelationsFound;
+        },
+      ),
     ];
   }
 
@@ -204,6 +212,7 @@ export class DiagramViewer {
 
     this.diagramViewer.clear();
     this.xmlIsNotSelected = true;
+    this.noCorrelationsFound = false;
     this.xml = undefined;
 
     this.fitDiagramToViewport();

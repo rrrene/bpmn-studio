@@ -16,6 +16,7 @@ export class InspectCorrelation {
   @bindable public selectedProcessInstance: DataModels.Correlations.CorrelationProcessInstance;
   @bindable public selectedCorrelation: DataModels.Correlations.Correlation;
   @bindable public inspectPanelFullscreen: boolean = false;
+  @bindable public noCorrelationsFound: boolean = false;
   @observable public bottomPanelHeight: number = 250;
   @observable public tokenViewerWidth: number = 250;
 
@@ -43,6 +44,9 @@ export class InspectCorrelation {
       this.activeDiagram.id,
       this.activeSolutionEntry.identity,
     );
+
+    this.noCorrelationsFound = this.correlations.length === 0;
+    this.eventAggregator.publish(environment.events.inspectCorrelation.noCorrelationsFound, this.noCorrelationsFound);
 
     this.eventAggregator.publish(environment.events.statusBar.showInspectCorrelationButtons, true);
 
@@ -114,6 +118,10 @@ export class InspectCorrelation {
         this.activeDiagram.id,
         this.activeSolutionEntry.identity,
       );
+
+      this.noCorrelationsFound = this.correlations.length === 0;
+
+      this.eventAggregator.publish(environment.events.inspectCorrelation.noCorrelationsFound, this.noCorrelationsFound);
     }
   }
 

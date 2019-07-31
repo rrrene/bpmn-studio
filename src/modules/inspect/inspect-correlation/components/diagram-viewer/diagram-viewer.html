@@ -1,6 +1,10 @@
 <template>
   <require from="./diagram-viewer.css"></require>
   <div ref="canvasModel" class="diagram-viewer__body">
-    <h3 if.bind="xmlIsNotSelected" class="diagram-viewer__empty-message">No correlation selected.</h3>
+    <div if.bind="xmlIsNotSelected && !noCorrelationsFound">
+      <img src="src/resources/images/gears.svg" class="loading-spinner">
+      <h3 class="diagram-viewer__empty-message">Loading correlations...</h3>
+    </div>
+    <h3 if.bind="noCorrelationsFound" class="diagram-viewer__empty-message">No correlations found.</h3>
   </div>
 </template>

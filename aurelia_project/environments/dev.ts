@@ -96,6 +96,7 @@ export default {
       showInspectPanel: 'inspectCorrelation:inspectPanel:show',
       showTokenViewer: 'inspectCorrelation:tokenViewer:show',
       showLogViewer: 'inpsectCorrelation:logViewer:show',
+      noCorrelationsFound: 'inspectCorrelation:diagramViewer:noCorrelationsFound',
     },
     solutionExplorer: {
       updateOpenDiagrams: 'solutioneExplorer:openDiagrams:update',
