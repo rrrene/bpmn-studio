@@ -3,8 +3,8 @@
   <div ref="canvasModel" class="diagram-viewer__body">
     <div if.bind="xmlIsNotSelected && !noCorrelationsFound">
       <img src="src/resources/images/gears.svg" class="loading-spinner">
-      <h3 class="diagram-viewer__empty-message">Loading Correlations...</h3>
+      <h3 class="diagram-viewer__empty-message">Loading correlations...</h3>
     </div>
-    <h3 if.bind="noCorrelationsFound" class="diagram-viewer__empty-message">No Correlations found.</h3>
+    <h3 if.bind="noCorrelationsFound" class="diagram-viewer__empty-message">No correlations found.</h3>
   </div>
 </template>
