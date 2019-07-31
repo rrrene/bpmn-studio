@@ -13,7 +13,7 @@
                 <option model.bind="undefined">-Choose called process-</option>
                 <option repeat.for="diagram of allDiagrams" model.bind="diagram.name" value="${diagram.name}">${diagram.name}</option>
               </select>
-              <input class="called-process-selection__input" value.bind="selectedDiagramName" change.delegate="updateCalledDiagram()"/>
+              <input class="called-process-selection__input" value.bind="selectedDiagramName" change.delegate="updateCalledDiagram()" disabled.bind="!isEditable"/>
             </div>
           </td>
         </tr>
