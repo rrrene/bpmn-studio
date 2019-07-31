@@ -22,3 +22,12 @@
 .task-list-item-modelname:hover {
   color: inherit;
 }
+
+.task-list-header {
+  float: left;
+}
+
+.task-list-total-count {
+  float: right;
+  margin-top: 7px;
+}
