@@ -576,13 +576,23 @@ export class SolutionExplorerSolution {
       if (diagramIsNotYetOpened) {
         await this.openDiagramService.openDiagramFromSolution(diagram.uri, this.createIdentityForSolutionExplorer());
 
+        let lastTimeTriggered: number;
+
         this.solutionService.watchFile(diagram.uri, (event: string, filepath: string): void => {
           if (this.diagramWasSaved) {
             return;
           }
 
+          const now: number = Date.now();
+          const eventWasTriggeredTwice: boolean = lastTimeTriggered >= now - 100;
+          if (eventWasTriggeredTwice) {
+            return;
+          }
+
           const notificationMessage: string = `The diagram "${filepath}" was changed outside of the BPMN Studio.`;
           this.notificationService.showNotification(NotificationType.INFO, notificationMessage);
+
+          lastTimeTriggered = Date.now();
         });
       }
     }
