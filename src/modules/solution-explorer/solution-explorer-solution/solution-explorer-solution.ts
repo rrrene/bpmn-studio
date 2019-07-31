@@ -101,6 +101,8 @@ export class SolutionExplorerSolution {
   private diagramInContextMenu: IDiagram;
   private ipcRenderer: any;
 
+  private diagramWasSaved: boolean = false;
+
   private sortedDiagramsOfSolutions: Array<IDiagram> = [];
 
   constructor(
@@ -123,6 +125,14 @@ export class SolutionExplorerSolution {
 
   public async attached(): Promise<void> {
     this.isAttached = true;
+
+    this.eventAggregator.subscribe(environment.events.diagramDetail.saveDiagram, () => {
+      this.diagramWasSaved = true;
+
+      setTimeout(() => {
+        this.diagramWasSaved = false;
+      }, 100);
+    });
 
     if ((window as any).nodeRequire) {
       this.ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
@@ -566,8 +576,12 @@ export class SolutionExplorerSolution {
       if (diagramIsNotYetOpened) {
         await this.openDiagramService.openDiagramFromSolution(diagram.uri, this.createIdentityForSolutionExplorer());
 
-        this.solutionService.watchFile(diagram.uri, (filepath: string): void => {
-          const notificationMessage: string = `The file "${filepath}" was changed outside of the BPMN Studio.`;
+        this.solutionService.watchFile(diagram.uri, (event: string, filepath: string): void => {
+          if (this.diagramWasSaved) {
+            return;
+          }
+
+          const notificationMessage: string = `The diagram "${filepath}" was changed outside of the BPMN Studio.`;
           this.notificationService.showNotification(NotificationType.INFO, notificationMessage);
         });
       }
