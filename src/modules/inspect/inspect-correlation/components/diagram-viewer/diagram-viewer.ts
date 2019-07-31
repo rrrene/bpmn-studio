@@ -129,9 +129,12 @@ export class DiagramViewer {
         }
       }),
 
-      this._eventAggregator.subscribe(environment.events.inspectCorrelation.noCorrelationsFound, (noCorrelationsFound: boolean) => {
-        this.noCorrelationsFound = noCorrelationsFound;
-      })
+      this.eventAggregator.subscribe(
+        environment.events.inspectCorrelation.noCorrelationsFound,
+        (noCorrelationsFound: boolean) => {
+          this.noCorrelationsFound = noCorrelationsFound;
+        },
+      ),
     ];
   }
 
@@ -162,7 +165,7 @@ export class DiagramViewer {
 
     this.subscriptions.forEach((subscription: Subscription) => subscription.dispose());
   }
-  
+
   public async processInstanceChanged(): Promise<void> {
     const noProcessInstanceSelected: boolean = this.processInstance === undefined;
     if (noProcessInstanceSelected) {
