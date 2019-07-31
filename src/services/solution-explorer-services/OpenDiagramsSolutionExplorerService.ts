@@ -94,7 +94,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     const indexBeforeFilename: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash);
 
     const filepath: string = uri.substring(0, indexBeforeFilename);
-    // TODO Check if this still works
+
     const filename: string = uri.replace(/^.*[\\/]/, '');
     const filenameWithoutEnding: string = filename.replace('.bpmn', '');
 
