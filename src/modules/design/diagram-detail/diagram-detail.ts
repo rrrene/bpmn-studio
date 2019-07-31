@@ -12,7 +12,7 @@ import {
 } from '@process-engine/bpmn-elements_contracts';
 
 import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
-import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
+import {IDiagram} from '@process-engine/solutionexplorer.contracts';
 
 import {
   IElementRegistry,
