@@ -803,6 +803,7 @@ export class SolutionExplorerSolution {
   private async closeOpenDiagram(diagramToClose: IDiagram): Promise<void> {
     const openDiagramService: OpenDiagramsSolutionExplorerService = this
       .solutionService as OpenDiagramsSolutionExplorerService;
+
     await openDiagramService.closeDiagram(diagramToClose);
 
     this.globalSolutionService.removeOpenDiagramByUri(diagramToClose.uri);
