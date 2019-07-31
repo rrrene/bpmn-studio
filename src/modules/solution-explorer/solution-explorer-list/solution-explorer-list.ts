@@ -99,10 +99,6 @@ export class SolutionExplorerList {
   }
 
   public toggleSolution(solutionEntry: ISolutionEntry): void {
-    if (solutionEntry.isOpenDiagramService) {
-      return;
-    }
-
     solutionEntry.hidden = !solutionEntry.hidden;
     this.solutionService.persistSolutionsInLocalStorage();
   }
