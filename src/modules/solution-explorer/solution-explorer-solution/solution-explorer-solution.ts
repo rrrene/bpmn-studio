@@ -565,6 +565,10 @@ export class SolutionExplorerSolution {
 
       if (diagramIsNotYetOpened) {
         await this.openDiagramService.openDiagramFromSolution(diagram.uri, this.createIdentityForSolutionExplorer());
+        this.solutionService.watchFile(diagram.uri, (filepath: string): void => {
+          const notificationMessage: string = `The file "${filepath}" was changed outside of the BPMN Studio.`;
+          this.notificationService.showNotification(NotificationType.INFO, notificationMessage);
+        });
       }
     }
 
