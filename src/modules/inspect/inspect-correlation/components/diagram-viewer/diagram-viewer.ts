@@ -28,7 +28,7 @@ export class DiagramViewer {
   @bindable public xml: string;
   @bindable public activeDiagram: IDiagram;
   @bindable public selectedFlowNode: IShape;
-  @bindable public noCorrelationsFound: boolean;
+  public noCorrelationsFound: boolean;
   public xmlIsNotSelected: boolean = true;
   public canvasModel: HTMLElement;
 
