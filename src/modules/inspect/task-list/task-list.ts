@@ -57,7 +57,6 @@ export class TaskList {
   private tasks: Array<TaskListEntry> = [];
   private pollingTimeout: NodeJS.Timer | number;
   private getTasks: () => Promise<Array<TaskListEntry>>;
-  private isAttached: boolean = false;
 
   constructor(
     eventAggregator: EventAggregator,
@@ -104,7 +103,6 @@ export class TaskList {
   }
 
   public async attached(): Promise<void> {
-    this.isAttached = true;
 
     const getTasksIsUndefined: boolean = this.getTasks === undefined;
 
@@ -159,7 +157,6 @@ export class TaskList {
   }
 
   public detached(): void {
-    this.isAttached = false;
     clearTimeout(this.pollingTimeout as NodeJS.Timer);
 
     for (const subscription of this.subscriptions) {
