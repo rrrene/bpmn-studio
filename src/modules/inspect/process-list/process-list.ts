@@ -164,25 +164,22 @@ export class ProcessList {
     correlation: DataModels.Correlations.Correlation,
   ): Promise<void> {
     try {
+      this.managementApiService.onProcessError(this.activeSolutionEntry.identity, () => {
+        processInstance.state = DataModels.Correlations.CorrelationState.error;
+      });
+
       await this.managementApiService.terminateProcessInstance(
         this.activeSolutionEntry.identity,
         processInstance.processInstanceId,
       );
 
-      const getStoppedCorrelation: Function = (): void => {
-        this.managementApiService.onProcessError(this.activeSolutionEntry.identity, () => {
-          processInstance.state = DataModels.Correlations.CorrelationState.error;
-        });
-
-        const processInstanceWithCorrelation: ProcessInstanceWithCorrelation = {
-          processInstance: processInstance,
-          correlation: correlation,
-        };
-
-        this.stoppedProcessInstancesWithCorrelation.push(processInstanceWithCorrelation);
+      const processInstanceWithCorrelation: ProcessInstanceWithCorrelation = {
+        processInstance: processInstance,
+        correlation: correlation,
       };
 
-      getStoppedCorrelation();
+      this.stoppedProcessInstancesWithCorrelation.push(processInstanceWithCorrelation);
+
       await this.updateCorrelationList();
     } catch (error) {
       this.notificationService.showNotification(NotificationType.ERROR, `Error while stopping Process! ${error}`);
