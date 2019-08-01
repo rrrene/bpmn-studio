@@ -7,14 +7,14 @@
     <div class="solution-list">
       <div repeat.for="solutionEntry of openedSolutionsToDisplay" class="solution-entry">
 
-        <div class.bind="solutionEntry.uri === 'about:open-diagrams' ? 'solution-entry__open-diagrams-header' : 'solution-entry__header'" title.bind="solutionEntry.processEngineVersion ? `${solutionEntry.uri} | Version: ${solutionEntry.processEngineVersion}` : solutionEntry.uri">
+        <div class="solution-entry__header" title.bind="solutionEntry.processEngineVersion ? `${solutionEntry.uri} | Version: ${solutionEntry.processEngineVersion}` : solutionEntry.uri">
              
         <div class="solution-entry__collapse-header" click.delegate="toggleSolution(solutionEntry)">
 
           <div class="solution-entry__left-icon_and_name">
 
-            <i if.bind="solutionEntry.hidden && solutionEntry.uri !== 'about:open-diagrams'" class="fas fa-angle-right collapse__icon"></i>
-            <i if.bind="!solutionEntry.hidden && solutionEntry.uri !== 'about:open-diagrams'" class="fas fa-angle-down collapse__icon"></i>
+            <i if.bind="solutionEntry.hidden" class="fas fa-angle-right collapse__icon"></i>
+            <i if.bind="!solutionEntry.hidden" class="fas fa-angle-down collapse__icon"></i>
   
             <i class="fa ${solutionEntry.fontAwesomeIconClass} solution-entry__solution-icon" title.bind="solutionEntry.fontAwesomeIconClass === 'fa-bolt' ? 'ProcessEngine Disconnected!' : ''"></i>
     

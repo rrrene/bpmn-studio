@@ -136,6 +136,11 @@ export class SolutionService implements ISolutionService {
       return entryIsNotOpenDiagramSolution;
     });
 
+    const openDiagramSolution: ISolutionEntry = this.allSolutionEntries.find((entry: ISolutionEntry) => {
+      return entry.uri === 'about:open-diagrams';
+    });
+
+    window.localStorage.setItem('openDiagramSolutionCollapseState', JSON.stringify(openDiagramSolution.hidden));
     window.localStorage.setItem('openedSolutions', JSON.stringify(entriesToPersist));
     this.persistedEntries = entriesToPersist;
   }

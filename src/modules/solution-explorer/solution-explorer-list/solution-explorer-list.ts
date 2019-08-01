@@ -99,10 +99,6 @@ export class SolutionExplorerList {
   }
 
   public toggleSolution(solutionEntry: ISolutionEntry): void {
-    if (solutionEntry.isOpenDiagramService) {
-      return;
-    }
-
     solutionEntry.hidden = !solutionEntry.hidden;
     this.solutionService.persistSolutionsInLocalStorage();
   }
@@ -542,6 +538,15 @@ export class SolutionExplorerList {
   }
 
   private getHiddenStateForSolutionUri(uri: string): boolean {
+    const solutionIsOpenDiagrams: boolean = uri === 'about:open-diagrams';
+    if (solutionIsOpenDiagrams) {
+      const solutionCollapseState: boolean = JSON.parse(
+        window.localStorage.getItem('openDiagramSolutionCollapseState'),
+      );
+
+      return solutionCollapseState || false;
+    }
+
     const persistedSolutions: Array<ISolutionEntry> = this.solutionService.getPersistedEntries();
     const solutionToLoad: ISolutionEntry = persistedSolutions.find((solution: ISolutionEntry) => solution.uri === uri);
 
