@@ -6,9 +6,9 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
 
 import {AuthenticationStateEvent, ISolutionEntry, ISolutionService, NotificationType} from '../../../contracts/index';
-import environment from '../../../environment';
 import {getBeautifiedDate} from '../../../services/date-service/date.service';
 import {NotificationService} from '../../../services/notification-service/notification.service';
+import environment from '../../../environment';
 
 type ProcessInstanceWithCorrelation = {
   processInstance: DataModels.Correlations.CorrelationProcessInstance;
@@ -32,13 +32,10 @@ export class ProcessList {
   private activeSolutionUri: string;
   private router: Router;
 
-  private pollingTimeout: NodeJS.Timer | number;
   private subscriptions: Array<Subscription>;
   private correlations: Array<DataModels.Correlations.Correlation> = [];
   private processInstancesWithCorrelation: Array<ProcessInstanceWithCorrelation> = [];
-  private stoppedCorrelations: Array<DataModels.Correlations.Correlation> = [];
   private stoppedProcessInstancesWithCorrelation: Array<ProcessInstanceWithCorrelation> = [];
-  private isAttached: boolean = false;
 
   constructor(
     managementApiService: IManagementApi,
@@ -54,9 +51,15 @@ export class ProcessList {
     this.router = router;
   }
 
-  public activeSolutionEntryChanged(): void {
-    this.stoppedCorrelations = [];
+  public async activeSolutionEntryChanged(newValue): Promise<void> {
+    this.correlations = [];
+    this.processInstancesWithCorrelation = [];
+    this.processInstancesToDisplay = [];
     this.stoppedProcessInstancesWithCorrelation = [];
+    this.requestSuccessful = false;
+
+    this.eventAggregator.publish(environment.events.configPanel.solutionEntryChanged, newValue);
+    await this.updateCorrelationList();
   }
 
   public async currentPageChanged(newValue: number, oldValue: number): Promise<void> {
@@ -68,7 +71,6 @@ export class ProcessList {
   }
 
   public async attached(): Promise<void> {
-    this.isAttached = true;
     this.activeSolutionUri = this.router.currentInstruction.queryParams.solutionUri;
 
     const activeSolutionUriIsNotSet: boolean = this.activeSolutionUri === undefined;
@@ -85,7 +87,6 @@ export class ProcessList {
     this.activeSolutionEntry = this.solutionService.getSolutionEntryForUri(this.activeSolutionUri);
 
     await this.updateCorrelationList();
-    this.startPolling();
 
     this.subscriptions = [
       this.eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, () => {
@@ -95,12 +96,25 @@ export class ProcessList {
         this.updateCorrelationList();
       }),
     ];
+
+    this.managementApiService.onProcessStarted(this.activeSolutionEntry.identity, async () => {
+      await this.updateCorrelationList();
+    });
+
+    this.managementApiService.onProcessEnded(this.activeSolutionEntry.identity, async () => {
+      await this.updateCorrelationList();
+    });
+
+    /**
+     * This notification gets also triggered when the processinstance has been terminated.
+     * Currently the onProcessTerminated notification does not work.
+     */
+    this.managementApiService.onProcessError(this.activeSolutionEntry.identity, async () => {
+      await this.updateCorrelationList();
+    });
   }
 
   public detached(): void {
-    this.isAttached = false;
-    clearTimeout(this.pollingTimeout as NodeJS.Timer);
-
     for (const subscription of this.subscriptions) {
       subscription.dispose();
     }
@@ -154,44 +168,26 @@ export class ProcessList {
   }
 
   public async stopProcessInstance(
-    processInstanceId: string,
+    processInstance: DataModels.Correlations.CorrelationProcessInstance,
     correlation: DataModels.Correlations.Correlation,
   ): Promise<void> {
     try {
-      await this.managementApiService.terminateProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
+      this.managementApiService.onProcessError(this.activeSolutionEntry.identity, () => {
+        processInstance.state = DataModels.Correlations.CorrelationState.error;
+      });
 
-      const getStoppedCorrelation: Function = (): void => {
-        setTimeout(async () => {
-          const stoppedCorrelation: DataModels.Correlations.Correlation = await this.managementApiService.getCorrelationByProcessInstanceId(
-            this.activeSolutionEntry.identity,
-            processInstanceId,
-          );
+      await this.managementApiService.terminateProcessInstance(
+        this.activeSolutionEntry.identity,
+        processInstance.processInstanceId,
+      );
 
-          const stoppedCorrelationIsNotStopped: boolean = stoppedCorrelation.state === 'running';
-          if (stoppedCorrelationIsNotStopped) {
-            getStoppedCorrelation();
-
-            return;
-          }
-
-          this.stoppedCorrelations.push(stoppedCorrelation);
-
-          const processInstancesWithCorrelation: Array<
-            ProcessInstanceWithCorrelation
-          > = stoppedCorrelation.processInstances.map(
-            (processInstance: DataModels.Correlations.CorrelationProcessInstance) => {
-              return {
-                processInstance: processInstance,
-                correlation: stoppedCorrelation,
-              };
-            },
-          );
-
-          this.stoppedProcessInstancesWithCorrelation.push(...processInstancesWithCorrelation);
-        }, 100);
+      const processInstanceWithCorrelation: ProcessInstanceWithCorrelation = {
+        processInstance: processInstance,
+        correlation: correlation,
       };
 
-      getStoppedCorrelation();
+      this.stoppedProcessInstancesWithCorrelation.push(processInstanceWithCorrelation);
+
       await this.updateCorrelationList();
     } catch (error) {
       this.notificationService.showNotification(NotificationType.ERROR, `Error while stopping Process! ${error}`);
@@ -206,16 +202,6 @@ export class ProcessList {
     const identity: IIdentity = this.activeSolutionEntry.identity;
 
     return this.managementApiService.getActiveCorrelations(identity);
-  }
-
-  private startPolling(): void {
-    this.pollingTimeout = setTimeout(async () => {
-      await this.updateCorrelationList();
-
-      if (this.isAttached) {
-        this.startPolling();
-      }
-    }, environment.processengine.dashboardPollingIntervalInMs);
   }
 
   private sortCorrelations(
@@ -252,7 +238,23 @@ export class ProcessList {
     const lastProcessInstanceIndex: number = this.pageSize * this.currentPage;
 
     this.processInstancesToDisplay = this.processInstancesWithCorrelation;
-    this.processInstancesToDisplay.push(...this.stoppedProcessInstancesWithCorrelation);
+
+    this.stoppedProcessInstancesWithCorrelation.forEach(
+      (stoppedProcessInstanceWithCorrelation: ProcessInstanceWithCorrelation) => {
+        const processInstanceExistInDisplayArray: boolean = this.processInstancesToDisplay.some(
+          (processInstanceWithCorrelation: ProcessInstanceWithCorrelation) => {
+            return (
+              stoppedProcessInstanceWithCorrelation.processInstance === processInstanceWithCorrelation.processInstance
+            );
+          },
+        );
+
+        if (!processInstanceExistInDisplayArray) {
+          this.processInstancesToDisplay.push(stoppedProcessInstanceWithCorrelation);
+        }
+      },
+    );
+
     this.processInstancesToDisplay.sort(this.sortProcessInstancesWithCorrelation);
     this.processInstancesToDisplay = this.processInstancesToDisplay.slice(
       firstProcessInstanceIndex,
