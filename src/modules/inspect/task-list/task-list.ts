@@ -55,8 +55,8 @@ export class TaskList {
 
   private subscriptions: Array<Subscription>;
   private tasks: Array<TaskListEntry> = [];
-  private pollingTimeout: NodeJS.Timer | number;
   private getTasks: () => Promise<Array<TaskListEntry>>;
+  private isAttached: boolean = false;
 
   constructor(
     eventAggregator: EventAggregator,
@@ -103,7 +103,9 @@ export class TaskList {
   }
 
   public async activeSolutionEntryChanged(): Promise<void> {
-    await this.updateTasks();
+    if (this.isAttached) {
+      await this.updateTasks();
+    }
   }
 
   public async attached(): Promise<void> {
@@ -157,14 +159,16 @@ export class TaskList {
     this.managementApiService.onManualTaskWaiting(this.activeSolutionEntry.identity, async () => {
       await this.updateTasks();
     });
+
+    this.isAttached = true;
   }
 
   public detached(): void {
-    clearTimeout(this.pollingTimeout as NodeJS.Timer);
-
     for (const subscription of this.subscriptions) {
       subscription.dispose();
     }
+
+    this.isAttached = false;
   }
 
   public goBack(): void {
