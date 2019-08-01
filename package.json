@@ -1,7 +1,7 @@
 {
   "name": "bpmn-studio",
   "description": "An Aurelia application for designing BPMN diagrams, which can also be connected to a process engine to execute these diagrams.",
-  "version": "5.7.0",
+  "version": "5.7.0-beta.1",
   "author": {
     "name": "process-engine",
     "email": "hello@process-engine.io",
@@ -24,7 +24,7 @@
     "lint-fix": "eslint --fix \"test/**/*.ts\" \"src/**/*.ts\" \"electron_app/**/*.js\" \"bin/**/*.js\" \"aurelia_project/**/*.js\" \"aurelia_project/**/*.ts\"",
     "electron-start-dev": "npm run build && electron electron_app/electron.js",
     "electron-build-windows": "electron-rebuild && npm run build && build --publish never --windows",
-    "electron-build-macos": "electron-rebuild && npm run build && build --publish never --macos",
+    "electron-build-macos": "electron-rebuild && npm run build && build --config electron-builder/beta/electron-builder.yml --publish never --macos",
     "electron-shipit": "npm run build && build --publish always",
     "jenkins-electron-install-app-deps": "electron-builder install-app-deps",
     "jenkins-electron-rebuild-native": "electron-rebuild --force",
