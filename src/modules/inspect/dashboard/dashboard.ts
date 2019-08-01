@@ -10,7 +10,6 @@ import {NotificationService} from '../../../services/notification-service/notifi
 
 const versionRegex: RegExp = /(\d+)\.(\d+).(\d+)/;
 
-// tslint:disable: no-magic-numbers
 @inject('ManagementApiClientService', 'NotificationService', Router)
 export class Dashboard {
   @bindable() public activeSolutionEntry: ISolutionEntry;
