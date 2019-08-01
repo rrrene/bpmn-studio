@@ -36,7 +36,6 @@ export class ProcessList {
   private subscriptions: Array<Subscription>;
   private correlations: Array<DataModels.Correlations.Correlation> = [];
   private processInstancesWithCorrelation: Array<ProcessInstanceWithCorrelation> = [];
-  private stoppedCorrelations: Array<DataModels.Correlations.Correlation> = [];
   private stoppedProcessInstancesWithCorrelation: Array<ProcessInstanceWithCorrelation> = [];
   private isAttached: boolean = false;
 
@@ -55,7 +54,6 @@ export class ProcessList {
   }
 
   public activeSolutionEntryChanged(): void {
-    this.stoppedCorrelations = [];
     this.stoppedProcessInstancesWithCorrelation = [];
   }
 
@@ -174,7 +172,6 @@ export class ProcessList {
             return;
           }
 
-          this.stoppedCorrelations.push(stoppedCorrelation);
 
           const processInstancesWithCorrelation: Array<
             ProcessInstanceWithCorrelation
