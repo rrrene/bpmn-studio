@@ -8,6 +8,7 @@ import {DataModels, IManagementApi} from '@process-engine/management_api_contrac
 import {AuthenticationStateEvent, ISolutionEntry, ISolutionService, NotificationType} from '../../../contracts/index';
 import {getBeautifiedDate} from '../../../services/date-service/date.service';
 import {NotificationService} from '../../../services/notification-service/notification.service';
+import environment from '../../../environment';
 
 type ProcessInstanceWithCorrelation = {
   processInstance: DataModels.Correlations.CorrelationProcessInstance;
@@ -50,8 +51,15 @@ export class ProcessList {
     this.router = router;
   }
 
-  public activeSolutionEntryChanged(): void {
+  public async activeSolutionEntryChanged(newValue): Promise<void> {
+    this.correlations = [];
+    this.processInstancesWithCorrelation = [];
+    this.processInstancesToDisplay = [];
     this.stoppedProcessInstancesWithCorrelation = [];
+    this.requestSuccessful = false;
+
+    this.eventAggregator.publish(environment.events.configPanel.solutionEntryChanged, newValue);
+    await this.updateCorrelationList();
   }
 
   public async currentPageChanged(newValue: number, oldValue: number): Promise<void> {
