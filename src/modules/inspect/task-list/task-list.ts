@@ -102,8 +102,11 @@ export class TaskList {
     }
   }
 
-  public async attached(): Promise<void> {
+  public async activeSolutionEntryChanged(): Promise<void> {
+    await this.updateTasks();
+  }
 
+  public async attached(): Promise<void> {
     const getTasksIsUndefined: boolean = this.getTasks === undefined;
 
     this.activeSolutionUri = this.router.currentInstruction.queryParams.solutionUri;
