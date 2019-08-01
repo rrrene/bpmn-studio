@@ -154,7 +154,7 @@ export class ProcessList {
   }
 
   public async stopProcessInstance(
-    processInstanceId: string,
+    processInstance: DataModels.Correlations.CorrelationProcessInstance,
     correlation: DataModels.Correlations.Correlation,
   ): Promise<void> {
     try {
