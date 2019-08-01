@@ -233,7 +233,23 @@ export class ProcessList {
     const lastProcessInstanceIndex: number = this.pageSize * this.currentPage;
 
     this.processInstancesToDisplay = this.processInstancesWithCorrelation;
-    this.processInstancesToDisplay.push(...this.stoppedProcessInstancesWithCorrelation);
+
+    this.stoppedProcessInstancesWithCorrelation.forEach(
+      (stoppedProcessInstanceWithCorrelation: ProcessInstanceWithCorrelation) => {
+        const processInstanceExistInDisplayArray: boolean = this.processInstancesToDisplay.some(
+          (processInstanceWithCorrelation: ProcessInstanceWithCorrelation) => {
+            return (
+              stoppedProcessInstanceWithCorrelation.processInstance === processInstanceWithCorrelation.processInstance
+            );
+          },
+        );
+
+        if (!processInstanceExistInDisplayArray) {
+          this.processInstancesToDisplay.push(stoppedProcessInstanceWithCorrelation);
+        }
+      },
+    );
+
     this.processInstancesToDisplay.sort(this.sortProcessInstancesWithCorrelation);
     this.processInstancesToDisplay = this.processInstancesToDisplay.slice(
       firstProcessInstanceIndex,
