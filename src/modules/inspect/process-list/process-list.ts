@@ -83,7 +83,6 @@ export class ProcessList {
     this.activeSolutionEntry = this.solutionService.getSolutionEntryForUri(this.activeSolutionUri);
 
     await this.updateCorrelationList();
-    this.startPolling();
 
     this.subscriptions = [
       this.eventAggregator.subscribe(AuthenticationStateEvent.LOGIN, () => {
@@ -203,16 +202,6 @@ export class ProcessList {
     const identity: IIdentity = this.activeSolutionEntry.identity;
 
     return this.managementApiService.getActiveCorrelations(identity);
-  }
-
-  private startPolling(): void {
-    this.pollingTimeout = setTimeout(async () => {
-      await this.updateCorrelationList();
-
-      if (this.isAttached) {
-        this.startPolling();
-      }
-    }, environment.processengine.dashboardPollingIntervalInMs);
   }
 
   private sortCorrelations(
