@@ -544,7 +544,7 @@ export class SolutionExplorerList {
         window.localStorage.getItem('openDiagramSolutionCollapseState'),
       );
 
-      return solutionCollapseState ? solutionCollapseState : false;
+      return solutionCollapseState || false;
     }
 
     const persistedSolutions: Array<ISolutionEntry> = this.solutionService.getPersistedEntries();
