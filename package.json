@@ -79,12 +79,11 @@
     }
   },
   "files": [
-    "scripts",
+    "dist_web",
     "index.html",
     "bin",
-    "bootstrap",
     "src/resources",
-    "@fortawesome"
+    "dist_web/@fortawesome"
   ],
   "bin": "./bin/bpmn-studio.js",
   "repository": {
