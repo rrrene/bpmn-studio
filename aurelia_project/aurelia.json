@@ -366,7 +366,6 @@
       }
     ],
     "copyFiles": {
-      "node_modules/bootstrap/dist/css/bootstrap.css": "bootstrap/css",
       "src/resources/images/default-avatar.png": "src/resources/images",
       "node_modules/@process-engine/process_engine_runtime/config/sqlite/**/*": "config/sqlite",
       "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf": "@fortawesome/fontawesome-free/webfonts",
