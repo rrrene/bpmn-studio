@@ -6,7 +6,6 @@ import {NotFoundError, UnauthorizedError, isError} from '@essential-projects/err
 import {DataModels, IManagementApi} from '@process-engine/management_api_contracts';
 
 import {AuthenticationStateEvent, ISolutionEntry, ISolutionService, NotificationType} from '../../../contracts/index';
-import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 
 interface ITaskListRouteParameters {
@@ -58,7 +57,6 @@ export class TaskList {
   private tasks: Array<TaskListEntry> = [];
   private pollingTimeout: NodeJS.Timer | number;
   private getTasks: () => Promise<Array<TaskListEntry>>;
-  private isAttached: boolean = false;
 
   constructor(
     eventAggregator: EventAggregator,
@@ -104,9 +102,11 @@ export class TaskList {
     }
   }
 
-  public async attached(): Promise<void> {
-    this.isAttached = true;
+  public async activeSolutionEntryChanged(): Promise<void> {
+    await this.updateTasks();
+  }
 
+  public async attached(): Promise<void> {
     const getTasksIsUndefined: boolean = this.getTasks === undefined;
 
     this.activeSolutionUri = this.router.currentInstruction.queryParams.solutionUri;
@@ -133,11 +133,33 @@ export class TaskList {
     ];
 
     await this.updateTasks();
-    this.startPolling();
+
+    this.managementApiService.onEmptyActivityFinished(this.activeSolutionEntry.identity, async () => {
+      await this.updateTasks();
+    });
+
+    this.managementApiService.onEmptyActivityWaiting(this.activeSolutionEntry.identity, async () => {
+      await this.updateTasks();
+    });
+
+    this.managementApiService.onUserTaskFinished(this.activeSolutionEntry.identity, async () => {
+      await this.updateTasks();
+    });
+
+    this.managementApiService.onUserTaskWaiting(this.activeSolutionEntry.identity, async () => {
+      await this.updateTasks();
+    });
+
+    this.managementApiService.onManualTaskFinished(this.activeSolutionEntry.identity, async () => {
+      await this.updateTasks();
+    });
+
+    this.managementApiService.onManualTaskWaiting(this.activeSolutionEntry.identity, async () => {
+      await this.updateTasks();
+    });
   }
 
   public detached(): void {
-    this.isAttached = false;
     clearTimeout(this.pollingTimeout as NodeJS.Timer);
 
     for (const subscription of this.subscriptions) {
@@ -159,16 +181,6 @@ export class TaskList {
       processInstanceId: processInstanceId,
       taskId: id,
     });
-  }
-
-  private startPolling(): void {
-    this.pollingTimeout = setTimeout(async () => {
-      await this.updateTasks();
-
-      if (this.isAttached) {
-        this.startPolling();
-      }
-    }, environment.processengine.dashboardPollingIntervalInMs);
   }
 
   private async getAllTasks(): Promise<Array<TaskListEntry>> {
