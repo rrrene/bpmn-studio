@@ -164,36 +164,22 @@ export class ProcessList {
     correlation: DataModels.Correlations.Correlation,
   ): Promise<void> {
     try {
-      await this.managementApiService.terminateProcessInstance(this.activeSolutionEntry.identity, processInstanceId);
+      await this.managementApiService.terminateProcessInstance(
+        this.activeSolutionEntry.identity,
+        processInstance.processInstanceId,
+      );
 
       const getStoppedCorrelation: Function = (): void => {
-        setTimeout(async () => {
-          const stoppedCorrelation: DataModels.Correlations.Correlation = await this.managementApiService.getCorrelationByProcessInstanceId(
-            this.activeSolutionEntry.identity,
-            processInstanceId,
-          );
+        this.managementApiService.onProcessError(this.activeSolutionEntry.identity, () => {
+          processInstance.state = DataModels.Correlations.CorrelationState.error;
+        });
 
-          const stoppedCorrelationIsNotStopped: boolean = stoppedCorrelation.state === 'running';
-          if (stoppedCorrelationIsNotStopped) {
-            getStoppedCorrelation();
+        const processInstanceWithCorrelation: ProcessInstanceWithCorrelation = {
+          processInstance: processInstance,
+          correlation: correlation,
+        };
 
-            return;
-          }
-
-
-          const processInstancesWithCorrelation: Array<
-            ProcessInstanceWithCorrelation
-          > = stoppedCorrelation.processInstances.map(
-            (processInstance: DataModels.Correlations.CorrelationProcessInstance) => {
-              return {
-                processInstance: processInstance,
-                correlation: stoppedCorrelation,
-              };
-            },
-          );
-
-          this.stoppedProcessInstancesWithCorrelation.push(...processInstancesWithCorrelation);
-        }, 100);
+        this.stoppedProcessInstancesWithCorrelation.push(processInstanceWithCorrelation);
       };
 
       getStoppedCorrelation();
