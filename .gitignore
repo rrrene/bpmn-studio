@@ -25,6 +25,7 @@ node_modules
 # Compiled files
 scripts/*
 dist
+dist_web
 src/environment.ts
 @fortawesome
 bootstrap
