@@ -23,9 +23,9 @@
     "lint": "eslint \"test/**/*.ts\" \"src/**/*.ts\" \"electron_app/**/*.js\" \"bin/**/*.js\" \"aurelia_project/**/*.js\" \"aurelia_project/**/*.ts\"",
     "lint-fix": "eslint --fix \"test/**/*.ts\" \"src/**/*.ts\" \"electron_app/**/*.js\" \"bin/**/*.js\" \"aurelia_project/**/*.js\" \"aurelia_project/**/*.ts\"",
     "electron-start-dev": "npm run build && electron electron_app/electron.js",
-    "electron-build-windows": "electron-rebuild && npm run build && build --publish never --windows",
-    "electron-build-macos": "electron-rebuild && npm run build && build --config electron-builder/beta/electron-builder.yml --publish never --macos",
-    "electron-shipit": "npm run build && build --publish always",
+    "electron-build-windows": "npm run electron-prepare && build --config build/electron-builder.yml --publish never --windows",
+    "electron-build-macos": "npm run electron-prepare && build --config build/electron-builder.yml --publish never --macos",
+    "electron-prepare": "electron-rebuild && npm run build && node electron-builder/prepare-electron-build.js",
     "jenkins-electron-install-app-deps": "electron-builder install-app-deps",
     "jenkins-electron-rebuild-native": "electron-rebuild --force",
     "jenkins-electron-build-windows": "build --publish never --windows",
@@ -35,48 +35,6 @@
     "test": "echo \"We need reliable tests.\"",
     "test-electron-macos": "echo \"We need macOS tests.\"",
     "test-electron-windows": "echo \"We need Windows tests.\""
-  },
-  "build": {
-    "extraFiles": [
-      "config/**/*",
-      "build/**"
-    ],
-    "extraResources": [
-      "node_modules/@process-engine/process_engine_runtime/sequelize/migrations/**/*"
-    ],
-    "nsis": {
-      "perMachine": false,
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "runAfterFinish": false
-    },
-    "win": {
-      "target": "nsis",
-      "fileAssociations": [
-        {
-          "ext": [
-            "bpmn"
-          ],
-          "name": "BPMN",
-          "description": "BPMN diagram extension"
-        }
-      ],
-      "artifactName": "bpmn-studio-setup-${version}.${ext}"
-    },
-    "mac": {
-      "target": [
-        "dmg",
-        "zip"
-      ],
-      "fileAssociations": [
-        {
-          "ext": [
-            "bpmn"
-          ],
-          "name": "BPMN"
-        }
-      ]
-    }
   },
   "files": [
     "scripts",

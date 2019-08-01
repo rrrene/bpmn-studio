@@ -38,3 +38,5 @@ userData
 
 # Personal integration-test settings
 dev_tooling/scripts/prepare_environment_for_integration_tests.sh
+
+build/electron-builder.yml
