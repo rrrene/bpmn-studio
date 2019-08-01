@@ -4,7 +4,7 @@
   "platform": {
     "id": "web",
     "displayName": "Web",
-    "output": "scripts",
+    "output": "dist_web",
     "index": "index.html",
     "baseDir": "."
   },
@@ -65,7 +65,7 @@
       {
         "id": "web",
         "displayName": "Web",
-        "output": "scripts",
+        "output": "dist_web",
         "index": "index.html",
         "baseDir": "."
       }
