@@ -543,8 +543,8 @@ export class SolutionExplorerList {
       const solutionCollapseState: boolean = JSON.parse(
         window.localStorage.getItem('openDiagramSolutionCollapseState'),
       );
-
-      return solutionCollapseState || false;
+      // eslint-disable-next-line no-unneeded-ternary
+      return solutionCollapseState ? solutionCollapseState : false;
     }
 
     const persistedSolutions: Array<ISolutionEntry> = this.solutionService.getPersistedEntries();
