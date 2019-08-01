@@ -34,8 +34,8 @@ export class TaskDynamicUi {
   @bindable() public taskId: string;
   @bindable() public isModal: boolean;
   @bindable() public activeSolutionEntry: ISolutionEntry;
-  public userTask: DataModels.UserTasks.UserTask;
-  public manualTask: DataModels.ManualTasks.ManualTask;
+  @bindable public userTask: DataModels.UserTasks.UserTask;
+  @bindable public manualTask: DataModels.ManualTasks.ManualTask;
 
   private activeDiagramName: string;
   private activeSolutionUri: string;
