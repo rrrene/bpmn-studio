@@ -88,6 +88,22 @@ export class ProcessList {
         this.updateCorrelationList();
       }),
     ];
+
+    this.managementApiService.onProcessStarted(this.activeSolutionEntry.identity, async () => {
+      await this.updateCorrelationList();
+    });
+
+    this.managementApiService.onProcessEnded(this.activeSolutionEntry.identity, async () => {
+      await this.updateCorrelationList();
+    });
+
+    /**
+     * This notification gets also triggered when the processinstance has been terminated.
+     * Currently the onProcessTerminated notification does not work.
+     */
+    this.managementApiService.onProcessError(this.activeSolutionEntry.identity, async () => {
+      await this.updateCorrelationList();
+    });
   }
 
   public detached(): void {
