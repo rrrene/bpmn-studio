@@ -183,7 +183,7 @@
             "main": "index.js"
           },
           {
-            "name": "@fortawesome/fontawesome-free",
+            "name": "dist_web/@fortawesome/fontawesome-free",
             "path": "../node_modules/@fortawesome/fontawesome-free",
             "main": "css/all.css",
             "resources": [
@@ -368,12 +368,12 @@
     "copyFiles": {
       "src/resources/images/default-avatar.png": "src/resources/images",
       "node_modules/@process-engine/process_engine_runtime/config/sqlite/**/*": "config/sqlite",
-      "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf": "@fortawesome/fontawesome-free/webfonts",
-      "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff": "@fortawesome/fontawesome-free/webfonts",
-      "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2": "@fortawesome/fontawesome-free/webfonts",
-      "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.ttf": "@fortawesome/fontawesome-free/webfonts",
-      "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.woff": "@fortawesome/fontawesome-free/webfonts",
-      "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.woff2": "@fortawesome/fontawesome-free/webfonts"
+      "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf": "dist_web/@fortawesome/fontawesome-free/webfonts",
+      "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff": "dist_web/@fortawesome/fontawesome-free/webfonts",
+      "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2": "dist_web/@fortawesome/fontawesome-free/webfonts",
+      "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.ttf": "dist_web/@fortawesome/fontawesome-free/webfonts",
+      "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.woff": "dist_web/@fortawesome/fontawesome-free/webfonts",
+      "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.woff2": "dist_web/@fortawesome/fontawesome-free/webfonts"
     }
   }
 }
