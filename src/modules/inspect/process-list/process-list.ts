@@ -31,12 +31,10 @@ export class ProcessList {
   private activeSolutionUri: string;
   private router: Router;
 
-  private pollingTimeout: NodeJS.Timer | number;
   private subscriptions: Array<Subscription>;
   private correlations: Array<DataModels.Correlations.Correlation> = [];
   private processInstancesWithCorrelation: Array<ProcessInstanceWithCorrelation> = [];
   private stoppedProcessInstancesWithCorrelation: Array<ProcessInstanceWithCorrelation> = [];
-  private isAttached: boolean = false;
 
   constructor(
     managementApiService: IManagementApi,
@@ -65,7 +63,6 @@ export class ProcessList {
   }
 
   public async attached(): Promise<void> {
-    this.isAttached = true;
     this.activeSolutionUri = this.router.currentInstruction.queryParams.solutionUri;
 
     const activeSolutionUriIsNotSet: boolean = this.activeSolutionUri === undefined;
@@ -94,9 +91,6 @@ export class ProcessList {
   }
 
   public detached(): void {
-    this.isAttached = false;
-    clearTimeout(this.pollingTimeout as NodeJS.Timer);
-
     for (const subscription of this.subscriptions) {
       subscription.dispose();
     }
