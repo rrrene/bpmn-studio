@@ -46,7 +46,7 @@
       </template>
     </modal>
 
-    <modal show.bind="showRemoteSolutionOnDeployModal"
+    <modal if.bind="showRemoteSolutionOnDeployModal"
           header-text="Multiple Connected ProcessEngines Found">
       <template replace-part="modal-body">
         Choose a remote ProcessEngines; the diagram will be deployed to your selection.
