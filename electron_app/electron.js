@@ -652,15 +652,25 @@ Main._createMainWindow = () => {
   }
 };
 
-function getDefaultPort() {
+function getPortList(defaultPort) {
+  const portList = [defaultPort];
+
+  for (let index = 0; index < 10; index++) {
+    portList.push(defaultPort + index * 10);
+  }
+
+  return portList;
+}
+
+function getDefaultPorts() {
   if (isDev) {
-    return [56000, 56010, 56020, 56030, 56040, 56050, 56060, 56070, 56080, 56090];
+    return getPortList(56000);
   } else if (isAlpha) {
-    return [56100, 56110, 56120, 56130, 56140, 56150, 56160, 56170, 56180, 56190];
+    return getPortList(56100);
   } else if (isBeta) {
-    return [56200, 56210, 56220, 56230, 56240, 56250, 56260, 56270, 56280, 56290];
+    return getPortList(56200);
   } else if (isStable) {
-    return [56300, 56310, 56320, 56330, 56340, 56350, 56360, 56370, 56380, 56390];
+    return getPortList(56300);
   }
 }
 
@@ -675,7 +685,7 @@ Main._startInternalProcessEngine = async () => {
   }
 
   const getPortConfig = {
-    port: getDefaultPort(),
+    port: getDefaultPorts(),
     host: '0.0.0.0',
   };
 
