@@ -1,6 +1,6 @@
 productName: "BPMN Studio (Alpha)"
 directories:
-  output: dist
+  output: dist/electron
   buildResources: build
 extraFiles:
   - filter:
