@@ -7,3 +7,32 @@
   pointer-events: none;
   opacity: 0.5;
 }
+
+.called-process-selection {
+  position: relative;
+  width: 100%;
+  height: 25px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.called-process-selection__select {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 25px;
+  padding: 0;
+  margin: 0;
+  line-height: 20px;
+}
+
+.called-process-selection__input {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  width: calc(100% - 17px);
+  height: 21px;
+  border: 1px solid #A9A9A9;
+}
