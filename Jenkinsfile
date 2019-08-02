@@ -47,7 +47,7 @@ pipeline {
 
             sh('npm test')
 
-            stash(includes: '@fortawesome/, bootstrap/, scripts/, config/', name: 'npm_package_results')
+            stash(includes: 'dist/web/@fortawesome/, dist/web/, config/', name: 'npm_package_results')
             stash(includes: 'node_modules/', name: 'npm_package_node_modules')
           }
         }
