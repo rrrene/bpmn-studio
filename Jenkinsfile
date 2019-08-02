@@ -164,10 +164,9 @@ pipeline {
               node ./node_modules/.bin/ci_tools update-github-release \
                                                 --assets dist/electron/bpmn-studio-setup-*.exe \
                                                 --assets dist/electron/bpmn-studio-setup-*.exe.blockmap \
-                                                --assets dist/electron/bpmn-studio-*-mac.zip \
-                                                --assets dist/electron/bpmn-studio-*-x86_64.AppImage \
-                                                --assets dist/electron/bpmn-studio-*.dmg \
-                                                --assets dist/electron/bpmn-studio-*.dmg.blockmap \
+                                                --assets dist/electron/BPMN*-mac.zip \
+                                                --assets dist/electron/BPMN*.dmg \
+                                                --assets dist/electron/BPMN*.dmg.blockmap \
                                                 --assets dist/electron/latest-mac.yml \
                                                 --assets dist/electron/latest.yml
               """);
