@@ -10,19 +10,19 @@ const autoUpdater = require('electron-updater').autoUpdater;
 const CancellationToken = require('electron-updater').CancellationToken;
 const path = require('path');
 
-const studioVersion = require('../package.json').version;
-
 const isDev = require('electron-is-dev');
-const isAlpha = studioVersion.includes('alpha');
-const isBeta = studioVersion.includes('beta');
-const isStable = !isDev && !isAlpha && !isBeta;
 
 const getPort = require('get-port');
 const fs = require('fs');
 const openAboutWindow = require('about-window').default;
+const studioVersion = require('../package.json').version;
 
 const electronOidc = require('./electron-oidc');
 const oidcConfig = require('./oidc-config');
+
+const isAlpha = studioVersion.includes('alpha');
+const isBeta = studioVersion.includes('beta');
+const isStable = !isDev && !isAlpha && !isBeta;
 
 // If BPMN-Studio was opened by double-clicking a .bpmn file, then the
 // following code tells the frontend the name and content of that file;
@@ -665,13 +665,17 @@ function getPortList(defaultPort) {
 function getDefaultPorts() {
   if (isDev) {
     return getPortList(56000);
-  } else if (isAlpha) {
+  }
+  if (isAlpha) {
     return getPortList(56100);
-  } else if (isBeta) {
+  }
+  if (isBeta) {
     return getPortList(56200);
-  } else if (isStable) {
+  }
+  if (isStable) {
     return getPortList(56300);
   }
+  throw new Error('Could not get default port for internal process engine');
 }
 
 Main._startInternalProcessEngine = async () => {
@@ -684,12 +688,13 @@ Main._startInternalProcessEngine = async () => {
     process.env.CONFIG_PATH = path.join(__dirname, '..', '..', '..', 'config');
   }
 
-  const getPortConfig = {
+  const configForGetPort = {
     port: getDefaultPorts(),
     host: '0.0.0.0',
   };
+  console.log('Trying to start internal ProcessEngine on ports:', configForGetPort);
 
-  return getPort(getPortConfig).then(async (port) => {
+  return getPort(configForGetPort).then(async (port) => {
     console.log(`Internal ProcessEngine starting on port ${port}.`);
 
     process.env.http__http_extension__server__port = port;
@@ -787,9 +792,8 @@ Main._startInternalProcessEngine = async () => {
     // TODO: Check if the ProcessEngine instance is now run on the UI thread.
     // See issue https://github.com/process-engine/bpmn-studio/issues/312
     try {
-      // Create path for sqlite database in BPMN-Studio context.
-      const userDataFolderPath = getUserConfigFolder();
-      const sqlitePath = `${userDataFolderPath}/bpmn-studio/process_engine_databases`;
+      const sqlitePath = path.join(getConfigFolder(), processEngineDatabaseFolderName);
+
       // eslint-disable-next-line global-require
       const pe = require('@process-engine/process_engine_runtime');
       pe.startRuntime(sqlitePath);
@@ -819,6 +823,27 @@ function getUserConfigFolder() {
     default:
       return path.join(userHomeDir, '.config');
   }
+}
+
+function getConfigPathSuffix() {
+  if (isDev) {
+    return '-dev';
+  }
+  if (isAlpha) {
+    return '-alpha';
+  }
+  if (isBeta) {
+    return '-beta';
+  }
+  if (isStable) {
+    return '';
+  }
+  throw new Error('Could not get default port for internal process engine');
+}
+
+function getConfigFolder() {
+  const configPath = `bpmn-studio${getConfigPathSuffix()}`;
+  return path.join(getUserConfigFolder(), configPath);
 }
 
 Main._bringExistingInstanceToForeground = () => {
