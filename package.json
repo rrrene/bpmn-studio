@@ -23,7 +23,7 @@
     "lint": "eslint \"test/**/*.ts\" \"src/**/*.ts\" \"electron_app/**/*.js\" \"bin/**/*.js\" \"aurelia_project/**/*.js\" \"aurelia_project/**/*.ts\"",
     "lint-fix": "eslint --fix \"test/**/*.ts\" \"src/**/*.ts\" \"electron_app/**/*.js\" \"bin/**/*.js\" \"aurelia_project/**/*.js\" \"aurelia_project/**/*.ts\"",
     "electron-start-dev": "npm run build && electron electron_app/electron.js",
-    "electron-build-windows": "electron-rebuild && npm run build && build --publish never --windows",
+    "electron-build-windows": "electron-rebuild && npm run build && build --config build/builder-effective-config.yaml --publish never --windows",
     "electron-build-macos": "electron-rebuild && npm run build && build --config build/builder-effective-config.yaml --publish never --macos",
     "electron-shipit": "npm run build && build --publish always",
     "jenkins-electron-install-app-deps": "electron-builder install-app-deps",
