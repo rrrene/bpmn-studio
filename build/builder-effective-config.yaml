@@ -1,0 +1,32 @@
+directories:
+  output: dist/electron
+  buildResources: build
+extraFiles:
+  - filter:
+      - config/**/*
+      - build/**
+extraResources:
+  - filter:
+      - node_modules/@process-engine/process_engine_runtime/sequelize/migrations/**/*
+nsis:
+  perMachine: false
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  runAfterFinish: false
+win:
+  target: nsis
+  fileAssociations:
+    - ext:
+        - bpmn
+      name: BPMN
+      description: BPMN diagram extension
+  artifactName: 'bpmn-studio-setup-${version}.${ext}'
+mac:
+  target:
+    - dmg
+    - zip
+  fileAssociations:
+    - ext:
+        - bpmn
+      name: BPMN
+electronVersion: 4.0.2
