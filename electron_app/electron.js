@@ -9,7 +9,14 @@ const {ipcMain, dialog, app} = electron;
 const autoUpdater = require('electron-updater').autoUpdater;
 const CancellationToken = require('electron-updater').CancellationToken;
 const path = require('path');
+
+const studioVersion = require('../package.json').version;
+
 const isDev = require('electron-is-dev');
+const isAlpha = studioVersion.includes('alpha');
+const isBeta = studioVersion.includes('beta');
+const isStable = !isDev && !isAlpha && !isBeta;
+
 const getPort = require('get-port');
 const fs = require('fs');
 const openAboutWindow = require('about-window').default;
@@ -645,6 +652,18 @@ Main._createMainWindow = () => {
   }
 };
 
+function getDefaultPort() {
+  if (isDev) {
+    return [56000, 56010, 56020, 56030, 56040, 56050, 56060, 56070, 56080, 56090];
+  } else if (isAlpha) {
+    return [56100, 56110, 56120, 56130, 56140, 56150, 56160, 56170, 56180, 56190];
+  } else if (isBeta) {
+    return [56200, 56210, 56220, 56230, 56240, 56250, 56260, 56270, 56280, 56290];
+  } else if (isStable) {
+    return [56300, 56310, 56320, 56330, 56340, 56350, 56360, 56370, 56380, 56390];
+  }
+}
+
 Main._startInternalProcessEngine = async () => {
   const devUserDataFolderPath = path.join(__dirname, '..', 'userData');
   const prodUserDataFolderPath = app.getPath('userData');
@@ -656,7 +675,7 @@ Main._startInternalProcessEngine = async () => {
   }
 
   const getPortConfig = {
-    port: 8000,
+    port: getDefaultPort(),
     host: '0.0.0.0',
   };
 
