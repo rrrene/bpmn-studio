@@ -1,4 +1,4 @@
-productName: "BPMN Studio (stable)"
+productName: "BPMN Studio (Alpha)"
 directories:
   output: dist
   buildResources: build
