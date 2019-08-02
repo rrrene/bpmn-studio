@@ -113,7 +113,7 @@
     "electron-is-dev": "^0.3.0",
     "electron-notifications": "1.0.0",
     "electron-updater": "4.0.6",
-    "get-port": "^3.2.0",
+    "get-port": "^5.0.0",
     "highlight.js": "9.15.8",
     "highlightjs-line-numbers.js": "^2.7.0",
     "minimist": "^1.2.0",
