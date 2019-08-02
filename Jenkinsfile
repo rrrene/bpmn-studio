@@ -66,7 +66,7 @@ pipeline {
 
             sh('npm run test-electron-macos')
 
-            stash(includes: 'dist/*.*, dist/mac/*', excludes: 'electron-builder-effective-config.yaml', name: 'macos_electron_results')
+            stash(includes: 'dist/electron/*.*, dist/electron/mac/*', excludes: 'electron-builder-effective-config.yaml', name: 'macos_electron_results')
           }
           post {
             always {
@@ -90,7 +90,7 @@ pipeline {
 
             bat('npm run test-electron-windows')
 
-            stash(includes: 'dist/*.*', excludes: 'electron-builder-effective-config.yaml', name: 'windows_electron_results')
+            stash(includes: 'dist/electron/*.*', excludes: 'electron-builder-effective-config.yaml', name: 'windows_electron_results')
           }
           post {
             always {
@@ -162,14 +162,14 @@ pipeline {
             ]) {
               sh("""
               node ./node_modules/.bin/ci_tools update-github-release \
-                                                --assets dist/bpmn-studio-setup-*.exe \
-                                                --assets dist/bpmn-studio-setup-*.exe.blockmap \
-                                                --assets dist/bpmn-studio-*-mac.zip \
-                                                --assets dist/bpmn-studio-*-x86_64.AppImage \
-                                                --assets dist/bpmn-studio-*.dmg \
-                                                --assets dist/bpmn-studio-*.dmg.blockmap \
-                                                --assets dist/latest-mac.yml \
-                                                --assets dist/latest.yml
+                                                --assets dist/electron/bpmn-studio-setup-*.exe \
+                                                --assets dist/electron/bpmn-studio-setup-*.exe.blockmap \
+                                                --assets dist/electron/bpmn-studio-*-mac.zip \
+                                                --assets dist/electron/bpmn-studio-*-x86_64.AppImage \
+                                                --assets dist/electron/bpmn-studio-*.dmg \
+                                                --assets dist/electron/bpmn-studio-*.dmg.blockmap \
+                                                --assets dist/electron/latest-mac.yml \
+                                                --assets dist/electron/latest.yml
               """);
             }
           }
