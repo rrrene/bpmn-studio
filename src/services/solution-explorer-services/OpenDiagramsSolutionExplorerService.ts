@@ -166,10 +166,14 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
       let notificationMessage: string;
 
       const eventIsRename: boolean = event === 'rename';
+      const eventIsChange: boolean = event === 'change';
+      const eventIsRestore: boolean = event === 'restore';
       if (eventIsRename) {
         notificationMessage = `The diagram "${previousFilepath}" was moved/renamed by another application.`;
-      } else {
+      } else if (eventIsChange) {
         notificationMessage = `The diagram "${previousFilepath}" was changed by another application.`;
+      } else if (eventIsRestore) {
+        notificationMessage = `The diagram "${previousFilepath}" was restored by another application.`;
       }
 
       this.notificationService.showNonDisappearingNotification(NotificationType.INFO, notificationMessage);
