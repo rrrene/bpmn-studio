@@ -169,6 +169,8 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
         this.openDiagramStateService.updateDiagramState(diagram.uri, diagramState);
       }
 
+      this.eventAggregator.publish(environment.events.diagramChangedOutsideOfStudio, previousFilepath);
+
       let notificationMessage: string;
       if (previousFilepath.endsWith(newFilename)) {
         notificationMessage = `The diagram "${filepath}" was changed outside of the BPMN Studio.`;

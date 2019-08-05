@@ -144,6 +144,13 @@ export class DiagramDetail {
       this.eventAggregator.subscribe(environment.events.diagramDetail.saveDiagramAs, () => {
         this.electronOnSaveDiagramAs();
       }),
+      this.eventAggregator.subscribe(environment.events.diagramChangedOutsideOfStudio, (diagramUri: string) => {
+        const changedDiagramIsActiveDiagram: boolean = diagramUri === this.activeDiagramUri;
+
+        if (changedDiagramIsActiveDiagram) {
+          this.eventAggregator.publish(environment.events.differsFromOriginal, true);
+        }
+      }),
     ];
   }
 

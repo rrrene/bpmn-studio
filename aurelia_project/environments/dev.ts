@@ -30,6 +30,7 @@ export default {
   },
   events: {
     differsFromOriginal: 'differsFromOriginal',
+    diagramChangedOutsideOfStudio: 'diagramChangedOutsideOfStudio',
     xmlChanged: 'xmlChanged',
     startPage: {
       openLocalSolution: 'startpage:openlocalsolution',
