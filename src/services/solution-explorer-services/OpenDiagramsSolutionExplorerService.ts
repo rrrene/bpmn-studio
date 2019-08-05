@@ -149,7 +149,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
 
     let lastTimeTriggered: number;
 
-    this.watchFile(diagram.uri, (event: string, newFilePath: string): void => {
+    this.watchFile(diagram.uri, (event: string, previousFilepath: string, newFilename: string): void => {
       if (this.diagramWasSaved) {
         return;
       }
@@ -160,7 +160,13 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
         return;
       }
 
-      const notificationMessage: string = `The diagram "${filepath}" was changed outside of the BPMN Studio.`;
+      let notificationMessage: string;
+      if (previousFilepath.endsWith(newFilename)) {
+        notificationMessage = `The diagram "${filepath}" was changed outside of the BPMN Studio.`;
+      } else {
+        notificationMessage = `The diagram "${filepath}" was renamed outside of the BPMN Studio.`;
+      }
+
       this.notificationService.showNotification(NotificationType.INFO, notificationMessage);
 
       lastTimeTriggered = Date.now();
