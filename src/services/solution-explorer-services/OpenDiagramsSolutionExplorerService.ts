@@ -147,16 +147,8 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
         .throwIfError();
     }
 
-    let lastTimeTriggered: number;
-
     this.watchFile(diagram.uri, (event: string, previousFilepath: string, newFilename: string): void => {
       if (this.diagramWasSaved) {
-        return;
-      }
-
-      const now: number = Date.now();
-      const eventWasTriggeredTwice: boolean = lastTimeTriggered >= now - 100;
-      if (eventWasTriggeredTwice) {
         return;
       }
 
@@ -172,15 +164,13 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
       this.eventAggregator.publish(environment.events.diagramChangedOutsideOfStudio, previousFilepath);
 
       let notificationMessage: string;
-      if (previousFilepath.endsWith(newFilename)) {
-        notificationMessage = `The diagram "${previousFilepath}" was changed outside of the BPMN Studio.`;
+      if (event === 'rename') {
+        notificationMessage = `The diagram "${previousFilepath}" was moved/renamed by another application.`;
       } else {
-        notificationMessage = `The diagram "${previousFilepath}" was renamed outside of the BPMN Studio.`;
+        notificationMessage = `The diagram "${previousFilepath}" was changed by another application.`;
       }
 
       this.notificationService.showNonDisappearingNotification(NotificationType.INFO, notificationMessage);
-
-      lastTimeTriggered = Date.now();
     });
 
     this.openedDiagrams.push(diagram);
