@@ -160,6 +160,15 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
         return;
       }
 
+      const diagramState: IDiagramState = this.openDiagramStateService.loadDiagramState(diagram.uri);
+
+      const diagramHasState: boolean = diagramState !== null;
+      if (diagramHasState) {
+        diagramState.metaData.isChanged = true;
+
+        this.openDiagramStateService.updateDiagramState(diagram.uri, diagramState);
+      }
+
       let notificationMessage: string;
       if (previousFilepath.endsWith(newFilename)) {
         notificationMessage = `The diagram "${filepath}" was changed outside of the BPMN Studio.`;
