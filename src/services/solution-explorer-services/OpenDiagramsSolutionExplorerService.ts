@@ -4,9 +4,12 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 
-import {IDiagramState, IDiagramValidationService, ISolutionService} from '../../contracts';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {IDiagramState, IDiagramValidationService, ISolutionService, NotificationType} from '../../contracts/index';
 import {OpenDiagramStateService} from './OpenDiagramStateService';
 import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
+import {NotificationService} from '../notification-service/notification.service';
+import environment from '../../environment';
 
 /**
  * This service allows to keep all opened open diagrams inside a solution.
@@ -20,7 +23,14 @@ import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
  * To remove a diagram from the solution, call use #closeDiagram().
  */
 
-@inject('DiagramValidationService', 'SolutionExplorerServiceFactory', 'SolutionService', 'OpenDiagramStateService')
+@inject(
+  'DiagramValidationService',
+  'SolutionExplorerServiceFactory',
+  'SolutionService',
+  'OpenDiagramStateService',
+  'NotificationService',
+  EventAggregator,
+)
 export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerService {
   public isCreatingDiagram: boolean;
 
@@ -31,17 +41,33 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
   private openedDiagrams: Array<IDiagram> = [];
   private solutionService: ISolutionService;
   private openDiagramStateService: OpenDiagramStateService;
+  private notificationService: NotificationService;
+  private eventAggregator: EventAggregator;
+
+  private diagramWasSaved: boolean = false;
 
   constructor(
     validationService: IDiagramValidationService,
     serviceFactory: SolutionExplorerServiceFactory,
     solutionService: ISolutionService,
     openDiagramStateService: OpenDiagramStateService,
+    notificationService: NotificationService,
+    eventAggregator: EventAggregator,
   ) {
     this.validationService = validationService;
     this.setSolutionExplorer(serviceFactory);
     this.solutionService = solutionService;
     this.openDiagramStateService = openDiagramStateService;
+    this.notificationService = notificationService;
+    this.eventAggregator = eventAggregator;
+
+    this.eventAggregator.subscribe(environment.events.diagramDetail.saveDiagram, () => {
+      this.diagramWasSaved = true;
+
+      setTimeout(() => {
+        this.diagramWasSaved = false;
+      }, 100);
+    });
   }
 
   public getOpenedDiagrams(): Array<IDiagram> {
@@ -121,6 +147,25 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
         .throwIfError();
     }
 
+    let lastTimeTriggered: number;
+
+    this.watchFile(diagram.uri, (event: string, newFilePath: string): void => {
+      if (this.diagramWasSaved) {
+        return;
+      }
+
+      const now: number = Date.now();
+      const eventWasTriggeredTwice: boolean = lastTimeTriggered >= now - 100;
+      if (eventWasTriggeredTwice) {
+        return;
+      }
+
+      const notificationMessage: string = `The diagram "${filepath}" was changed outside of the BPMN Studio.`;
+      this.notificationService.showNotification(NotificationType.INFO, notificationMessage);
+
+      lastTimeTriggered = Date.now();
+    });
+
     this.openedDiagrams.push(diagram);
 
     return diagram;
@@ -131,6 +176,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
 
     this.openedDiagrams.splice(index, 1);
     this.openDiagramStateService.deleteDiagramState(diagram.uri);
+    this.unwatchFile(diagram.uri);
 
     return Promise.resolve();
   }
@@ -171,11 +217,11 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     filepath: string,
     callback: (event: string, previousFilepath: string, newFilename: string) => void,
   ): void {
-    throw new Error('Method not supported.');
+    this.solutionExplorerToOpenDiagrams.watchFile(filepath, callback);
   }
 
   public unwatchFile(filepath: string): void {
-    throw new Error('Method not supported.');
+    this.solutionExplorerToOpenDiagrams.unwatchFile(filepath);
   }
 
   private findIndexOfDiagramWithURI(uri: string): number {
