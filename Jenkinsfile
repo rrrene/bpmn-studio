@@ -29,7 +29,7 @@ pipeline {
         sh('node ./node_modules/.bin/ci_tools npm-install-only @process-engine/ @essential-projects/')
 
         // does prepare the version, but not commit it
-        sh('node ./node_modules/.bin/ci_tools prepare-version --allow-dirty-workdir')
+        sh('GIT_BRANCH=develop node ./node_modules/.bin/ci_tools prepare-version --allow-dirty-workdir')
 
         stash(includes: 'package.json', name: 'package_json')
       }
@@ -150,6 +150,7 @@ pipeline {
               branch "master"
               branch "beta"
               branch "develop"
+              branch "feature"
             }
           }
           steps {
@@ -171,6 +172,20 @@ pipeline {
                                                 --assets dist/electron/latest.yml
               """);
             }
+            // withCredentials([
+            //   usernamePassword(credentialsId: 'process-engine-ci_github-token', passwordVariable: 'GH_TOKEN', usernameVariable: 'GH_USER')
+            // ]) {
+            //   sh("""
+            //   node ./node_modules/.bin/ci_tools update-github-release \
+            //                                     --assets dist/electron/bpmn-studio-setup-*.exe \
+            //                                     --assets dist/electron/bpmn-studio-setup-*.exe.blockmap \
+            //                                     --assets dist/electron/BPMN*-mac.zip \
+            //                                     --assets dist/electron/BPMN*.dmg \
+            //                                     --assets dist/electron/BPMN*.dmg.blockmap \
+            //                                     --assets dist/electron/latest-mac.yml \
+            //                                     --assets dist/electron/latest.yml
+            //   """);
+            // }
           }
         }
       }
