@@ -66,7 +66,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
 
       setTimeout(() => {
         this.diagramWasSaved = false;
-      }, 100);
+      }, 150);
     });
   }
 
