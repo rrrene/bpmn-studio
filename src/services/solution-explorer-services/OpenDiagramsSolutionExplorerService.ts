@@ -164,7 +164,9 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
       this.eventAggregator.publish(environment.events.diagramChangedOutsideOfStudio, previousFilepath);
 
       let notificationMessage: string;
-      if (event === 'rename') {
+
+      const eventIsRename: boolean = event === 'rename';
+      if (eventIsRename) {
         notificationMessage = `The diagram "${previousFilepath}" was moved/renamed by another application.`;
       } else {
         notificationMessage = `The diagram "${previousFilepath}" was changed by another application.`;
