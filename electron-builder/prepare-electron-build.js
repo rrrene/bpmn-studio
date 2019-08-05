@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const {getReleaseChannelForElectron} = require('./getReleaseChannelForElectron');
+const {getReleaseChannel} = require('./release');
 
 function copyFile(fromFile, toFile) {
   console.log(`Copying ${fromFile} to ${toFile}`);
@@ -8,7 +8,7 @@ function copyFile(fromFile, toFile) {
   fs.copyFile(fromFile, toFile, errorCallback);
 }
 
-const releaseChannel = getReleaseChannelForElectron();
+const releaseChannel = getReleaseChannel();
 
 copyFile(`electron-builder/${releaseChannel}/electron-builder.yml`, 'build/electron-builder.yml');
 copyFile(`electron-builder/${releaseChannel}/icon.png`, 'build/icon.png');
