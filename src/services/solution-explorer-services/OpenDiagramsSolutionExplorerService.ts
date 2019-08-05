@@ -173,9 +173,9 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
 
       let notificationMessage: string;
       if (previousFilepath.endsWith(newFilename)) {
-        notificationMessage = `The diagram "${filepath}" was changed outside of the BPMN Studio.`;
+        notificationMessage = `The diagram "${previousFilepath}" was changed outside of the BPMN Studio.`;
       } else {
-        notificationMessage = `The diagram "${filepath}" was renamed outside of the BPMN Studio.`;
+        notificationMessage = `The diagram "${previousFilepath}" was renamed outside of the BPMN Studio.`;
       }
 
       this.notificationService.showNotification(NotificationType.INFO, notificationMessage);
