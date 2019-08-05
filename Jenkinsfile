@@ -145,14 +145,14 @@ pipeline {
           }
         }
         stage('Publish desktop apps') {
-          when {
-            anyOf {
-              branch "master"
-              branch "beta"
-              branch "develop"
-              branch "feature"
-            }
-          }
+          // when {
+          //   anyOf {
+          //     branch "master"
+          //     branch "beta"
+          //     branch "develop"
+          //     true
+          //   }
+          // }
           steps {
             unstash('npm_package_node_modules')
             unstash('macos_electron_results')
