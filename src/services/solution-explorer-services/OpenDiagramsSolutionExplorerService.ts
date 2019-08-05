@@ -178,7 +178,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
         notificationMessage = `The diagram "${previousFilepath}" was renamed outside of the BPMN Studio.`;
       }
 
-      this.notificationService.showNotification(NotificationType.INFO, notificationMessage);
+      this.notificationService.showNonDisappearingNotification(NotificationType.INFO, notificationMessage);
 
       lastTimeTriggered = Date.now();
     });
