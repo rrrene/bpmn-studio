@@ -204,7 +204,7 @@ export class SolutionExplorerSolution {
 
     this.disposeSubscriptions();
 
-    if (this.isCreateDiagramInputShown()) {
+    if (this.diagramCreationState.isCreateDiagramInputShown) {
       this.resetDiagramCreation();
     }
 
@@ -341,7 +341,7 @@ export class SolutionExplorerSolution {
     }
 
     // Dont allow renaming diagram, if already creating another.
-    if (this.isCreateDiagramInputShown()) {
+    if (this.diagramCreationState.isCreateDiagramInputShown) {
       return;
     }
 
@@ -413,7 +413,7 @@ export class SolutionExplorerSolution {
    * diagram.
    */
   public async startCreationOfNewDiagram(): Promise<void> {
-    if (this.isCreateDiagramInputShown()) {
+    if (this.diagramCreationState.isCreateDiagramInputShown) {
       return;
     }
 
@@ -438,10 +438,6 @@ export class SolutionExplorerSolution {
 
     document.addEventListener('click', this.onCreateNewDiagramClickEvent);
     document.addEventListener('keyup', this.onCreateNewDiagramKeyupEvent);
-  }
-
-  public isCreateDiagramInputShown(): boolean {
-    return this.diagramCreationState.isCreateDiagramInputShown;
   }
 
   @computedFrom('validationController.errors.length')
