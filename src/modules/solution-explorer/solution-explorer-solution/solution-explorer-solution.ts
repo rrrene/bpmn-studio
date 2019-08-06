@@ -352,6 +352,7 @@ export class SolutionExplorerSolution {
     window.setTimeout(() => {
       this.renameDiagramInput.focus();
       this.diagramRenamingState.currentDiagramInputValue = diagram.name;
+      this.setValidationRules();
       this.validationController.validate();
     }, 0);
 
