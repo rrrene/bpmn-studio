@@ -171,7 +171,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
           this.openDiagramStateService.updateDiagramState(diagram.uri, diagramState);
         }
 
-        this.eventAggregator.publish(environment.events.diagramChangedOutsideOfStudio, previousFilepath);
+        this.eventAggregator.publish(environment.events.diagramChangedOutsideTheStudio, previousFilepath);
 
         let notificationMessage: string;
 

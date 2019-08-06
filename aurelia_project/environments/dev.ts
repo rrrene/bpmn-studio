@@ -31,7 +31,7 @@ export default {
   events: {
     differsFromOriginal: 'differsFromOriginal',
     diagramChangedByStudio: 'diagramChangedByStudio',
-    diagramChangedOutsideOfStudio: 'diagramChangedOutsideOfStudio',
+    diagramChangedOutsideTheStudio: 'diagramChangedOutsideTheStudio',
     xmlChanged: 'xmlChanged',
     startPage: {
       openLocalSolution: 'startpage:openlocalsolution',

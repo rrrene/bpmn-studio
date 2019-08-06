@@ -144,7 +144,7 @@ export class DiagramDetail {
       this.eventAggregator.subscribe(environment.events.diagramDetail.saveDiagramAs, () => {
         this.electronOnSaveDiagramAs();
       }),
-      this.eventAggregator.subscribe(environment.events.diagramChangedOutsideOfStudio, (diagramUri: string) => {
+      this.eventAggregator.subscribe(environment.events.diagramChangedOutsideTheStudio, (diagramUri: string) => {
         const changedDiagramIsActiveDiagram: boolean = diagramUri === this.activeDiagramUri;
 
         if (changedDiagramIsActiveDiagram) {
