@@ -143,6 +143,11 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
 
       diagram = await this.solutionExplorerToOpenDiagrams.loadDiagram(filenameWithoutEnding, filepath);
 
+      const diagramHasNoState: boolean = this.openDiagramStateService.loadDiagramState(uri) === null;
+      if (diagramHasNoState) {
+        this.openDiagramStateService.saveDiagramState(uri, diagram.xml, undefined, [], false);
+      }
+
       await this.validationService
         .validate(diagram.xml)
         .isXML()

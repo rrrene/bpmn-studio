@@ -593,8 +593,6 @@ export class BpmnIo {
 
     const diagramHasNoState: boolean = diagramState === null;
     if (diagramHasNoState) {
-      this.saveDiagramState(this.diagramUri);
-
       return;
     }
 
