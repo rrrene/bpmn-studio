@@ -55,7 +55,7 @@ interface IDiagramCreationState extends IDiagramNameInputState {
 export class SolutionExplorerSolution {
   public activeDiagram: IDiagram;
   public showCloseModal: boolean = false;
-  public renameDiagramInput: HTMLInputElement;
+  @bindable public renameDiagramInput: HTMLInputElement;
 
   // Fields below are bound from the html view.
   @bindable public solutionService: ISolutionExplorerService;
@@ -204,7 +204,7 @@ export class SolutionExplorerSolution {
 
     this.disposeSubscriptions();
 
-    if (this.isCreateDiagramInputShown()) {
+    if (this.diagramCreationState.isCreateDiagramInputShown) {
       this.resetDiagramCreation();
     }
 
@@ -341,7 +341,7 @@ export class SolutionExplorerSolution {
     }
 
     // Dont allow renaming diagram, if already creating another.
-    if (this.isCreateDiagramInputShown()) {
+    if (this.diagramCreationState.isCreateDiagramInputShown) {
       return;
     }
 
@@ -352,6 +352,7 @@ export class SolutionExplorerSolution {
     window.setTimeout(() => {
       this.renameDiagramInput.focus();
       this.diagramRenamingState.currentDiagramInputValue = diagram.name;
+      this.setValidationRules();
       this.validationController.validate();
     }, 0);
 
@@ -413,7 +414,7 @@ export class SolutionExplorerSolution {
    * diagram.
    */
   public async startCreationOfNewDiagram(): Promise<void> {
-    if (this.isCreateDiagramInputShown()) {
+    if (this.diagramCreationState.isCreateDiagramInputShown) {
       return;
     }
 
@@ -429,19 +430,15 @@ export class SolutionExplorerSolution {
     }
 
     this.diagramCreationState.isCreateDiagramInputShown = true;
-    this.validationController.validate();
 
     // The templating update must happen before we can set the focus.
     window.setTimeout(() => {
       this.createNewDiagramInput.focus();
+      this.setValidationRules();
     }, 0);
 
     document.addEventListener('click', this.onCreateNewDiagramClickEvent);
     document.addEventListener('keyup', this.onCreateNewDiagramKeyupEvent);
-  }
-
-  public isCreateDiagramInputShown(): boolean {
-    return this.diagramCreationState.isCreateDiagramInputShown;
   }
 
   @computedFrom('validationController.errors.length')
