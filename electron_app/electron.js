@@ -125,10 +125,6 @@ Main._initializeApplication = () => {
       const updateCheckResult = await autoUpdater.checkForUpdates();
       console.log(updateCheckResult);
 
-      // if (currentVersionIsPrerelease) {
-      //   const is updateCheckResult.updateInfo.version.includes('alpha')
-      // }
-
       const noUpdateAvailable = updateCheckResult.updateInfo.version === currentVersion;
       if (noUpdateAvailable) {
         return;
