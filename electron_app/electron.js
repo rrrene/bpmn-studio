@@ -21,6 +21,8 @@ const oidcConfig = require('./oidc-config');
 const {ReleaseChannel} = require('../src/services/release-channel-service/release-channel-service');
 const releaseChannel = new ReleaseChannel(studioVersion);
 
+const {getDefaultPorts} = require('../src/services/default-ports-module/default-ports-module');
+
 // If BPMN-Studio was opened by double-clicking a .bpmn file, then the
 // following code tells the frontend the name and content of that file;
 // this 'get_opened_file' request is emmitted in src/main.ts.
@@ -660,7 +662,7 @@ Main._startInternalProcessEngine = async () => {
   }
 
   const configForGetPort = {
-    port: releaseChannel.getDefaultPorts(),
+    port: getDefaultPorts(),
     host: '0.0.0.0',
   };
   console.log('Trying to start internal ProcessEngine on ports:', configForGetPort);
