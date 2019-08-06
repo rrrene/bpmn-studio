@@ -10,8 +10,6 @@ const autoUpdater = require('electron-updater').autoUpdater;
 const CancellationToken = require('electron-updater').CancellationToken;
 const path = require('path');
 
-const isDev = require('electron-is-dev');
-
 const getPort = require('get-port');
 const fs = require('fs');
 const openAboutWindow = require('about-window').default;
@@ -20,9 +18,10 @@ const studioVersion = require('../package.json').version;
 const electronOidc = require('./electron-oidc');
 const oidcConfig = require('./oidc-config');
 
-const isAlpha = studioVersion.includes('alpha');
-const isBeta = studioVersion.includes('beta');
-const isStable = !isDev && !isAlpha && !isBeta;
+const {ReleaseChannel} = require('../src/services/release-channel-service/release-channel-service');
+const {getDefaultPorts} = require('../src/services/default-ports-module/default-ports-module');
+
+const releaseChannel = new ReleaseChannel(studioVersion);
 
 // If BPMN-Studio was opened by double-clicking a .bpmn file, then the
 // following code tells the frontend the name and content of that file;
@@ -104,7 +103,7 @@ Main._initializeApplication = () => {
     }
   });
 
-  if (!isDev) {
+  if (!releaseChannel.isDev()) {
     initializeAutoUpdater();
   }
 
@@ -413,7 +412,7 @@ Main._createMainWindow = () => {
             label: 'About BPMN-Studio',
             click: () =>
               openAboutWindow({
-                icon_path: isDev
+                icon_path: releaseChannel.isDev()
                   ? path.join(__dirname, '..', 'build/icon.png')
                   : path.join(__dirname, '../../../build/icon.png'),
                 product_name: 'BPMN-Studio',
@@ -652,39 +651,13 @@ Main._createMainWindow = () => {
   }
 };
 
-function getPortList(defaultPort) {
-  const portList = [defaultPort];
-
-  for (let index = 0; index < 10; index++) {
-    portList.push(defaultPort + index * 10);
-  }
-
-  return portList;
-}
-
-function getDefaultPorts() {
-  if (isDev) {
-    return getPortList(56000);
-  }
-  if (isAlpha) {
-    return getPortList(56100);
-  }
-  if (isBeta) {
-    return getPortList(56200);
-  }
-  if (isStable) {
-    return getPortList(56300);
-  }
-  throw new Error('Could not get default port for internal process engine');
-}
-
 Main._startInternalProcessEngine = async () => {
   const devUserDataFolderPath = path.join(__dirname, '..', 'userData');
   const prodUserDataFolderPath = app.getPath('userData');
 
-  const userDataFolderPath = isDev ? devUserDataFolderPath : prodUserDataFolderPath;
+  const userDataFolderPath = releaseChannel.isDev() ? devUserDataFolderPath : prodUserDataFolderPath;
 
-  if (!isDev) {
+  if (!releaseChannel.isDev()) {
     process.env.CONFIG_PATH = path.join(__dirname, '..', '..', '..', 'config');
   }
 
@@ -826,19 +799,19 @@ function getUserConfigFolder() {
 }
 
 function getConfigPathSuffix() {
-  if (isDev) {
+  if (releaseChannel.isDev()) {
     return '-dev';
   }
-  if (isAlpha) {
+  if (releaseChannel.isAlpha()) {
     return '-alpha';
   }
-  if (isBeta) {
+  if (releaseChannel.isBeta()) {
     return '-beta';
   }
-  if (isStable) {
+  if (releaseChannel.isStable()) {
     return '';
   }
-  throw new Error('Could not get default port for internal process engine');
+  throw new Error('Could not get config path suffix for internal process engine');
 }
 
 function getConfigFolder() {
