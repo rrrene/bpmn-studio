@@ -8,7 +8,7 @@ function getReleaseChannel() {
   if (packageVersion.match(/-beta\./)) {
     releaseChannel = 'beta';
   }
-  return 'alpha';
+  return releaseChannel;
 }
 
 function getReleaseChannelSuffix() {
