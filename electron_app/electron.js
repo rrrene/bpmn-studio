@@ -765,7 +765,6 @@ Main._startInternalProcessEngine = async () => {
     // TODO: Check if the ProcessEngine instance is now run on the UI thread.
     // See issue https://github.com/process-engine/bpmn-studio/issues/312
     try {
-      console.log(getConfigFolder());
       const sqlitePath = path.join(getConfigFolder(), processEngineDatabaseFolderName);
       console.log(sqlitePath);
       // eslint-disable-next-line global-require
