@@ -111,8 +111,6 @@ Main._initializeApplication = () => {
   initializeOidc();
 
   function initializeAutoUpdater() {
-    // const prereleaseRegex = /\d+\.\d+\.\d+-pre-b\d+/;
-
     electron.ipcMain.on('app_ready', async (appReadyEvent) => {
       autoUpdater.autoDownload = false;
 
@@ -123,7 +121,6 @@ Main._initializeApplication = () => {
       autoUpdater.allowPrerelease = currentVersionIsPrerelease;
 
       const updateCheckResult = await autoUpdater.checkForUpdates();
-      console.log(updateCheckResult);
 
       const noUpdateAvailable = updateCheckResult.updateInfo.version === currentVersion;
       if (noUpdateAvailable) {
