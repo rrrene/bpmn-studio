@@ -45,6 +45,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
   private eventAggregator: EventAggregator;
 
   private diagramWasSaved: boolean = false;
+  private diagramWasChangedByStudio: boolean = false;
 
   constructor(
     validationService: IDiagramValidationService,
@@ -61,12 +62,12 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     this.notificationService = notificationService;
     this.eventAggregator = eventAggregator;
 
-    this.eventAggregator.subscribe(environment.events.diagramDetail.saveDiagram, () => {
-      this.diagramWasSaved = true;
+    this.eventAggregator.subscribe(environment.events.diagramChangedByStudio, () => {
+      this.diagramWasChangedByStudio = true;
 
       setTimeout(() => {
-        this.diagramWasSaved = false;
-      }, 150);
+        this.diagramWasChangedByStudio = false;
+      }, 500);
     });
   }
 
@@ -147,37 +148,40 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
         .throwIfError();
     }
 
-    this.watchFile(diagram.uri, (event: string, previousFilepath: string, newFilename: string): void => {
-      if (this.diagramWasSaved) {
-        return;
-      }
+    const diagramIsStoredOnFilesystem: boolean = !diagram.uri.startsWith('about:open-diagrams');
+    if (diagramIsStoredOnFilesystem) {
+      this.watchFile(diagram.uri, (event: string, previousFilepath: string, newFilename: string): void => {
+        if (this.diagramWasChangedByStudio) {
+          return;
+        }
 
-      const diagramState: IDiagramState = this.openDiagramStateService.loadDiagramState(diagram.uri);
+        const diagramState: IDiagramState = this.openDiagramStateService.loadDiagramState(diagram.uri);
 
-      const diagramHasState: boolean = diagramState !== null;
-      if (diagramHasState) {
-        diagramState.metaData.isChanged = true;
+        const diagramHasState: boolean = diagramState !== null;
+        if (diagramHasState) {
+          diagramState.metaData.isChanged = true;
 
-        this.openDiagramStateService.updateDiagramState(diagram.uri, diagramState);
-      }
+          this.openDiagramStateService.updateDiagramState(diagram.uri, diagramState);
+        }
 
-      this.eventAggregator.publish(environment.events.diagramChangedOutsideOfStudio, previousFilepath);
+        this.eventAggregator.publish(environment.events.diagramChangedOutsideOfStudio, previousFilepath);
 
-      let notificationMessage: string;
+        let notificationMessage: string;
 
-      const eventIsRename: boolean = event === 'rename';
-      const eventIsChange: boolean = event === 'change';
-      const eventIsRestore: boolean = event === 'restore';
-      if (eventIsRename) {
-        notificationMessage = `The diagram "${previousFilepath}" was moved/renamed by another application.`;
-      } else if (eventIsChange) {
-        notificationMessage = `The diagram "${previousFilepath}" was changed by another application.`;
-      } else if (eventIsRestore) {
-        notificationMessage = `The diagram "${previousFilepath}" was restored by another application.`;
-      }
+        const eventIsRename: boolean = event === 'rename';
+        const eventIsChange: boolean = event === 'change';
+        const eventIsRestore: boolean = event === 'restore';
+        if (eventIsRename) {
+          notificationMessage = `The diagram "${previousFilepath}" was moved/renamed by another application.`;
+        } else if (eventIsChange) {
+          notificationMessage = `The diagram "${previousFilepath}" was changed by another application.`;
+        } else if (eventIsRestore) {
+          notificationMessage = `The diagram "${previousFilepath}" was restored by another application.`;
+        }
 
-      this.notificationService.showNonDisappearingNotification(NotificationType.INFO, notificationMessage);
-    });
+        this.notificationService.showNonDisappearingNotification(NotificationType.INFO, notificationMessage);
+      });
+    }
 
     this.openedDiagrams.push(diagram);
 

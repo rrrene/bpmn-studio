@@ -1146,6 +1146,7 @@ export class SolutionExplorerSolution {
     }
 
     try {
+      this.eventAggregator.publish(environment.events.diagramChangedByStudio);
       await this.solutionService.renameDiagram(
         this.currentlyRenamingDiagram,
         this.diagramRenamingState.currentDiagramInputValue,

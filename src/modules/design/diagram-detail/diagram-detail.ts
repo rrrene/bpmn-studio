@@ -400,6 +400,7 @@ export class DiagramDetail {
       this.activeDiagram.xml = xml;
 
       await this.activeSolutionEntry.service.saveDiagram(this.activeDiagram);
+      this.eventAggregator.publish(environment.events.diagramChangedByStudio);
 
       this.diagramHasChanged = false;
 
@@ -448,6 +449,7 @@ export class DiagramDetail {
 
     try {
       await this.activeSolutionEntry.service.saveDiagram(diagram, path);
+      this.eventAggregator.publish(environment.events.diagramChangedByStudio);
       this.eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
     } catch (error) {
       this.notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
@@ -486,6 +488,7 @@ export class DiagramDetail {
     this.notificationService.showNotification(NotificationType.SUCCESS, 'File saved!');
 
     this.eventAggregator.subscribeOnce('router:navigation:success', () => {
+      this.eventAggregator.publish(environment.events.diagramChangedByStudio);
       this.eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
     });
   }
