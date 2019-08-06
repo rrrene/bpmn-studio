@@ -19,9 +19,9 @@ const electronOidc = require('./electron-oidc');
 const oidcConfig = require('./oidc-config');
 
 const {ReleaseChannel} = require('../src/services/release-channel-service/release-channel-service');
-const releaseChannel = new ReleaseChannel(studioVersion);
-
 const {getDefaultPorts} = require('../src/services/default-ports-module/default-ports-module');
+
+const releaseChannel = new ReleaseChannel(studioVersion);
 
 // If BPMN-Studio was opened by double-clicking a .bpmn file, then the
 // following code tells the frontend the name and content of that file;
