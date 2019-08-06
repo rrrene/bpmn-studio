@@ -1,7 +1,7 @@
 {
   "name": "bpmn-studio",
   "description": "An Aurelia application for designing BPMN diagrams, which can also be connected to a process engine to execute these diagrams.",
-  "version": "5.7.0-alpha.1",
+  "version": "5.7.0",
   "author": {
     "name": "process-engine",
     "email": "hello@process-engine.io",
@@ -25,7 +25,7 @@
     "electron-build-windows": "npm run electron-prepare && build --config build/electron-builder.yml --publish never --windows; npm run electron-cleanup",
     "electron-build-macos": "npm run electron-prepare && build --config build/electron-builder.yml --publish never --macos; npm run electron-cleanup",
     "electron-cleanup": "node electron-builder/reset-name-in-package-json.js",
-    "electron-prepare": "node electron-builder/set-name-in-package-json.js && cat package.json && electron-rebuild && npm run build && node electron-builder/prepare-electron-build.js",
+    "electron-prepare": "node electron-builder/set-name-in-package-json.js && electron-rebuild && npm run build && node electron-builder/prepare-electron-build.js",
     "electron-start-dev": "npm run build && electron electron_app/electron.js",
     "jenkins-electron-install-app-deps": "electron-builder install-app-deps",
     "jenkins-electron-rebuild-native": "electron-rebuild --force",
