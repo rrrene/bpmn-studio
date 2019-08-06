@@ -156,7 +156,6 @@ Main._initializeApplication = () => {
       let downloadCancellationToken;
 
       autoUpdater.addListener('update-available', (updateInfo) => {
-        console.log(updateInfo);
         appReadyEvent.sender.send('update_available', updateInfo.version);
 
         electron.ipcMain.on('download_update', () => {
