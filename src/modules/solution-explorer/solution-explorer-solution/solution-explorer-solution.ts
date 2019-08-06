@@ -434,6 +434,7 @@ export class SolutionExplorerSolution {
     // The templating update must happen before we can set the focus.
     window.setTimeout(() => {
       this.createNewDiagramInput.focus();
+      this.setValidationRules();
     }, 0);
 
     document.addEventListener('click', this.onCreateNewDiagramClickEvent);
