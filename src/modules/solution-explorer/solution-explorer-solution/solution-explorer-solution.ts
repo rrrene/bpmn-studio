@@ -55,7 +55,7 @@ interface IDiagramCreationState extends IDiagramNameInputState {
 export class SolutionExplorerSolution {
   public activeDiagram: IDiagram;
   public showCloseModal: boolean = false;
-  public renameDiagramInput: HTMLInputElement;
+  @bindable public renameDiagramInput: HTMLInputElement;
 
   // Fields below are bound from the html view.
   @bindable public solutionService: ISolutionExplorerService;
