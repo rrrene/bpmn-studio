@@ -4,9 +4,12 @@ import {IIdentity} from '@essential-projects/iam_contracts';
 import {IDiagram, ISolution} from '@process-engine/solutionexplorer.contracts';
 import {ISolutionExplorerService} from '@process-engine/solutionexplorer.service.contracts';
 
-import {IDiagramState, IDiagramValidationService, ISolutionService} from '../../contracts';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {IDiagramState, IDiagramValidationService, ISolutionService, NotificationType} from '../../contracts/index';
 import {OpenDiagramStateService} from './OpenDiagramStateService';
 import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
+import {NotificationService} from '../notification-service/notification.service';
+import environment from '../../environment';
 
 /**
  * This service allows to keep all opened open diagrams inside a solution.
@@ -20,7 +23,14 @@ import {SolutionExplorerServiceFactory} from './SolutionExplorerServiceFactory';
  * To remove a diagram from the solution, call use #closeDiagram().
  */
 
-@inject('DiagramValidationService', 'SolutionExplorerServiceFactory', 'SolutionService', 'OpenDiagramStateService')
+@inject(
+  'DiagramValidationService',
+  'SolutionExplorerServiceFactory',
+  'SolutionService',
+  'OpenDiagramStateService',
+  'NotificationService',
+  EventAggregator,
+)
 export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerService {
   public isCreatingDiagram: boolean;
 
@@ -31,17 +41,36 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
   private openedDiagrams: Array<IDiagram> = [];
   private solutionService: ISolutionService;
   private openDiagramStateService: OpenDiagramStateService;
+  private notificationService: NotificationService;
+  private eventAggregator: EventAggregator;
+
+  private diagramWasChangedByStudio: boolean = false;
 
   constructor(
     validationService: IDiagramValidationService,
     serviceFactory: SolutionExplorerServiceFactory,
     solutionService: ISolutionService,
     openDiagramStateService: OpenDiagramStateService,
+    notificationService: NotificationService,
+    eventAggregator: EventAggregator,
   ) {
     this.validationService = validationService;
     this.setSolutionExplorer(serviceFactory);
     this.solutionService = solutionService;
     this.openDiagramStateService = openDiagramStateService;
+    this.notificationService = notificationService;
+    this.eventAggregator = eventAggregator;
+
+    this.eventAggregator.subscribe(environment.events.diagramChangedByStudio, (cause: string) => {
+      this.diagramWasChangedByStudio = true;
+
+      const saveAsUsed: boolean = cause === 'save-as';
+      const resetTimeout: number = saveAsUsed ? 1500 : 500;
+
+      setTimeout(() => {
+        this.diagramWasChangedByStudio = false;
+      }, resetTimeout);
+    });
   }
 
   public getOpenedDiagrams(): Array<IDiagram> {
@@ -94,7 +123,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     const indexBeforeFilename: number = Math.max(lastIndexOfSlash, lastIndexOfBackSlash);
 
     const filepath: string = uri.substring(0, indexBeforeFilename);
-    // TODO Check if this still works
+
     const filename: string = uri.replace(/^.*[\\/]/, '');
     const filenameWithoutEnding: string = filename.replace('.bpmn', '');
 
@@ -114,11 +143,51 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
 
       diagram = await this.solutionExplorerToOpenDiagrams.loadDiagram(filenameWithoutEnding, filepath);
 
+      const diagramHasNoState: boolean = this.openDiagramStateService.loadDiagramState(uri) === null;
+      if (diagramHasNoState) {
+        this.openDiagramStateService.saveDiagramState(uri, diagram.xml, undefined, [], false);
+      }
+
       await this.validationService
         .validate(diagram.xml)
         .isXML()
         .isBPMN()
         .throwIfError();
+    }
+
+    const diagramIsStoredOnFilesystem: boolean = !diagram.uri.startsWith('about:open-diagrams');
+    if (diagramIsStoredOnFilesystem) {
+      this.watchFile(diagram.uri, (event: string, previousFilepath: string, newFilename: string): void => {
+        if (this.diagramWasChangedByStudio) {
+          return;
+        }
+
+        const diagramState: IDiagramState = this.openDiagramStateService.loadDiagramState(diagram.uri);
+
+        const diagramHasState: boolean = diagramState !== null;
+        if (diagramHasState) {
+          diagramState.metaData.isChanged = true;
+
+          this.openDiagramStateService.updateDiagramState(diagram.uri, diagramState);
+        }
+
+        this.eventAggregator.publish(environment.events.diagramChangedOutsideTheStudio, previousFilepath);
+
+        let notificationMessage: string;
+
+        const eventIsRename: boolean = event === 'rename';
+        const eventIsChange: boolean = event === 'change';
+        const eventIsRestore: boolean = event === 'restore';
+        if (eventIsRename) {
+          notificationMessage = `The diagram "${previousFilepath}" was moved/renamed by another application.`;
+        } else if (eventIsChange) {
+          notificationMessage = `The diagram "${previousFilepath}" was changed by another application.`;
+        } else if (eventIsRestore) {
+          notificationMessage = `The diagram "${previousFilepath}" was restored by another application.`;
+        }
+
+        this.notificationService.showNonDisappearingNotification(NotificationType.INFO, notificationMessage);
+      });
     }
 
     this.openedDiagrams.push(diagram);
@@ -131,6 +200,7 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
 
     this.openedDiagrams.splice(index, 1);
     this.openDiagramStateService.deleteDiagramState(diagram.uri);
+    this.unwatchFile(diagram.uri);
 
     return Promise.resolve();
   }
@@ -165,6 +235,17 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     this.solutionService.addOpenDiagram(openedDiagram);
 
     return openedDiagram;
+  }
+
+  public watchFile(
+    filepath: string,
+    callback: (event: string, previousFilepath: string, newFilename: string) => void,
+  ): void {
+    this.solutionExplorerToOpenDiagrams.watchFile(filepath, callback);
+  }
+
+  public unwatchFile(filepath: string): void {
+    this.solutionExplorerToOpenDiagrams.unwatchFile(filepath);
   }
 
   private findIndexOfDiagramWithURI(uri: string): number {

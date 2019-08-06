@@ -460,7 +460,7 @@ export class BpmnIo {
       }
 
       if (this.diagramHasState(this.diagramUri)) {
-        this.recoverDiagramState();
+        await this.recoverDiagramState();
       } else {
         await this.importXmlIntoModeler(this.xml);
       }
@@ -706,7 +706,7 @@ export class BpmnIo {
     const selectedElement: Array<IShape> = this.modeler.get('selection')._selectedElements;
     const viewbox: IViewbox = modelerCanvas.viewbox();
     const xml: string = await this.getXML();
-    const isChanged: boolean = isUnsavedDiagram ? true : !this.areXmlsIdentical(xml, savedXml);
+    const isChanged: boolean = isUnsavedDiagram || !this.areXmlsIdentical(xml, savedXml);
 
     this.openDiagramStateService.saveDiagramState(diagramUri, xml, viewbox, selectedElement, isChanged);
   }

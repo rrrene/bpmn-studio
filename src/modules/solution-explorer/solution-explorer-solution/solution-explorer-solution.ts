@@ -123,7 +123,6 @@ export class SolutionExplorerSolution {
 
   public async attached(): Promise<void> {
     this.isAttached = true;
-
     if ((window as any).nodeRequire) {
       this.ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
     }
@@ -799,6 +798,7 @@ export class SolutionExplorerSolution {
   private async closeOpenDiagram(diagramToClose: IDiagram): Promise<void> {
     const openDiagramService: OpenDiagramsSolutionExplorerService = this
       .solutionService as OpenDiagramsSolutionExplorerService;
+
     await openDiagramService.closeDiagram(diagramToClose);
 
     this.globalSolutionService.removeOpenDiagramByUri(diagramToClose.uri);
@@ -1150,6 +1150,7 @@ export class SolutionExplorerSolution {
         this.currentlyRenamingDiagram,
         this.diagramRenamingState.currentDiagramInputValue,
       );
+      this.eventAggregator.publish(environment.events.diagramChangedByStudio, 'rename');
     } catch (error) {
       this.notificationService.showNotification(NotificationType.WARNING, error.message);
 

@@ -144,6 +144,13 @@ export class DiagramDetail {
       this.eventAggregator.subscribe(environment.events.diagramDetail.saveDiagramAs, () => {
         this.electronOnSaveDiagramAs();
       }),
+      this.eventAggregator.subscribe(environment.events.diagramChangedOutsideTheStudio, (diagramUri: string) => {
+        const changedDiagramIsActiveDiagram: boolean = diagramUri === this.activeDiagramUri;
+
+        if (changedDiagramIsActiveDiagram) {
+          this.eventAggregator.publish(environment.events.differsFromOriginal, true);
+        }
+      }),
     ];
   }
 
@@ -393,6 +400,7 @@ export class DiagramDetail {
       this.activeDiagram.xml = xml;
 
       await this.activeSolutionEntry.service.saveDiagram(this.activeDiagram);
+      this.eventAggregator.publish(environment.events.diagramChangedByStudio, 'save');
 
       this.diagramHasChanged = false;
 
@@ -441,6 +449,7 @@ export class DiagramDetail {
 
     try {
       await this.activeSolutionEntry.service.saveDiagram(diagram, path);
+      this.eventAggregator.publish(environment.events.diagramChangedByStudio, 'save-as');
       this.eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
     } catch (error) {
       this.notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
