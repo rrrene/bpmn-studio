@@ -101,8 +101,6 @@ export class SolutionExplorerSolution {
   private diagramInContextMenu: IDiagram;
   private ipcRenderer: any;
 
-  private diagramWasSaved: boolean = false;
-
   private sortedDiagramsOfSolutions: Array<IDiagram> = [];
 
   constructor(
@@ -125,15 +123,6 @@ export class SolutionExplorerSolution {
 
   public async attached(): Promise<void> {
     this.isAttached = true;
-
-    this.eventAggregator.subscribe(environment.events.diagramDetail.saveDiagram, () => {
-      this.diagramWasSaved = true;
-
-      setTimeout(() => {
-        this.diagramWasSaved = false;
-      }, 100);
-    });
-
     if ((window as any).nodeRequire) {
       this.ipcRenderer = (window as any).nodeRequire('electron').ipcRenderer;
     }
