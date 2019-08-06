@@ -766,7 +766,7 @@ Main._startInternalProcessEngine = async () => {
     // See issue https://github.com/process-engine/bpmn-studio/issues/312
     try {
       const sqlitePath = path.join(getConfigFolder(), processEngineDatabaseFolderName);
-      console.log(sqlitePath);
+
       // eslint-disable-next-line global-require
       const pe = require('@process-engine/process_engine_runtime');
       pe.startRuntime(sqlitePath);
