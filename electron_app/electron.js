@@ -111,16 +111,23 @@ Main._initializeApplication = () => {
   initializeOidc();
 
   function initializeAutoUpdater() {
-    const prereleaseRegex = /\d+\.\d+\.\d+-pre-b\d+/;
+    // const prereleaseRegex = /\d+\.\d+\.\d+-pre-b\d+/;
 
     electron.ipcMain.on('app_ready', async (appReadyEvent) => {
       autoUpdater.autoDownload = false;
 
       const currentVersion = electron.app.getVersion();
-      const currentVersionIsPrerelease = prereleaseRegex.test(currentVersion);
+
+      const currentVersionIsPrerelease = currentVersion.includes('alpha') || currentVersion.includes('beta');
       autoUpdater.allowPrerelease = currentVersionIsPrerelease;
 
       const updateCheckResult = await autoUpdater.checkForUpdates();
+      console.log(updateCheckResult);
+
+      // if (currentVersionIsPrerelease) {
+      //   const is updateCheckResult.updateInfo.version.includes('alpha')
+      // }
+
       const noUpdateAvailable = updateCheckResult.updateInfo.version === currentVersion;
       if (noUpdateAvailable) {
         return;
@@ -142,8 +149,9 @@ Main._initializeApplication = () => {
 
       let downloadCancellationToken;
 
-      autoUpdater.addListener('update-available', () => {
-        appReadyEvent.sender.send('update_available', updateCheckResult.updateInfo.version);
+      autoUpdater.addListener('update-available', (updateInfo) => {
+        console.log(updateInfo);
+        appReadyEvent.sender.send('update_available', updateInfo.version);
 
         electron.ipcMain.on('download_update', () => {
           downloadCancellationToken = new CancellationToken();
@@ -158,13 +166,13 @@ Main._initializeApplication = () => {
           const releaseNotesWindow = new electron.BrowserWindow({
             width: 600,
             height: 600,
-            title: `Release Notes ${updateCheckResult.updateInfo.version}`,
+            title: `Release Notes ${updateInfo.version}`,
             minWidth: 600,
             minHeight: 600,
           });
 
           releaseNotesWindow.loadURL(
-            `https://github.com/process-engine/bpmn-studio/releases/tag/v${updateCheckResult.updateInfo.version}`,
+            `https://github.com/process-engine/bpmn-studio/releases/tag/v${updateInfo.version}`,
           );
         });
       });
