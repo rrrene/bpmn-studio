@@ -117,8 +117,9 @@ Main._initializeApplication = () => {
       autoUpdater.autoDownload = false;
 
       const currentVersion = electron.app.getVersion();
+      const currentReleaseChannel = new ReleaseChannel(currentVersion);
 
-      const currentVersionIsPrerelease = currentVersion.includes('alpha') || currentVersion.includes('beta');
+      const currentVersionIsPrerelease = currentReleaseChannel.isAlpha() || currentReleaseChannel.isBeta();
       autoUpdater.allowPrerelease = currentVersionIsPrerelease;
 
       const updateCheckResult = await autoUpdater.checkForUpdates();
@@ -131,6 +132,18 @@ Main._initializeApplication = () => {
       const noUpdateAvailable = updateCheckResult.updateInfo.version === currentVersion;
       if (noUpdateAvailable) {
         return;
+      }
+
+      const newReleaseChannel = new ReleaseChannel(updateCheckResult.updateInfo.version);
+
+      if (currentVersionIsPrerelease) {
+        if (currentReleaseChannel.isAlpha() && !newReleaseChannel.isAlpha()) {
+          return;
+        }
+
+        if (currentReleaseChannel.isBeta() && !newReleaseChannel.isBeta()) {
+          return;
+        }
       }
 
       console.log(`CurrentVersion: ${currentVersion}, CurrentVersionIsPrerelease: ${currentVersionIsPrerelease}`);
