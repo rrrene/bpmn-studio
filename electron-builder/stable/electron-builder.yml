@@ -30,3 +30,4 @@ mac:
     - ext:
         - bpmn
       name: BPMN
+  artifactName: 'bpmn-studio-setup-${version}.${ext}'
