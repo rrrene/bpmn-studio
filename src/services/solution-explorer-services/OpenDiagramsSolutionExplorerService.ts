@@ -44,7 +44,6 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
   private notificationService: NotificationService;
   private eventAggregator: EventAggregator;
 
-  private diagramWasSaved: boolean = false;
   private diagramWasChangedByStudio: boolean = false;
 
   constructor(
