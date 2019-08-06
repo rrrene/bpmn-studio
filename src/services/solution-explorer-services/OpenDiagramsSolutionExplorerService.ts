@@ -61,12 +61,15 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
     this.notificationService = notificationService;
     this.eventAggregator = eventAggregator;
 
-    this.eventAggregator.subscribe(environment.events.diagramChangedByStudio, () => {
+    this.eventAggregator.subscribe(environment.events.diagramChangedByStudio, (cause: string) => {
       this.diagramWasChangedByStudio = true;
+
+      const saveAsUsed: boolean = cause === 'save-as';
+      const resetTimeout: number = saveAsUsed ? 1500 : 500;
 
       setTimeout(() => {
         this.diagramWasChangedByStudio = false;
-      }, 500);
+      }, resetTimeout);
     });
   }
 

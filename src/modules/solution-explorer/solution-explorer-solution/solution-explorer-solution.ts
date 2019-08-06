@@ -1146,11 +1146,11 @@ export class SolutionExplorerSolution {
     }
 
     try {
-      this.eventAggregator.publish(environment.events.diagramChangedByStudio);
       await this.solutionService.renameDiagram(
         this.currentlyRenamingDiagram,
         this.diagramRenamingState.currentDiagramInputValue,
       );
+      this.eventAggregator.publish(environment.events.diagramChangedByStudio, 'rename');
     } catch (error) {
       this.notificationService.showNotification(NotificationType.WARNING, error.message);
 

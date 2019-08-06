@@ -96,8 +96,8 @@ export class DeleteDiagramModal {
 
   private async deleteDiagram(): Promise<void> {
     try {
-      this.eventAggregator.publish(environment.events.diagramChangedByStudio);
       await this.solutionExplorerService.deleteDiagram(this.diagram);
+      this.eventAggregator.publish(environment.events.diagramChangedByStudio, 'delete');
     } catch (error) {
       const message: string = `Unable to delete the diagram: ${error.message}`;
 
