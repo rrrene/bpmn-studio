@@ -31,7 +31,7 @@
         click.delegate="openDiagram(diagram)"
         id="diagramList-${diagram.name}">
 
-        <div show.bind="currentlyRenamingDiagramUri === diagram.uri" class="diagram-rename-container">
+        <div if.bind="currentlyRenamingDiagramUri === diagram.uri" class="diagram-rename-container">
           <div class="input-holder">
             <input ref="renameDiagramInput" class.bind="hasValidationErrors ? 'input-holder__input input-holder__input--error' : 'input-holder__input'" type="text" value.bind="diagramRenamingState.currentDiagramInputValue & validateOnChange">
           </div>
