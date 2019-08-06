@@ -16,6 +16,6 @@ fs.readFile('package.json', 'utf8', (err, data) => {
       throw errWrite;
     }
 
-    console.log(`[reset-name-in-package-json]\tSet name to bpmn-studio${releaseChannelSuffix}`);
+    console.log(`[set-name-in-package-json]\tSet name to bpmn-studio${releaseChannelSuffix}`);
   });
 });
