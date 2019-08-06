@@ -459,10 +459,11 @@ export class BpmnIo {
         this.viewer.importXML(this.xml);
       }
 
-      if (!this.diagramHasState(this.diagramUri)) {
+      if (this.diagramHasState(this.diagramUri)) {
+        await this.recoverDiagramState();
+      } else {
         await this.importXmlIntoModeler(this.xml);
       }
-      await this.recoverDiagramState();
 
       const diagramState: IDiagramState = this.loadDiagramState(this.diagramUri);
       const diagramContainsChanges: boolean = diagramState !== null && diagramState.metaData.isChanged;
