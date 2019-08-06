@@ -429,7 +429,6 @@ export class SolutionExplorerSolution {
     }
 
     this.diagramCreationState.isCreateDiagramInputShown = true;
-    this.validationController.validate();
 
     // The templating update must happen before we can set the focus.
     window.setTimeout(() => {
