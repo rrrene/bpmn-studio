@@ -1,6 +1,4 @@
 const isDev = require('electron-is-dev');
-const {getPortList} = require('../portlist-module/portlist-module');
-
 class ReleaseChannel {
   constructor(version) {
     this.version = version;
@@ -32,42 +30,6 @@ class ReleaseChannel {
     } else if (this.isStable()) {
       return 'stable';
     }
-  }
-
-  getDefaultPorts() {
-    if (this.isDev()) {
-      return getPortList(56000);
-    }
-    if (this.isAlpha()) {
-      return getPortList(56100);
-    }
-    if (this.isBeta()) {
-      return getPortList(56200);
-    }
-    if (this.isStable()) {
-      return getPortList(56300);
-    }
-    throw new Error('Could not get default port for internal process engine');
-  }
-
-  getConfigPathSuffix() {
-    if (this.isDev()) {
-      return '-dev';
-    }
-    if (this.isAlpha()) {
-      return '-alpha';
-    }
-    if (this.isBeta()) {
-      return '-beta';
-    }
-    if (this.isStable()) {
-      return '';
-    }
-    throw new Error('Could not get config path suffix for internal process engine');
-  }
-
-  getConfigPath() {
-    return `bpmn-studio${this.getConfigPathSuffix()}`;
   }
 }
 
