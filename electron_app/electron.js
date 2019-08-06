@@ -798,8 +798,25 @@ function getUserConfigFolder() {
   }
 }
 
+function getConfigPathSuffix() {
+  if (releaseChannel.isDev()) {
+    return '-dev';
+  }
+  if (releaseChannel.isAlpha()) {
+    return '-alpha';
+  }
+  if (releaseChannel.isBeta()) {
+    return '-beta';
+  }
+  if (releaseChannel.isStable()) {
+    return '';
+  }
+  throw new Error('Could not get config path suffix for internal process engine');
+}
+
 function getConfigFolder() {
-  return path.join(getUserConfigFolder(), releaseChannel.getConfigPath());
+  const configPath = `bpmn-studio${getConfigPathSuffix()}`;
+  return path.join(getUserConfigFolder(), configPath);
 }
 
 Main._bringExistingInstanceToForeground = () => {
