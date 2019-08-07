@@ -395,7 +395,7 @@ Main._createMainWindow = () => {
 
   function setOpenDiagram() {
     electron.ipcMain.on('open_diagram', (event) => {
-      const openedFile = dialog.showOpenDialog({
+      const openedFile = dialog.showOpenDialogSync({
         filters: [{
             name: 'BPMN',
             extensions: ['bpmn', 'xml'],
