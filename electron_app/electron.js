@@ -351,7 +351,7 @@ Main._createMainWindow = () => {
       const fileExtensionIsBPMN = fileExtension === 'bpmn';
       const fileType = fileExtensionIsBPMN ? 'BPMN (.bpmn)' : `Image (.${fileExtension})`;
 
-      const filename = dialog.showSaveDialog({
+      const filename = dialog.showSaveDialogSync({
         defaultPath: defaultFilename,
         filters: [{
             name: fileType,
@@ -377,7 +377,7 @@ Main._createMainWindow = () => {
 
   function setSaveDiagramAs() {
     electron.ipcMain.on('open_save-diagram-as_dialog', (event) => {
-      const filePath = dialog.showSaveDialog({
+      const filePath = dialog.showSaveDialogSync({
         filters: [{
             name: 'BPMN',
             extensions: ['bpmn', 'xml'],
@@ -417,7 +417,7 @@ Main._createMainWindow = () => {
 
   function setOpenSolutions() {
     electron.ipcMain.on('open_solution', (event) => {
-      const openedFile = dialog.showOpenDialog({
+      const openedFile = dialog.showOpenDialogSync({
         properties: ['openDirectory', 'createDirectory'],
       });
 
