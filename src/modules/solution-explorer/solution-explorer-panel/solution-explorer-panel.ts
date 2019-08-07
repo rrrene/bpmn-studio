@@ -24,10 +24,10 @@ type RemoteSolutionListEntry = {
 };
 
 enum Version {
-  Dev = 'Dev',
-  Alpha = 'Alpha',
-  Beta = 'Beta',
-  Stable = 'Stable',
+  Dev = 'Development',
+  Alpha = 'BPMN Studio Alpha',
+  Beta = 'BPMN Studio Beta',
+  Stable = 'BPMN Studio',
 }
 
 /**
