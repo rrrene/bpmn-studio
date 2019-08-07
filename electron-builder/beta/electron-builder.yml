@@ -16,18 +16,9 @@ nsis:
   runAfterFinish: false
 win:
   target: nsis
-  fileAssociations:
-    - ext:
-        - bpmn
-      name: BPMN
-      description: BPMN diagram extension
   artifactName: 'bpmn-studio-setup-${version}.${ext}'
 mac:
   target:
     - dmg
     - zip
-  fileAssociations:
-    - ext:
-        - bpmn
-      name: BPMN
   artifactName: 'bpmn-studio-setup-${version}.${ext}'
