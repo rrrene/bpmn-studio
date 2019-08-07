@@ -63,18 +63,6 @@
           <input type="text" class="form-control" class.bind="uriIsValid || uriIsEmpty ? '' : 'uri-input--invalid'" value.bind="origin.uriOfRemoteSolutionWithoutProtocol" placeholder="Please provide a URI for the remote ProcessEngine" autofocus>
         </div>
       </form>
-      <div class="remote-solution-list" if.bind="defaultRemoteSolutionFound">
-        <div class="remote-solution-list__remote-solution"
-            repeat.for="remoteSolution of availableDefaultRemoteSolutions"
-            class.bind="uriOfRemoteSolution === remoteSolution.uri ? 'remote-solution-list__remote-solution-selected' : ''"
-            title="Remote solution is online."
-            click.delegate="selectRemoteSolution(remoteSolution.uri)">
-          <div class="remote-solution-list__solution-data">
-            <i class="fas fa-database remote-solution-list__status-icon"></i>
-            <span>${remoteSolution.uri}</span>
-          </div>
-        </div>
-      </div>
       <div class="remote-solution-list" if.bind="unconnectedSuggestedRemoteSolutionsExist">
         <div class="remote-solution-list__remote-solution"
             repeat.for="remoteSolution of unconnectedSuggestedRemoteSolutions"
