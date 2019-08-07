@@ -1,5 +1,5 @@
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {bindable, inject, observable} from 'aurelia-framework';
+import {bindable, computedFrom, inject, observable} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
@@ -17,7 +17,18 @@ import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 import {SolutionExplorerList} from '../solution-explorer-list/solution-explorer-list';
 
-type RemoteSolutionUriWithStatus = {uri: string; status: boolean};
+type RemoteSolutionListEntry = {
+  uri: string;
+  status: boolean;
+  version?: Version;
+};
+
+enum Version {
+  Dev = 'Development',
+  Alpha = 'BPMN Studio Alpha',
+  Beta = 'BPMN Studio Beta',
+  Stable = 'BPMN Studio',
+}
 
 /**
  * This component handels:
@@ -40,6 +51,7 @@ export class SolutionExplorerPanel {
   @bindable public uriOfRemoteSolutionWithoutProtocol: string;
   public solutionExplorerPanel: SolutionExplorerPanel = this;
   public remoteSolutionHistoryStatus: Map<string, boolean> = new Map<string, boolean>();
+  public availableDefaultRemoteSolutions: Array<RemoteSolutionListEntry> = [];
 
   private eventAggregator: EventAggregator;
   private notificationService: NotificationService;
@@ -154,6 +166,7 @@ export class SolutionExplorerPanel {
 
     await this.updateRemoteSolutionHistoryStatus();
     this.startPollingOfRemoteSolutionHistoryStatus();
+    this.updateDefaultRemoteSolutions();
   }
 
   public removeSolutionFromHistory(solutionUri: string): void {
@@ -195,11 +208,7 @@ export class SolutionExplorerPanel {
     this.closeRemoteSolutionModal();
   }
 
-  public get remoteSolutionHistoryExists(): boolean {
-    return this.remoteSolutionHistoryWithStatus.length > 0;
-  }
-
-  public get remoteSolutionHistoryWithStatus(): Array<RemoteSolutionUriWithStatus> {
+  public get remoteSolutionHistoryWithStatus(): Array<RemoteSolutionListEntry> {
     return this.loadRemoteSolutionHistory()
       .reverse()
       .map((solutionUri: string) => {
@@ -208,6 +217,48 @@ export class SolutionExplorerPanel {
           status: this.remoteSolutionHistoryStatus.get(solutionUri),
         };
       });
+  }
+
+  @computedFrom('suggestedRemoteSolutions.length')
+  public get unconnectedSuggestedRemoteSolutions(): Array<RemoteSolutionListEntry> {
+    const connectedSolutions: Array<ISolutionEntry> = this.solutionService.getAllSolutionEntries();
+
+    const unconnectedSuggestedRemoteSolutions: Array<RemoteSolutionListEntry> = this.suggestedRemoteSolutions.filter(
+      (remoteSolution) => {
+        return !connectedSolutions.some((connectedSolution: ISolutionEntry) => {
+          return connectedSolution.uri === remoteSolution.uri;
+        });
+      },
+    );
+
+    return unconnectedSuggestedRemoteSolutions;
+  }
+
+  @computedFrom('availableDefaultRemoteSolutions.length', 'remoteSolutionHistoryWithStatus.length')
+  public get suggestedRemoteSolutions(): Array<RemoteSolutionListEntry> {
+    const filteredRemoteSolutionHistory: Array<RemoteSolutionListEntry> = this.remoteSolutionHistoryWithStatus.filter(
+      (remoteSolution: RemoteSolutionListEntry) => {
+        const remoteSolutionIsDefaultRemoteSolution: boolean = this.availableDefaultRemoteSolutions.some(
+          (defaultRemoteSolution: RemoteSolutionListEntry) => {
+            return defaultRemoteSolution.uri === remoteSolution.uri;
+          },
+        );
+
+        return !remoteSolutionIsDefaultRemoteSolution;
+      },
+    );
+
+    const suggestedRemoteSolutions: Array<RemoteSolutionListEntry> = [
+      ...this.availableDefaultRemoteSolutions,
+      ...filteredRemoteSolutionHistory,
+    ];
+
+    return suggestedRemoteSolutions;
+  }
+
+  @computedFrom('unconnectedSuggestedRemoteSolutions.length')
+  public get unconnectedSuggestedRemoteSolutionsExist(): boolean {
+    return this.unconnectedSuggestedRemoteSolutions.length > 0;
   }
 
   /**
@@ -299,6 +350,21 @@ export class SolutionExplorerPanel {
     });
   }
 
+  public getBadgeForVersion(version: Version): string {
+    switch (version) {
+      case Version.Dev:
+        return 'remote-solution-badge__dev';
+      case Version.Alpha:
+        return 'remote-solution-badge__alpha';
+      case Version.Beta:
+        return 'remote-solution-badge__beta';
+      case Version.Stable:
+        return 'remote-solution-badge__stable';
+      default:
+        return 'remote-solution-badge__dev';
+    }
+  }
+
   public canReadFromFileSystem(): boolean {
     return (window as any).nodeRequire;
   }
@@ -316,18 +382,18 @@ export class SolutionExplorerPanel {
 
   private startPollingOfRemoteSolutionHistoryStatus(): void {
     this.remoteSolutionHistoryStatusIsPolling = true;
-    this.pollRemoteSolutionHistoryStauts();
+    this.pollRemoteSolutionHistoryStatus();
   }
 
-  private pollRemoteSolutionHistoryStauts(): void {
-    this.remoteSolutionHistoryStatusPollingTimer = setTimeout(() => {
-      this.updateRemoteSolutionHistoryStatus();
+  private pollRemoteSolutionHistoryStatus(): void {
+    this.remoteSolutionHistoryStatusPollingTimer = setTimeout(async () => {
+      await this.updateRemoteSolutionHistoryStatus();
 
       if (!this.remoteSolutionHistoryStatusIsPolling) {
         return;
       }
 
-      this.startPollingOfRemoteSolutionHistoryStatus();
+      this.pollRemoteSolutionHistoryStatus();
     }, environment.processengine.updateRemoteSolutionHistoryIntervalInMs);
   }
 
@@ -345,23 +411,114 @@ export class SolutionExplorerPanel {
 
   private async updateRemoteSolutionHistoryStatus(): Promise<void> {
     this.remoteSolutionHistoryWithStatus.forEach(
-      async (remoteSolutionWithStatus: RemoteSolutionUriWithStatus): Promise<void> => {
-        try {
-          const response: Response = await fetch(remoteSolutionWithStatus.uri);
+      async (remoteSolutionWithStatus: RemoteSolutionListEntry): Promise<void> => {
+        const remoteSolutionStatus: boolean = await this.isRemoteSolutionActive(remoteSolutionWithStatus.uri);
 
-          const data: JSON = await response.json();
-
-          const isResponseFromProcessEngine: boolean = data['name'] === '@process-engine/process_engine_runtime';
-          if (!isResponseFromProcessEngine) {
-            throw new Error('The response was not send by a ProcessEngine.');
-          }
-
-          this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, true);
-        } catch {
-          this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, false);
-        }
+        this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, remoteSolutionStatus);
       },
     );
+  }
+
+  private async updateDefaultRemoteSolutions(): Promise<void> {
+    this.availableDefaultRemoteSolutions = [];
+
+    const stableRemoteSolution: Promise<RemoteSolutionListEntry | null> = this.searchDefaultRemoteSolutionForVersion(
+      Version.Stable,
+    );
+    const betaRemoteSolution: Promise<RemoteSolutionListEntry | null> = this.searchDefaultRemoteSolutionForVersion(
+      Version.Beta,
+    );
+    const alphaRemoteSolution: Promise<RemoteSolutionListEntry | null> = this.searchDefaultRemoteSolutionForVersion(
+      Version.Alpha,
+    );
+    const devRemoteSolution: Promise<RemoteSolutionListEntry | null> = this.searchDefaultRemoteSolutionForVersion(
+      Version.Dev,
+    );
+
+    const availableRemoteSolutions: Array<RemoteSolutionListEntry> = await Promise.all([
+      stableRemoteSolution,
+      betaRemoteSolution,
+      alphaRemoteSolution,
+      devRemoteSolution,
+    ]);
+
+    this.availableDefaultRemoteSolutions = availableRemoteSolutions.filter(
+      (remoteSolution: RemoteSolutionListEntry | null) => {
+        return remoteSolution !== null;
+      },
+    );
+  }
+
+  private async searchDefaultRemoteSolutionForVersion(version: Version): Promise<RemoteSolutionListEntry | null> {
+    const portsToCheck: Array<number> = this.getDefaultPortsFor(version);
+
+    const processEngineUri: string = await this.getActiveProcessEngineForPortList(portsToCheck);
+
+    const noActiveProcessEngineFound: boolean = processEngineUri === null;
+    if (noActiveProcessEngineFound) {
+      return null;
+    }
+
+    return {
+      uri: processEngineUri,
+      status: true,
+      version: version,
+    };
+  }
+
+  private async getActiveProcessEngineForPortList(portsToCheck: Array<number>): Promise<string | null> {
+    for (const port of portsToCheck) {
+      const uriToCheck: string = `http://localhost:${port}`;
+      const processEngineFound: boolean = await this.isRemoteSolutionActive(uriToCheck);
+
+      if (processEngineFound) {
+        return uriToCheck;
+      }
+    }
+
+    return null;
+  }
+
+  private getDefaultPortsFor(version: Version): Array<number> {
+    switch (version) {
+      case Version.Dev:
+        return this.getPortList(56300);
+      case Version.Alpha:
+        return this.getPortList(56200);
+      case Version.Beta:
+        return this.getPortList(56100);
+      case Version.Stable:
+        return this.getPortList(56000);
+      default:
+        return [];
+    }
+  }
+
+  private getPortList(port: number): Array<number> {
+    const portList = [];
+
+    for (let index = 0; index < 10; index++) {
+      portList.push(port + index * 10);
+    }
+
+    return portList;
+  }
+
+  private async isRemoteSolutionActive(remoteSolutionUri: string): Promise<boolean> {
+    try {
+      const response: Response = await fetch(remoteSolutionUri);
+
+      const data: JSON = await response.json();
+
+      const isResponseFromProcessEngine: boolean = data['name'] === '@process-engine/process_engine_runtime';
+      if (!isResponseFromProcessEngine) {
+        throw new Error('The response was not send by a ProcessEngine.');
+      }
+
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   private async refreshSolutions(): Promise<void> {

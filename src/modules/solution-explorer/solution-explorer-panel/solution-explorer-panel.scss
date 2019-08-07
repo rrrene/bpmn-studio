@@ -90,6 +90,7 @@
 .remote-solution-list__solution-data {
   position: absolute;
   top: 50%;
+  width: calc(100% - 20px);
   height: 20px;
   transform: translateY(-50%);
 }
@@ -115,4 +116,27 @@
 
 .solution-explorer-panel__protocol-selector {
   width: 70px;
+}
+
+.remote-solution-badge {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+}
+
+.remote-solution-badge__dev {
+  background: rgb(45, 45, 60);
+}
+
+.remote-solution-badge__alpha {
+  background: rgb(170, 170, 170);
+}
+
+.remote-solution-badge__beta {
+  background: rgb(220, 190, 90);
+}
+
+.remote-solution-badge__stable {
+  background: rgb(90, 170, 220)
 }

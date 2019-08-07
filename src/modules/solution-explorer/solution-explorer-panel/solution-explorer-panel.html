@@ -63,9 +63,9 @@
           <input type="text" class="form-control" class.bind="uriIsValid || uriIsEmpty ? '' : 'uri-input--invalid'" value.bind="origin.uriOfRemoteSolutionWithoutProtocol" placeholder="Please provide a URI for the remote ProcessEngine" autofocus>
         </div>
       </form>
-      <div class="remote-solution-list" if.bind="remoteSolutionHistoryExists">
+      <div class="remote-solution-list" if.bind="unconnectedSuggestedRemoteSolutionsExist">
         <div class="remote-solution-list__remote-solution"
-            repeat.for="remoteSolution of remoteSolutionHistoryWithStatus"
+            repeat.for="remoteSolution of unconnectedSuggestedRemoteSolutions"
             class.bind="uriOfRemoteSolution === remoteSolution.uri ? 'remote-solution-list__remote-solution-selected' : ''"
             title.bind="remoteSolution.status ? 'Remote solution is online.' : 'Remote solution is offline.'"
             click.delegate="selectRemoteSolution(remoteSolution.uri)">
@@ -73,7 +73,10 @@
             <i class="fas remote-solution-list__status-icon" class.bind="remoteSolution.status ? 'fa-database' : 'fa-bolt'"></i>
             <span>${remoteSolution.uri}</span>
           </div>
-          <button class="button remote-solution-list__close-button" click.delegate="removeSolutionFromHistory(remoteSolution.uri)">
+          <h5 if.bind="remoteSolution.version !== undefined">
+            <span class="badge badge-secondary remote-solution-badge" class.bind="getBadgeForVersion(remoteSolution.version)">${remoteSolution.version}</span>
+          </h5>
+          <button if.bind="remoteSolution.version === undefined" class="button remote-solution-list__close-button" click.delegate="removeSolutionFromHistory(remoteSolution.uri)">
             <i class="fas fa-times"></i>
           </button>
         </div>
