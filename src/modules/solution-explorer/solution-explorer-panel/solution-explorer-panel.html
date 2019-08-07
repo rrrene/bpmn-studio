@@ -73,7 +73,7 @@
             <i class="fas fa-database remote-solution-list__status-icon"></i>
             <span>${remoteSolution.uri}</span>
           </div>
-          <h5><span class="badge badge-secondary" class.bind="getBadgeForVersion(remoteSolution.version)" style="position: absolute;right: 10px;top: 50%;transform: translateY(-50%);">${remoteSolution.version}</span></h5>
+          <h5><span class="badge badge-secondary remote-solution-badge" class.bind="getBadgeForVersion(remoteSolution.version)">${remoteSolution.version}</span></h5>
         </div>
       </div>
       <div class="remote-solution-list" if.bind="remoteSolutionHistoryExists">

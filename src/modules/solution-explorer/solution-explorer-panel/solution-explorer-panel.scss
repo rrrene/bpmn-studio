@@ -118,6 +118,13 @@
   width: 70px;
 }
 
+.remote-solution-badge {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 .remote-solution-badge__dev {
   background: rgb(45, 45, 60);
 }
