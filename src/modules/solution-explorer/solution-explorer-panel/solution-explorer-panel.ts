@@ -356,14 +356,14 @@ export class SolutionExplorerPanel {
   }
 
   private pollRemoteSolutionHistoryStatus(): void {
-    this.remoteSolutionHistoryStatusPollingTimer = setTimeout(() => {
-      this.updateRemoteSolutionHistoryStatus();
+    this.remoteSolutionHistoryStatusPollingTimer = setTimeout(async () => {
+      await this.updateRemoteSolutionHistoryStatus();
 
       if (!this.remoteSolutionHistoryStatusIsPolling) {
         return;
       }
 
-      this.startPollingOfRemoteSolutionHistoryStatus();
+      this.pollRemoteSolutionHistoryStatus();
     }, environment.processengine.updateRemoteSolutionHistoryIntervalInMs);
   }
 
