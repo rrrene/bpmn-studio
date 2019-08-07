@@ -53,7 +53,7 @@
   "dependencies": {
     "@essential-projects/errors_ts": "^1.5.0",
     "@fortawesome/fontawesome-free": "^5.9.0",
-    "@process-engine/bpmn-js-custom-bundle": "2.7.0",
+    "@process-engine/bpmn-js-custom-bundle": "feature~update_bpmnjs",
     "@process-engine/bpmn-lint_rules": "1.6.2",
     "@process-engine/ci_tools": "2.0.0-alpha.47",
     "@process-engine/dynamic_ui_core": "1.5.0",
@@ -92,7 +92,7 @@
     "@essential-projects/eslint-config": "^1.0.0",
     "@essential-projects/http_contracts": "~2.4.0",
     "@essential-projects/iam_contracts": "~3.6.0",
-    "@process-engine/bpmn-elements_contracts": "2.0.0",
+    "@process-engine/bpmn-elements_contracts": "feature~add_categoryValueRef",
     "@process-engine/management_api_contracts": "11.0.1",
     "@process-engine/solutionexplorer.contracts": "1.0.1",
     "@process-engine/solutionexplorer.repository.contracts": "4.2.0",
