@@ -1,5 +1,5 @@
 import {EventAggregator, Subscription} from 'aurelia-event-aggregator';
-import {bindable, inject, observable} from 'aurelia-framework';
+import {bindable, computedFrom, inject, observable} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
 import {IDiagram} from '@process-engine/solutionexplorer.contracts';
@@ -17,9 +17,10 @@ import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 import {SolutionExplorerList} from '../solution-explorer-list/solution-explorer-list';
 
-type RemoteSolutionUriWithStatus = {
+type RemoteSolutionListEntry = {
   uri: string;
   status: boolean;
+  version?: Version;
 };
 
 enum Version {
@@ -28,11 +29,6 @@ enum Version {
   Beta = 'Beta',
   Stable = 'Stable',
 }
-
-type RemoteSolutionUriWithVersion = {
-  uri: string;
-  version: Version;
-};
 
 /**
  * This component handels:
@@ -55,7 +51,7 @@ export class SolutionExplorerPanel {
   @bindable public uriOfRemoteSolutionWithoutProtocol: string;
   public solutionExplorerPanel: SolutionExplorerPanel = this;
   public remoteSolutionHistoryStatus: Map<string, boolean> = new Map<string, boolean>();
-  public availableDefaultRemoteSolutions: Array<RemoteSolutionUriWithVersion> = [];
+  public availableDefaultRemoteSolutions: Array<RemoteSolutionListEntry> = [];
 
   private eventAggregator: EventAggregator;
   private notificationService: NotificationService;
@@ -212,15 +208,7 @@ export class SolutionExplorerPanel {
     this.closeRemoteSolutionModal();
   }
 
-  public get remoteSolutionHistoryExists(): boolean {
-    return this.remoteSolutionHistoryWithStatus.length > 0;
-  }
-
-  public get defaultRemoteSolutionFound(): boolean {
-    return this.availableDefaultRemoteSolutions.length > 0;
-  }
-
-  public get remoteSolutionHistoryWithStatus(): Array<RemoteSolutionUriWithStatus> {
+  public get remoteSolutionHistoryWithStatus(): Array<RemoteSolutionListEntry> {
     return this.loadRemoteSolutionHistory()
       .reverse()
       .map((solutionUri: string) => {
@@ -229,6 +217,16 @@ export class SolutionExplorerPanel {
           status: this.remoteSolutionHistoryStatus.get(solutionUri),
         };
       });
+  }
+
+  @computedFrom('availableDefaultRemoteSolutions.length', 'remoteSolutionHistoryWithStatus.length')
+  public get suggestedRemoteSolutionList(): Array<RemoteSolutionListEntry> {
+    return [...this.availableDefaultRemoteSolutions, ...this.remoteSolutionHistoryWithStatus];
+  }
+
+  @computedFrom('suggestedRemoteSolutionList.length')
+  public get suggestedRemoteSolutionListIsNotEmpty(): boolean {
+    return this.suggestedRemoteSolutionList.length > 0;
   }
 
   /**
@@ -381,7 +379,7 @@ export class SolutionExplorerPanel {
 
   private async updateRemoteSolutionHistoryStatus(): Promise<void> {
     this.remoteSolutionHistoryWithStatus.forEach(
-      async (remoteSolutionWithStatus: RemoteSolutionUriWithStatus): Promise<void> => {
+      async (remoteSolutionWithStatus: RemoteSolutionListEntry): Promise<void> => {
         const remoteSolutionStatus: boolean = await this.isRemoteSolutionActive(remoteSolutionWithStatus.uri);
 
         this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, remoteSolutionStatus);
@@ -392,20 +390,20 @@ export class SolutionExplorerPanel {
   private async updateDefaultRemoteSolutions(): Promise<void> {
     this.availableDefaultRemoteSolutions = [];
 
-    const devRemoteSolution: Promise<RemoteSolutionUriWithVersion | null> = this.searchDefaultRemoteSolutionForVersion(
+    const devRemoteSolution: Promise<RemoteSolutionListEntry | null> = this.searchDefaultRemoteSolutionForVersion(
       Version.Dev,
     );
-    const alphaRemoteSolution: Promise<RemoteSolutionUriWithVersion | null> = this.searchDefaultRemoteSolutionForVersion(
+    const alphaRemoteSolution: Promise<RemoteSolutionListEntry | null> = this.searchDefaultRemoteSolutionForVersion(
       Version.Alpha,
     );
-    const betaRemoteSolution: Promise<RemoteSolutionUriWithVersion | null> = this.searchDefaultRemoteSolutionForVersion(
+    const betaRemoteSolution: Promise<RemoteSolutionListEntry | null> = this.searchDefaultRemoteSolutionForVersion(
       Version.Beta,
     );
-    const stableRemoteSolution: Promise<RemoteSolutionUriWithVersion | null> = this.searchDefaultRemoteSolutionForVersion(
+    const stableRemoteSolution: Promise<RemoteSolutionListEntry | null> = this.searchDefaultRemoteSolutionForVersion(
       Version.Stable,
     );
 
-    const availableRemoteSolutions: Array<RemoteSolutionUriWithVersion> = await Promise.all([
+    const availableRemoteSolutions: Array<RemoteSolutionListEntry> = await Promise.all([
       devRemoteSolution,
       alphaRemoteSolution,
       betaRemoteSolution,
@@ -415,13 +413,13 @@ export class SolutionExplorerPanel {
     const internalProcessEngine: string = localStorage.getItem('InternalProcessEngineRoute');
 
     this.availableDefaultRemoteSolutions = availableRemoteSolutions.filter(
-      (remoteSolution: RemoteSolutionUriWithVersion | null) => {
+      (remoteSolution: RemoteSolutionListEntry | null) => {
         return remoteSolution !== null && remoteSolution.uri !== internalProcessEngine;
       },
     );
   }
 
-  private async searchDefaultRemoteSolutionForVersion(version: Version): Promise<RemoteSolutionUriWithVersion | null> {
+  private async searchDefaultRemoteSolutionForVersion(version: Version): Promise<RemoteSolutionListEntry | null> {
     const portsToCheck: Array<number> = this.getDefaultPortsFor(version);
 
     const processEngineUri: string = await this.getActiveProcessEngineForPortList(portsToCheck);
@@ -433,6 +431,7 @@ export class SolutionExplorerPanel {
 
     return {
       uri: processEngineUri,
+      status: true,
       version: version,
     };
   }
