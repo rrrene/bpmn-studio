@@ -75,9 +75,9 @@
           </div>
         </div>
       </div>
-      <div class="remote-solution-list" if.bind="suggestedRemoteSolutionListIsNotEmpty">
+      <div class="remote-solution-list" if.bind="unconnectedSuggestedRemoteSolutionsExist">
         <div class="remote-solution-list__remote-solution"
-            repeat.for="remoteSolution of suggestedRemoteSolutionList"
+            repeat.for="remoteSolution of unconnectedSuggestedRemoteSolutions"
             class.bind="uriOfRemoteSolution === remoteSolution.uri ? 'remote-solution-list__remote-solution-selected' : ''"
             title.bind="remoteSolution.status ? 'Remote solution is online.' : 'Remote solution is offline.'"
             click.delegate="selectRemoteSolution(remoteSolution.uri)">

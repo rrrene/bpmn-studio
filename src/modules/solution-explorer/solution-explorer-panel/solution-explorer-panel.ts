@@ -219,14 +219,34 @@ export class SolutionExplorerPanel {
       });
   }
 
-  @computedFrom('availableDefaultRemoteSolutions.length', 'remoteSolutionHistoryWithStatus.length')
-  public get suggestedRemoteSolutionList(): Array<RemoteSolutionListEntry> {
-    return [...this.availableDefaultRemoteSolutions, ...this.remoteSolutionHistoryWithStatus];
+  @computedFrom('suggestedRemoteSolutions.length')
+  public get unconnectedSuggestedRemoteSolutions(): Array<RemoteSolutionListEntry> {
+    const connectedSolutions: Array<ISolutionEntry> = this.solutionService.getAllSolutionEntries();
+
+    const unconnectedSuggestedRemoteSolutions: Array<RemoteSolutionListEntry> = this.suggestedRemoteSolutions.filter(
+      (remoteSolution) => {
+        return !connectedSolutions.some((connectedSolution: ISolutionEntry) => {
+          return connectedSolution.uri === remoteSolution.uri;
+        });
+      },
+    );
+
+    return unconnectedSuggestedRemoteSolutions;
   }
 
-  @computedFrom('suggestedRemoteSolutionList.length')
-  public get suggestedRemoteSolutionListIsNotEmpty(): boolean {
-    return this.suggestedRemoteSolutionList.length > 0;
+  @computedFrom('availableDefaultRemoteSolutions.length', 'remoteSolutionHistoryWithStatus.length')
+  public get suggestedRemoteSolutions(): Array<RemoteSolutionListEntry> {
+    const suggestedRemoteSolutions: Array<RemoteSolutionListEntry> = [
+      ...this.availableDefaultRemoteSolutions,
+      ...this.remoteSolutionHistoryWithStatus,
+    ];
+
+    return suggestedRemoteSolutions;
+  }
+
+  @computedFrom('unconnectedSuggestedRemoteSolutions.length')
+  public get unconnectedSuggestedRemoteSolutionsExist(): boolean {
+    return this.unconnectedSuggestedRemoteSolutions.length > 0;
   }
 
   /**
@@ -410,11 +430,9 @@ export class SolutionExplorerPanel {
       stableRemoteSolution,
     ]);
 
-    const internalProcessEngine: string = localStorage.getItem('InternalProcessEngineRoute');
-
     this.availableDefaultRemoteSolutions = availableRemoteSolutions.filter(
       (remoteSolution: RemoteSolutionListEntry | null) => {
-        return remoteSolution !== null && remoteSolution.uri !== internalProcessEngine;
+        return remoteSolution !== null;
       },
     );
   }
