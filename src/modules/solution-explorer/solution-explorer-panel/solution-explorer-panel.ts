@@ -422,17 +422,17 @@ export class SolutionExplorerPanel {
   private async updateDefaultRemoteSolutions(): Promise<void> {
     this.availableDefaultRemoteSolutions = [];
 
-    const devRemoteSolution: Promise<RemoteSolutionListEntry | null> = this.searchDefaultRemoteSolutionForVersion(
-      Version.Dev,
-    );
-    const alphaRemoteSolution: Promise<RemoteSolutionListEntry | null> = this.searchDefaultRemoteSolutionForVersion(
-      Version.Alpha,
+    const stableRemoteSolution: Promise<RemoteSolutionListEntry | null> = this.searchDefaultRemoteSolutionForVersion(
+      Version.Stable,
     );
     const betaRemoteSolution: Promise<RemoteSolutionListEntry | null> = this.searchDefaultRemoteSolutionForVersion(
       Version.Beta,
     );
-    const stableRemoteSolution: Promise<RemoteSolutionListEntry | null> = this.searchDefaultRemoteSolutionForVersion(
-      Version.Stable,
+    const alphaRemoteSolution: Promise<RemoteSolutionListEntry | null> = this.searchDefaultRemoteSolutionForVersion(
+      Version.Alpha,
+    );
+    const devRemoteSolution: Promise<RemoteSolutionListEntry | null> = this.searchDefaultRemoteSolutionForVersion(
+      Version.Dev,
     );
 
     const availableRemoteSolutions: Array<RemoteSolutionListEntry> = await Promise.all([
