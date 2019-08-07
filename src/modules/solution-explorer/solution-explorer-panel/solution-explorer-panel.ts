@@ -352,10 +352,10 @@ export class SolutionExplorerPanel {
 
   private startPollingOfRemoteSolutionHistoryStatus(): void {
     this.remoteSolutionHistoryStatusIsPolling = true;
-    this.pollRemoteSolutionHistoryStauts();
+    this.pollRemoteSolutionHistoryStatus();
   }
 
-  private pollRemoteSolutionHistoryStauts(): void {
+  private pollRemoteSolutionHistoryStatus(): void {
     this.remoteSolutionHistoryStatusPollingTimer = setTimeout(() => {
       this.updateRemoteSolutionHistoryStatus();
 
