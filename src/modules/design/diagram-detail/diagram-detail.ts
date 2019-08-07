@@ -406,7 +406,6 @@ export class DiagramDetail {
 
       this.bpmnio.saveCurrentXML();
 
-      this.notificationService.showNotification(NotificationType.SUCCESS, 'File saved!');
       this.eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
     } catch (error) {
       this.notificationService.showNotification(NotificationType.ERROR, `Unable to save the file: ${error}.`);
@@ -484,8 +483,6 @@ export class DiagramDetail {
       diagramUri: this.activeDiagram.uri,
       solutionUri: this.activeSolutionEntry.uri,
     });
-
-    this.notificationService.showNotification(NotificationType.SUCCESS, 'File saved!');
 
     this.eventAggregator.subscribeOnce('router:navigation:success', () => {
       this.eventAggregator.publish(environment.events.navBar.diagramChangesResolved);
