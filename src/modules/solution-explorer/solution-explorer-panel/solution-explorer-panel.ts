@@ -436,10 +436,10 @@ export class SolutionExplorerPanel {
     );
 
     const availableRemoteSolutions: Array<RemoteSolutionListEntry> = await Promise.all([
-      devRemoteSolution,
-      alphaRemoteSolution,
-      betaRemoteSolution,
       stableRemoteSolution,
+      betaRemoteSolution,
+      alphaRemoteSolution,
+      devRemoteSolution,
     ]);
 
     this.availableDefaultRemoteSolutions = availableRemoteSolutions.filter(
