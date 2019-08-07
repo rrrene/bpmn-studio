@@ -236,17 +236,21 @@ export class SolutionExplorerPanel {
 
   @computedFrom('availableDefaultRemoteSolutions.length', 'remoteSolutionHistoryWithStatus.length')
   public get suggestedRemoteSolutions(): Array<RemoteSolutionListEntry> {
-    const remoteSolutionHistoryWithoutDefaultRemoteSolutions: Array<
-      RemoteSolutionListEntry
-    > = this.remoteSolutionHistoryWithStatus.filter((remoteSolution: RemoteSolutionListEntry) => {
-      return !this.availableDefaultRemoteSolutions.some((defaultRemoteSolution: RemoteSolutionListEntry) => {
-        return defaultRemoteSolution.uri === remoteSolution.uri;
-      });
-    });
+    const filteredRemoteSolutionHistory: Array<RemoteSolutionListEntry> = this.remoteSolutionHistoryWithStatus.filter(
+      (remoteSolution: RemoteSolutionListEntry) => {
+        const remoteSolutionIsDefaultRemoteSolution: boolean = this.availableDefaultRemoteSolutions.some(
+          (defaultRemoteSolution: RemoteSolutionListEntry) => {
+            return defaultRemoteSolution.uri === remoteSolution.uri;
+          },
+        );
+
+        return !remoteSolutionIsDefaultRemoteSolution;
+      },
+    );
 
     const suggestedRemoteSolutions: Array<RemoteSolutionListEntry> = [
       ...this.availableDefaultRemoteSolutions,
-      ...remoteSolutionHistoryWithoutDefaultRemoteSolutions,
+      ...filteredRemoteSolutionHistory,
     ];
 
     return suggestedRemoteSolutions;
