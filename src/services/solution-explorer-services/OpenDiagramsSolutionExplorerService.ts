@@ -175,18 +175,19 @@ export class OpenDiagramsSolutionExplorerService implements ISolutionExplorerSer
 
         let notificationMessage: string;
 
+        const basename = previousFilepath.split('/').reverse()[0];
         const eventIsRename: boolean = event === 'rename';
         const eventIsChange: boolean = event === 'change';
         const eventIsRestore: boolean = event === 'restore';
         if (eventIsRename) {
-          notificationMessage = `The diagram "${previousFilepath}" was moved/renamed by another application.`;
+          notificationMessage = `The diagram "${basename}" was moved/renamed on disk.`;
         } else if (eventIsChange) {
-          notificationMessage = `The diagram "${previousFilepath}" was changed by another application.`;
+          notificationMessage = `The diagram "${basename}" was changed on disk.`;
         } else if (eventIsRestore) {
-          notificationMessage = `The diagram "${previousFilepath}" was restored by another application.`;
+          notificationMessage = `The diagram "${basename}" was restored on disk.`;
         }
 
-        this.notificationService.showNonDisappearingNotification(NotificationType.INFO, notificationMessage);
+        this.notificationService.showNonDisappearingNotification(NotificationType.WARNING, notificationMessage);
       });
     }
 
