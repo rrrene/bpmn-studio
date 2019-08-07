@@ -17,7 +17,22 @@ import environment from '../../../environment';
 import {NotificationService} from '../../../services/notification-service/notification.service';
 import {SolutionExplorerList} from '../solution-explorer-list/solution-explorer-list';
 
-type RemoteSolutionUriWithStatus = {uri: string; status: boolean};
+type RemoteSolutionUriWithStatus = {
+  uri: string;
+  status: boolean;
+};
+
+enum Version {
+  Dev = 'Dev',
+  Alpha = 'Alpha',
+  Beta = 'Beta',
+  Stable = 'Stable',
+}
+
+type RemoteSolutionUriWithVersion = {
+  uri: string;
+  version: Version;
+};
 
 /**
  * This component handels:
@@ -40,6 +55,7 @@ export class SolutionExplorerPanel {
   @bindable public uriOfRemoteSolutionWithoutProtocol: string;
   public solutionExplorerPanel: SolutionExplorerPanel = this;
   public remoteSolutionHistoryStatus: Map<string, boolean> = new Map<string, boolean>();
+  public availableDefaultRemoteSolutions: Array<RemoteSolutionUriWithVersion> = [];
 
   private eventAggregator: EventAggregator;
   private notificationService: NotificationService;
@@ -154,6 +170,7 @@ export class SolutionExplorerPanel {
 
     await this.updateRemoteSolutionHistoryStatus();
     this.startPollingOfRemoteSolutionHistoryStatus();
+    this.updateDefaultRemoteSolutions();
   }
 
   public removeSolutionFromHistory(solutionUri: string): void {
@@ -197,6 +214,10 @@ export class SolutionExplorerPanel {
 
   public get remoteSolutionHistoryExists(): boolean {
     return this.remoteSolutionHistoryWithStatus.length > 0;
+  }
+
+  public get defaultRemoteSolutionFound(): boolean {
+    return this.availableDefaultRemoteSolutions.length > 0;
   }
 
   public get remoteSolutionHistoryWithStatus(): Array<RemoteSolutionUriWithStatus> {
@@ -299,6 +320,21 @@ export class SolutionExplorerPanel {
     });
   }
 
+  public getBadgeForVersion(version: Version): string {
+    switch (version) {
+      case Version.Dev:
+        return 'remote-solution-badge__dev';
+      case Version.Alpha:
+        return 'remote-solution-badge__alpha';
+      case Version.Beta:
+        return 'remote-solution-badge__beta';
+      case Version.Stable:
+        return 'remote-solution-badge__stable';
+      default:
+        return 'remote-solution-badge__dev';
+    }
+  }
+
   public canReadFromFileSystem(): boolean {
     return (window as any).nodeRequire;
   }
@@ -346,22 +382,114 @@ export class SolutionExplorerPanel {
   private async updateRemoteSolutionHistoryStatus(): Promise<void> {
     this.remoteSolutionHistoryWithStatus.forEach(
       async (remoteSolutionWithStatus: RemoteSolutionUriWithStatus): Promise<void> => {
-        try {
-          const response: Response = await fetch(remoteSolutionWithStatus.uri);
+        const remoteSolutionStatus: boolean = await this.isRemoteSolutionActive(remoteSolutionWithStatus.uri);
 
-          const data: JSON = await response.json();
-
-          const isResponseFromProcessEngine: boolean = data['name'] === '@process-engine/process_engine_runtime';
-          if (!isResponseFromProcessEngine) {
-            throw new Error('The response was not send by a ProcessEngine.');
-          }
-
-          this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, true);
-        } catch {
-          this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, false);
-        }
+        this.remoteSolutionHistoryStatus.set(remoteSolutionWithStatus.uri, remoteSolutionStatus);
       },
     );
+  }
+
+  private async updateDefaultRemoteSolutions(): Promise<void> {
+    this.availableDefaultRemoteSolutions = [];
+
+    const devRemoteSolution: Promise<RemoteSolutionUriWithVersion | null> = this.searchDefaultRemoteSolutionForVersion(
+      Version.Dev,
+    );
+    const alphaRemoteSolution: Promise<RemoteSolutionUriWithVersion | null> = this.searchDefaultRemoteSolutionForVersion(
+      Version.Alpha,
+    );
+    const betaRemoteSolution: Promise<RemoteSolutionUriWithVersion | null> = this.searchDefaultRemoteSolutionForVersion(
+      Version.Beta,
+    );
+    const stableRemoteSolution: Promise<RemoteSolutionUriWithVersion | null> = this.searchDefaultRemoteSolutionForVersion(
+      Version.Stable,
+    );
+
+    const availableRemoteSolutions: Array<RemoteSolutionUriWithVersion> = await Promise.all([
+      devRemoteSolution,
+      alphaRemoteSolution,
+      betaRemoteSolution,
+      stableRemoteSolution,
+    ]);
+
+    const internalProcessEngine: string = localStorage.getItem('InternalProcessEngineRoute');
+
+    this.availableDefaultRemoteSolutions = availableRemoteSolutions.filter(
+      (remoteSolution: RemoteSolutionUriWithVersion | null) => {
+        return remoteSolution !== null && remoteSolution.uri !== internalProcessEngine;
+      },
+    );
+  }
+
+  private async searchDefaultRemoteSolutionForVersion(version: Version): Promise<RemoteSolutionUriWithVersion | null> {
+    const portsToCheck: Array<number> = this.getDefaultPortsFor(version);
+
+    const processEngineUri: string = await this.getActiveProcessEngineForPortList(portsToCheck);
+
+    const noActiveProcessEngineFound: boolean = processEngineUri === null;
+    if (noActiveProcessEngineFound) {
+      return null;
+    }
+
+    return {
+      uri: processEngineUri,
+      version: version,
+    };
+  }
+
+  private async getActiveProcessEngineForPortList(portsToCheck: Array<number>): Promise<string | null> {
+    for (const port of portsToCheck) {
+      const uriToCheck: string = `http://localhost:${port}`;
+      const processEngineFound: boolean = await this.isRemoteSolutionActive(uriToCheck);
+
+      if (processEngineFound) {
+        return uriToCheck;
+      }
+    }
+
+    return null;
+  }
+
+  private getDefaultPortsFor(version: Version): Array<number> {
+    switch (version) {
+      case Version.Dev:
+        return this.getPortList(56300);
+      case Version.Alpha:
+        return this.getPortList(56200);
+      case Version.Beta:
+        return this.getPortList(56100);
+      case Version.Stable:
+        return this.getPortList(56000);
+      default:
+        return [];
+    }
+  }
+
+  private getPortList(port: number): Array<number> {
+    const portList = [];
+
+    for (let index = 0; index < 10; index++) {
+      portList.push(port + index * 10);
+    }
+
+    return portList;
+  }
+
+  private async isRemoteSolutionActive(remoteSolutionUri: string): Promise<boolean> {
+    try {
+      const response: Response = await fetch(remoteSolutionUri);
+
+      const data: JSON = await response.json();
+
+      const isResponseFromProcessEngine: boolean = data['name'] === '@process-engine/process_engine_runtime';
+      if (!isResponseFromProcessEngine) {
+        throw new Error('The response was not send by a ProcessEngine.');
+      }
+
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   private async refreshSolutions(): Promise<void> {
