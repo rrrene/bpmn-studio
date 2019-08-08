@@ -133,6 +133,9 @@ export class Inspect {
         },
       ),
     ];
+
+    const previousTokenViewerState: boolean = JSON.parse(window.localStorage.getItem('tokenViewerCollapseState'));
+    this.showTokenViewer = previousTokenViewerState || false;
   }
 
   public detached(): void {
