@@ -227,6 +227,9 @@ export class LiveExecutionTracker {
       document.addEventListener('mousemove', mousemoveFunction);
       document.addEventListener('mouseup', mouseUpFunction);
     });
+
+    const previousTokenViewerState: boolean = JSON.parse(window.localStorage.getItem('tokenViewerCollapseState'));
+    this.showTokenViewer = previousTokenViewerState || false;
   }
 
   public async detached(): Promise<void> {
