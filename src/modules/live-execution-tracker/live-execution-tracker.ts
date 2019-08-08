@@ -293,6 +293,7 @@ export class LiveExecutionTracker {
 
   public toggleShowTokenViewer(): void {
     this.showTokenViewer = !this.showTokenViewer;
+    window.localStorage.setItem('tokenViewerCollapseState', JSON.stringify(this.showTokenViewer));
   }
 
   public async stopProcessInstance(): Promise<void> {
