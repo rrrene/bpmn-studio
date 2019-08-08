@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import {computedFrom, inject, observable} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
@@ -357,8 +358,6 @@ export class LiveExecutionTracker {
   }
 
   private async addOverlays(): Promise<void> {
-    this.overlays.clear();
-
     const elementsWithActiveToken: Array<IShape> = await this.liveExecutionTrackerService.getElementsWithActiveToken(
       this.processInstanceId,
     );
@@ -366,10 +365,24 @@ export class LiveExecutionTracker {
       this.processInstanceId,
     );
 
+    this.overlays.clear();
+    this.removeEventListenerFromOverlays();
+
     this.addOverlaysToUserAndManualTasks(elementsWithActiveToken);
     this.addOverlaysToEmptyActivities(elementsWithActiveToken);
     this.addOverlaysToActiveCallActivities(elementsWithActiveToken);
     this.addOverlaysToInactiveCallActivities(inactiveCallActivities);
+  }
+
+  private removeEventListenerFromOverlays(): void {
+    for (const elementId of this.elementsWithEventListeners) {
+      document.getElementById(elementId).removeEventListener('click', this.handleTaskClick);
+      document.getElementById(elementId).removeEventListener('click', this.handleEmptyActivityClick);
+      document.getElementById(elementId).removeEventListener('click', this.handleActiveCallActivityClick);
+      document.getElementById(elementId).removeEventListener('click', this.handleInactiveCallActivityClick);
+    }
+
+    this.elementsWithEventListeners = [];
   }
 
   private addOverlaysToEmptyActivities(elements: Array<IShape>): Array<string> {
@@ -385,16 +398,6 @@ export class LiveExecutionTracker {
     });
 
     const activeEmptyActivitiesIds: Array<string> = activeEmptyActivities.map((element: IShape) => element.id).sort();
-
-    for (const elementId of this.elementsWithEventListeners) {
-      document.getElementById(elementId).removeEventListener('click', this.handleEmptyActivityClick);
-    }
-
-    for (const callActivity of this.activeCallActivities) {
-      document.getElementById(callActivity.id).removeEventListener('click', this.handleActiveCallActivityClick);
-    }
-
-    this.elementsWithEventListeners = [];
 
     for (const element of activeEmptyActivities) {
       this.overlays.add(element, {
@@ -429,16 +432,6 @@ export class LiveExecutionTracker {
     const activeManualAndUserTaskIds: Array<string> = activeManualAndUserTasks
       .map((element: IShape) => element.id)
       .sort();
-
-    for (const elementId of this.elementsWithEventListeners) {
-      document.getElementById(elementId).removeEventListener('click', this.handleTaskClick);
-    }
-
-    for (const callActivity of this.activeCallActivities) {
-      document.getElementById(callActivity.id).removeEventListener('click', this.handleActiveCallActivityClick);
-    }
-
-    this.elementsWithEventListeners = [];
 
     for (const element of activeManualAndUserTasks) {
       this.overlays.add(element, {
