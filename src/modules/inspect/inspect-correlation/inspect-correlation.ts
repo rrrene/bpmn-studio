@@ -103,7 +103,9 @@ export class InspectCorrelation {
 
     this.viewIsAttached = true;
 
-    const previousTokenViewerState: boolean = JSON.parse(window.localStorage.getItem('tokenViewerCollapseState'));
+    const previousTokenViewerState: boolean = JSON.parse(
+      window.localStorage.getItem('tokenViewerInspectCollapseState'),
+    );
     this.showTokenViewer = previousTokenViewerState || false;
   }
 
