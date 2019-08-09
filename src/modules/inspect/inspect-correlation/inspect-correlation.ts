@@ -109,7 +109,11 @@ export class InspectCorrelation {
     });
 
     this.viewIsAttached = true;
-    this.diagramViewer.selectFlowNode(this.flowNodeToSelect);
+
+    const flowNodeToSelectExists: boolean = this.flowNodeToSelect !== undefined;
+    if (flowNodeToSelectExists) {
+      this.diagramViewer.selectFlowNode(this.flowNodeToSelect);
+    }
 
     const shouldDisplaySpecificInspectPanelTab: boolean = this.inspectPanelTabToShow !== undefined;
     if (shouldDisplaySpecificInspectPanelTab) {
