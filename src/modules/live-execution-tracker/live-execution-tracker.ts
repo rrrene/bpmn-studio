@@ -112,7 +112,10 @@ export class LiveExecutionTracker {
     this.parentProcessInstanceId = await this.getParentProcessInstanceId();
     this.parentProcessModelId = await this.getParentProcessModelId();
 
-    this.correlation = await this.liveExecutionTrackerService.getCorrelationById(this.correlationId);
+    this.correlation = await this.liveExecutionTrackerService.getCorrelationById(
+      this.activeSolutionEntry.identity,
+      this.correlationId,
+    );
 
     // This is needed to make sure the SolutionExplorerService is completely initiated
     setTimeout(async () => {
@@ -123,6 +126,7 @@ export class LiveExecutionTracker {
         this.taskId = routeParameters.taskId;
 
         const emptyActivitiesInProcessInstance: DataModels.EmptyActivities.EmptyActivityList = await this.liveExecutionTrackerService.getEmptyActivitiesForProcessInstance(
+          this.activeSolutionEntry.identity,
           this.processInstanceId,
         );
 
@@ -134,6 +138,7 @@ export class LiveExecutionTracker {
 
         if (emptyActivity) {
           this.liveExecutionTrackerService.finishEmptyActivity(
+            this.activeSolutionEntry.identity,
             this.processInstanceId,
             this.correlationId,
             emptyActivity,
@@ -243,7 +248,10 @@ export class LiveExecutionTracker {
 
     const removeSubscriptionPromises: Array<Promise<void>> = [];
     this.eventListenerSubscriptions.forEach((subscription: Subscription) => {
-      const removingPromise: Promise<void> = this.liveExecutionTrackerService.removeSubscription(subscription);
+      const removingPromise: Promise<void> = this.liveExecutionTrackerService.removeSubscription(
+        this.activeSolutionEntry.identity,
+        subscription,
+      );
 
       removeSubscriptionPromises.push(removingPromise);
     });
@@ -254,10 +262,6 @@ export class LiveExecutionTracker {
 
   public determineActivationStrategy(): string {
     return 'replace';
-  }
-
-  public activeSolutionEntryChanged(): void {
-    this.liveExecutionTrackerService.setIdentity(this.activeSolutionEntry.identity);
   }
 
   @computedFrom('processStopped')
@@ -297,7 +301,7 @@ export class LiveExecutionTracker {
   }
 
   public async stopProcessInstance(): Promise<void> {
-    this.liveExecutionTrackerService.terminateProcess(this.processInstanceId);
+    this.liveExecutionTrackerService.terminateProcess(this.activeSolutionEntry.identity, this.processInstanceId);
 
     this.startPolling();
   }
@@ -345,6 +349,7 @@ export class LiveExecutionTracker {
     }
 
     const parentProcessModel: DataModels.Correlations.CorrelationProcessInstance = await this.liveExecutionTrackerService.getProcessModelByProcessInstanceId(
+      this.activeSolutionEntry.identity,
       this.correlationId,
       this.parentProcessInstanceId,
     );
@@ -359,12 +364,15 @@ export class LiveExecutionTracker {
 
   private async addOverlays(): Promise<void> {
     const elementsWithError: Array<IShape> = await this.liveExecutionTrackerService.getElementsWithError(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
     );
     const elementsWithActiveToken: Array<IShape> = await this.liveExecutionTrackerService.getElementsWithActiveToken(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
     );
     const inactiveCallActivities: Array<IShape> = await this.liveExecutionTrackerService.getInactiveCallActivities(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
     );
 
@@ -575,6 +583,7 @@ export class LiveExecutionTracker {
     this.taskId = elementId;
 
     const emptyActivitiesInProcessInstance: DataModels.EmptyActivities.EmptyActivityList = await this.liveExecutionTrackerService.getEmptyActivitiesForProcessInstance(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
     );
 
@@ -584,7 +593,12 @@ export class LiveExecutionTracker {
       },
     );
 
-    this.liveExecutionTrackerService.finishEmptyActivity(this.processInstanceId, this.correlationId, emptyActivity);
+    this.liveExecutionTrackerService.finishEmptyActivity(
+      this.activeSolutionEntry.identity,
+      this.processInstanceId,
+      this.correlationId,
+      emptyActivity,
+    );
   };
 
   private handleActiveCallActivityClick: (event: MouseEvent) => Promise<void> = async (
@@ -603,6 +617,7 @@ export class LiveExecutionTracker {
     }
 
     const targetProcessInstanceId: string = await this.liveExecutionTrackerService.getProcessInstanceIdOfCallActivityTarget(
+      this.activeSolutionEntry.identity,
       this.correlationId,
       this.processInstanceId,
       callActivityTargetProcess,
@@ -653,6 +668,7 @@ export class LiveExecutionTracker {
 
   private async getXmlByProcessModelId(processModelId: string): Promise<string> {
     const processModel: DataModels.ProcessModels.ProcessModel = await this.liveExecutionTrackerService.getProcessModelById(
+      this.activeSolutionEntry.identity,
       processModelId,
     );
 
@@ -676,6 +692,7 @@ export class LiveExecutionTracker {
 
   private async getXml(): Promise<string> {
     const correlation: DataModels.Correlations.Correlation = await this.liveExecutionTrackerService.getCorrelationById(
+      this.activeSolutionEntry.identity,
       this.correlationId,
     );
 
@@ -788,6 +805,7 @@ export class LiveExecutionTracker {
     const colorizedXml: string | undefined = await (async (): Promise<string | undefined> => {
       try {
         return await this.liveExecutionTrackerService.getColorizedDiagram(
+          this.activeSolutionEntry.identity,
           this.processInstanceId,
           this.checkIfProcessEngineSupportsGettingFlowNodeInstances(),
         );
@@ -820,6 +838,7 @@ export class LiveExecutionTracker {
 
   private async getParentProcessInstanceId(): Promise<string> {
     const correlation: DataModels.Correlations.Correlation = await this.liveExecutionTrackerService.getCorrelationById(
+      this.activeSolutionEntry.identity,
       this.correlationId,
     );
 
@@ -854,10 +873,15 @@ export class LiveExecutionTracker {
 
     const processEndedSubscriptionPromise: Promise<
       Subscription
-    > = this.liveExecutionTrackerService.createProcessEndedEventListener(this.processInstanceId, processEndedCallback);
+    > = this.liveExecutionTrackerService.createProcessEndedEventListener(
+      this.activeSolutionEntry.identity,
+      this.processInstanceId,
+      processEndedCallback,
+    );
     const processTerminatedSubscriptionPromise: Promise<
       Subscription
     > = this.liveExecutionTrackerService.createProcessTerminatedEventListener(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
       processEndedCallback,
     );
@@ -865,72 +889,84 @@ export class LiveExecutionTracker {
     const userTaskWaitingSubscriptionPromise: Promise<
       Subscription
     > = this.liveExecutionTrackerService.createUserTaskWaitingEventListener(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
       colorizationCallback,
     );
     const userTaskFinishedSubscriptionPromise: Promise<
       Subscription
     > = this.liveExecutionTrackerService.createUserTaskFinishedEventListener(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
       colorizationCallback,
     );
     const manualTaskWaitingSubscriptionPromise: Promise<
       Subscription
     > = this.liveExecutionTrackerService.createManualTaskWaitingEventListener(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
       colorizationCallback,
     );
     const manualTaskFinishedSubscriptionPromise: Promise<
       Subscription
     > = this.liveExecutionTrackerService.createManualTaskFinishedEventListener(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
       colorizationCallback,
     );
     const emptyActivityWaitingSubscriptionPromise: Promise<
       Subscription
     > = this.liveExecutionTrackerService.createEmptyActivityWaitingEventListener(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
       colorizationCallback,
     );
     const emptyActivityFinishedSubscriptionPromise: Promise<
       Subscription
     > = this.liveExecutionTrackerService.createEmptyActivityFinishedEventListener(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
       colorizationCallback,
     );
     const activityReachedSubscriptionPromise: Promise<
       Subscription
     > = this.liveExecutionTrackerService.createActivityReachedEventListener(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
       colorizationCallback,
     );
     const activityFinishedSubscriptionPromise: Promise<
       Subscription
     > = this.liveExecutionTrackerService.createActivityFinishedEventListener(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
       colorizationCallback,
     );
     const boundaryEventTriggeredSubscriptionPromise: Promise<
       Subscription
     > = this.liveExecutionTrackerService.createBoundaryEventTriggeredEventListener(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
       colorizationCallback,
     );
     const intermediateThrowEventTriggeredSubscriptionPromise: Promise<
       Subscription
     > = this.liveExecutionTrackerService.createIntermediateThrowEventTriggeredEventListener(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
       colorizationCallback,
     );
     const intermediateCatchEventReachedSubscriptionPromise: Promise<
       Subscription
     > = this.liveExecutionTrackerService.createIntermediateCatchEventReachedEventListener(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
       colorizationCallback,
     );
     const intermediateCatchEventFinishedSubscriptionPromise: Promise<
       Subscription
     > = this.liveExecutionTrackerService.createIntermediateCatchEventFinishedEventListener(
+      this.activeSolutionEntry.identity,
       this.processInstanceId,
       colorizationCallback,
     );
@@ -965,7 +1001,10 @@ export class LiveExecutionTracker {
 
       const isProcessInstanceActive: Function = async (): Promise<boolean> => {
         try {
-          return await this.liveExecutionTrackerService.isProcessInstanceActive(this.processInstanceId);
+          return await this.liveExecutionTrackerService.isProcessInstanceActive(
+            this.activeSolutionEntry.identity,
+            this.processInstanceId,
+          );
         } catch (error) {
           const connectionLost: boolean = error === RequestError.ConnectionLost;
           // Keep polling if connection is lost
