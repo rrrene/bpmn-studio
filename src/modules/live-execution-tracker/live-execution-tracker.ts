@@ -228,7 +228,7 @@ export class LiveExecutionTracker {
       document.addEventListener('mouseup', mouseUpFunction);
     });
 
-    const previousTokenViewerState: boolean = JSON.parse(window.localStorage.getItem('tokenViewerCollapseState'));
+    const previousTokenViewerState: boolean = JSON.parse(window.localStorage.getItem('tokenViewerLETCollapseState'));
     this.showTokenViewer = previousTokenViewerState || false;
   }
 
@@ -296,7 +296,7 @@ export class LiveExecutionTracker {
 
   public toggleShowTokenViewer(): void {
     this.showTokenViewer = !this.showTokenViewer;
-    window.localStorage.setItem('tokenViewerCollapseState', JSON.stringify(this.showTokenViewer));
+    window.localStorage.setItem('tokenViewerLETCollapseState', JSON.stringify(this.showTokenViewer));
   }
 
   public async stopProcessInstance(): Promise<void> {
