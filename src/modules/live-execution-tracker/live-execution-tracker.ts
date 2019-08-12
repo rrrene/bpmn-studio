@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import {computedFrom, inject, observable} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
