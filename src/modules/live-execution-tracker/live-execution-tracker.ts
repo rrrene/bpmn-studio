@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import {computedFrom, inject, observable} from 'aurelia-framework';
 import {Router} from 'aurelia-router';
 
@@ -227,6 +228,9 @@ export class LiveExecutionTracker {
       document.addEventListener('mousemove', mousemoveFunction);
       document.addEventListener('mouseup', mouseUpFunction);
     });
+
+    const previousTokenViewerState: boolean = JSON.parse(window.localStorage.getItem('tokenViewerLETCollapseState'));
+    this.showTokenViewer = previousTokenViewerState || false;
   }
 
   public async detached(): Promise<void> {
@@ -293,6 +297,7 @@ export class LiveExecutionTracker {
 
   public toggleShowTokenViewer(): void {
     this.showTokenViewer = !this.showTokenViewer;
+    window.localStorage.setItem('tokenViewerLETCollapseState', JSON.stringify(this.showTokenViewer));
   }
 
   public async stopProcessInstance(): Promise<void> {

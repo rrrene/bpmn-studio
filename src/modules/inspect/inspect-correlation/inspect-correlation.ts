@@ -102,6 +102,11 @@ export class InspectCorrelation {
     });
 
     this.viewIsAttached = true;
+
+    const previousTokenViewerState: boolean = JSON.parse(
+      window.localStorage.getItem('tokenViewerInspectCollapseState'),
+    );
+    this.showTokenViewer = previousTokenViewerState || false;
   }
 
   public detached(): void {

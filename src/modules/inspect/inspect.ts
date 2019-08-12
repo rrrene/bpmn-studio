@@ -133,6 +133,11 @@ export class Inspect {
         },
       ),
     ];
+
+    const previousTokenViewerState: boolean = JSON.parse(
+      window.localStorage.getItem('tokenViewerInspectCollapseState'),
+    );
+    this.showTokenViewer = previousTokenViewerState || false;
   }
 
   public detached(): void {
@@ -151,6 +156,7 @@ export class Inspect {
     this.showTokenViewer = !this.showTokenViewer;
 
     this.eventAggregator.publish(environment.events.inspectCorrelation.showTokenViewer, this.showTokenViewer);
+    window.localStorage.setItem('tokenViewerInspectCollapseState', JSON.stringify(this.showTokenViewer));
   }
 
   private async updateInspectView(diagramName: string, solutionUri?: string): Promise<void> {
